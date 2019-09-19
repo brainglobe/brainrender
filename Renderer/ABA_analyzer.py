@@ -30,6 +30,7 @@ class ABA:
     experimental metadata and results, tractography data etc. ]
 
     """
+    volume_threshold = 0.5
     hemispheres = namedtuple("hemispheres", "left right both") # left: CONTRA, right: IPSI
     hemispheres_names = ["left", "right", "both"]
     
@@ -162,7 +163,7 @@ class ABA:
             origin_acronym = self.structures.loc[self.structures.id == origin].acronym.values[0]
             origin_name = self.structures.loc[self.structures.id == origin].name.values[0]
 
-            experiment_data = pd.read_pickle(os.path.join(self.save_fld, "{}.pkl".format(origin_acronym)))
+            experiment_data = pd.read_pickle(os.path.join(save_fld, "{}.pkl".format(origin_acronym)))
             experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
             exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id]
@@ -193,50 +194,98 @@ class ABA:
 
         return [np.nanmean(x).astype(np.int32), np.nanmean(y).astype(np.int32), np.nanmean(z).astype(np.int32)]
 
-    def get_projection_tracts_to_target(self, acronym=None, p0=None):
+    def get_projection_tracts_to_target(self, acronym=None, p0=None, **kwargs):
+        """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
+        
+        Keyword Arguments:
+            acronym {[str]} -- [acronym of brain region of interest] (default: {None})
+            p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
+        
+        Raises:
+            ValueError: [description]
+            ValueError: [description]
+        
+        Returns:
+            [type] -- [description]
+        """
+        """
+            mca.experiment_injection_coordinate_search also takes these arguments:
+                transgenic_lines : list of integers or strings, optional
+                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
+                section_data_sets : list of integers, optional
+                    Ids to filter the results.
+                injection_structures : list of integers or strings, optional
+                    Integer Structure.id or String Structure.acronym.
+                primary_structure_only : boolean, optional
+                product_ids : list of integers, optional
+                    Integer Product.id
+        """
+        # check args
         if p0 is None:
             if acronym is not None:
                 p0 = self.get_structure_location(acronym)
             else: raise ValueError("Please pass either p0 or acronym")
         else:
             if acronym is not None:
-                warnings.warn("both p0 and acronym passed, using p0")
+                print("both p0 and acronym passed, using p0")
 
-        tract = self.mca.experiment_spatial_search(seed_point=p0)
+
+        # if p0 is not None and (len(p0) != 3 or not isinstance(p0[0], int)): 
+        #     raise ValueError("Seed point coordinates should be an array of 3 numbers")
+
+        tract = self.mca.experiment_spatial_search(seed_point=p0, **kwargs)
 
         if isinstance(tract, str): raise ValueError('Something went wrong with query')
         else:
             return tract
 
+    def get_projection_tracts_from_target(self, acronym=None, p0=None, n_experiments=100, **kwargs):
+        """[Gets tractography data for all experiments whose projections start at the brain region or location of iterest.]
+            
+            Keyword Arguments:
+                acronym {[str]} -- [acronym of brain region of interest] (default: {None})
+                p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
+            
+            Raises:
+                ValueError: [description]
+                ValueError: [description]
+            
+            Returns:
+                [type] -- [description]
+            """
 
+        """
+            mca.experiment_injection_coordinate_search also takes these arguments:
+                seed_point : list of floats
+                    The coordinates of a point in 3-D SectionDataSet space.
+                transgenic_lines : list of integers or strings, optional
+                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
+                injection_structures : list of integers or strings, optional
+                    Integer Structure.id or String Structure.acronym.
+                primary_structure_only : boolean, optional
+        """
+        # check args
+        if p0 is None:
+            if acronym is not None:
+                p0 = self.get_structure_location(acronym)
+            else: raise ValueError("Please pass either p0 or acronym")
+        else:
+            if acronym is not None:
+                print("both p0 and acronym passed, using p0")
+
+        if len(p0) != 3 or not (not isinstance(p0[0], float) and not isinstance(p0[0], int)): 
+            raise ValueError("Seed point coordinates should be an array of 3 numbers")
+
+        tract = self.mca.experiment_injection_coordinate_search(seed_point=p0, num_rows=n_experiments, **kwargs)
+
+        if isinstance(tract, str): raise ValueError('Something went wrong with query')
+        else:
+            return tract
+        
 
 if __name__ == "__main__":
-    # rendere settings
-    settings.useOpenVR = False
+    br = ABA()
+    tract = br.get_projection_tracts_from_target("PAG", injection_structures=["PAG"], primary_structure_only=True)
 
-
-
-    analyzer = BrainRender()
-
-
-    SOI = "PAG"
-    n_structures = 0
-
-    neurons = os.path.join(analyzer.neurons_fld, "neurons_in_PAG.json")
-    # efferents = analyzer.analyze_efferents(SOI, projection_metric="normalized_projection_volume")
-    vp = analyzer.plot_structures_3d(["SCm", "PAG", "ZI", "GRN", "CUN", "PPN"], verbose=True, sagittal_slice=False,
-                                    default_colors=False,
-                                    target = None,
-                                    target_color="red",
-                                    others_color="palegoldenrod",
-                                    others_alpha=0.5, 
-                                    neurons_file = neurons,
-                                    render=True, 
-                                    specials=["PAG"],
-                                    neurons_kwargs={'neurite_radius':25})
-
-
-    # videopath = os.path.join(analyzer.main_fld, "pagneuron.mp4")
-    # analyzer.video_maker(videopath, vp=vp)
-
+    a = 1
 

@@ -1,30 +1,22 @@
-# %%
-import sys
-sys.path.append('./') 
-from anatomy.brain_render import BrainRender
+from Renderer.ABA_analyzer import ABA
+from Renderer.scene import Scene
+from settings import *
+from Utils.mouselight_parser import render_neurons
 import os
-analyzer = BrainRender()
-from vtkplotter import *
-import pandas as pd
-#%%
-sets = analyzer.other_sets
-sets_names = sorted(list(sets.keys()))
 
-#%%
-hypothalamus_structures = list(sets["Summary structures of the hypothalamus"].acronym.values)
-thalamus_structures = list(sets["Summary structures of the thalamus"].acronym.values)
-pons_structures = list(sets["Summary structures of the pons"].acronym.values)
-midbrain_structures = list(sets["Summary structures of the midbrain"].acronym.values)
+# get vars to populate test scene
+br = ABA()
 
-neurons_fld = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light"
-neurons_file = os.path.join(neurons_fld, "one_neuron.json")
+# makes scene
+scene = Scene()
 
-# %%
-tract = analyzer.get_projection_tracts_to_target("PAG")
+# add tractography
+neurons_file = os.path.join(neurons_fld, "neurons_in_ZI.json")
 
-# %%
-vp = analyzer.plot_structures_3d(["PAG", "SCm"], render=False, others_alpha=.5)
-# vp = analyzer.render_injection_sites(experiments, render=False, vp=vp)
-vp = analyzer.render_tractography(tract, render=True, vp=vp)
-# ! TODO write function to get 3d MESH points, centroid etc...
+tract = br.get_projection_tracts_to_target("GRN")
+scene.add_tractography(tract, display_injection_structure=True, use_region_color=True)
 
+neurons = render_neurons(neurons_file, color_neurites=False, random_color=True)
+scene.add_neurons(neurons_file, )
+
+scene.render()

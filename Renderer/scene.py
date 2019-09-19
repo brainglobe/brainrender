@@ -12,7 +12,7 @@ from Utils.data_io import load_json
 from Utils.data_manipulation import *
 from colors import *
 from variables import *
-from Renderer.brain_render import ABA
+from Renderer.ABA_analyzer import ABA
 from Utils.mouselight_parser import render_neurons
 from settings import *
 
@@ -83,6 +83,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             raise ValueError("region must be a list, integer or string")
         else: return True
 
+    def get_region_color(self, regions):
+        if not isinstance(regions, list):
+            return self.structure_tree.get_structures_by_acronym([regions])[0]['rgb_triplet']
+        else:
+            return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
+
     ###### ADD ACTORS TO SCENE
 
     def add_root(self, render=True):
@@ -94,7 +100,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if render:
             self.actors['root'] = self.root
 
-    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None): 
+    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None, colors=None, use_original_color=False): 
         if VIP_regions is None:
             VIP_regions = self.VIP_regions
         if VIP_color is None:
@@ -105,8 +111,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.check_region(brain_regions)
             brain_regions = [brain_regions]
     
+        # check the colors input is correct
+        if colors is not None:
+            if isinstance(colors, list):
+                if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
+                for col in colors:
+                    if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
+            else:
+                if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
+
         # loop over all brain regions
-        for region in brain_regions:
+        for i, region in enumerate(brain_regions):
             self.check_region(region)
 
             # if it's an ID get the acronym
@@ -121,18 +136,26 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.check_obj_file(structure, obj_file)
 
             # check which color to assign to the brain region
-            if self.regions_aba_color:
+            if self.regions_aba_color or use_original_color:
                 color = [x/255 for x in structure["rgb_triplet"]]
             else:
                 if region in VIP_regions:
                     color = VIP_color
                 else:
-                    color = DEFAULT_STRUCTURE_COLOR
+                    if colors is None:
+                        color = DEFAULT_STRUCTURE_COLOR
+                    elif isinstance(colors, list):
+                        color = colors[i]
+                    else: color = colors
 
+            if region in VIP_regions:
+                alpha = 1
+            else:
+                alpha = DEFAULT_STRUCTURE_ALPHA
 
             # Load the object file as a mesh and store the actor
             self.actors["regions"][region] = self.plotter.load(obj_file, c=color, 
-                                                                        alpha=DEFAULT_STRUCTURE_ALPHA) 
+                                                                        alpha=alpha) 
 
     def add_neurons(self, neurons):
         if isinstance(neurons, str):
@@ -145,10 +168,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
 
-    def add_tractography(self, tractography, color=None):
+    def add_tractography(self, tractography, color=None, display_injection_structure=False, use_region_color=True):
         """
             Color can be either None (in which case default is used), a single color (e.g. "red") or 
             a list of colors, in which case each tractography tract will have the corresponding color
+
+            display_injection_structure: display the brain region in which the injection was made
+            use_region_color: color the injection brain regino (if displayed) and the tract according to the brain region's color
 
         """
         # check argument
@@ -178,15 +204,27 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         # add actors to represent tractography data
         actors = []
         for i, t in enumerate(tractography):
-            # represent injection site
-            actors.append(Sphere(pos=t['injection-coordinates'], r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+            if use_region_color:
+                color = self.get_region_color(t['structure-abbrev'])
+            else:
+                color = color
+                
+            # represent injection site as sphere
+            actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+
+            # show brain structures in which injections happened
+            if display_injection_structure:
+                if t['structure-abbrev'] not in list(self.actors['regions'].keys()):
+                    self.add_brain_regions([t['structure-abbrev']], use_original_color=use_region_color)
 
             # get tractography points and represent as list
             points = [p['coord'] for p in t['path']]
+
+
+
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=TRACTO_ALPHA, res=TRACTO_RES))
 
         self.actors['tracts'].extend(actors)
-
 
     def add_injection_sites(self, experiments, color=None):
         """[Creates Spherse at the location of injections with a volume proportional to the injected volume]
@@ -283,14 +321,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 if __name__ == "__main__":
     # get vars to populate test scene
     br = ABA()
-    tract = br.get_projection_tracts_to_target("PAG")
 
-    struct = br.structure_tree.get_structures_by_acronym(["MOs"])[0]
-    experiments = br.mcc.get_experiments(cre=False,  injection_structure_ids=[struct['id']])
+    tract = br.get_projection_tracts_to_target("PRNr")
+
 
     # makes cene
-    scene = Scene(brain_regions = ["ZI", "PAG", "SCm"], neurons=None, tracts=tract)
-    scene.add_injection_sites(experiments)
+    scene = Scene(tracts=tract)
+    scene.add_brain_regions(["PRNr", "PRNc"], VIP_color="red", VIP_regions=["PRNr", "PRNc"])
+
+    afferents = br.analyze_afferents("PRNc")
+    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
+
+    tract = br.get_projection_tracts_to_target("PRNc")
+    scene.add_tractography(tract, color="r")
+
+    afferents = br.analyze_afferents("PRNr")
+    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
+    # scene.add_injection_sites(experiments)
 
 
     scene.render()
