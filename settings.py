@@ -10,6 +10,9 @@ models_fld = os.path.join(main_fld, "3dModels")                                 
 neurons_fld = os.path.join(main_fld, "Mouse Light")                             # to render 3d models of neurons downloaded from the Mouse Light dataset. Download the JSON from the website and save it here
 save_fld =  os.path.join(main_fld, "fc_experiments_unionized")                  # here is where the pandas DataFrame with unionized experiment dat is saved 
 
+manifest = os.path.join(connectivity_fld, "manifest.json")  # ! this is what is used by mouseconnectivity cache to check what has been downloaded already
+
+
 # Check if these folders exist, create them otherwise
 folders = [main_fld, connectivity_fld, models_fld, neurons_fld, save_fld]
 for fld in folders:

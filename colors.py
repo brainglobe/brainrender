@@ -478,7 +478,6 @@ def makePalette(color1, color2, N, hsv=True):
     return cols
 
 
-
 def get_random_colors(n_colors=1):
     if not isinstance(n_colors, np.int): raise ValueError("n_colors should be an integer")
     if n_colors <= 0: raise ValueError("n_colors should be bigger or equal to 0")

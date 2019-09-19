@@ -39,7 +39,6 @@ class BrainRender:
     main_structures = ["PAG", "SCm", "ZI", "SCs", "GRN"]
 
     def __init__(self):
-        manifest = os.path.join(self.fld, "manifest.json")
         self.mcc = MouseConnectivityCache(manifest_file=manifest)
 
         self.structure_tree = self.mcc.get_structure_tree()

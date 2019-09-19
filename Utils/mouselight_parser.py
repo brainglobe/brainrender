@@ -11,7 +11,7 @@ import numpy as np
 from Utils.data_io import load_json
 from Utils.data_manipulation import get_coords
 from colors import *
-from constants import *
+from variables import *
 
 # TODO fix axons initial segment missing from renderes
 
@@ -150,9 +150,7 @@ def test():
     """
         Small function used to test the render_neurons function above. Specify a file path and run it
     """
-    neurons = os.path.join("D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light", "neurons_in_PAG.json")
-
-    res = render_neurons(neurons,
+    res = render_neurons(NEURONS_FILE,
                 render_neurites = True,
                 neurite_radius=None, 
                 color_neurites=False, axon_color="red", soma_color="red", dendrites_color="blue", 
