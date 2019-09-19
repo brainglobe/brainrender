@@ -12,7 +12,7 @@ from Utils.data_io import load_json
 from Utils.data_manipulation import *
 from colors import *
 from variables import *
-from Renderer.brain_render import BrainRender
+from Renderer.brain_render import ABA
 from Utils.mouselight_parser import render_neurons
 from settings import *
 
@@ -24,7 +24,7 @@ from settings import *
     and other classes within the same package. 
 """
 
-class Scene(BrainRender):  # subclass brain render to have acces to structure trees
+class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
@@ -42,7 +42,7 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
 
         """
-        BrainRender.__init__(self)
+        ABA.__init__(self)
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
 
@@ -188,8 +188,33 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
         self.actors['tracts'].extend(actors)
 
 
-    ####### RENDER SCENE
+    def add_injection_sites(self, experiments, color=None):
+        """[Creates Spherse at the location of injections with a volume proportional to the injected volume]
+        
+        Arguments:
+            experiments {[list]} -- [list of dictionaries with experiments metadata]
+        """
+        # check arguments
+        if not isinstance(experiments, list):
+            raise ValueError("experiments must be a list")
+        if not isinstance(experiments[0], dict):
+            raise ValueError("experiments should be a list of dictionaries")
 
+        #c= cgeck color
+        if color is None:
+            color = INJECTION_DEFAULT_COLOR
+
+        injection_sites = []
+        for exp in experiments:
+            injection_sites.append(Sphere(pos=(exp["injection_x"], exp["injection_y"], exp["injection_z"]),
+                    r = INJECTION_VOLUME_SIZE*exp["injection_volume"]*3, 
+                    c=color
+                    ))
+
+        self.actors['injection_sites'].extend(injection_sites)
+
+
+    ####### RENDER SCENE
     def get_actors(self):
         all_actors = []
         for k, actors in self.actors.items():
@@ -226,6 +251,8 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
 
         if VERBOSE:
             print(INTERACTIVE_MSG)
+        else:
+            print("\n\npress 'q' to Quit")
 
         if interactive:
             show(self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation)  
@@ -233,15 +260,37 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation)  
 
 
+    ####### VIDEO & ANIMATION
 
-# TODO: missing ADD TRACTo, ADD INJECTS
+    # def video_maker(self, dest_path, vp=None, *args, **kwargs):
+    #     if vp is None: 
+    #         vp = self.plot_structures_3d(*args, render=False, **kwargs)
+
+    #     fld, video = os.path.split(dest_path)
+    #     os.chdir(fld)
+    #     video = Video(name=video, duration=3)
+        
+    #     for i  in range(80):
+    #         vp.show()  # render the scene first
+    #         vp.camera.Azimuth(2)  # rotate by 5 deg at each iteration
+    #         # vp.camera.Zoom(i/40)
+    #         video.addFrame()
+    #     video.close()  # merge all the recorded frames
+
+
+
 
 if __name__ == "__main__":
-    br = BrainRender()
+    # get vars to populate test scene
+    br = ABA()
     tract = br.get_projection_tracts_to_target("PAG")
 
-    
+    struct = br.structure_tree.get_structures_by_acronym(["MOs"])[0]
+    experiments = br.mcc.get_experiments(cre=False,  injection_structure_ids=[struct['id']])
+
+    # makes cene
     scene = Scene(brain_regions = ["ZI", "PAG", "SCm"], neurons=None, tracts=tract)
+    scene.add_injection_sites(experiments)
 
 
     scene.render()

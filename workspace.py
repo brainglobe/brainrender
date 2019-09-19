@@ -20,7 +20,6 @@ neurons_fld = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy
 neurons_file = os.path.join(neurons_fld, "one_neuron.json")
 
 # %%
-
 tract = analyzer.get_projection_tracts_to_target("PAG")
 
 # %%

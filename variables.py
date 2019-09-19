@@ -20,14 +20,14 @@ DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]
 DEFAULT_STRUCTURE_ALPHA = 1
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-        # TRACTOGRAPHY RENDERING OPTIONS
+        # TRACTOGRAPHY & INJECTION RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 INJECTION_VOLUME_SIZE = 150    # injection locations are represented as spheres whose radius is injection-volume*INJECTION_VOLUME_SIZE
 TRACTO_RADIUS = 20             # radius of tubes used to represent tracts
 TRACTO_ALPHA = 1               # transparency of tracts
 TRACTO_RES = 12                # resolution of tubes used to represent tracts
 TRACT_DEFAULT_COLOR = "r"      # default color of tractography tubes
-
+INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES

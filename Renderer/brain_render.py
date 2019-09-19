@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from collections import namedtuple
 from vtkplotter import Plotter, show, interactive, Video, settings, Sphere, shapes
+import warnings 
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -24,23 +25,26 @@ from settings import *
 """
 
 
-# ! TODO write function to get 3d MESH points, centroid etc...
+class ABA:
+    """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees, 
+    experimental metadata and results, tractography data etc. ]
 
-class BrainRender:
+    """
     hemispheres = namedtuple("hemispheres", "left right both") # left: CONTRA, right: IPSI
     hemispheres_names = ["left", "right", "both"]
     
     # useful vars for analysis
-    projection_metric = "projection_energy"
-    volume_threshold = 0.5
+    
     excluded_regions = ["fiber tracts"]
 
     # frequently used structures
     main_structures = ["PAG", "SCm", "ZI", "SCs", "GRN"]
 
-    def __init__(self):
-        self.mcc = MouseConnectivityCache(manifest_file=manifest)
+    def __init__(self, projection_metric = "projection_energy"):
+        self.projection_metric = projection_metric
 
+        # get mouse connectivity cache and structure tree
+        self.mcc = MouseConnectivityCache(manifest_file=manifest)
         self.structure_tree = self.mcc.get_structure_tree()
         
         # get ontologies API and brain structures sets
@@ -58,6 +62,8 @@ class BrainRender:
         self.strains = sorted([x for x in set(self.all_experiments.strain) if x is not None])
         self.transgenic_lines = sorted(set([x for x in set(self.all_experiments.transgenic_line) if x is not None]))
 
+
+    ####### GET EXPERIMENTS DATA
     def get_structures_sets(self):
         summary_structures = self.structure_tree.get_structures_by_set_id([167587189])  # main summary structures
         summary_structures = [s for s in summary_structures if s["acronym"] not in self.excluded_regions]
@@ -101,34 +107,8 @@ class BrainRender:
                                                             include_descendants=False)
             except: pass
             structure_unionizes.to_pickle(os.path.join(self.save_fld, "{}.pkl".format(acronym)))
-
-
-    def get_structure_location(self, acronym):
-        struct = self.structure_tree.get_structures_by_acronym([acronym])[0]
-        experiments = self.mcc.get_experiments(cre=False,  injection_structure_ids=[struct["id"]])
-        x, y, z  = [], [], []
-        for exp in experiments:
-            x.append(exp["injection_x"])
-            y.append(exp["injection_y"])
-            z.append(exp["injection_z"])
-
-        return [np.nanmean(x).astype(np.int32), np.nanmean(y).astype(np.int32), np.nanmean(z).astype(np.int32)]
-
-    def get_projection_tracts_to_target(self, acronym=None, p0=None):
-        if p0 is None:
-            if acronym is not None:
-                p0 = self.get_structure_location(acronym)
-            else: raise ValueError("Please pass either p0 or acronym")
-        else:
-            if acronym is not None:
-                warnings.warn("both p0 and acronym passed, using p0")
-
-        tract = self.mca.experiment_spatial_search(seed_point=p0)
-
-        if isinstance(tract, str): raise ValueError('Something went wrong with query')
-        else:
-            return tract
-
+    
+    ####### ANALYSIS ON EXPERIMENTAL DATA
     def analyze_efferents(self, SOI, projection_metric = None):
         """[Loads the experiments on SOI and looks at average statistics of efferent projections]
         
@@ -166,7 +146,7 @@ class BrainRender:
         return results
 
     def analyze_afferents(self, SOI, projection_metric = None):
-        """[look at all areas projecting to it]
+        """[Loads the experiments on SOI and looks at average statistics of afferent projections]
         
         Arguments:
             SOI {[str]} -- [structure of intereset]
@@ -200,156 +180,34 @@ class BrainRender:
         results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
         return results
 
-    def plot_structures_3d(self, structures_acronyms, default_colors=True, verbose=False, target=None, target_color=[.4, .4, .4], others_color=[.4, .4, .4],
-                        others_alpha=1, sagittal_slice=False, neurons_file=None, render=True, neurons_kwargs={}, specials=[], notebook=False):
-        if structures_acronyms is None: structures_acronyms = []
-        
-        # Download OBJ files
-        for structure_id in structures_acronyms:
-            structure = self.structure_tree.get_structures_by_acronym([structure_id])
-
-            obj_file = os.path.join(self.models_fld, "{}.obj".format(structure[0]["acronym"]))
-            if not os.path.isfile(obj_file):
-                mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], ccf_version ="annotation/ccf_2017", 
-                                                file_name=obj_file)
-
-        # Create plot
-        vp = Plotter(title='first example')
-
-        # plot whole brain
-        obj_path = os.path.join(self.models_fld, "root.obj")
-        root = vp.load(obj_path, c=[.8, .8, .8], alpha=.3)  
-
-
-        # Plot target structure
-        if target is not None:
-            obj_path = os.path.join(self.models_fld, "{}.obj".format(target))
-            if not os.path.isfile(obj_file):
-                mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], ccf_version ="annotation/ccf_2017", 
-                                                file_name=obj_file)
-
-            target_mesh = vp.load(obj_path, c=target_color, alpha=1)
-
- 
-        # plot other brain regions
-        other_structures = []
-        for i, structure in enumerate(structures_acronyms):
-            if target is not None:
-                if structure == target: continue
-            structure = self.structure_tree.get_structures_by_acronym([structure])
-
-            if default_colors:
-                color = [x/255 for x in structure[0]["rgb_triplet"]]
-            else: 
-                if isinstance(others_color[0], list):
-                    color = others_color[i]
-                else:
-                    color = others_color
-
-            if structure[0]["acronym"] in specials:
-                color = "steelblue"
-                alpha = 1
-            else:
-                alpha = others_alpha
-
-            obj_path = os.path.join(self.models_fld, "{}.obj".format(structure[0]["acronym"]))
-            mesh = vp.load(obj_path, c=color, alpha=alpha) 
-            other_structures.append(mesh)
-
-            if verbose:
-                print("Rendering: {} - ({})".format(structure[0]["name"], structure[0]["acronym"]))
-
-        if sagittal_slice:
-            for a in vp.actors:
-                a.cutWithPlane(origin=(0,0,6000), normal=(0,0,-1), showcut=True)
-
-
-        # add neurons
-        if neurons_file is not None:
-            neurons_actors = render_neurons(neurons_file, **neurons_kwargs)
-        else:
-            neurons_actors = []
-
-        # Add sliders
-        if target is not None:
-            def target_slider(widget, event):
-                value = widget.GetRepresentation().GetValue()
-                target_mesh.alpha(value)
-
-            vp.addSlider2D(target_slider, xmin=0.01, xmax=0.99, value=0.5, pos=4, title="target alpha")
-
-        def others_slider(widget, event):
-            value = widget.GetRepresentation().GetValue()
-            for actor in other_structures:
-                actor.alpha(value)
-        vp.addSlider2D(others_slider, xmin=0.01, xmax=0.99, value=0.5, pos=3, title="others alpha")
-
-        # Add inset 
-        inset = root.clone().scale(.5)
-        inset.alpha(1)
-        vp.showInset(inset, pos=(0.9,0.2))
-
-        if render:
-            if notebook:
-                plt.show()
-            else:
-                show(*vp.actors, *neurons_actors, interactive=True, roll=180, azimuth=-35, elevation=-25)  
-        else:
-            show(*vp.actors, *neurons_actors, interactive=0, offscreen=True, roll=180)  
-
-        return vp
-
-    def video_maker(self, dest_path, vp=None, *args, **kwargs):
-        if vp is None: 
-            vp = self.plot_structures_3d(*args, render=False, **kwargs)
-
-        fld, video = os.path.split(dest_path)
-        os.chdir(fld)
-        video = Video(name=video, duration=3)
-        
-        for i  in range(80):
-            vp.show()  # render the scene first
-            vp.camera.Azimuth(2)  # rotate by 5 deg at each iteration
-            # vp.camera.Zoom(i/40)
-            video.addFrame()
-        video.close()  # merge all the recorded frames
-
-    def render_injection_sites(self, experiments, *args, structures=None, vp=None, render=True, **kwargs):
-        if structures is None: structures = []
-
-        if vp is None:
-            vp = self.plot_structures_3d(structures, *args, render=False, **kwargs)
-
-        injection_sites = []
+    ####### GET TRACTOGRAPHY AND SPATIAL DATA
+    def get_structure_location(self, acronym):
+        # ! currently this averages the location of injections in that structure, in the future it will get the centroid of the mesh corresponding to the brain region
+        struct = self.structure_tree.get_structures_by_acronym([acronym])[0]
+        experiments = self.mcc.get_experiments(cre=False,  injection_structure_ids=[struct["id"]])
+        x, y, z  = [], [], []
         for exp in experiments:
-            injection_sites.append(Sphere(pos=(
-                    exp["injection_x"], exp["injection_y"], exp["injection_z"]),
-                    r = 500*exp["injection_volume"], c=[.2, .6, .2]
-                    ))
+            x.append(exp["injection_x"])
+            y.append(exp["injection_y"])
+            z.append(exp["injection_z"])
 
-        if render:
-            show(*vp.actors, *injection_sites,  interactive=True)  
+        return [np.nanmean(x).astype(np.int32), np.nanmean(y).astype(np.int32), np.nanmean(z).astype(np.int32)]
+
+    def get_projection_tracts_to_target(self, acronym=None, p0=None):
+        if p0 is None:
+            if acronym is not None:
+                p0 = self.get_structure_location(acronym)
+            else: raise ValueError("Please pass either p0 or acronym")
         else:
-            show(*vp.actors, *injection_sites,  interactive=False, offscreen=True)  
-        return vp
+            if acronym is not None:
+                warnings.warn("both p0 and acronym passed, using p0")
 
-    def render_tractography(self, tracts, *args, render=True, vp=None, **kwargs):
-        # tracts should have the traces for 1 experiment only
-        if vp is None:
-            vp = self.plot_structures_3d(*args, render=False, **kwargs)
+        tract = self.mca.experiment_spatial_search(seed_point=p0)
 
-        actors = []
-        for i, t in enumerate(tracts):
-            actors.append(Sphere(pos=t['injection-coordinates'], r=150*t['injection-volume']))
-
-            points = [p['coord'] for p in t['path']]
-            actors.append(shapes.Tube(points, r=20, c='red', alpha=1, res=12))
-
-        if render:
-            show(*vp.actors, *actors, interactive=1)  
+        if isinstance(tract, str): raise ValueError('Something went wrong with query')
         else:
-            show(*vp.actors, *actors, interactive=0, offscreen=True)  
-        return vp
+            return tract
+
 
 
 if __name__ == "__main__":
