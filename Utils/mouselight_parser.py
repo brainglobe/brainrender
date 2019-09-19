@@ -1,3 +1,6 @@
+import sys
+sys.path.append('./')
+
 import os
 import json
 from vtkplotter import *
@@ -5,95 +8,158 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 
-def render_neurons(ml_file, colors_l = None, neurite_radius=10):
-    def neurites_parser(neurites, color, soma):
-        def get_zyx(data):
-            if len(data) == 0: raise ValueError
+from Utils.data_io import load_json
+from Utils.data_manipulation import get_coords
+from colors import *
+from constants import *
 
-            try:
-                z,y,x =  data["z"].values[0], data["y"].values[0], data["x"].values[0]
-            except:
-                z,y,x = data["z"], data["y"], data["x"]
+# TODO fix axons initial segment missing from renderes
 
-            if not isinstance(z, float): raise ValueError
-            else: return z,y,x
+def neurites_parser(neurites, neurite_radius, color):
+    """[Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.]
+    
+    Arguments:
+        neurites {[DataFrame]} -- [dataframe with each sample for the neurites]
+        neurite_radius {[float]} -- [radius of the Tube actors]
+        color {[color object]} -- [color to be assigned to the Tube actor]
+    
 
-        parent_counts = neurites["parentNumber"].value_counts()
-        branching_points = parent_counts.loc[parent_counts > 1]
+    Returns:
+        actors {[list]} -- [list of VTK actors]
 
-        # loop over each branching point
-        tubes = []
-        for idx, bp in branching_points.iteritems():
-            bp = neurites.loc[neurites.sampleNumber == idx]
-            post_bp = neurites.loc[neurites.parentNumber == idx]
-            
-            # loop on each branc
-            for bi, branch in post_bp.iterrows():
-                parent = neurites.loc[neurites.sampleNumber == branch.parentNumber]
-                if parent.parentNumber.values[0] == -1:
-                    granparent = soma
+    ----------------------------------------------------------------
+    This function works by first identifyingt the branching points of a neurite structure. Then each segment between either two branchin points
+    or between a branching point and a terminal is modelled as a Tube. This minimizes the number of actors needed to represent the neurites
+    while stil accurately modelling the neuron. 
+
+    Known issue: the axon initial segment is missing from renderings. 
+    """
+
+    # get branching points
+    parent_counts = neurites["parentNumber"].value_counts()
+    branching_points = parent_counts.loc[parent_counts > 1]
+
+    # loop over each branching point
+    actors = []
+    for idx, bp in branching_points.iteritems():
+        # get neurites after the branching point
+        bp = neurites.loc[neurites.sampleNumber == idx]
+        post_bp = neurites.loc[neurites.parentNumber == idx]
+        
+        # loop on each branch after the branching point
+        for bi, branch in post_bp.iterrows():
+
+            parent = neurites.loc[neurites.sampleNumber == branch.parentNumber]
+            branch_points = [get_coords(parent), get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
+
+            # loop over all following points along the branch, until you meet either a terminal or another branching point. store the points
+            idx = branch.sampleNumber
+            while True:
+                nxt = neurites.loc[neurites.parentNumber == idx]
+                if len(nxt) != 1: 
+                    break
                 else:
-                    granparent = neurites.loc[neurites.sampleNumber == parent.parentNumber.values[0]]
-                branch_points = [get_zyx(granparent), get_zyx(parent), get_zyx(bp), get_zyx(branch)]
+                    branch_points.append(get_coords(nxt))
+                    idx += 1
 
-                
-                # loop over all following points
-                idx = branch.sampleNumber
-                while True:
-                    nxt = neurites.loc[neurites.parentNumber == idx]
-                    if len(nxt) != 1: 
-                        break
-                    else:
-                        branch_points.append(get_zyx(nxt))
-                        idx += 1
-
-                if len(branch_points) < 2: # plot either a line between two branch_points or  a spheere
-                    tubes.append(Sphere(branch_points[0], c="g", r=100))
-                    continue 
-
-                try:
-                    tube = shapes.Tube(branch_points, r=neurite_radius, c=color, alpha=1, res=24)
-                except:
-                    raise ValueError
-                tubes.append(tube)
+            # if the branch is too short for a tube, create a sphere instead
+            if len(branch_points) < 2: # plot either a line between two branch_points or  a spheere
+                actors.append(Sphere(branch_points[0], c="g", r=100))
+                continue 
             
-        return tubes
+            # create tube actor
+            actors.append(shapes.Tube(branch_points, r=neurite_radius, c=color, alpha=1, res=NEURON_RESOLUTION))
+        
+    return actors
 
 
+def render_neurons(ml_file, render_neurites = True,
+                neurite_radius=None, 
+                color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
+    
+    """[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
+       this function creates VTKplotter actors that can be used to render the neurons, returns them as nested dictionaries]
+
+    Arguments:
+        ml_file {[string]} -- [path to the JSON MouseLight file]
+        render_neurites {[boolean]} -- [If false neurites are not rendered, just the soma]
+        neurite_radius {[float]} -- [radius of the "Tube" used to render neurites, it's also used to scale the sphere used for the soma. If set to None the default is used]
+        color_neurites {[Bool]} -- [default: True. If true, soma axons and dendrites are colored differently, if false each neuron has a single color (the soma color)]
+        axon_color, soma_color, dendrites_color {[String, array, list]} -- [if list it needs to have the same length as the number of neurons being rendered to specify the colors for each neuron. 
+                                            colors can be either strings (e.g. "red"), arrays (e.g.[.5, .5,. 5]) or variables (e.g see colors.py)]
+        random_color {[Bool]} -- [if True each neuron will have one color picked at random among those defined in colors.py]
+
+    Returns:
+        actors [list] -- [list of dictionaries, each dictionary contains the VTK actors of one neuron]
+    """
+    # Check neurite radius
+    if neurite_radius is None:
+        neurite_radius = DEFAULT_NEURITE_RADIUS
+    
     # Load the data
-    with open(ml_file) as f:
-        data = json.load(f)
-
+    data = load_json(ml_file)
     data = data["neurons"]
     print("Found {} neurons".format(len(data)))
 
     # Loop over neurons
     actors = []
     for neuron in tqdm(data):
-        soma_coords = neuron["soma"]
-        soma = Sphere(pos=[soma_coords["z"], soma_coords["y"], soma_coords["x"]], c=[.8, .8, .8], r=neurite_radius*3)
-        actors.append(soma)
+        # Define colors of different components
+        if random_color:
+            color = get_random_color()
+            axon_color = soma_color = dendrites_color = color
+        else:
+            if soma_color is None:
+                print("No soma color is provided, picking a random one")
+                soma_color = get_random_color()
 
-        # Draw dendrites
-        dendrites = neurites_parser(pd.DataFrame(neuron["dendrite"]), [.8, .4, .4], soma_coords)
-        axons = neurites_parser(pd.DataFrame(neuron["axon"]), [.4, .8, .4], soma_coords)
+            if not color_neurites:
+                axon_color = dendrites_color = soma_color
+            else:
+                if axon_color is None:
+                    print("No axon color provided, using soma color")
+                    axon_color = soma_color
+                if dendrites_color is None:
+                    print("No dendrites color provided, using soma color")
+                    dendrites_color = soma_color
 
-        actors.extend(dendrites)
-        actors.extend(axons)
+        if not check_colors([soma_color, axon_color, dendrites_color]):
+            raise ValueError("The colors chosen are not valid: soma - {}, dendrites {}, axon {}".format(soma_color, dendrites_color, axon_color))
 
+
+        # create soma actor
+        neuron_actors = {}
+
+        soma_coords = get_coords(neuron["soma"])
+        soma = Sphere(pos=soma_coords, c=soma_color, r=neurite_radius*2)
+        neuron_actors['soma'] = soma
+
+        # Draw dendrites and axons
+        if render_neurites:
+            neuron_actors['dendrites'] = neurites_parser(pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color)
+            neuron_actors['axon'] = neurites_parser(pd.DataFrame(neuron["axon"]), neurite_radius, axon_color)
+        else:
+            neuron_actors['dendrites'] = []
+            neuron_actors['axon'] = []
+
+        actors.append(neuron_actors)
     return actors
 
 
 def test():
     """
-        Small function used to test the render_neurons function above
+        Small function used to test the render_neurons function above. Specify a file path and run it
     """
-    neurons = os.path.join(r"D:\Dropbox (UCL - SWC)\Rotation_vte\analysis_metadata\anatomy\Mouse Light", "axons_in_PAG.json")
+    neurons = os.path.join("D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light", "axons_in_PAG.json")
 
-    res = render_neurons(neurons)
+    res = render_neurons(neurons,
+                render_neurites = True,
+                neurite_radius=None, 
+                color_neurites=True, axon_color="red", soma_color="green", dendrites_color="blue", random_color=False)
 
     vp = Plotter(title='first example')
-    vp.show(*res)
+    for neuron in res:
+        vp.show(neuron['soma'], *neuron['dendrites'], *neuron['axon'])
     
 
 if __name__ == "__main__":
