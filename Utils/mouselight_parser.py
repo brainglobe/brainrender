@@ -106,12 +106,12 @@ def render_neurons(ml_file, render_neurites = True,
     for neuron in tqdm(data):
         # Define colors of different components
         if random_color:
-            color = get_random_color()
+            color = get_random_colors(n_colors=1)
             axon_color = soma_color = dendrites_color = color
         else:
             if soma_color is None:
                 print("No soma color is provided, picking a random one")
-                soma_color = get_random_color()
+                soma_color = get_random_colors(n_colors=1)
 
             if not color_neurites:
                 axon_color = dendrites_color = soma_color
@@ -131,7 +131,7 @@ def render_neurons(ml_file, render_neurites = True,
         neuron_actors = {}
 
         soma_coords = get_coords(neuron["soma"])
-        soma = Sphere(pos=soma_coords, c=soma_color, r=neurite_radius*2)
+        soma = Sphere(pos=soma_coords, c=soma_color, r=SOMA_RADIUS)
         neuron_actors['soma'] = soma
 
         # Draw dendrites and axons
@@ -150,12 +150,13 @@ def test():
     """
         Small function used to test the render_neurons function above. Specify a file path and run it
     """
-    neurons = os.path.join("D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light", "axons_in_PAG.json")
+    neurons = os.path.join("D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light", "neurons_in_PAG.json")
 
     res = render_neurons(neurons,
                 render_neurites = True,
                 neurite_radius=None, 
-                color_neurites=True, axon_color="red", soma_color="green", dendrites_color="blue", random_color=False)
+                color_neurites=False, axon_color="red", soma_color="red", dendrites_color="blue", 
+                random_color=True)
 
     vp = Plotter(title='first example')
     for neuron in res:
