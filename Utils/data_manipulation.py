@@ -14,3 +14,12 @@ def get_coords(obj):
     if not isinstance(z, float): raise ValueError("Could not extract coordinates from: {}".format(obj)) 
     else: 
         return z,y,x
+
+def flatten_list(lst):
+    flatten = []
+    for item in lst:
+        if isinstance(item, list):
+            flatten.extend(item)
+        else:
+            flatten.append(item)
+    return flatten

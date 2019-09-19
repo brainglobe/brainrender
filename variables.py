@@ -1,7 +1,7 @@
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # WHOLE SCENE RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-VERBOSE = True                  # if True print useful messages during use
+VERBOSE = False                  # if True print useful messages during use
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain

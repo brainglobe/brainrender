@@ -9,10 +9,11 @@ from collections import namedtuple
 from vtkplotter import Plotter, show, interactive, Video, settings, Sphere, shapes
 
 from Utils.data_io import load_json
-from Utils.data_manipulation import get_coords
+from Utils.data_manipulation import *
 from colors import *
 from variables import *
 from Renderer.brain_render import BrainRender
+from Utils.mouselight_parser import render_neurons
 from settings import *
 
 """
@@ -77,7 +78,8 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             brain_regions {[list]} -- [list of brain regions acronyms or ID numebers to be added to the sceme] (default: {None})
             regions_aba_color {[bool]} -- [If true use the Allen Brain Atlas regions coors] (default: {False})
             
-            neurons {[list]} -- [list of dictionaries with neurons rendered by mouselight_parser] (default: {None})
+            neurons {[str]} -- [path to JSON file for neurons to be rendered by mouselight_parser. Alternatively it can 
+                                    be a list of already rendered neurons' actors] (default: {None})
             tracts {[list]} -- [list of tractography items, one per experiment] (default: {None})
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
 
@@ -91,7 +93,7 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
 
         self.plotter = Plotter()
 
-        self.actors = {"regions":{}, "tracts":{}, "neurons":{}, "root":None}
+        self.actors = {"regions":{}, "tracts":{}, "neurons":[], "root":None}
 
         if brain_regions is not None:
             self.add_brain_regions(brain_regions)
@@ -178,11 +180,31 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             self.actors["regions"][region] = self.plotter.load(obj_file, c=color, 
                                                                         alpha=DEFAULT_STRUCTURE_ALPHA) 
 
+    def add_neurons(self, neurons):
+        if isinstance(neurons, str):
+            if os.path.isfile(neurons):
+                self.actors["neurons"].extend(render_neurons(neurons))
+            else:
+                raise FileNotFoundError("The neurons JSON file provided cannot be found: {}".format(neurons))
+        elif isinstance(neurons, list):
+            self.actors["neurons"].extend(neurons)
+        else:
+            raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
+
     def get_actors(self):
         all_actors = []
         for k, actors in self.actors.items():
             if isinstance(actors, dict):
+                if len(actors) == 0: continue
                 all_actors.extend(list(actors.values()))
+            elif isinstance(actors, list):
+                if len(actors) == 0: continue
+                for act in actors:
+                    if isinstance(act, dict):
+                        all_actors.extend(flatten_list(list(act.values())))
+                    elif isinstance(act, list):
+                        all_actors.extend(act)
+                    else: raise ValueError("something went wrong while getting actors")
             else:
                 all_actors.append(actors)
         return all_actors
@@ -226,5 +248,5 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
 
 
 if __name__ == "__main__":
-    scene = Scene(brain_regions = ["ZI", "PAG", "SCm"])
+    scene = Scene(brain_regions = ["ZI", "PAG", "SCm"], neurons=NEURONS_FILE)
     scene.render()
