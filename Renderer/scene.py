@@ -24,51 +24,9 @@ from settings import *
     and other classes within the same package. 
 """
 
-# TODO add a way to keep track of which actor is which [e.g. a dict with names for the differen actors etc],
-# probs a wrapper around add actors
-
-
 class Scene(BrainRender):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
-
-    interactive_commands = """
- ==========================================================
-| Press: i     print info about selected object            |
-|        m     minimise opacity of selected mesh           |
-|        .,    reduce/increase opacity                     |
-|        /     maximize opacity                            |
-|        w/s   toggle wireframe/solid style                |
-|        p/P   change point size of vertices               |
-|        l     toggle edges line visibility                |
-|        x     toggle mesh visibility                      |
-|        X     invoke a cutter widget tool                 |
-|        1-3   change mesh color                           |
-|        4     use scalars as colors, if present           |
-|        5     change background color                     |
-|        0-9   (on keypad) change axes style               |
-|        k     cycle available lighting styles             |
-|        K     cycle available shading styles              |
-|        o/O   add/remove light to scene and rotate it     |
-|        n     show surface mesh normals                   |
-|        a     toggle interaction to Actor Mode            |
-|        j     toggle interaction to Joystick Mode         |
-|        r     reset camera position                       |
-|        C     print current camera info                   |
-|        S     save a screenshot                           |
-|        E     export rendering window to numpy file       |
-|        q     return control to python script             |
-|        Esc   close the rendering window and continue     |
-|        F1    abort execution and exit python kernel      |
-| Mouse: Left-click    rotate scene / pick actors          |
-|        Middle-click  pan scene                           |
-|        Right-click   zoom scene in or out                |
-|        Cntrl-click   rotate scene perpendicularly        |
-|----------------------------------------------------------|
-| Check out documentation at:  https://vtkplotter.embl.es  |
- ==========================================================
-    """
-
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
                     neurons=None, tracts=None, add_root=None, verbose=True):
@@ -92,8 +50,7 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             add_root = DISPLAY_ROOT
 
         self.plotter = Plotter()
-
-        self.actors = {"regions":{}, "tracts":{}, "neurons":[], "root":None}
+        self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
 
         if brain_regions is not None:
             self.add_brain_regions(brain_regions)
@@ -102,7 +59,7 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             self.add_neurons(neurons)
 
         if tracts is not None:
-            self.add_tracts(tracts)
+            self.add_tractography(tracts)
 
         if add_root:
             self.add_root()
@@ -112,18 +69,21 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
         self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
 
-    def add_actors(self, actors):
-        self.plotter.add(actors, render=False)
-
-    def remove_actors(self, actors):
-        self.plotter.remove(actors)
-
+    ####### UTILS
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
                         mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], 
                                                         ccf_version ="annotation/ccf_2017", 
                                                         file_name=obj_file)
+
+    @staticmethod
+    def check_region(region):
+        if not isinstance(region, int) and not isinstance(region, str):
+            raise ValueError("region must be a list, integer or string")
+        else: return True
+
+    ###### ADD ACTORS TO SCENE
 
     def add_root(self, render=True):
         structure = self.structure_tree.get_structures_by_acronym(["root"])[0]
@@ -133,12 +93,6 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
 
         if render:
             self.actors['root'] = self.root
-
-    @staticmethod
-    def check_region(region):
-        if not isinstance(region, int) and not isinstance(region, str):
-            raise ValueError("region must be a list, integer or string")
-        else: return True
 
     def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None): 
         if VIP_regions is None:
@@ -191,6 +145,51 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
         else:
             raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
 
+    def add_tractography(self, tractography, color=None):
+        """
+            Color can be either None (in which case default is used), a single color (e.g. "red") or 
+            a list of colors, in which case each tractography tract will have the corresponding color
+
+        """
+        # check argument
+        if not isinstance(tractography, list):
+            if isinstance(tractography, dict):
+                tractography = [tractography]
+            else:
+                raise ValueError("the 'tractography' variable passed must be a list of dictionaries")
+        else:
+            if not isinstance(tractography[0], dict):
+                raise ValueError("the 'tractography' variable passed must be a list of dictionaries")
+
+        # check colors
+        if color is None:
+            color = TRACT_DEFAULT_COLOR
+        elif isinstance(color, list):
+            if not len(color) == len(tractography):
+                raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
+            else:
+                for col in color:
+                    if not check_colors(col): raise ValueError("Color variable passed to tractography is invalid: {}".format(col))
+        else:
+            if not check_colors(color):
+                raise ValueError("Color variable passed to tractography is invalid: {}".format(color))
+                
+
+        # add actors to represent tractography data
+        actors = []
+        for i, t in enumerate(tractography):
+            # represent injection site
+            actors.append(Sphere(pos=t['injection-coordinates'], r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+
+            # get tractography points and represent as list
+            points = [p['coord'] for p in t['path']]
+            actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=TRACTO_ALPHA, res=TRACTO_RES))
+
+        self.actors['tracts'].extend(actors)
+
+
+    ####### RENDER SCENE
+
     def get_actors(self):
         all_actors = []
         for k, actors in self.actors.items():
@@ -204,7 +203,8 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
                         all_actors.extend(flatten_list(list(act.values())))
                     elif isinstance(act, list):
                         all_actors.extend(act)
-                    else: raise ValueError("something went wrong while getting actors")
+                    else: 
+                        all_actors.append(act)
             else:
                 all_actors.append(actors)
         return all_actors
@@ -225,7 +225,7 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
 
         if VERBOSE:
-            print(self.interactive_commands)
+            print(INTERACTIVE_MSG)
 
         if interactive:
             show(self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation)  
@@ -233,20 +233,15 @@ class Scene(BrainRender):  # subclass brain render to have acces to structure tr
             show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation)  
 
 
-            
 
-# TODO
-"""
-    Slicing
-            if sagittal_slice:
-            for a in vp.actors:
-                a.cutWithPlane(origin=(0,0,6000), normal=(0,0,-1), showcut=True)
-
-    VideoMaker
-
-"""
-
+# TODO: missing ADD TRACTo, ADD INJECTS
 
 if __name__ == "__main__":
-    scene = Scene(brain_regions = ["ZI", "PAG", "SCm"], neurons=NEURONS_FILE)
+    br = BrainRender()
+    tract = br.get_projection_tracts_to_target("PAG")
+
+    
+    scene = Scene(brain_regions = ["ZI", "PAG", "SCm"], neurons=None, tracts=tract)
+
+
     scene.render()
