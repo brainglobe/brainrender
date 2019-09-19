@@ -1,0 +1,20 @@
+useful functions from vtkplotter.actor
+
+
+    def isInside(self, point, tol=0.0001):
+        """
+        Return True if point is inside a polydata closed surface.
+        """
+
+
+
+    def insidePoints(self, points, invert=False, tol=1e-05):
+        """
+        Return the sublist of points that are inside a polydata closed surface.
+        |pca| |pca.py|_
+        """
+
+    def write(self, filename="mesh.vtk", binary=True):
+        """
+        Write actor's polydata in its current transformation to file.
+        """

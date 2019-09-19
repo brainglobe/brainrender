@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from collections import namedtuple
-from vtkplotter import Plotter, show, interactive, Video, settings, Sphere, shapes
+from vtkplotter import *
 
 from Utils.data_io import load_json
 from Utils.data_manipulation import *
@@ -95,7 +95,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         structure = self.structure_tree.get_structures_by_acronym(["root"])[0]
         obj_path = os.path.join(models_fld, "root.obj")
         self.check_obj_file(structure, obj_path)
-        self.root = self.plotter.load(obj_path, c=ROOT_COLOR, alpha=ROOT_ALPHA) 
+        self.root = self.plotter.load(obj_path, c=ROOT_COLOR, alpha=ROOT_ALPHA)
+        self.root.pickable(value=False)
 
         if render:
             self.actors['root'] = self.root
@@ -157,10 +158,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.actors["regions"][region] = self.plotter.load(obj_file, c=color, 
                                                                         alpha=alpha) 
 
-    def add_neurons(self, neurons):
+    def add_neurons(self, neurons, **kwargs):
         if isinstance(neurons, str):
             if os.path.isfile(neurons):
-                self.actors["neurons"].extend(render_neurons(neurons))
+                self.actors["neurons"].extend(render_neurons(neurons, **kwargs))
             else:
                 raise FileNotFoundError("The neurons JSON file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
@@ -253,6 +254,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
     ####### RENDER SCENE
+    def apply_render_style(self):
+        actors = self.get_actors()
+
+        for actor in actors:
+            actor.lighting(style=SHADER_STYLE)
+
+
     def get_actors(self):
         all_actors = []
         for k, actors in self.actors.items():
@@ -273,6 +281,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     def render(self, interactive=True):
+        self.apply_render_style()
+
         if not self.rotated:
             roll, azimuth, elevation = 180, -35, -25
             self.rotated = True
@@ -316,6 +326,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     #     video.close()  # merge all the recorded frames
 
 
+    ####### EXPORT SCENE
+    def export_scene(self, merge_actors=True, filename='scene.vtk'):
+        actors = self.get_actors()
+
+        if merge_actors:
+            scene = merge(*actors)
+
+        save(scene, os.path.join(rendered_scenes, filename))
+        # scene.write(os.path.join(rendered_scenes, filename))
+        # exportWindow(actors, os.path.join(rendered_scenes, filename))
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ DISPLAY_INSET = True            # display a small version of the brain to show t
 DISPLAY_ROOT = True             # display the overall shape of the brain
 
 
+
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # BRAIN REGIONS RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -38,6 +39,12 @@ NEURON_RESOLUTION = 24          # resolution of actors used to render the neuron
 NEURON_ALPHA = 1                # transparency of the neurons actors
 
 
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
+        # OTHER RENDERED VARIABLES
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
+SHADER_STYLE = "glossy"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
+DECIMATE_NEURONS = False
+SMOOTH_NEURONS = True
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

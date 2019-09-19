@@ -9,7 +9,7 @@ connectivity_fld = os.path.join(main_fld, "mouse_connectivity")                 
 models_fld = os.path.join(main_fld, "3dModels")                                 # here is where the .obj with the mesh data for brain structures are saved [first time a structure is used it will be downloaded and saved here]
 neurons_fld = os.path.join(main_fld, "Mouse Light")                             # to render 3d models of neurons downloaded from the Mouse Light dataset. Download the JSON from the website and save it here
 save_fld =  os.path.join(main_fld, "fc_experiments_unionized")                  # here is where the pandas DataFrame with unionized experiment dat is saved 
-
+rendered_scenes = os.path.join(main_fld, "rendered_scenes")                     # folder where scenes are exported
 manifest = os.path.join(connectivity_fld, "manifest.json")  # ! this is what is used by mouseconnectivity cache to check what has been downloaded already
 
 

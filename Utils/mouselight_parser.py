@@ -70,8 +70,26 @@ def neurites_parser(neurites, neurite_radius, color):
             # create tube actor
             actors.append(shapes.Tube(branch_points, r=neurite_radius, c=color, alpha=1, res=NEURON_RESOLUTION))
         
-    return actors
+    return merge(*actors)
 
+
+def decimate_neuron_actors(neuron_actors):
+    if DECIMATE_NEURONS:
+        for k, actors in neuron_actors.items():
+            if not isinstance(actors, list):
+                actors.decimate()
+            else:
+                for actor in actors:
+                    actor.decimate()
+        
+def smooth_neurons(neuron_actors):
+    if SMOOTH_NEURONS:
+        for k, actors in neuron_actors.items():
+            if not isinstance(actors, list):
+                actors.smoothLaplacian()
+            else:
+                for actor in actors:
+                    actor.smoothLaplacian()
 
 def render_neurons(ml_file, render_neurites = True,
                 neurite_radius=None, 
@@ -142,7 +160,10 @@ def render_neurons(ml_file, render_neurites = True,
             neuron_actors['dendrites'] = []
             neuron_actors['axon'] = []
 
+        decimate_neuron_actors(neuron_actors)
+        smooth_neurons(neuron_actors)
         actors.append(neuron_actors)
+
     return actors
 
 
