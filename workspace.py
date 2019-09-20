@@ -18,7 +18,12 @@ br = ABA()
 scene = Scene()
 
 
-scene.add_sphere_at_point(pos=[5000, 2000, 1000])
+# get the CoM of CA1 and draw a sphere there
+
+scene.add_brain_regions(['PAG'])
+CA1_CoM = scene.get_region_CenterOfMass("PAG", unilateral=False)
+scene.add_sphere_at_point(pos=CA1_CoM, color="red", radius=500)
+
 
 # add tractography
 # tract = br.get_projection_tracts_to_target("ZI")

@@ -89,14 +89,75 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
 
+    def _get_structure_mesh(self, acronym, **kwargs):
+        structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
+        obj_path = os.path.join(models_fld, "{}.obj".format(acronym))
+        self.check_obj_file(structure, obj_path)
+        mesh = self.plotter.load(obj_path, **kwargs)
+
+    def get_region_CenterOfMass(self, regions, unilateral=True):
+        """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
+        
+        Arguments:
+            regions {[str, list]} -- [string or list of string with acronym of brain regions of interest]
+            unilateral {[bool]} -- [Get the CoM of the structure in just on hemisphere. Useful for lateralized structures like CA1. ] (default: {True})
+
+        Returns:
+            coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region. 
+                                If a list is passed then a dictionary is returned. ]
+        """
+
+        if not isinstance(regions, list): 
+            # load mesh corresponding to brain region
+            if unilateral:
+                mesh = self.get_region_unilateral(regions, hemisphere="left")
+            else:
+                mesh = self._get_structure_mesh(regions)
+            return mesh.centerOfMass()
+
+        else:
+            coms = {}
+            for region in regions:
+                if unilateral:
+                    mesh = self.get_region_unilateral(region, hemisphere="left")
+                else:
+                    mesh = self._get_structure_mesh(region)
+                coms[region] = mesh.centerOfMass()
+            return coms
+
+
+    def get_region_unilateral(self, region, hemisphere="both"):
+        """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
+        
+        Arguments:
+            region {[str]} -- [acronym of the brain region]
+            hemisphere {[str]} -- [which hemispheres to return, options are "left", "right", and "both"]
+
+        """
+        bilateralmesh = self._get_structure_mesh(region, c=ROOT_COLOR, alpha=ROOT_ALPHA)
+
+        
+        com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
+        cut = bilateralmesh.cutWithPlane(showcut=True, origin=com, normal=(0, 0, 1))
+
+        right = bilateralmesh.cutWithPlane(showcut=False, origin=com, normal=(0, 0, 1))
+        left = bilateralmesh.cutWithPlane(showcut=False, origin=com, normal=(0, 0, 1))
+
+        if hemisphere == "both":
+            return left, right
+        elif hemisphere == "left":
+            return left
+        else:
+            return right
+
     ###### ADD ACTORS TO SCENE
 
     def add_root(self, render=True):
-        structure = self.structure_tree.get_structures_by_acronym(["root"])[0]
-        obj_path = os.path.join(models_fld, "root.obj")
-        self.check_obj_file(structure, obj_path)
-        self.root = self.plotter.load(obj_path, c=ROOT_COLOR, alpha=ROOT_ALPHA)
+        self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA)
         self.root.pickable(value=False)
+
+        # get the center of the root
+        self.root_center = self.root.centerOfMass()
 
         if render:
             self.actors['root'] = self.root
