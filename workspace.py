@@ -20,29 +20,21 @@ scene = Scene()
 
 # get the CoM of CA1 and draw a sphere there
 
-scene.add_brain_regions(['PAG'])
-CA1_CoM = scene.get_region_CenterOfMass("PAG", unilateral=False)
-scene.add_sphere_at_point(pos=CA1_CoM, color="red", radius=500)
+scene.add_brain_regions(['PPN'], alpha=.5)
+# CA1_CoM = scene.get_region_CenterOfMass("PAG", unilateral=False)
+# scene.add_sphere_at_point(pos=CA1_CoM, color="red", radius=500)
 
 
 # add tractography
-# tract = br.get_projection_tracts_to_target("ZI")
-# scene.add_tractography(tract, display_injection_structure=True, color="red", color_by="target_region", 
-#                         VIP_regions=["MOs"], VIP_color="red", others_color="white", display_onlyVIP_injection_structure=True)
 
+# p0 = scene.get_region_CenterOfMass("PPN")
+# tract = br.get_projection_tracts_to_target(p0=p0)
+# scene.add_tractography(tract, display_injection_structure=False, color="red", color_by="region", )
 
-# add neurons
-# neurons_file = os.path.join(neurons_fld, "neurons_in_PAG.json")
-# neurons = render_neurons(neurons_file, color_neurites=False, soma_color="r", random_color=True)
-# scene.add_neurons(neurons)
-
-# neurons_file = os.path.join(neurons_fld, "neurons_in_ZI.json")
-# neurons = render_neurons(neurons_file, color_neurites=False, soma_color="g", random_color=True)
-# scene.add_neurons(neurons)
-
-# neurons_file = os.path.join(neurons_fld, "axons_in_PAG.json")
-# neurons = render_neurons(neurons_file, color_neurites=False, soma_color="y", random_color=True)
-# scene.add_neurons(neurons)
+out_of_pag = br.get_projection_tracts_from_target("PAG")
+to_pag =  br.get_projection_tracts_to_target("PAG")
+scene.add_tractography(out_of_pag, display_injection_structure=False, color="red", color_by="manual", )
+scene.add_tractography(to_pag, display_injection_structure=False, color="green", color_by="manual", )
 
 scene.render(interactive=True)
 

@@ -190,6 +190,7 @@ class ABA:
         struct = self.structure_tree.get_structures_by_acronym([acronym])[0]
         experiments = self.mcc.get_experiments(cre=False,  injection_structure_ids=[struct["id"]])
         x, y, z  = [], [], []
+        if not experiments: return None
         for exp in experiments:
             x.append(exp["injection_x"])
             y.append(exp["injection_y"])
@@ -233,57 +234,42 @@ class ABA:
                 print("both p0 and acronym passed, using p0")
 
 
-        # if p0 is not None and (len(p0) != 3 or not isinstance(p0[0], int)): 
-        #     raise ValueError("Seed point coordinates should be an array of 3 numbers")
+        if p0 is None: # something went wrong while extracting coordinates
+            raise ValueError("Could not find experiments for {} -> could not get coordinates of brain region. Please try again by passing coordinates as 'p0'")
 
         tract = self.mca.experiment_spatial_search(seed_point=p0, **kwargs)
 
-        if isinstance(tract, str): raise ValueError('Something went wrong with query')
+        if isinstance(tract, str): 
+            raise ValueError('Something went wrong with query')
         else:
             return tract
 
-    def get_projection_tracts_from_target(self, acronym=None, p0=None, n_experiments=100, **kwargs):
-        """[Gets tractography data for all experiments whose projections start at the brain region or location of iterest.]
-            
-            Keyword Arguments:
-                acronym {[str]} -- [acronym of brain region of interest] (default: {None})
-                p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
-            
-            Raises:
-                ValueError: [description]
-                ValueError: [description]
-            
-            Returns:
-                [type] -- [description]
-            """
+    def get_projection_tracts_from_target(self, acronym=None, **kwargs):
+        raise NotImplementedError
+        """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
+        
+        Keyword Arguments:
+            acronym {[str, list]} -- [acronym of brain region of interest or list of strings] (default: {None})
+        
+        Raises:
+            ValueError: [description]
+            ValueError: [description]
+        
+        Returns:
+            [type] -- [description]
+        """
 
-        """
-            mca.experiment_injection_coordinate_search also takes these arguments:
-                seed_point : list of floats
-                    The coordinates of a point in 3-D SectionDataSet space.
-                transgenic_lines : list of integers or strings, optional
-                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
-                injection_structures : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                primary_structure_only : boolean, optional
-        """
         # check args
-        if p0 is None:
-            if acronym is not None:
-                p0 = self.get_structure_location(acronym)
-            else: raise ValueError("Please pass either p0 or acronym")
-        else:
-            if acronym is not None:
-                print("both p0 and acronym passed, using p0")
+        if not isinstance(acronym, list):
+            acronym = [acronym]
 
-        if len(p0) != 3 or not (not isinstance(p0[0], float) and not isinstance(p0[0], int)): 
-            raise ValueError("Seed point coordinates should be an array of 3 numbers")
+        tract = self.mca.experiment_spatial_search(injection_structures=acronym, **kwargs)
 
-        tract = self.mca.experiment_injection_coordinate_search(seed_point=p0, num_rows=n_experiments, **kwargs)
-
-        if isinstance(tract, str): raise ValueError('Something went wrong with query')
+        if isinstance(tract, str): 
+            raise ValueError('Something went wrong with query')
         else:
             return tract
+
         
 
 if __name__ == "__main__":

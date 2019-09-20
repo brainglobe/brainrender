@@ -111,7 +111,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 mesh = self.get_region_unilateral(regions, hemisphere="left")
             else:
                 mesh = self._get_structure_mesh(regions)
-            return mesh.centerOfMass()
+            return [np.int(x) for x in mesh.centerOfMass()]
 
         else:
             coms = {}
@@ -120,7 +120,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                     mesh = self.get_region_unilateral(region, hemisphere="left")
                 else:
                     mesh = self._get_structure_mesh(region)
-                coms[region] = mesh.centerOfMass()
+                coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
 
