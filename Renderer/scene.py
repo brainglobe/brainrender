@@ -114,12 +114,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     
         # check the colors input is correct
         if colors is not None:
-            if isinstance(colors, list):
+            if isinstance(colors[0], list):
                 if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
                 for col in colors:
                     if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
             else:
                 if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
+                colors = [colors for i in range(len(brain_regions))]
 
         # loop over all brain regions
         for i, region in enumerate(brain_regions):
@@ -169,14 +170,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
 
-    def add_tractography(self, tractography, color=None, display_injection_structure=False, use_region_color=True):
+    def add_tractography(self, tractography, color=None, display_injection_structure=False, display_onlyVIP_injection_structure=False, color_by="manual", 
+                        VIP_regions=[], VIP_color="red", others_color="white"):
         """
             Color can be either None (in which case default is used), a single color (e.g. "red") or 
             a list of colors, in which case each tractography tract will have the corresponding color
 
             display_injection_structure: display the brain region in which the injection was made
-            use_region_color: color the injection brain regino (if displayed) and the tract according to the brain region's color
-
+            display_onlyVIP_injection_structure: if True and display_injection_structure == True then only the brian structures that are in VIP_regions are displayed
+            color_by: [str] specify how to color tracts and, if displayed, injection structures.
+                    options are:
+                        - manual: use the value of 'color'
+                        - region: color by the ABA RGB color of injection region
+                        - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color
         """
         # check argument
         if not isinstance(tractography, list):
@@ -188,41 +194,51 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             if not isinstance(tractography[0], dict):
                 raise ValueError("the 'tractography' variable passed must be a list of dictionaries")
 
-        # check colors
-        if color is None:
-            color = TRACT_DEFAULT_COLOR
-        elif isinstance(color, list):
-            if not len(color) == len(tractography):
-                raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
+        if not isinstance(VIP_regions, list): raise ValueError("VIP_regions should be a list of acronyms")
+
+        # check coloring mode used and prepare a list COLORS to use for coloring stuff
+        if color_by == "manual":
+            # check color argument
+            if color is None:
+                color = TRACT_DEFAULT_COLOR
+            elif isinstance(color, list):
+                if not len(color) == len(tractography):
+                    raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
+                else:
+                    for col in color:
+                        if not check_colors(col): raise ValueError("Color variable passed to tractography is invalid: {}".format(col))
+
+                    COLORS = color                
             else:
-                for col in color:
-                    if not check_colors(col): raise ValueError("Color variable passed to tractography is invalid: {}".format(col))
-        else:
-            if not check_colors(color):
-                raise ValueError("Color variable passed to tractography is invalid: {}".format(color))
-                
+                if not check_colors(color):
+                    raise ValueError("Color variable passed to tractography is invalid: {}".format(color))
+                else:
+                    COLORS = [color for i in range(len(tractography))]
+
+        elif color_by == "region":
+            COLORS = [self.get_region_color(t['structure-abbrev']) for t in tractography]
+
+        elif color_by == "target_region":
+            if not check_colors(VIP_color) or not check_colors(others_color): raise ValueError("Invalid VIP or other color passed")
+            try:
+                COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+            except:
+                raise ValueError("Something went wrong while getting colors for tractography")
 
         # add actors to represent tractography data
         actors = []
-        for i, t in enumerate(tractography):
-            if use_region_color:
-                color = self.get_region_color(t['structure-abbrev'])
-            else:
-                color = color
-                
+        for i, (t, color) in enumerate(zip(tractography, COLORS)):
             # represent injection site as sphere
             actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
 
             # show brain structures in which injections happened
             if display_injection_structure:
                 if t['structure-abbrev'] not in list(self.actors['regions'].keys()):
-                    self.add_brain_regions([t['structure-abbrev']], use_original_color=use_region_color)
+                    if display_onlyVIP_injection_structure and t['structure-abbrev'] in VIP_regions:
+                        self.add_brain_regions([t['structure-abbrev']], colors=color)
 
             # get tractography points and represent as list
             points = [p['coord'] for p in t['path']]
-
-
-
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=TRACTO_ALPHA, res=TRACTO_RES))
 
         self.actors['tracts'].extend(actors)
@@ -252,6 +268,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['injection_sites'].extend(injection_sites)
 
+    def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
+        self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
     ####### RENDER SCENE
     def apply_render_style(self):

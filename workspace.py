@@ -17,9 +17,13 @@ br = ABA()
 # makes scene
 scene = Scene()
 
+
+scene.add_sphere_at_point(pos=[5000, 2000, 1000])
+
 # add tractography
-tract = br.get_projection_tracts_to_target("ZI")
-scene.add_tractography(tract, display_injection_structure=True, use_region_color=True)
+# tract = br.get_projection_tracts_to_target("ZI")
+# scene.add_tractography(tract, display_injection_structure=True, color="red", color_by="target_region", 
+#                         VIP_regions=["MOs"], VIP_color="red", others_color="white", display_onlyVIP_injection_structure=True)
 
 
 # add neurons
