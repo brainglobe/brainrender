@@ -13,44 +13,88 @@ dependencies:
   - vs2015_runtime=14.16.27012=hf0eaf9b_0
   - pip:
     - allensdk==0.16.3
+    - attrs==19.1.0
+    - backcall==0.1.0
+    - bleach==3.1.0
     - chardet==3.0.4
+    - colorama==0.4.1
     - cycler==0.10.0
     - decorator==4.4.0
+    - defusedxml==0.6.0
+    - dill==0.3.0
+    - entrypoints==0.3
     - future==0.17.1
     - h5py==2.10.0
     - idna==2.8
     - imageio==2.5.0
+    - ipykernel==5.1.2
+    - ipython==7.8.0
+    - ipython-genutils==0.2.0
+    - ipywidgets==7.5.1
+    - jedi==0.15.1
     - jinja2==2.10.1
+    - jsonschema==3.0.2
+    - jupyter==1.0.0
+    - jupyter-client==5.3.3
+    - jupyter-console==6.0.0
+    - jupyter-core==4.5.0
     - kiwisolver==1.1.0
     - markupsafe==1.1.1
     - matplotlib==3.1.1
+    - mistune==0.8.4
     - mock==3.0.5
+    - multiprocess==0.70.8
+    - nbconvert==5.6.0
+    - nbformat==4.4.0
     - networkx==2.3
+    - notebook==6.0.1
     - numexpr==2.7.0
     - numpy==1.17.2
     - packaging==19.2
     - pandas==0.25.1
+    - pandocfilters==1.4.2
+    - parso==0.5.1
+    - pathos==0.2.4
     - patsy==0.5.1
+    - pickleshare==0.7.5
     - pillow==6.1.0
+    - pox==0.2.6
+    - ppft==1.6.6.1
+    - prometheus-client==0.7.1
+    - prompt-toolkit==2.0.9
+    - pygments==2.4.2
     - pynrrd==0.4.0
     - pyparsing==2.4.2
+    - pyrsistent==0.15.4
     - python-dateutil==2.7.3
     - pytz==2019.2
     - pywavelets==1.0.3
+    - pywin32==225
+    - pywinpty==0.5.5
+    - pyzmq==18.1.0
+    - qtconsole==4.5.5
     - requests==2.22.0
     - requests-toolbelt==0.9.1
     - scikit-build==0.10.0
     - scikit-image==0.15.0
     - scipy==1.3.1
     - seaborn==0.9.0
+    - send2trash==1.5.0
     - simpleitk==1.2.2
     - simplejson==3.16.0
     - six==1.12.0
     - statsmodels==0.10.1
     - tables==3.5.2
+    - terminado==0.8.2
+    - testpath==0.4.2
+    - tornado==6.0.3
     - tqdm==4.36.1
+    - traitlets==4.3.2
     - urllib3==1.25.3
     - vtk==8.1.2
     - vtkplotter==2019.4.5
+    - wcwidth==0.1.7
+    - webencodings==0.5.1
+    - widgetsnbextension==3.5.1
 prefix: C:\Users\Federico\AppData\Local\conda\conda\envs\BrainRender
 
