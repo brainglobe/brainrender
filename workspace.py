@@ -1,7 +1,7 @@
-from Renderer.ABA_analyzer import ABA
-from Renderer.scene import Scene
-from settings import *
-from Utils.mouselight_parser import render_neurons
+from BrainRender.ABA_analyzer import ABA
+from BrainRender.scene import Scene
+from BrainRender.settings import *
+from BrainRender.Utils.mouselight_parser import render_neurons
 import os
 
 from vtkplotter import settings
