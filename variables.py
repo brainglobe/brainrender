@@ -1,7 +1,6 @@
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # WHOLE SCENE RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-VERBOSE = False                  # if True print useful messages during use
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
@@ -33,6 +32,8 @@ INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
+ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
+ML_N_PROCESSES = 6              # max number of processes to use
 DEFAULT_NEURITE_RADIUS = 10     # radius of dendrites, axons...
 SOMA_RADIUS = 50                # radius of the soma sphere
 NEURON_RESOLUTION = 24          # resolution of actors used to render the neuron, values of 12,24 are fine
@@ -50,8 +51,8 @@ SMOOTH_NEURONS = True
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-NEURONS_FILE = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light\\neurons_in_PAG.json"
-
+NEURONS_FILE = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\Mouse Light\\neurons_in_ZI.json"
+VERBOSE = True                  # if True print useful messages during use
 
 
 

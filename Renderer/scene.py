@@ -49,7 +49,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if add_root is None:
             add_root = DISPLAY_ROOT
 
-        self.plotter = Plotter()
+        self.plotter = Plotter(axes=4, size="full")
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
 
         if brain_regions is not None:
