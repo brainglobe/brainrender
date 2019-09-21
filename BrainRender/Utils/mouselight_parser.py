@@ -8,8 +8,8 @@ from vtkplotter import *
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-import multiprocessing as mp
-from pathos.multiprocessing import ProcessingPool as Pool
+# import multiprocessing as mp
+# from pathos.multiprocessing import ProcessingPool as Pool
 from functools import partial
 
 from BrainRender.Utils.data_io import load_json

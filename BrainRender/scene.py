@@ -26,7 +26,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_color = DEFAULT_VIP_COLOR
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
-                    neurons=None, tracts=None, add_root=None, verbose=True):
+                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
@@ -42,11 +42,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         ABA.__init__(self)
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
+        self.jupyter = jupyter 
 
         if add_root is None:
             add_root = DISPLAY_ROOT
 
-        self.plotter = Plotter(axes=4, size="full")
+        if WHOLE_SCREEN: sz = "full"
+        else: sz = "auto"
+        self.plotter = Plotter(axes=4, size=sz)
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
 
         if brain_regions is not None:
@@ -70,9 +73,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
-                        mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], 
-                                                        ccf_version ="annotation/ccf_2017", 
-                                                        file_name=obj_file)
+            try:
+                mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], 
+                                                ccf_version ="annotation/ccf_2017", 
+                                                file_name=obj_file)
+            except:
+                raise ValueError("Could not get mesh for: {}".format(obj_file))
 
     @staticmethod
     def check_region(region):
@@ -88,7 +94,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def _get_structure_mesh(self, acronym, **kwargs):
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
-        obj_path = os.path.join(models_fld, "{}.obj".format(acronym))
+        obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
         self.check_obj_file(structure, obj_path)
         mesh = self.plotter.load(obj_path, **kwargs)
         return mesh
@@ -196,7 +202,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             
             # get the structure and check if we need to download the object file
             structure = self.structure_tree.get_structures_by_acronym([region])[0]
-            obj_file = os.path.join(models_fld, "{}.obj".format(structure["acronym"]))
+            obj_file = os.path.join(folders_paths['models_fld'], "{}.obj".format(structure["acronym"]))
             self.check_obj_file(structure, obj_file)
 
             # check which color to assign to the brain region
@@ -286,7 +292,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
             except:
                 raise ValueError("Something went wrong while getting colors for tractography")
-
+        else:
+            raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
         # add actors to represent tractography data
         actors = []
         for i, (t, color) in enumerate(zip(tractography, COLORS)):
@@ -341,7 +348,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         actors = self.get_actors()
 
         for actor in actors:
-            actor.lighting(style=SHADER_STYLE)
+            if actor is not None:
+                actor.lighting(style=SHADER_STYLE)
 
 
     def get_actors(self):
@@ -380,8 +388,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
 
-        if VERBOSE:
+        if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
+        elif self.jupyter:
+            print("\n\npress 'Esc' to Quit")
         else:
             print("\n\npress 'q' to Quit")
 

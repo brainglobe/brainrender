@@ -42,7 +42,7 @@ class ABA:
         self.projection_metric = projection_metric
 
         # get mouse connectivity cache and structure tree
-        self.mcc = MouseConnectivityCache(manifest_file=manifest)
+        self.mcc = MouseConnectivityCache(manifest_file=folders_paths['manifest'])
         self.structure_tree = self.mcc.get_structure_tree()
         
         # get ontologies API and brain structures sets
@@ -104,7 +104,7 @@ class ABA:
                                                             structure_ids=self.structures.id.values,
                                                             include_descendants=False)
             except: pass
-            structure_unionizes.to_pickle(os.path.join(self.save_fld, "{}.pkl".format(acronym)))
+            structure_unionizes.to_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(acronym)))
     
     def print_structures(self):
         acronyms, names = self.structures.acronym.values, self.structures['name'].values
@@ -122,7 +122,7 @@ class ABA:
         if projection_metric is None: 
             projection_metric = self.projection_metric
 
-        experiment_data = pd.read_pickle(os.path.join(self.save_fld, "{}.pkl".format(SOI)))
+        experiment_data = pd.read_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(SOI)))
         experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
         # Loop over all structures and get the injection density
@@ -166,7 +166,7 @@ class ABA:
             origin_acronym = self.structures.loc[self.structures.id == origin].acronym.values[0]
             origin_name = self.structures.loc[self.structures.id == origin].name.values[0]
 
-            experiment_data = pd.read_pickle(os.path.join(save_fld, "{}.pkl".format(origin_acronym)))
+            experiment_data = pd.read_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(origin_acronym)))
             experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
             exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id]
