@@ -25,8 +25,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
+    ignore_regions = ['retina']
+
     def __init__(self, brain_regions=None, regions_aba_color=False, 
-                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False):
+                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
@@ -43,6 +45,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
         self.jupyter = jupyter 
+
+        if display_inset is None:
+            self.display_inset = DISPLAY_INSET
+        else:
+            self.display_inset = display_inset
 
         if add_root is None:
             add_root = DISPLAY_ROOT
@@ -192,6 +199,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # loop over all brain regions
         for i, region in enumerate(brain_regions):
+            if region in self.ignore_regions: continue
             self.check_region(region)
 
             # if it's an ID get the acronym
@@ -380,13 +388,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             roll = azimuth = elevation = None
 
-        if DISPLAY_INSET and self.inset is None:
+        if self.display_inset and self.inset is None:
             if self.root is None:
                 self.add_root(render=False)
 
             self.inset = self.root.clone().scale(.5)
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
+            self.root = None
 
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
