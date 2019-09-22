@@ -22,11 +22,12 @@ in this (or any other) aspect of the brain render project please get in touch.
 
 
 ### Mouse Light neurons morphology rendering
-<img src="Screenshots/neuron.png" width="400" height="790">
+<img src="Screenshots/neuron.png" width="400" height="250">
 
 
 ### Janelia mouse connectome projection data rendering
-![anatomical projections](Screenshots/tractography.png?raw=true "Connectivty"){:height="50%" width="50%"}
+<img src="Screenshots/tractography.png" width="400" height="250">
+
 
 
 ### Reference
