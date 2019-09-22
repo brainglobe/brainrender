@@ -15,22 +15,7 @@ useDepthPeeling  = True
 br = ABA()
 
 # makes scene
-scene = Scene()
-
-
-# Get the filepath of the JSON file
-neurons_file = "Examples/example_files/one_neuron.json"
-
-# Create the 3D models of the neurons
-neurons = render_neurons(neurons_file, color_neurites=True, axon_color="antiquewhite", 
-                                soma_color="darkgoldenrod", dendrites_color="firebrick")
-
-# then use the "add_neurons" function (and don't forget to render it!)
-scene.add_neurons(neurons)
-scene.edit_neurons(axon_color="red")
+scene = Scene(add_root=False)
+scene.add_brain_regions(['PAG'])
 scene.render()
 
-
-scene.render(interactive=True)
-
-# scene.export_scene()

@@ -103,6 +103,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
         obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
         self.check_obj_file(structure, obj_path)
+
         mesh = self.plotter.load(obj_path, **kwargs)
         return mesh
 
@@ -164,7 +165,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     ###### ADD ACTORS TO SCENE
 
     def add_root(self, render=True):
-        self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA)
+        if not render:
+            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0)
+        else:
+            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA)
+
         self.root.pickable(value=False)
 
         # get the center of the root
@@ -404,7 +409,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset = self.root.clone().scale(.5)
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
+
             self.root = None
+            self.actors['root'] = None
 
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
@@ -414,7 +421,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             print("\n\npress 'q' to Quit")
 
         if interactive:
-            show(self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation)  
+            show(*self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation)  
 
