@@ -201,7 +201,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA)
 
-        self.root.pickable(value=False)
+        # self.root.pickable(value=False)
 
         # get the center of the root and the bounding box
         self.root_center = self.root.centerOfMass()

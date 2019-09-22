@@ -28,18 +28,18 @@ tutorial_scene.add_brain_regions(['PAG'], colors='red') # add the PAG to our sce
 
 # To visualize our scene, we need to call the 'render' function
 # remember to press 'q' to close the render window !q
-tutorial_scene.render() # ! uncomment
+tutorial_scene.render() 
 
 # To know which brain structures are supported and what their acronyms here, we can print the list
 # of structures directly from our scene
-tutorial_scene.print_structures() # ! uncomment
+tutorial_scene.print_structures() 
 
 # we can also render multiple brain regions and only colors the ones we are interested:
 # create a new scene
 tutorial_scene = Scene()
 # display multiple regions and color the "VIP" regions
 tutorial_scene.add_brain_regions(['CA1', 'ZI', 'MOs'], colors='green', VIP_regions=['MOs'], VIP_color='red') # add the PAG to our scene
-tutorial_scene.render() # ! uncomment
+tutorial_scene.render() 
 
 
 """ ------------------------------
@@ -62,7 +62,7 @@ neurons = render_neurons(neurons_file, color_neurites=True, axon_color="antiquew
 # then use the "add_neurons" function (and don't forget to render it!)
 tutorial_scene = Scene()
 tutorial_scene.add_neurons(neurons)
-tutorial_scene.render() # ! uncomment
+tutorial_scene.render() 
 
 """ ------------------------------
     TRACTOGRAPHY
@@ -81,9 +81,9 @@ tract = analyzer.get_projection_tracts_to_target("ZI") # Get the projections to 
 
 # create a new scene. add the projections and render
 tutorial_scene = Scene()
-tutorial_scene.add_brain_regions(['ZI'], colors='red', alpha=.5) # add the PAG to our scene
-tutorial_scene.add_tractography(tract, display_injection_structure=False, color="antiquewhite")
-tutorial_scene.render() # ! uncomment
+tutorial_scene.add_brain_regions(['ZI'], colors='white', alpha=.5) # add the PAG to our scene
+tutorial_scene.add_tractography(tract, display_injection_structure=False, color="antiquewhite", color_by="region")
+tutorial_scene.render() 
 
 
 
