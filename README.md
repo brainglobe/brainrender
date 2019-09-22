@@ -14,7 +14,7 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
-Check the [user guide](../blob/master/LICENSE) and the [examples](Examples) for more information
+Check the [user guide](UserGuide.md) and the [examples](Examples) for more information
 
 
 In the future I aim to include support for VR applications, if you are interested in collaborating
@@ -22,11 +22,12 @@ in this (or any other) aspect of the brain render project please get in touch.
 
 
 ### Mouse Light neurons morphology rendering
-![a neuron](Screenshots/neuron.png?raw=true "Mouse Light"){:height="50%" width="50%"}
+<img src="Screenshots/neuron.png" width="600" height="350">
 
 
 ### Janelia mouse connectome projection data rendering
-![anatomical projections](Screenshots/tractography.png?raw=true "Connectivty"){:height="50%" width="50%"}
+<img src="Screenshots/tractography.png" width="600" height="350">
+
 
 
 ### Reference
