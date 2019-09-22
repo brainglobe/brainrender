@@ -14,7 +14,7 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
-Check the [user guide](../blob/master/LICENSE) and the [examples](Examples) for more information
+Check the [user guide](UserGuide.md) and the [examples](Examples) for more information
 
 
 In the future I aim to include support for VR applications, if you are interested in collaborating
