@@ -46,6 +46,7 @@ class VideoMaker:
 
         # Change directory to target directory otherwise video doesn't get saved correctly
         os.chdir(save_folder)
+        print("Saving video in: {}".format(save_folder))
         video = Video(name=videoname, duration=duration, fps=fps)
 
         # Make video

@@ -4,7 +4,7 @@
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
-WHOLE_SCREEN = True            # If true render window is full screen
+WHOLE_SCREEN = False            # If true render window is full screen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

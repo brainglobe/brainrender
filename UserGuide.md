@@ -48,7 +48,7 @@ example on [[tractography]](Examples/Tractography.ipynb)
 `Scene` let's users create and display interactive 3D rendererings which can be used 
 inspect anatomical data and grab screenshots. To create an animated video of your 
 scene to enbed in talks and website you can use the `VideoMaker` class, as shown in 
-the example on [[making videos]](Examples/Videos.ipynb)
+the example on [[making videos]](Examples/Video.ipynb)
 
 In the future BrainRender will also allow users to export their scenes so that they can 
 be enbed into a web page. 
