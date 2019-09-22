@@ -13,9 +13,9 @@ Check the [user guide](../blob/master/LICENSE) and the [examples](Examples) for 
 
 
 ### Mouse Light neurons morphology rendering
-![a neuron](Screenshots/neuron.png?raw=true "Title")
+![a neuron](Screenshots/neuron.png?raw=true "Mouse Light")
 
 
 
 ### Janelia mouse connectome projection data rendering
-![anatomical projections](Screenshots/tractography.png?raw=true "Title")
+![anatomical projections](Screenshots/tractography.png?raw=true "Connectivty")
