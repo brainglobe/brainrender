@@ -101,7 +101,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.add_tractography(tracts)
 
         if add_root:
-            self.add_root()
+            self.add_root(render=True)
         else:
             self.root = None
 
@@ -493,13 +493,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if self.display_inset and self.inset is None:
             if self.root is None:
                 self.add_root(render=False)
+                self.inset = self.root.clone().scale(.5)
+                self.root = None
+                self.actors['root'] = None
+            else:
+                self.inset = self.root.clone().scale(.5)
 
-            self.inset = self.root.clone().scale(.5)
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
 
-            self.root = None
-            self.actors['root'] = None
+
 
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
