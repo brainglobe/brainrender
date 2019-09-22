@@ -4,7 +4,7 @@
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
-WHOLE_SCREEN = False            # If true render window is full screen
+WHOLE_SCREEN = True            # If true render window is full screen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -43,7 +43,7 @@ NEURON_ALPHA = 1                # transparency of the neurons actors
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # OTHER RENDERED VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-SHADER_STYLE = "glossy"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
+SHADER_STYLE = "plastic"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
 DECIMATE_NEURONS = False
 SMOOTH_NEURONS = True
 

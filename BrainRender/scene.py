@@ -502,8 +502,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
 
-
-
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
@@ -512,9 +510,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             print("\n\npress 'q' to Quit")
 
         if WHOLE_SCREEN:
-            zoom = 1.5
+            zoom = 1.85
         else:
-            zoom = 1.25
+            zoom = 1.5
 
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  

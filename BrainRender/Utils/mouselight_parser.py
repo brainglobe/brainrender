@@ -29,7 +29,10 @@ def edit_neurons(neurons, **kwargs):
     for neuron in neurons:
         if "random_color" in kwargs:
             if kwargs["random_color"]:
-                color = get_random_colors(n_colors=1)
+                if not isinstance(kwargs["random_color"], str):
+                    color = get_random_colors(n_colors=1)
+                else: # random_color is a colormap 
+                    color = colorMap(np.random.randint(1000), name=kwargs["random_color"], vmin=0, vmax=1000)
                 axon_color = soma_color = dendrites_color = color
         elif "color_neurites" in kwargs:
             soma_color = neuron["soma"].color()
@@ -124,7 +127,14 @@ def neurites_parser(neurites, neurite_radius, color):
     """
 
     # get branching points
-    parent_counts = neurites["parentNumber"].value_counts()
+    try:
+        parent_counts = neurites["parentNumber"].value_counts()
+    except:
+        if len(neurites) == 0:
+            print("Couldn't find neurites data")
+            return []
+        else:
+            raise ValueError("Something went wrong while rendering neurites:\n{}".format(neurites))
     branching_points = parent_counts.loc[parent_counts > 1]
 
     # loop over each branching point
@@ -165,12 +175,16 @@ def neurites_parser(neurites, neurite_radius, color):
 
 
 def render_neuron(render_neurites,
-                neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, random_color, neuron):
+                neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, 
+                random_color, neuron, neuron_number, n_neurons):
         """[This function takes care of rendering a single neuron.]
         """
         # Define colors of different components
         if random_color:
-            color = get_random_colors(n_colors=1)
+            if not isinstance(random_color, str):
+                color = get_random_colors(n_colors=1)
+            else: # random_color is a colormap 
+                color = colorMap(neuron_number, name=random_color, vmin=0, vmax=n_neurons)
             axon_color = soma_color = dendrites_color = color
         else:
             if soma_color is None:
@@ -248,10 +262,10 @@ def render_neurons(ml_file, render_neurites = True,
     # Loop over neurons
     actors = []
     if not ML_PARALLEL_PROCESSING or len(data) == 1:
-        if VERBOSE: print("processing neurons in series")
+        # if VERBOSE: print("processing neurons in series")
         # do neurons sequentially
-        for neuron in tqdm(data):
-            neuron_actors = prender_neuron(neuron)
+        for nn, neuron in tqdm(enumerate(data)):
+            neuron_actors = prender_neuron(neuron, nn, len(data))
             actors.append(neuron_actors)
     else:
         raise NotImplementedError("Multi core processing is not implemented yet")
