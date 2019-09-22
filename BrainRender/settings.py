@@ -12,6 +12,7 @@ folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Li
 folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  # here is where the pandas DataFrame with unionized experiment dat is saved 
 folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     # folder where scenes are exported
 folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  # ! this is what is used by mouseconnectivity cache to check what has been downloaded already
+folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")               # This is where screenshots and videos will be saved
 
 
 # Check if these folders exist, create them otherwise
@@ -31,6 +32,7 @@ def update_folders(main_fld):
   folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  
   folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
   folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
+  folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
 
   make_folders(folders_paths)
   return folders_paths

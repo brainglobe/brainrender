@@ -1,8 +1,5 @@
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import os
-from collections import namedtuple
 from vtkplotter import *
 
 from BrainRender.Utils.data_io import load_json
@@ -26,6 +23,34 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_color = DEFAULT_VIP_COLOR
 
     ignore_regions = ['retina']
+
+
+    """
+            - pos, `(list)`,  the position of the camera in world coordinates
+            - focalPoint `(list)`, the focal point of the camera in world coordinates
+            - viewup `(list)`, the view up direction for the camera
+            - distance `(float)`, set the focal point to the specified distance from the camera position.
+            - clippingRange `(float)`, distance of the near and far clipping planes along the direction
+                of projection.
+            - parallelScale `(float)`,
+                scaling used for a parallel projection, i.e. the height of the viewport
+                in world-coordinate distances. The default is 1. Note that the "scale" parameter works as
+                an "inverse scale", larger numbers produce smaller images.
+                This method has no effect in perspective projection mode.
+            - thickness `(float)`,
+                set the distance between clipping planes. This method adjusts the far clipping
+                plane to be set a distance 'thickness' beyond the near clipping plane.
+            - viewAngle `(float)`,
+                the camera view angle, which is the angular height of the camera view
+                measured in degrees. The default angle is 30 degrees.
+                This method has no effect in parallel projection mode.
+                The formula for setting the angle up for perfect perspective viewing is:
+                angle = 2*atan((h/2)/d) where h is the height of the RenderWindow
+                (measured by holding a ruler up to your screen) and d is the distance
+                from your eyes to the screen.
+    """
+    camera_params = {"viewup": [0.25, -1, 0]}
+    video_camera_params = {"viewup": [0, -1, 0]}
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None):
@@ -54,8 +79,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if add_root is None:
             add_root = DISPLAY_ROOT
 
-        if WHOLE_SCREEN: sz = "full"
-        else: sz = "auto"
+
+        # Create camera and plotter
+        if WHOLE_SCREEN: 
+            sz = "full"
+        else: 
+            sz = "auto"
+
         self.plotter = Plotter(axes=4, size=sz)
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
 
@@ -393,11 +423,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 all_actors.append(actors)
         return all_actors
 
-    def render(self, interactive=True):
+    def render(self, interactive=True, video=False):
         self.apply_render_style()
 
         if not self.rotated:
-            roll, azimuth, elevation = 180, -35, -25
+            roll, azimuth, elevation = 0, -35, 0
             self.rotated = True
         else:
             roll = azimuth = elevation = None
@@ -421,33 +451,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             print("\n\npress 'q' to Quit")
 
         if WHOLE_SCREEN:
-            zoom = 2
-        else:
             zoom = 1.5
-
-        if interactive:
-            show(*self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation, zoom=zoom)  
         else:
-            show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation, zoom=zoom)  
+            zoom = 1.25
 
-
-    ####### VIDEO & ANIMATION
-
-    # def video_maker(self, dest_path, vp=None, *args, **kwargs):
-    #     if vp is None: 
-    #         vp = self.plot_structures_3d(*args, render=False, **kwargs)
-
-    #     fld, video = os.path.split(dest_path)
-    #     os.chdir(fld)
-    #     video = Video(name=video, duration=3)
-        
-    #     for i  in range(80):
-    #         vp.show()  # render the scene first
-    #         vp.camera.Azimuth(2)  # rotate by 5 deg at each iteration
-    #         # vp.camera.Zoom(i/40)
-    #         video.addFrame()
-    #     video.close()  # merge all the recorded frames
-
+        if interactive and not video:
+            show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
+        elif video:
+            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=zoom)  
+        else:
+            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
     ####### EXPORT SCENE
     def export_scene(self, merge_actors=True, filename='scene.vtk'):
