@@ -10,7 +10,7 @@ from BrainRender.Utils.data_manipulation import *
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
-from BrainRender.Utils.mouselight_parser import render_neurons
+from BrainRender.Utils.mouselight_parser import render_neurons, edit_neurons
 from BrainRender.settings import *
 
 """
@@ -242,9 +242,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise FileNotFoundError("The neurons JSON file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
+            neurons = edit_neurons(neurons, **kwargs)
             self.actors["neurons"].extend(neurons)
         else:
             raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
+
+    def edit_neurons(self, **kwargs):
+        """
+            Edit already rendered neurons 
+        """
+        neurons = self.actors["neurons"]
+        self.actors["neurons"] = []
+        self.actors["neurons"] = edit_neurons(neurons, **kwargs)
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False, display_onlyVIP_injection_structure=False, color_by="manual", 
                         VIP_regions=[], VIP_color="red", others_color="white"):

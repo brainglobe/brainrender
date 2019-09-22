@@ -20,6 +20,64 @@ from BrainRender.variables import *
 # TODO fix axons initial segment missing from renderes
 
 
+def edit_neurons(neurons, **kwargs):
+    """
+        Modify neurons actors after they have been created, at render time. 
+        neurons should be a list of dictionaries with soma, dendrite and axon actors of each neuron.
+    """
+    soma_color, axon_color, dendrites_color = None, None, None
+    for neuron in neurons:
+        if "random_color" in kwargs:
+            if kwargs["random_color"]:
+                color = get_random_colors(n_colors=1)
+                axon_color = soma_color = dendrites_color = color
+        elif "color_neurites" in kwargs:
+            soma_color = neuron["soma"].color()
+            if not kwargs["color_neurites"]:
+                axon_color = dendrites_color = soma_color
+            else:
+                if not "axon_color" in kwargs:
+                    print("no axon color provided, using somacolor")
+                    axon_color = soma_color
+                else:
+                    axon_color = kwargs["axon_color"]
+
+                if not "dendrites_color" in kwargs:
+                    print("no dendrites color provided, using somacolor")
+                    dendrites_color = soma_color
+                else:
+                    dendrites_color = kwargs["dendrites_color"]
+        elif "soma_color" in kwargs:
+            if check_colors(kwargs["soma_color"]):
+                soma_color = kwargs["soma_color"]
+            else: 
+                print("Invalid soma color provided")
+                soma_color = neuron["soma"].color()
+        elif "axon_color" in kwargs:
+            if check_colors(kwargs["axon_color"]):
+                axon_color = kwargs["axon_color"]
+            else: 
+                print("Invalid axon color provided")
+                axon_color = neuron["axon"].color()
+        elif "dendrites_color" in kwargs:
+            if check_colors(kwargs["dendrites_color"]):
+                dendrites_color = kwargs["dendrites_color"]
+            else: 
+                print("Invalid dendrites color provided")
+                dendrites_color = neuron["dendrites"].color()
+
+        if soma_color is not None: 
+            neuron["soma"].color(soma_color)
+        if axon_color is not None: 
+            neuron["axon"].color(axon_color)
+        if dendrites_color is not None: 
+            neuron["dendrites"].color(dendrites_color)
+    return neurons
+
+
+
+
+
 def decimate_neuron_actors(neuron_actors):
     """
         Can be used to decimate the VTK actors for the neurons (i.e. reduce number of polygons). Should make the rendering faster

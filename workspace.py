@@ -18,23 +18,18 @@ br = ABA()
 scene = Scene()
 
 
-# get the CoM of CA1 and draw a sphere there
+# Get the filepath of the JSON file
+neurons_file = "Examples/example_files/one_neuron.json"
 
-scene.add_brain_regions(['PPN'], alpha=.5)
-# CA1_CoM = scene.get_region_CenterOfMass("PAG", unilateral=False)
-# scene.add_sphere_at_point(pos=CA1_CoM, color="red", radius=500)
+# Create the 3D models of the neurons
+neurons = render_neurons(neurons_file, color_neurites=True, axon_color="antiquewhite", 
+                                soma_color="darkgoldenrod", dendrites_color="firebrick")
 
+# then use the "add_neurons" function (and don't forget to render it!)
+scene.add_neurons(neurons)
+scene.edit_neurons(axon_color="red")
+scene.render()
 
-# add tractography
-
-# p0 = scene.get_region_CenterOfMass("PPN")
-# tract = br.get_projection_tracts_to_target(p0=p0)
-# scene.add_tractography(tract, display_injection_structure=False, color="red", color_by="region", )
-
-out_of_pag = br.get_projection_tracts_from_target("PAG")
-to_pag =  br.get_projection_tracts_to_target("PAG")
-scene.add_tractography(out_of_pag, display_injection_structure=False, color="red", color_by="manual", )
-scene.add_tractography(to_pag, display_injection_structure=False, color="green", color_by="manual", )
 
 scene.render(interactive=True)
 
