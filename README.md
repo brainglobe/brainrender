@@ -9,7 +9,7 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
-Check the [user guide](../blob/master/LICENSE) and the [examples](../Examples) for more information
+Check the [user guide](../blob/master/LICENSE) and the [examples](Examples) for more information
 
 
 ### Mouse Light neurons morphology rendering
