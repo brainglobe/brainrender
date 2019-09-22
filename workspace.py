@@ -15,7 +15,7 @@ useDepthPeeling  = True
 br = ABA()
 
 # makes scene
-scene = Scene(add_root=False)
+scene = Scene()
 scene.add_brain_regions(['PAG'])
 scene.render()
 

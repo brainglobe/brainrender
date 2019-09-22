@@ -420,10 +420,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             print("\n\npress 'q' to Quit")
 
-        if interactive:
-            show(*self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation)  
+        if WHOLE_SCREEN:
+            zoom = 2
         else:
-            show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation)  
+            zoom = 1.5
+
+        if interactive:
+            show(*self.get_actors(), interactive=True, roll=roll, azimuth=azimuth, elevation=elevation, zoom=zoom)  
+        else:
+            show(*self.get_actors(), interactive=False,  offscreen=True, roll=roll, azimuth=azimuth, elevation=elevation, zoom=zoom)  
 
 
     ####### VIDEO & ANIMATION
