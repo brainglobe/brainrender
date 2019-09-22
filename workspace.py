@@ -10,8 +10,10 @@ import os
 # makes scene
 scene = Scene()
 scene.add_brain_regions(['PAG'])
-# scene.render()
+scene.Slice(axis=["z", "x"], j=[0.5, .8], onlyroot=False, )
 
-vm = VideoMaker(scene)
-vm.make_video(azimuth=2, )
+scene.render()
+
+# vm = VideoMaker(scene)
+# vm.make_video(azimuth=2, )
 

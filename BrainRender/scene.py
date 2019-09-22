@@ -1,9 +1,10 @@
 import numpy as np
 import os
 from vtkplotter import *
+import copy
 
 from BrainRender.Utils.data_io import load_json
-from BrainRender.Utils.data_manipulation import *
+from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
@@ -88,6 +89,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.plotter = Plotter(axes=4, size=sz)
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
+        self._actors = None # store a copy of the actors when manipulations like slicing are done
 
         if brain_regions is not None:
             self.add_brain_regions(brain_regions)
@@ -167,7 +169,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
-
     def get_region_unilateral(self, region, hemisphere="both"):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
         
@@ -192,7 +193,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return right
 
-    ###### ADD ACTORS TO SCENE
+    ###### ADD  and EDIT ACTORS TO SCENE
 
     def add_root(self, render=True):
         if not render:
@@ -202,8 +203,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.root.pickable(value=False)
 
-        # get the center of the root
+        # get the center of the root and the bounding box
         self.root_center = self.root.centerOfMass()
+        self.root_bounds = {"x":self.root.xbounds(), "y":self.root.ybounds(), "z":self.root.zbounds()}
 
         if render:
             self.actors['root'] = self.root
@@ -395,6 +397,63 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
+    ####### MANIPULATE SCENE
+    def Slice(self, axis="x", j=0, onlyroot=False, close_holes=False):
+        """
+            x -> coronal
+            y -> horizontal
+            z -> sagittal
+
+            # values of J should be in range 0, 1
+        """
+        # check arguments
+        if not isinstance(axis, str):
+            if not isinstance(axis, list):
+                raise ValueError("Unrecognised axis for slicing actors: {}".format(axis))
+        else:
+            axis = [axis]
+
+        if not isinstance(j, (list, tuple)):
+            j = [j for _ in range(len(axis))]
+        elif isinstance(j, (list, tuple)) and len(j)!= len(axis) :
+            raise ValueError("When slicing over multiple axes, pass a list of values for the slice number j (or a single value). The list must have the same length as the axes list")
+
+
+        # store a copy of original actors
+        self._actors = self.actors.copy()
+
+        # Check if root is in scene to get the center of the root
+        if self.root is None:
+            self.add_root(render=False)
+
+        # slice actors
+        if not onlyroot:
+            all_actors = self.get_actors()
+        else:
+            all_actors = [self.root]
+
+        for actor in all_actors:
+            for ax, i in zip(axis, j):
+                if ax.lower() == "x":
+                    normal = [1, 0, 0]
+                    pos = [get_slice_coord(self.root_bounds['x'], i), 0, 0]
+                elif ax.lower() == "y":
+                    normal = [0, 1, 0]
+                    pos = [0, get_slice_coord(self.root_bounds['y'], i), 0]
+                elif ax.lower() == "z":
+                    normal = [0, 0, 1]
+                    pos = [0, 0, get_slice_coord(self.root_bounds['z'], i)]
+                else:
+                    raise ValueError("Unrecognised ax for slicing actors: {}".format(ax))
+
+                # raise ValueError(self.root_center, self.root_bounds, pos)
+
+                actor = actor.cutWithPlane(origin=pos, normal=normal)
+
+
+    
+            
+
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -402,7 +461,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         for actor in actors:
             if actor is not None:
                 actor.lighting(style=SHADER_STYLE)
-
 
     def get_actors(self):
         all_actors = []
