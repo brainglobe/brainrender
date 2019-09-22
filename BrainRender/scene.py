@@ -522,15 +522,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
     ####### EXPORT SCENE
-    def export_scene(self, merge_actors=True, filename='scene.vtk'):
-        actors = self.get_actors()
+    # def export_scene(self, merge_actors=True, filename='scene.vtk'):
+    #     actors = self.get_actors()
 
-        if merge_actors:
-            scene = merge(*actors)
+    #     if merge_actors:
+    #         scene = merge(*actors)
 
-        save(scene, os.path.join(rendered_scenes, filename))
-        # scene.write(os.path.join(rendered_scenes, filename))
-        # exportWindow(actors, os.path.join(rendered_scenes, filename))
+    #     save(scene, os.path.join(rendered_scenes, filename))
+    #     # scene.write(os.path.join(rendered_scenes, filename))
+    #     # exportWindow(actors, os.path.join(rendered_scenes, filename))
+
+    def export_for_web(self, save_dir=None, filename='scene'):
+        # This exports the scene and generates 2 files:
+        # embryo.x3d and an example embryo.html to inspect in the browser
+        if save_dir is None:
+            save_dir = folders_paths['output_fld']
+        
+        if not os.path.isdir(save_dir):
+            raise ValueError("Save folder not valid: {}".format(save_dir))
+
+        curdir = os.getcwd()
+        os.chdir(save_dir)
+        exportWindow('{}.x3d'.format(filename))
+        os.chdir(curdir)
 
 
 if __name__ == "__main__":

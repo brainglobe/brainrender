@@ -12,6 +12,7 @@
 Users/
 */__pycache__
 __pycache__
+*.vtk
 */.ipynb_checkpoints
 .ipynb_checkpoints
 workspace.py
