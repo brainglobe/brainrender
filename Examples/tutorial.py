@@ -32,7 +32,7 @@ tutorial_scene.render()
 
 # To know which brain structures are supported and what their acronyms here, we can print the list
 # of structures directly from our scene
-tutorial_scene.print_structures() 
+tutorial_scene.print_structures()  # Or have a look at all_regions.txt
 
 # we can also render multiple brain regions and only colors the ones we are interested:
 # create a new scene
