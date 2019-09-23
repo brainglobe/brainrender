@@ -21,7 +21,6 @@ from .settings import *
         mca.experiment_spatial_search(seed_point=p0)
 """
 
-
 class ABA:
     """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees, 
     experimental metadata and results, tractography data etc. ]
@@ -83,7 +82,6 @@ class ABA:
         with open('all_regions.txt', 'w') as o:
             for acr, name in zip(s.acronym.values, s['name'].values):
                 o.write("({}) -- {}\n".format(acr, name))
-
 
     def load_all_experiments(self, cre=False):
         """

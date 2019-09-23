@@ -23,8 +23,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
-    ignore_regions = ['retina']
-
+    ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
     """
             - pos, `(list)`,  the position of the camera in world coordinates
@@ -116,8 +115,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 mesh = self.space.download_structure_mesh(structure_id = structure["id"], 
                                                 ccf_version ="annotation/ccf_2017", 
                                                 file_name=obj_file)
+                return True
             except:
-                raise ValueError("Could not get mesh for: {}".format(obj_file))
+                print("Could not get mesh for: {}".format(obj_file))
+                return False
+        else: return True
 
     @staticmethod
     def check_region(region):
@@ -131,13 +133,43 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
 
+    def get_structure_parent(self, acronyms):
+        if not isinstance(acronyms, list):
+            s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
+
+            if s['id'] in self.structures.id.values:
+                return self.structure_tree.get_structures_by_id(s['id'])[0]
+
+            parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
+            return self.structure_tree.get_structures_by_id([parent[0]])[0]
+        else:
+            parents = []
+            for region in acronyms:
+                self.check_region(region)
+                s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
+
+                if s['id'] in self.structures.id.values:
+                    parents.append(self.structure_tree.get_structures_by_id(s['id'])[0])
+                    
+                parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
+                parents.append(self.structure_tree.get_structures_by_id([parent[0]])[0])
+            return parents
+    
+    def get_structure_childrens(self, acronyms):
+        raise NotImplementedError()
+
+        
+
     def _get_structure_mesh(self, acronym, **kwargs):
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
         obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
-        self.check_obj_file(structure, obj_path)
 
-        mesh = self.plotter.load(obj_path, **kwargs)
-        return mesh
+        if self.check_obj_file(structure, obj_path):
+            mesh = self.plotter.load(obj_path, **kwargs)
+            return mesh
+        else:
+            return None
+
 
     def get_region_CenterOfMass(self, regions, unilateral=True):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
@@ -236,19 +268,22 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # loop over all brain regions
         for i, region in enumerate(brain_regions):
-            if region in self.ignore_regions: continue
             self.check_region(region)
 
             # if it's an ID get the acronym
             if isinstance(region, int):
                 region = self.structure_tree.get_region_by_id([region])[0]['acronym']
 
+            if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
             if self.verbose: print("Rendering: ({})".format(region))
             
             # get the structure and check if we need to download the object file
             structure = self.structure_tree.get_structures_by_acronym([region])[0]
             obj_file = os.path.join(folders_paths['models_fld'], "{}.obj".format(structure["acronym"]))
-            self.check_obj_file(structure, obj_file)
+            
+            if not self.check_obj_file(structure, obj_file):
+                print("Could not render {}, maybe we couldn't get the mesh?".format(structure["acronym"]))
+                continue
 
             # check which color to assign to the brain region
             if self.regions_aba_color or use_original_color:
@@ -272,10 +307,39 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.actors["regions"][region] = self.plotter.load(obj_file, c=color, 
                                                                         alpha=alpha) 
 
-    def add_neurons(self, neurons, **kwargs):
+    def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None, 
+                    display_axon_regions=False, 
+                    display_dendrites_regions=False, **kwargs):
+        """[Adds rendered morphological data of neurons reconstructions downloaded from the Mouse Light project at Janelia. ]
+        
+        Arguments:
+            neurons {[str, list]} -- [Either a string to a JSON file with neurons data, or a list of neurons actors that have already been rendered.]
+        
+        Keyword Arguments:
+            display_soma_region, axon_regions_kwargs, dendrites_regions_kwargs {bool} -- [add the brain region in which the soma is to the scene, or where axons/dendrites go through] (default: {False})
+            soma_regions_kwargs {[dict]} -- [dictionary of keywards arguments to pass to self.add_brain_regions] (default: {None})
+        
+        Raises:
+            FileNotFoundError: [description]
+            ValueError: [description]
+        """
         if isinstance(neurons, str):
             if os.path.isfile(neurons):
-                self.actors["neurons"].extend(render_neurons(neurons, **kwargs))
+                neurons, regions = render_neurons(neurons, scene=self, **kwargs)
+                self.actors["neurons"].extend(neurons)
+
+                # add soma's brain reigons
+                if soma_regions_kwargs is None:
+                    soma_regions_kwargs = {
+                        "use_original_color":False, 
+                        "alpha":0.5
+                    }                
+                if display_soma_region:
+                    self.add_brain_regions(flatten_list([r['soma'] for r in regions]), **soma_regions_kwargs)
+                if display_axon_regions:
+                    self.add_brain_regions(flatten_list([r['axon'] for r in regions]), **soma_regions_kwargs)
+                if display_dendrites_regions:
+                    self.add_brain_regions(flatten_list([r['dendrites'] for r in regions]), **soma_regions_kwargs)                    
             else:
                 raise FileNotFoundError("The neurons JSON file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
@@ -323,6 +387,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             # check color argument
             if color is None:
                 color = TRACT_DEFAULT_COLOR
+                COLORS = [color for i in range(len(tractography))]
             elif isinstance(color, list):
                 if not len(color) == len(tractography):
                     raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
@@ -348,6 +413,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise ValueError("Something went wrong while getting colors for tractography")
         else:
             raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
+        
         # add actors to represent tractography data
         actors = []
         for i, (t, color) in enumerate(zip(tractography, COLORS)):

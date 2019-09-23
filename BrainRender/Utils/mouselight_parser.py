@@ -17,9 +17,6 @@ from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
 
-# TODO fix axons initial segment missing from renderes
-
-
 def edit_neurons(neurons, **kwargs):
     """
         Modify neurons actors after they have been created, at render time. 
@@ -78,9 +75,6 @@ def edit_neurons(neurons, **kwargs):
     return neurons
 
 
-
-
-
 def decimate_neuron_actors(neuron_actors):
     """
         Can be used to decimate the VTK actors for the neurons (i.e. reduce number of polygons). Should make the rendering faster
@@ -105,15 +99,15 @@ def smooth_neurons(neuron_actors):
                 for actor in actors:
                     actor.smoothLaplacian()
 
-
-def neurites_parser(neurites, neurite_radius, color):
+def neurites_parser(neurites, neurite_radius, color, alleninfo, scene):
     """[Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.]
     
     Arguments:
         neurites {[DataFrame]} -- [dataframe with each sample for the neurites]
         neurite_radius {[float]} -- [radius of the Tube actors]
         color {[color object]} -- [color to be assigned to the Tube actor]
-    
+        alleninfo {Data frame]} -- [dataframe with Info about brain regions from Allen]
+
 
     Returns:
         actors {[list]} -- [list of VTK actors]
@@ -132,7 +126,7 @@ def neurites_parser(neurites, neurite_radius, color):
     except:
         if len(neurites) == 0:
             print("Couldn't find neurites data")
-            return []
+            return [], []
         else:
             raise ValueError("Something went wrong while rendering neurites:\n{}".format(neurites))
     branching_points = parent_counts.loc[parent_counts > 1]
@@ -171,12 +165,21 @@ def neurites_parser(neurites, neurite_radius, color):
     # merge actors' meshes to make rendering faster
     merged = merge(*actors)
     merged.color(color)
-    return merged
 
+    # get regions the neurites go through
+    regions = []
+    for rid in set(neurites.allenId.values):
+        try:
+            region = alleninfo.loc[alleninfo.allenId == rid].acronym.values[0]
+            regions.append(scene.get_structure_parent(region)['acronym'])
+        except:
+            pass
+
+    return merged, regions
 
 def render_neuron(render_neurites,
                 neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, 
-                random_color, neuron, neuron_number, n_neurons):
+                random_color, neuron, neuron_number, n_neurons, scene):
         """[This function takes care of rendering a single neuron.]
         """
         # Define colors of different components
@@ -204,6 +207,16 @@ def render_neuron(render_neurites,
         if not check_colors([soma_color, axon_color, dendrites_color]):
             raise ValueError("The colors chosen are not valid: soma - {}, dendrites {}, axon {}".format(soma_color, dendrites_color, axon_color))
 
+        # get allen info: it containes the allenID of each brain region,
+        # each sample has the corresponding allen ID so we can recontruct in which brain region it is
+        alleninfo = pd.DataFrame(neuron['allenInformation'])
+
+        # get brain structure in which is the soma
+        soma_region = scene.get_structure_parent(alleninfo.loc[alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
+        
+        if VERBOSE:
+            print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
+
         # create soma actor
         neuron_actors = {}
 
@@ -213,25 +226,27 @@ def render_neuron(render_neurites,
 
         # Draw dendrites and axons
         if render_neurites:
-            neuron_actors['dendrites'] = neurites_parser(pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color)
-            neuron_actors['axon'] = neurites_parser(pd.DataFrame(neuron["axon"]), neurite_radius, axon_color)
+            neuron_actors['dendrites'], dendrites_regions = neurites_parser(pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color, alleninfo, scene)
+            neuron_actors['axon'], axon_regions = neurites_parser(pd.DataFrame(neuron["axon"]), neurite_radius, axon_color, alleninfo, scene)
         else:
-            neuron_actors['dendrites'] = []
-            neuron_actors['axon'] = []
+            neuron_actors['dendrites'], dendrites_regions = [], None
+            neuron_actors['axon'], axon_regions = [], None
 
         decimate_neuron_actors(neuron_actors)
         smooth_neurons(neuron_actors)
-        return neuron_actors
+        return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 
-def render_neurons(ml_file, render_neurites = True,
+def render_neurons(ml_file, scene=None, render_neurites = True, 
                 neurite_radius=None, 
-                color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
+                color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False,
+            ):
     
     """[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
        this function creates VTKplotter actors that can be used to render the neurons, returns them as nested dictionaries]
 
     Arguments:
         ml_file {[string]} -- [path to the JSON MouseLight file]
+        ml_file {[Scene]} -- [an instance of class Scene]
         render_neurites {[boolean]} -- [If false neurites are not rendered, just the soma]
         neurite_radius {[float]} -- [radius of the "Tube" used to render neurites, it's also used to scale the sphere used for the soma. If set to None the default is used]
         color_neurites {[Bool]} -- [default: True. If true, soma axons and dendrites are colored differently, if false each neuron has a single color (the soma color)]
@@ -260,33 +275,35 @@ def render_neurons(ml_file, render_neurites = True,
                   neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, random_color)
 
     # Loop over neurons
-    actors = []
+    actors, regions = [], []
     if not ML_PARALLEL_PROCESSING or len(data) == 1:
         # if VERBOSE: print("processing neurons in series")
         # do neurons sequentially
         for nn, neuron in tqdm(enumerate(data)):
-            neuron_actors = prender_neuron(neuron, nn, len(data))
-            actors.append(neuron_actors)
+            neuron_actors, soma_region = prender_neuron(neuron, nn, len(data), scene)
+            actors.append(neuron_actors); regions.append(soma_region)
+
+            if nn == 2: break
     else:
         raise NotImplementedError("Multi core processing is not implemented yet")
-        # do them in parallel
-        # check N cores
-        n_cores = mp.cpu_count()
-        if ML_N_PROCESSES > n_cores: 
-            print("Processing ML data in parallel. {} cores request, {} available. Using {} cores".format(ML_N_PROCESSES, n_cores, n_cores))
-        else:
-            n_cores = ML_N_PROCESSES
-            if VERBOSE:
-                print(print("Processing ML data in parallel. Using {} cores".format(n_cores)))
+        # # do them in parallel
+        # # check N cores
+        # n_cores = mp.cpu_count()
+        # if ML_N_PROCESSES > n_cores: 
+        #     print("Processing ML data in parallel. {} cores request, {} available. Using {} cores".format(ML_N_PROCESSES, n_cores, n_cores))
+        # else:
+        #     n_cores = ML_N_PROCESSES
+        #     if VERBOSE:
+        #         print(print("Processing ML data in parallel. Using {} cores".format(n_cores)))
 
-        # create a multi threat pool
-        results = Pool().map(prender_neuron,)
-        # with Pool(processes = n_cores) as pool:
-        #     results = [pool.apply_async(prender_neuron, args=[neuron]).get() for neuron in data]
+        # # create a multi threat pool
+        # results = Pool().map(prender_neuron,)
+        # # with Pool(processes = n_cores) as pool:
+        # #     results = [pool.apply_async(prender_neuron, args=[neuron]).get() for neuron in data]
             
-        a = 1
+        # a = 1
      
-    return actors
+    return actors, regions
 
 
 def test():
