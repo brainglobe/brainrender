@@ -33,8 +33,6 @@ def update_folders(main_fld):
   folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
   folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
   folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
-
-  make_folders(folders_paths)
   return folders_paths
 
 
