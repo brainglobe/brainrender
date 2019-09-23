@@ -1,0 +1,7 @@
+numpy
+pandas
+vtkplotter
+vtk
+jupyter
+allensdk
+k3d

@@ -6,9 +6,47 @@ In addition, it supports the rendering of neuronal morphological reconstructions
 of datasets downloaded from Janelia's Mouse Light project. 
 
 
-## Process
-### Create your scene
+## Overview
+BrainRender let's you interact with the Allen Brin Atlas API to download and visualize anatomical 
+and projection data. BrainRender also let's you visualize 3d morphological reconstruction of
+neurons shared by the Mouse Light project at Janelia alongside the anatomical data from Allen. 
+The aim of BrainRender is to make it easy to crate personalized renderings of mouse brain anatomy to let
+users get a better understanding of the brain regions they are working on, and to crate high quality
+images and videos for scientific talks, posters and publications. 
 
+In brief, the process of creating a rendering consists of creating a 'Scene' to which 'actors' can be added
+before rendering. These 'actors' represent brain regions, neurons, tractography data etc. The user can select
+what to show in the scene and what it should look like. 
+
+
+## Process
+### Installation
+To use BrainRender, the first thing to do is to clone this github repository on your machine, this gives you access
+to the code, the examples and the data stored in this repository.
+
+You then need to set up a python environment to use BrainRender with. If you are using anaconda you can 
+simply crate an environment using the installation .yml file in the [installation](Installation) subdirectory,
+just use this command in you anaconda Prompt:
+
+```conda env create --name NAME --file path_to_your_repo/Installation/environment.yml```
+
+### Folder structure
+BrainRender needs to save and access data from your machine. For this reason you will need to specify the folder
+in which each type of data will be stored [for more details please see [settings.py](BrainRender\settings.py)]. The easiest way to do so is to edit [settings.py](BrainRender\settings.py)
+to make `folders_paths['main_fld']` the directory you want to stared the data in. If you then run `settings.py` it will take care of creating the subfolders for you. 
+Alternatively, you can change the 'main_fld' at runtime as shown in this [example](Examples\Tutorial.ipynb).
+
+
+### Variables
+One of the main aims of BrainRender is to let users personalize their rendering as much as possible. This include
+changing color and transparency of rendered items, coloring items according to different criteria etc. 
+This is achieved in part by passing different arguments to the functions that take care of the rendering 
+as shown in the [examples](Examples), but BrainRender's behaviour can also be controlled by variables defined in
+[variables.py](BrainRender\variables.py). These variables define the default values for many parameters used for rendering, so it's definitively worth having a look at their description in [variables.py](BrainRender\variables.py)
+and playing around them to achieve the best results. 
+
+
+### Create your scene
 To create a rendering, BrainRender uses vtkplotter to create a "scene" which can
 then be populated with "actors" (e.g. 3D brain regions data). The
 scene is then rendered for the user to see and interact with, or used to create a video. 
@@ -45,10 +83,10 @@ and neurons reconstruction data. To see how this works, have a look at the
 example on [[tractography]](Examples/Tractography.ipynb)
 
 ### Make video
-`Scene` let's users create and display interactive 3D rendererings which can be used 
+`Scene` let's users create and display interactive 3D renderings which can be used 
 inspect anatomical data and grab screenshots. To create an animated video of your 
-scene to enbed in talks and website you can use the `VideoMaker` class, as shown in 
+scene to embed in talks and website you can use the `VideoMaker` class, as shown in 
 the example on [[making videos]](Examples/Video.ipynb)
 
 In the future BrainRender will also allow users to export their scenes so that they can 
-be enbed into a web page. 
+be embed into a web page. 

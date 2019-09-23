@@ -36,3 +36,7 @@ def update_folders(main_fld):
 
   make_folders(folders_paths)
   return folders_paths
+
+
+if __name__ == "__main__":
+    make_folders(folders_paths)
