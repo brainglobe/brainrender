@@ -76,6 +76,15 @@ class ABA:
             set_id = all_sets.loc[all_sets.description == set_name].id.values[0]
             self.other_sets[set_name] = pd.DataFrame(self.structure_tree.get_structures_by_set_id([set_id]))
 
+        self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
+
+    def print_structures_list_to_test(self):
+        s = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
+        with open('all_regions.txt', 'w') as o:
+            for acr, name in zip(s.acronym.values, s['name'].values):
+                o.write("({}) -- {}\n".format(acr, name))
+
+
     def load_all_experiments(self, cre=False):
         """
             This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results 
@@ -240,7 +249,7 @@ class ABA:
         tract = self.mca.experiment_spatial_search(seed_point=p0, **kwargs)
 
         if isinstance(tract, str): 
-            raise ValueError('Something went wrong with query')
+            raise ValueError('Something went wrong with query, query error message:\n{}'.format(tract))
         else:
             return tract
 

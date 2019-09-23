@@ -113,7 +113,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
             try:
-                mesh = self.space.download_structure_mesh(structure_id = structure[0]["id"], 
+                mesh = self.space.download_structure_mesh(structure_id = structure["id"], 
                                                 ccf_version ="annotation/ccf_2017", 
                                                 file_name=obj_file)
             except:
