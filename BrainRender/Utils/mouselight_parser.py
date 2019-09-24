@@ -12,7 +12,7 @@ import numpy as np
 # from pathos.multiprocessing import ProcessingPool as Pool
 from functools import partial
 
-from BrainRender.Utils.data_io import load_json
+from BrainRender.Utils.data_io import load_json, load_neuron_swc
 from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -73,7 +73,6 @@ def edit_neurons(neurons, **kwargs):
         if dendrites_color is not None: 
             neuron["dendrites"].color(dendrites_color)
     return neurons
-
 
 def decimate_neuron_actors(neuron_actors):
     """
@@ -140,9 +139,7 @@ def neurites_parser(neurites, neurite_radius, color, alleninfo, scene):
         
         # loop on each branch after the branching point
         for bi, branch in post_bp.iterrows():
-
-            parent = neurites.loc[neurites.sampleNumber == branch.parentNumber]
-            branch_points = [get_coords(parent), get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
+            branch_points = [get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
 
             # loop over all following points along the branch, until you meet either a terminal or another branching point. store the points
             idx = branch.sampleNumber
@@ -220,10 +217,13 @@ def render_neuron(render_neurites,
 
         # get allen info: it containes the allenID of each brain region,
         # each sample has the corresponding allen ID so we can recontruct in which brain region it is
-        alleninfo = pd.DataFrame(neuron['allenInformation'])
-
-        # get brain structure in which is the soma
-        soma_region = scene.get_structure_parent(alleninfo.loc[alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
+        if 'allenInformation' in list(neuron.keys()):
+            alleninfo = pd.DataFrame(neuron['allenInformation'])
+            # get brain structure in which is the soma
+            soma_region = scene.get_structure_parent(alleninfo.loc[alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
+        else:
+            alleninfo = None
+            soma_region = None
         
         if VERBOSE:
             print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
@@ -277,9 +277,12 @@ def render_neurons(ml_file, scene=None, render_neurites = True,
         neurite_radius = DEFAULT_NEURITE_RADIUS
     
     # Load the data
-    data = load_json(ml_file)
-    data = data["neurons"]
-    print("Found {} neurons".format(len(data)))
+    if ".swc" in ml_file.lower():
+        data = [load_neuron_swc(ml_file)]
+    else:
+        data = load_json(ml_file)
+        data = data["neurons"]
+        print("Found {} neurons".format(len(data)))
 
     # Partial render_neurons to set arguments
     prender_neuron = partial(render_neuron, render_neurites,
@@ -314,12 +317,11 @@ def render_neurons(ml_file, scene=None, render_neurites = True,
      
     return actors, regions
 
-
 def test():
     """
         Small function used to test the render_neurons function above. Specify a file path and run it
     """
-    res = render_neurons(NEURONS_FILE,
+    res = render_neurons("Examples/example_files/one_neuron.swc",
                 render_neurites = True,
                 neurite_radius=None, 
                 color_neurites=False, axon_color="red", soma_color="red", dendrites_color="blue", 

@@ -9,8 +9,11 @@ def get_coords(obj):
     try:
         z,y,x =  obj["z"].values[0], obj["y"].values[0], obj["x"].values[0]
     except:
-        z,y,x = obj["z"], obj["y"], obj["x"]
-
+        if isinstance(obj['z'], list):
+            z, y, x = obj["z"][0], obj["y"][0], obj["x"][0]
+        else:
+            z,y,x = obj["z"], obj["y"], obj["x"]
+        
     if not isinstance(z, float): raise ValueError("Could not extract coordinates from: {}".format(obj)) 
     else: 
         return z,y,x

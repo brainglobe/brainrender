@@ -56,7 +56,7 @@ settings.useDepthPeeling = True
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-NEURONS_FILE = "Examples\example_files\one_neuron.jsonn"
+NEURONS_FILE = "Examples\example_files\one_neuron.json"
 VERBOSE = True                  # if True print useful messages during use
 
 
