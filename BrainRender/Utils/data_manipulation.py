@@ -25,6 +25,14 @@ def flatten_list(lst):
     return flatten
 
 
+def is_any_item_in_list(L1, L2):
+    # checks if any item of L1 is also in L2 and returns false otherwise
+    inboth = [i for i in L1 if i in L2]
+    if inboth:
+        return True
+    else:
+        return False
+
 def get_slice_coord(bounds, n):
     """
         # Given the bounds of an actor, return the point that 

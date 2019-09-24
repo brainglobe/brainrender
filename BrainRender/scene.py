@@ -4,7 +4,7 @@ from vtkplotter import *
 import copy
 
 from BrainRender.Utils.data_io import load_json
-from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord
+from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
@@ -138,7 +138,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
 
             if s['id'] in self.structures.id.values:
-                return self.structure_tree.get_structures_by_id(s['id'])[0]
+                return s
 
             parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
             return self.structure_tree.get_structures_by_id([parent[0]])[0]
@@ -149,7 +149,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
 
                 if s['id'] in self.structures.id.values:
-                    parents.append(self.structure_tree.get_structures_by_id(s['id'])[0])
+                    parents.append(s)
                     
                 parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
                 parents.append(self.structure_tree.get_structures_by_id([parent[0]])[0])
@@ -354,8 +354,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors["neurons"] = edit_neurons(neurons, **kwargs)
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False, 
-                        display_onlyVIP_injection_structure=False, color_by="manual", 
-                        VIP_regions=[], VIP_color="red", others_color="white"):
+                        display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1,
+                        VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False):
         """
             Color can be either None (in which case default is used), a single color (e.g. "red") or 
             a list of colors, in which case each tractography tract will have the corresponding color
@@ -406,7 +406,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         elif color_by == "target_region":
             if not check_colors(VIP_color) or not check_colors(others_color): raise ValueError("Invalid VIP or other color passed")
             try:
-                COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+                if include_all_inj_regions:
+                    COLORS = [VIP_color if is_any_item_in_list( [x['abbreviation'] for x in t['injection-structures']], VIP_regions) else others_color for t in tractography]
+                else:
+                    COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
             except:
                 raise ValueError("Something went wrong while getting colors for tractography")
         else:
@@ -418,24 +421,36 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             print("Structures found to be projecting to target: ")
 
         for i, (t, color) in enumerate(zip(tractography, COLORS)):
-            # represent injection site as sphere
-            actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+            if include_all_inj_regions:
+                inj_structures = [x['abbreviation'] for x in t['injection-structures']]
+            else:
+                inj_structures = [t['structure-abbrev']]
 
             # show brain structures in which injections happened
             if display_injection_structure:
-                if t['structure-abbrev'] not in list(self.actors['regions'].keys()):
-                    if display_onlyVIP_injection_structure and t['structure-abbrev'] in VIP_regions:
+                if not is_any_item_in_list(inj_structures, list(self.actors['regions'].keys())):
+                    if display_onlyVIP_injection_structure and is_any_item_in_list(inj_structures, VIP_regions):
                         self.add_brain_regions([t['structure-abbrev']], colors=color)
                     elif not display_onlyVIP_injection_structure:
                         self.add_brain_regions([t['structure-abbrev']], colors=color)
                     
-            if VERBOSE and t['structure-abbrev'] not in structures_acronyms:
+            if VERBOSE and not is_any_item_in_list(inj_structures, structures_acronyms):
                 print("     -- ({})".format(t['structure-abbrev']))
                 structures_acronyms.append(t['structure-abbrev'])
 
             # get tractography points and represent as list
+            if color_by == "target_region" and not is_any_item_in_list(inj_structures, VIP_regions):
+                alpha = others_alpha
+            else:
+                alpha = TRACTO_ALPHA
+
+            if alpha == 0: continue # skip transparent ones
+
+            # represent injection site as sphere
+            actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+
             points = [p['coord'] for p in t['path']]
-            actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=TRACTO_ALPHA, res=TRACTO_RES))
+            actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=alpha, res=TRACTO_RES))
 
         self.actors['tracts'].extend(actors)
 

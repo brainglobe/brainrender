@@ -207,6 +207,17 @@ def render_neuron(render_neurites,
         if not check_colors([soma_color, axon_color, dendrites_color]):
             raise ValueError("The colors chosen are not valid: soma - {}, dendrites {}, axon {}".format(soma_color, dendrites_color, axon_color))
 
+        # check if we have lists of colors
+        if isinstance(soma_color, list):
+            if isinstance(soma_color[0], str) or isinstance(soma_color[0], list):
+                soma_color = soma_color[neuron_number]
+        if isinstance(dendrites_color, list):
+            if isinstance(dendrites_color[0], str) or isinstance(dendrites_color[0], list):
+                dendrites_color = dendrites_color[neuron_number]
+        if isinstance(axon_color, list):
+            if isinstance(axon_color[0], str) or isinstance(axon_color[0], list):
+                axon_color = axon_color[neuron_number]                
+
         # get allen info: it containes the allenID of each brain region,
         # each sample has the corresponding allen ID so we can recontruct in which brain region it is
         alleninfo = pd.DataFrame(neuron['allenInformation'])
@@ -252,7 +263,7 @@ def render_neurons(ml_file, scene=None, render_neurites = True,
         color_neurites {[Bool]} -- [default: True. If true, soma axons and dendrites are colored differently, if false each neuron has a single color (the soma color)]
         axon_color, soma_color, dendrites_color {[String, array, list]} -- [if list it needs to have the same length as the number of neurons being rendered to specify the colors for each neuron. 
                                             colors can be either strings (e.g. "red"), arrays (e.g.[.5, .5,. 5]) or variables (e.g see colors.py)]
-        random_color {[Bool]} -- [if True each neuron will have one color picked at random among those defined in colors.py]
+        random_color {[Bool, str]} -- [if True each neuron will have one color picked at random among those defined in colors.py. Can also pass a string with the name of a matplotlib colormap no draw colors from that]
 
     Returns:
         actors [list] -- [list of dictionaries, each dictionary contains the VTK actors of one neuron]
@@ -282,8 +293,6 @@ def render_neurons(ml_file, scene=None, render_neurites = True,
         for nn, neuron in tqdm(enumerate(data)):
             neuron_actors, soma_region = prender_neuron(neuron, nn, len(data), scene)
             actors.append(neuron_actors); regions.append(soma_region)
-
-            if nn == 2: break
     else:
         raise NotImplementedError("Multi core processing is not implemented yet")
         # # do them in parallel

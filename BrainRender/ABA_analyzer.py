@@ -68,7 +68,8 @@ class ABA:
 
         # Other structures sets
         all_sets = pd.DataFrame(self.oapi.get_structure_sets())
-        sets = ["Summary structures of the pons", "Summary structures of the thalamus", "Summary structures of the hypothalamus", "List of structures for ABA Fine Structure Search",
+        sets = ["Summary structures of the pons", "Summary structures of the thalamus", 
+                    "Summary structures of the hypothalamus", "List of structures for ABA Fine Structure Search",
                     "Structures representing the major divisions of the mouse brain", "Summary structures of the midbrain", "Structures whose surfaces are represented by a precomputed mesh"]
         self.other_sets = {}
         for set_name in sets:
