@@ -158,12 +158,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def get_structure_childrens(self, acronyms):
         raise NotImplementedError()
 
-    def _get_structure_mesh(self, acronym, **kwargs):
+    def _get_structure_mesh(self, acronym, plotter=None,  **kwargs):
+        if plotter is None: 
+            plotter = self.plotter
+
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
         obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
 
         if self.check_obj_file(structure, obj_path):
-            mesh = self.plotter.load(obj_path, **kwargs)
+            mesh = plotter.load(obj_path, **kwargs)
             return mesh
         else:
             return None
@@ -222,15 +225,30 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return right
 
+    def _get_inset(self, **kwargs):
+        if "plotter" in list(kwargs.keys()):
+            root = self.add_root(render=False, **kwargs)
+            inset = root.clone().scale(.5)
+
+        if self.display_inset and self.inset is None:
+            if self.root is None:
+                self.add_root(render=False, **kwargs)
+                self.inset = self.root.clone().scale(.5)
+                self.root = None
+                self.actors['root'] = None
+            else:
+                self.inset = self.root.clone().scale(.5)
+
+            self.inset.alpha(1)
+            self.plotter.showInset(self.inset, pos=(0.9,0.2))  
+    
     ###### ADD  and EDIT ACTORS TO SCENE
 
-    def add_root(self, render=True):
+    def add_root(self, render=True, **kwargs):
         if not render:
-            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0)
+            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
         else:
-            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA)
-
-        # self.root.pickable(value=False)
+            self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
 
         # get the center of the root and the bounding box
         self.root_center = self.root.centerOfMass()
@@ -238,6 +256,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         if render:
             self.actors['root'] = self.root
+
+        return self.root
 
     def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None, 
                         colors=None, use_original_color=False, alpha=None): 
@@ -535,6 +555,31 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
                 actor = actor.cutWithPlane(origin=pos, normal=normal)
 
+    def ortho_views(self):
+        self.render(interactive=False)
+        closeWindow()
+
+        # create a new scene with top and side views of the scene
+        if self.plotter is None:
+            print("nothing to render, populate scene first")
+            return
+
+        mv = Plotter(N=2, axes=4, size="auto", sharecam=False)
+
+        # # TODO make root inset appear
+        # self._get_inset(plotter=top)
+        # self._get_inset(plotter=side)
+
+        # mv.add(self.get_actors())
+        mv.add(self.get_actors())
+
+        mv.show(mv.actors, at=0, zoom=1.15, axes=4, roll=180,  interactive=False, camera=dict(viewup=[0, -1, 0]))    
+        mv.show(mv.actors, at=1, zoom=10, axes=4, roll=180, interactive=False, camera=dict(viewup=[0, 0, 0]))
+
+        interactive()
+
+
+
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -571,17 +616,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             roll = azimuth = elevation = None
 
-        if self.display_inset and self.inset is None:
-            if self.root is None:
-                self.add_root(render=False)
-                self.inset = self.root.clone().scale(.5)
-                self.root = None
-                self.actors['root'] = None
-            else:
-                self.inset = self.root.clone().scale(.5)
-
-            self.inset.alpha(1)
-            self.plotter.showInset(self.inset, pos=(0.9,0.2))  
+        self._get_inset()
 
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
@@ -663,7 +698,6 @@ class LoadedScene:
     def render(self):
         if self.plotter is None:
             print("Nothing to render, need to load a scene first")
-
         else:
             self.plotter.show()
 
