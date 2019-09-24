@@ -614,7 +614,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         os.chdir(curdir)
 
         if VERBOSE:
-            print("Save scene in {} with filename {}".format(save_dir,filename))
+            print("Save scene in {} with filename {}".format(save_dir, savename))
 
     def export_for_web(self, save_dir=None, filename='scene'):
         # This exports the scene and generates 2 files:

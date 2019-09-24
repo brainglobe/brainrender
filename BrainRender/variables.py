@@ -32,18 +32,19 @@ INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
 ML_N_PROCESSES = 6              # max number of processes to use
 DEFAULT_NEURITE_RADIUS = 10     # radius of dendrites, axons...
 SOMA_RADIUS = 50                # radius of the soma sphere
 NEURON_RESOLUTION = 24          # resolution of actors used to render the neuron, values of 12,24 are fine
 NEURON_ALPHA = 1                # transparency of the neurons actors
 
+ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
+
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # OTHER RENDERED VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-SHADER_STYLE = "plastic"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
+SHADER_STYLE = "shiny"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
 DECIMATE_NEURONS = False
 SMOOTH_NEURONS = True
 
