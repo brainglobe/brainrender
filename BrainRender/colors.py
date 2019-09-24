@@ -269,7 +269,7 @@ colors2 = [
 
 
 def get_n_shades_of(shade, n):
-    shades = [k for k,v in colors.items() if "green" in k]
+    shades = [k for k,v in colors.items() if shade in k]
     if not shades: raise ValueError("Could not find shades for {}".format(shade))
     else:
         return random.choices(shades, k=n)
