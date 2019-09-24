@@ -353,7 +353,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors["neurons"] = []
         self.actors["neurons"] = edit_neurons(neurons, **kwargs)
 
-    def add_tractography(self, tractography, color=None, display_injection_structure=False, display_onlyVIP_injection_structure=False, color_by="manual", 
+    def add_tractography(self, tractography, color=None, display_injection_structure=False, 
+                        display_onlyVIP_injection_structure=False, color_by="manual", 
                         VIP_regions=[], VIP_color="red", others_color="white"):
         """
             Color can be either None (in which case default is used), a single color (e.g. "red") or 
