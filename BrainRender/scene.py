@@ -158,8 +158,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def get_structure_childrens(self, acronyms):
         raise NotImplementedError()
 
-        
-
     def _get_structure_mesh(self, acronym, **kwargs):
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
         obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
@@ -169,7 +167,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return mesh
         else:
             return None
-
 
     def get_region_CenterOfMass(self, regions, unilateral=True):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
@@ -415,7 +412,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
         
         # add actors to represent tractography data
-        actors = []
+        actors, structures_acronyms = [], []
+        if VERBOSE:
+            print("Structures found to be projecting to target: ")
+
         for i, (t, color) in enumerate(zip(tractography, COLORS)):
             # represent injection site as sphere
             actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
@@ -427,7 +427,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         self.add_brain_regions([t['structure-abbrev']], colors=color)
                     elif not display_onlyVIP_injection_structure:
                         self.add_brain_regions([t['structure-abbrev']], colors=color)
-
+                    
+            if VERBOSE and t['structure-abbrev'] not in structures_acronyms:
+                print("     -- ({})".format(t['structure-abbrev']))
+                structures_acronyms.append(t['structure-abbrev'])
 
             # get tractography points and represent as list
             points = [p['coord'] for p in t['path']]
@@ -516,10 +519,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
                 actor = actor.cutWithPlane(origin=pos, normal=normal)
 
-
-    
-            
-
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -588,15 +587,34 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
     ####### EXPORT SCENE
-    # def export_scene(self, merge_actors=True, filename='scene.vtk'):
-    #     actors = self.get_actors()
+    def export_scene(self, save_dir=None, savename="exported_scene"):
+        """[Exports the scene as a numpy file]
+        
+        Keyword Arguments:
+            save_dir {[str]} -- [path to folder, if none default output folder is used] (default: {None})
+            savename {str} -- [filename, can not include ".npy"] (default: {"exported_scene"})
+        
+        Raises:
+            ValueError: [description]
+        """
+        if save_dir is None:
+            save_dir = folders_paths['output_fld']
+        
+        if not os.path.isdir(save_dir):
+            raise ValueError("Save folder not valid: {}".format(save_dir))
 
-    #     if merge_actors:
-    #         scene = merge(*actors)
+        if "." in savename and not "npy" in savename:
+            raise ValueError("Savename should have format: .npy")
+        elif not "." in savename:
+            savename = "{}.npy".format(savename)
+        
+        curdir = os.getcwd()
+        os.chdir(save_dir)
+        exportWindow(savename)
+        os.chdir(curdir)
 
-    #     save(scene, os.path.join(rendered_scenes, filename))
-    #     # scene.write(os.path.join(rendered_scenes, filename))
-    #     # exportWindow(actors, os.path.join(rendered_scenes, filename))
+        if VERBOSE:
+            print("Save scene in {} with filename {}".format(save_dir,filename))
 
     def export_for_web(self, save_dir=None, filename='scene'):
         # This exports the scene and generates 2 files:
@@ -611,6 +629,27 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         os.chdir(save_dir)
         exportWindow('{}.x3d'.format(filename))
         os.chdir(curdir)
+
+
+class LoadedScene:
+    def __init__(self, filepath=None):
+        if filepath is not None:
+            self.load_scene(filepath)
+        else:
+            self.plotter = None
+
+    def load_scene(self, filepath):
+        if not os.path.isfile(filepath) or not ".npy" in filepath:
+            raise ValueError("Invalid file path: {}".format(filepath))
+
+        self.plotter = importWindow(filepath)
+
+    def render(self):
+        if self.plotter is None:
+            print("Nothing to render, need to load a scene first")
+
+        else:
+            self.plotter.show()
 
 
 if __name__ == "__main__":

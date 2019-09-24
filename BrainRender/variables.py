@@ -17,7 +17,7 @@ ROOT_COLOR = [.8, .8, .8]       # color of the overall brain model's actor
 ROOT_ALPHA = .3                 # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
-DEFAULT_STRUCTURE_ALPHA = 1
+DEFAULT_STRUCTURE_ALPHA = 0.5
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # TRACTOGRAPHY & INJECTION RENDERING OPTIONS
