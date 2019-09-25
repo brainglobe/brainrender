@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 from collections import namedtuple
 from vtkplotter import Plotter, show, interactive, Video, settings, Sphere, shapes
