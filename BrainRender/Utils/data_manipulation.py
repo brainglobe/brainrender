@@ -1,4 +1,4 @@
-def get_coords(obj):
+def get_coords(obj, mirror=False, mirror_ax='x'):
     """[Get the XYZ coordinates of an object. Can take a dict, Pandas Dataframe or Series]
     
     Arguments:
@@ -16,6 +16,13 @@ def get_coords(obj):
         
     if not isinstance(z, float): raise ValueError("Could not extract coordinates from: {}".format(obj)) 
     else: 
+        if mirror is None: mirror = False
+        if mirror and mirror_ax == 'x':
+            x = mirror + (mirror-x)
+        if mirror and mirror_ax == 'y':
+            y = mirror + (mirror-y)
+        if mirror and mirror_ax == 'z':
+            z = mirror + (mirror-z)
         return z,y,x
 
 def flatten_list(lst):

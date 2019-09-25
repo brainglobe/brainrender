@@ -24,10 +24,10 @@ import multiprocessing as mp
 
 class NeuronsParser:
     def __init__(self, scene=None, 
-                render_neurites = True, 
+                render_neurites = True, mirror=False, 
                 neurite_radius=None, 
                 color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
-        self.scene = scene
+        self.scene = scene # for the meaning of the arguments check self.render_neurons
         self.render_neurites = render_neurites 
         self.neurite_radius = neurite_radius 
         self.color_neurites = color_neurites 
@@ -35,6 +35,7 @@ class NeuronsParser:
         self.soma_color = soma_color 
         self.dendrites_color = dendrites_color 
         self.random_color = random_color
+        self.mirror = mirror
 
     def render_neurons(self, ml_file, **kwargs):
         """[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
@@ -42,10 +43,11 @@ class NeuronsParser:
 
         Arguments:
             ml_file {[string]} -- [path to the JSON MouseLight file]
-            ml_file {[Scene]} -- [an instance of class Scene]
+            scene {[Scene]} -- [an instance of class Scene]
             render_neurites {[boolean]} -- [If false neurites are not rendered, just the soma]
             neurite_radius {[float]} -- [radius of the "Tube" used to render neurites, it's also used to scale the sphere used for the soma. If set to None the default is used]
             color_neurites {[Bool]} -- [default: True. If true, soma axons and dendrites are colored differently, if false each neuron has a single color (the soma color)]
+            mirror {[Bool]} -- [default: False. mirror neuron on the horizontal axis]
             axon_color, soma_color, dendrites_color {[String, array, list]} -- [if list it needs to have the same length as the number of neurons being rendered to specify the colors for each neuron. 
                                                 colors can be either strings (e.g. "red"), arrays (e.g.[.5, .5,. 5]) or variables (e.g see colors.py)]
             random_color {[Bool, str]} -- [if True each neuron will have one color picked at random among those defined in colors.py. Can also pass a string with the name of a matplotlib colormap no draw colors from that]
@@ -71,6 +73,16 @@ class NeuronsParser:
             self.dendrites_color = dendrites_color
         if "random_color" in list(kwargs.keys()):
             self.random_color = random_color
+        if "mirror" in list(kwargs.keys()):
+            self.mirror = mirror
+
+        # if mirror. get mirror coordinates
+        if self.mirror:
+            self.mirror_coord = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
+        else:
+            self.mirror_coord = False
+        self.mirror_ax = 'x'
+
 
         # Check neurite radius
         if self.neurite_radius is None:
@@ -169,17 +181,17 @@ class NeuronsParser:
         # create soma actor
         neuron_actors = {}
 
-        self.soma_coords = get_coords(neuron["soma"])
+        self.soma_coords = get_coords(neuron["soma"], mirror=self.mirror_coord, mirror_ax=self.mirror_ax)
         neuron_actors['soma'] = Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
 
         # Draw dendrites and axons
         if self.render_neurites:
             if self.is_json:
-                neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), self.dendrites_color)
-                neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), self.axon_color)
+                neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+                neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), axon_color)
             else:
-                neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), self.dendrites_color)
-                neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), self.axon_color)
+                neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+                neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), axon_color)
         else:
             neuron_actors['dendrites'], dendrites_regions = [], None
             neuron_actors['axon'], axon_regions = [], None
@@ -260,9 +272,9 @@ class NeuronsParser:
             # loop on each branch after the branching point
             for bi, branch in post_bp.iterrows():
                 if bi == 0:
-                    branch_points = [self.soma_coords, get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
+                    branch_points = [self.soma_coords, get_coords(bp, mirror=self.mirror_coord, mirror_ax=self.mirror_ax), get_coords(branch, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)] # this list stores all the samples that  are part of a branch
                 else:
-                    branch_points = [get_coords(bp), get_coords(branch)] 
+                    branch_points = [get_coords(bp, mirror=self.mirror_coord, mirror_ax=self.mirror_ax), get_coords(branch, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)] 
 
                 # loop over all following points along the branch, until you meet either a terminal or another branching point. store the points
                 idx = branch.sampleNumber
@@ -271,7 +283,7 @@ class NeuronsParser:
                     if len(nxt) != 1: 
                         break
                     else:
-                        branch_points.append(get_coords(nxt))
+                        branch_points.append(get_coords(nxt, mirror=self.mirror_coord, mirror_ax=self.mirror_ax))
                         idx += 1
 
                 # if the branch is too short for a tube, create a sphere instead
@@ -299,7 +311,7 @@ class NeuronsParser:
 
     def neurites_parser_swc(self, neurites, color):
         coords = [self.soma_coords]
-        coords.extend([get_coords(sample) for i, sample in neurites.iterrows()])
+        coords.extend([get_coords(sample, mirror=self.mirror_coord, mirror_ax=self.mirror_ax) for i, sample in neurites.iterrows()])
         lines = Spheres(coords, r=38, c=color, res=4)
         regions = []
         return lines, regions
