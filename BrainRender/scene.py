@@ -171,6 +171,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
+    def get_region_from_point(self, p0):
+        # given a set of coordinates, get the brain region they are in
+        parent = None
+        for struct in sorted(list(self.structures.acronym.values)):
+            mesh = self._get_structure_mesh(struct).decimate()
+            if mesh.isInside(p0):
+                parent = struct
+                break
+        return parent
+    
     def get_region_CenterOfMass(self, regions, unilateral=True):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
         
@@ -242,6 +252,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
     
+
     ###### ADD  and EDIT ACTORS TO SCENE
 
     def add_root(self, render=True, **kwargs):
@@ -358,7 +369,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 if display_dendrites_regions:
                     self.add_brain_regions(flatten_list([r['dendrites'] for r in regions]), **soma_regions_kwargs)                    
             else:
-                raise FileNotFoundError("The neurons JSON file provided cannot be found: {}".format(neurons))
+                raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
             neurons = edit_neurons(neurons, **kwargs)
             self.actors["neurons"].extend(neurons)
@@ -578,8 +589,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         interactive()
 
-
-
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -636,9 +645,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=zoom)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
-
-        
-
 
     ####### EXPORT SCENE
     def export_scene(self, save_dir=None, savename="exported_scene"):
@@ -707,8 +713,8 @@ class LoadedScene:
 
 class DualScene:
     # A class that manages two scenes to display side by side
-    def __init__(self):
-        self.scenes = [Scene(), Scene()]
+    def __init__(self, *args, **kwargs):
+        self.scenes = [Scene( *args, **kwargs), Scene( *args, **kwargs)]
 
 
     def render(self):

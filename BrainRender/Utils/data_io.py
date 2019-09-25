@@ -14,7 +14,6 @@ def load_json(filepath):
 
 
 def load_neuron_swc(filepath):
-    raise NotImplementedError("Working on rendering swc files still")
     # details on swc files: http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html
     _sample = namedtuple("sample", "sampleN structureID x y z r parent") # sampleN structureID x y z r parent
 

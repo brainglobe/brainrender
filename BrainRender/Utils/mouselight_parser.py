@@ -98,7 +98,7 @@ def smooth_neurons(neuron_actors):
                 for actor in actors:
                     actor.smoothLaplacian()
 
-def neurites_parser(neurites, neurite_radius, color, alleninfo, scene):
+def neurites_parser(soma_coords, neurites, neurite_radius, color, alleninfo, scene):
     """[Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.]
     
     Arguments:
@@ -139,7 +139,10 @@ def neurites_parser(neurites, neurite_radius, color, alleninfo, scene):
         
         # loop on each branch after the branching point
         for bi, branch in post_bp.iterrows():
-            branch_points = [get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
+            if bi == 0:
+                branch_points = [soma_coords, get_coords(bp), get_coords(branch)] # this list stores all the samples that  are part of a branch
+            else:
+                branch_points = [get_coords(bp), get_coords(branch)] 
 
             # loop over all following points along the branch, until you meet either a terminal or another branching point. store the points
             idx = branch.sampleNumber
@@ -174,7 +177,15 @@ def neurites_parser(neurites, neurite_radius, color, alleninfo, scene):
 
     return merged, regions
 
-def render_neuron(render_neurites,
+def neurites_parser_swc(soma_coords, neurites, neurite_radius, color, scene):
+    coords = [soma_coords]
+    coords.extend([get_coords(sample) for i, sample in neurites.iterrows()])
+    lines = Spheres(coords, r=38, c=color, res=4)
+    regions = []
+    return lines, regions
+
+
+def render_neuron(is_json, render_neurites,
                 neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, 
                 random_color, neuron, neuron_number, n_neurons, scene):
         """[This function takes care of rendering a single neuron.]
@@ -223,7 +234,7 @@ def render_neuron(render_neurites,
             soma_region = scene.get_structure_parent(alleninfo.loc[alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
         else:
             alleninfo = None
-            soma_region = None
+            soma_region = scene.get_region_from_point(get_coords(neuron['soma']))
         
         if VERBOSE:
             print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
@@ -237,8 +248,12 @@ def render_neuron(render_neurites,
 
         # Draw dendrites and axons
         if render_neurites:
-            neuron_actors['dendrites'], dendrites_regions = neurites_parser(pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color, alleninfo, scene)
-            neuron_actors['axon'], axon_regions = neurites_parser(pd.DataFrame(neuron["axon"]), neurite_radius, axon_color, alleninfo, scene)
+            if is_json:
+                neuron_actors['dendrites'], dendrites_regions = neurites_parser(soma_coords, pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color, alleninfo, scene)
+                neuron_actors['axon'], axon_regions = neurites_parser(soma_coords, pd.DataFrame(neuron["axon"]), neurite_radius, axon_color, alleninfo, scene)
+            else:
+                neuron_actors['dendrites'], dendrites_regions = neurites_parser_swc(soma_coords, pd.DataFrame(neuron["dendrite"]), neurite_radius, dendrites_color, scene)
+                neuron_actors['axon'], axon_regions = neurites_parser_swc(soma_coords, pd.DataFrame(neuron["axon"]), neurite_radius, axon_color, scene)
         else:
             neuron_actors['dendrites'], dendrites_regions = [], None
             neuron_actors['axon'], axon_regions = [], None
@@ -279,57 +294,41 @@ def render_neurons(ml_file, scene=None, render_neurites = True,
     # Load the data
     if ".swc" in ml_file.lower():
         data = [load_neuron_swc(ml_file)]
+        is_json = False
     else:
+        is_json = True
         data = load_json(ml_file)
         data = data["neurons"]
         print("Found {} neurons".format(len(data)))
 
     # Partial render_neurons to set arguments
-    prender_neuron = partial(render_neuron, render_neurites,
+    prender_neuron = partial(render_neuron, is_json, render_neurites,
                   neurite_radius, color_neurites, axon_color, soma_color, dendrites_color, random_color)
 
     # Loop over neurons
     actors, regions = [], []
     if not ML_PARALLEL_PROCESSING or len(data) == 1:
-        # if VERBOSE: print("processing neurons in series")
-        # do neurons sequentially
         for nn, neuron in tqdm(enumerate(data)):
             neuron_actors, soma_region = prender_neuron(neuron, nn, len(data), scene)
             actors.append(neuron_actors); regions.append(soma_region)
     else:
         raise NotImplementedError("Multi core processing is not implemented yet")
-        # # do them in parallel
-        # # check N cores
-        # n_cores = mp.cpu_count()
-        # if ML_N_PROCESSES > n_cores: 
-        #     print("Processing ML data in parallel. {} cores request, {} available. Using {} cores".format(ML_N_PROCESSES, n_cores, n_cores))
-        # else:
-        #     n_cores = ML_N_PROCESSES
-        #     if VERBOSE:
-        #         print(print("Processing ML data in parallel. Using {} cores".format(n_cores)))
-
-        # # create a multi threat pool
-        # results = Pool().map(prender_neuron,)
-        # # with Pool(processes = n_cores) as pool:
-        # #     results = [pool.apply_async(prender_neuron, args=[neuron]).get() for neuron in data]
-            
-        # a = 1
-     
     return actors, regions
 
 def test():
     """
         Small function used to test the render_neurons function above. Specify a file path and run it
     """
-    res = render_neurons("Examples/example_files/one_neuron.swc",
+    from BrainRender.scene import Scene
+    res, _ = render_neurons("Examples/example_files/one_neuron.json",
                 render_neurites = True,
                 neurite_radius=None, 
-                color_neurites=False, axon_color="red", soma_color="red", dendrites_color="blue", 
-                random_color=True)
+                color_neurites=True, axon_color="red", soma_color="green", dendrites_color="blue", 
+                random_color=False, scene=Scene())
 
     vp = Plotter(title='first example')
     for neuron in res:
-        vp.show(neuron['soma'], neuron['dendrites'], neuron['axon'])
+        vp.show(neuron['soma'], neuron['dendrites'], neuron['axon'], interactive=True)
     
 
 if __name__ == "__main__":
