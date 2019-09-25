@@ -10,7 +10,7 @@ from allensdk.api.queries.ontologies_api import OntologiesApi
 from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 
-from .Utils.mouselight_parser import render_neurons
+from .Utils.mouselight_parser import NeuronsParser
 from .settings import *
 
 """

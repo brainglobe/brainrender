@@ -8,7 +8,7 @@ from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_sl
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
-from BrainRender.Utils.mouselight_parser import render_neurons, edit_neurons
+from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
 
 """
