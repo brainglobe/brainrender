@@ -616,8 +616,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             roll = azimuth = elevation = None
 
-        self._get_inset()
-
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
@@ -630,12 +628,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             zoom = 1.5
 
+        self._get_inset()
+
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
         elif video:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=zoom)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
+
+        
+
 
     ####### EXPORT SCENE
     def export_scene(self, save_dir=None, savename="exported_scene"):
@@ -700,6 +703,27 @@ class LoadedScene:
             print("Nothing to render, need to load a scene first")
         else:
             self.plotter.show()
+
+
+class DualScene:
+    # A class that manages two scenes to display side by side
+    def __init__(self):
+        self.scenes = [Scene(), Scene()]
+
+
+    def render(self):
+        mv = Plotter(N=2, axes=4, size="auto", sharecam=True)
+
+        actors = []
+        for scene in self.scenes:
+            scene_actors = scene.get_actors() 
+            actors.append(scene_actors)
+            mv.add(scene_actors)
+
+        mv.show(actors[0], at=0, zoom=1.15, axes=4, roll=180,  interactive=False)    
+        mv.show(actors[1], at=1,  interactive=False)
+        interactive()
+
 
 
 if __name__ == "__main__":
