@@ -56,8 +56,9 @@ tutorial_scene.render()
 neurons_file = "Examples/example_files/one_neuron.json"
 
 # Create the 3D models of the neurons
-from BrainRender.Utils.mouselight_parser import render_neurons 
-neurons, _ = render_neurons(neurons_file, color_neurites=True, axon_color="antiquewhite", soma_color="darkgoldenrod", dendrites_color="firebrick")
+from BrainRender.Utils.mouselight_parser import NeuronsParser 
+np = NeuronsParser(color_neurites=True, axon_color="antiquewhite", soma_color="darkgoldenrod", dendrites_color="firebrick")
+neurons, _ = np.render_neurons(neurons_file)
 
 # then use the "add_neurons" function (and don't forget to render it!)
 tutorial_scene = Scene()

@@ -79,7 +79,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if add_root is None:
             add_root = DISPLAY_ROOT
 
-
         # Create camera and plotter
         if WHOLE_SCREEN: 
             sz = "full"
@@ -254,7 +253,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     
 
     ###### ADD  and EDIT ACTORS TO SCENE
-
     def add_root(self, render=True, **kwargs):
         if not render:
             self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
@@ -353,7 +351,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
         if isinstance(neurons, str):
             if os.path.isfile(neurons):
-                neurons, regions = render_neurons(neurons, scene=self, **kwargs)
+                parser = NeuronsParser(scene=self, **kwargs)
+                neurons, regions = parser.render_neurons(neurons)
                 self.actors["neurons"].extend(neurons)
 
                 # add soma's brain reigons
