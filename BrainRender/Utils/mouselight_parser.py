@@ -25,7 +25,7 @@ import multiprocessing as mp
 class NeuronsParser:
     def __init__(self, scene=None, 
                 render_neurites = True, mirror=False, 
-                neurite_radius=None, 
+                neurite_radius=None, color_by_region=False, force_to_hemisphere=False,
                 color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
         self.scene = scene # for the meaning of the arguments check self.render_neurons
         self.render_neurites = render_neurites 
@@ -36,6 +36,8 @@ class NeuronsParser:
         self.dendrites_color = dendrites_color 
         self.random_color = random_color
         self.mirror = mirror
+        self.color_by_region = color_by_region
+        self.force_to_hemisphere = force_to_hemisphere
 
     def render_neurons(self, ml_file, **kwargs):
         """[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
@@ -51,6 +53,8 @@ class NeuronsParser:
             axon_color, soma_color, dendrites_color {[String, array, list]} -- [if list it needs to have the same length as the number of neurons being rendered to specify the colors for each neuron. 
                                                 colors can be either strings (e.g. "red"), arrays (e.g.[.5, .5,. 5]) or variables (e.g see colors.py)]
             random_color {[Bool, str]} -- [if True each neuron will have one color picked at random among those defined in colors.py. Can also pass a string with the name of a matplotlib colormap no draw colors from that]
+            color_by_region {[bool]} -- [If true neurons are colored by the allen atlas' color of the region the soma is in]
+            force_to_hemisphere {[str]} -- [Can have values: 'left', 'right' and None. If not none it makes sure that all neurons have some in that hemisphere by mirroring those that dont]
 
         Returns:
             actors [list] -- [list of dictionaries, each dictionary contains the VTK actors of one neuron]
@@ -75,6 +79,8 @@ class NeuronsParser:
             self.random_color = random_color
         if "mirror" in list(kwargs.keys()):
             self.mirror = mirror
+        if "force_to_hemisphere" in list(kwargs.keys()):
+            self.force_to_hemisphere = force_to_hemisphere
 
         # if mirror. get mirror coordinates
         if self.mirror:
@@ -82,7 +88,6 @@ class NeuronsParser:
         else:
             self.mirror_coord = False
         self.mirror_ax = 'x'
-
 
         # Check neurite radius
         if self.neurite_radius is None:
@@ -125,46 +130,47 @@ class NeuronsParser:
         """[This function takes care of rendering a single neuron.]
         """
         # Define colors of different components
-        if self.random_color:
-            if not isinstance(self.random_color, str):
-                color = get_random_colors(n_colors=1)
-            else: # random_color is a colormap 
-                color = colorMap(neuron_number, name=self.random_color, vmin=0, vmax=self.n_neurons)
-            axon_color = soma_color = dendrites_color = color
-        else:
-            if self.soma_color is None:
-                print("No soma color is provided, picking a random one")
-                soma_color = get_random_colors(n_colors=1)
-
-            if not self.color_neurites:
-                axon_color = dendrites_color = soma_color = self.soma_color
+        if not self.color_by_region:
+            if self.random_color:
+                if not isinstance(self.random_color, str):
+                    color = get_random_colors(n_colors=1)
+                else: # random_color is a colormap 
+                    color = colorMap(neuron_number, name=self.random_color, vmin=0, vmax=self.n_neurons)
+                axon_color = soma_color = dendrites_color = color
             else:
-                soma_color = self.soma_color
-                if self.axon_color is None:
-                    print("No axon color provided, using soma color")
-                    axon_color = soma_color
-                else:
-                    axon_color = self.axon_color
-                if self.dendrites_color is None:
-                    print("No dendrites color provided, using soma color")
-                    dendrites_color = soma_color
-                else:
-                    dendrites_color = self.dendrites_color
+                if self.soma_color is None:
+                    print("No soma color is provided, picking a random one")
+                    soma_color = get_random_colors(n_colors=1)
 
-        # check that the colors make sense
-        if not check_colors([soma_color, axon_color, dendrites_color]):
-            raise ValueError("The colors chosen are not valid: soma - {}, dendrites {}, axon {}".format(soma_color, dendrites_color, axon_color))
+                if not self.color_neurites:
+                    axon_color = dendrites_color = soma_color = self.soma_color
+                else:
+                    soma_color = self.soma_color
+                    if self.axon_color is None:
+                        print("No axon color provided, using soma color")
+                        axon_color = soma_color
+                    else:
+                        axon_color = self.axon_color
+                    if self.dendrites_color is None:
+                        print("No dendrites color provided, using soma color")
+                        dendrites_color = soma_color
+                    else:
+                        dendrites_color = self.dendrites_color
 
-        # check if we have lists of colors or single colors
-        if isinstance(soma_color, list):
-            if isinstance(soma_color[0], str) or isinstance(soma_color[0], list):
-                soma_color = soma_color[neuron_number]
-        if isinstance(dendrites_color, list):
-            if isinstance(dendrites_color[0], str) or isinstance(dendrites_color[0], list):
-                dendrites_color = dendrites_color[neuron_number]
-        if isinstance(axon_color, list):
-            if isinstance(axon_color[0], str) or isinstance(axon_color[0], list):
-                axon_color = axon_color[neuron_number]                
+            # check that the colors make sense
+            if not check_colors([soma_color, axon_color, dendrites_color]):
+                raise ValueError("The colors chosen are not valid: soma - {}, dendrites {}, axon {}".format(soma_color, dendrites_color, axon_color))
+
+            # check if we have lists of colors or single colors
+            if isinstance(soma_color, list):
+                if isinstance(soma_color[0], str) or isinstance(soma_color[0], list):
+                    soma_color = soma_color[neuron_number]
+            if isinstance(dendrites_color, list):
+                if isinstance(dendrites_color[0], str) or isinstance(dendrites_color[0], list):
+                    dendrites_color = dendrites_color[neuron_number]
+            if isinstance(axon_color, list):
+                if isinstance(axon_color[0], str) or isinstance(axon_color[0], list):
+                    axon_color = axon_color[neuron_number]                
 
         # get allen info: it containes the allenID of each brain region
         # each sample has the corresponding allen ID so we can recontruct in which brain region it is
@@ -174,7 +180,18 @@ class NeuronsParser:
         else:
             self.alleninfo = None
             soma_region = self.scene.get_region_from_point(get_coords(neuron['soma']))
-        
+
+        soma_region = self.scene.get_structure_parent(soma_region)['acronym']
+
+        if self.color_by_region:
+            try:
+                region_color = self.scene.structure_tree.get_structures_by_acronym([soma_region])[0]['rgb_triplet']
+            except:
+                print("could not find default color for region: {}. Using random color instead".format(soma_region))
+                region_color = get_random_colors(n_colors=1)
+
+        axon_color = soma_color = dendrites_color = region_color
+
         if VERBOSE:
             print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
 
@@ -198,6 +215,21 @@ class NeuronsParser:
 
         self.decimate_neuron_actors(neuron_actors)
         self.smooth_neurons(neuron_actors)
+
+        # force to hemisphere
+        if self.force_to_hemisphere is not None:
+            mirror_coor = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
+
+            if self.force_to_hemisphere.lower() == "left":
+                if self.soma_coords[2] > mirror_coor:
+                    neuron_actors = self.mirror_neuron(neuron_actors, mirror_coor)
+            elif self.force_to_hemisphere.lower() == "right":
+                if self.soma_coords[2] < mirror_coor:
+                    neuron_actors = self.mirror_neuron(neuron_actors, mirror_coor)
+            else:
+                raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
+
+
         return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 
     @staticmethod
@@ -316,6 +348,16 @@ class NeuronsParser:
         regions = []
         return lines, regions
 
+    def mirror_neuron(self, neuron, mcoord):
+        for name, actor in neuron.items():
+            # get mesh points coords and shift them to other hemisphere
+            coords = actor.coordinates()
+            shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
+            actor.setPoints(shifted_coords)
+        
+            neuron[name] = actor.mirror(axis='n')
+        return neuron
+
 def edit_neurons(neurons, **kwargs):
     """
         Modify neurons actors after they have been created, at render time. 
@@ -386,7 +428,7 @@ def edit_neurons(neurons, **kwargs):
                 shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
                 actor.setPoints(shifted_coords)
             
-                # neuron[name] = actor.mirror(axis='z')
+                neuron[name] = actor.mirror(axis='n')
             a = 1
 
 
