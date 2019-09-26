@@ -210,6 +210,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
+    def get_n_rando_points_in_region(self, region):
+        """
+            npoints = 10
+
+            scm, scs = scene.actors['regions']['SCm'], scene.actors['regions']['SCs']
+            scm_bounds, scs_bounds = scm.bounds(), scs.bounds()
+            bounds = [[np.min([scm_bounds[0], scs_bounds[0]]), np.min([scm_bounds[1], scs_bounds[1]])], 
+                        [np.min([scm_bounds[2], scs_bounds[2]]), np.min([scm_bounds[3], scs_bounds[3]])], 
+                        [np.min([scm_bounds[4], scs_bounds[4]]), np.min([scm_bounds[5], scs_bounds[5]])]]
+        """
+        raise NotImplementedError
+
+
     def get_region_unilateral(self, region, hemisphere="both"):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
         
@@ -396,7 +409,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             neurons = [neurons]
 
         if copy:
-            neurons = [{'soma':n['soma'].clone(), 'dendrites':n['dendrites'].clone(), 'axon':n['axon'].clone()} for n in neurons]
+            copied_neurons = []
+            for n in neurons:
+                copied = {k:(a.clone() if not isinstance(a, (list, tuple)) and a is not None else []) for k,a in n.items()}
+                copied_neurons.append(copied)
+            neurons = copied_neurons
 
         edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, **kwargs)
         self.actors["neurons"].extend(edited_neurons)
@@ -415,6 +432,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         - manual: use the value of 'color'
                         - region: color by the ABA RGB color of injection region
                         - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color
+            include_all_inj_regions: if True use all regions in the experiment['injection-regions'] list from allen, else use only the main one
+        
         """
         # check argument
         if not isinstance(tractography, list):

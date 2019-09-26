@@ -491,7 +491,7 @@
 (RSPd6a) -- Retrosplenial area, dorsal part, layer 6a
 (RSPd6b) -- Retrosplenial area, dorsal part, layer 6b
 (RSPv) -- Retrosplenial area, ventral part
-(RSPv1) -- Retrosplenial area, ventral part, layer 1
+(RSPv1) -- Retrosplenial area, ventral part, layer 1\
 (RSPv2/3) -- Retrosplenial area, ventral part, layer 2/3
 (RSPv5) -- Retrosplenial area, ventral part, layer 5
 (RSPv6a) -- Retrosplenial area, ventral part, layer 6a
