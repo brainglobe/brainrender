@@ -214,11 +214,24 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
             npoints = 10
 
-            scm, scs = scene.actors['regions']['SCm'], scene.actors['regions']['SCs']
+            scm, scs = self.actors['regions']['SCm'], self.actors['regions']['SCs']
             scm_bounds, scs_bounds = scm.bounds(), scs.bounds()
             bounds = [[np.min([scm_bounds[0], scs_bounds[0]]), np.min([scm_bounds[1], scs_bounds[1]])], 
                         [np.min([scm_bounds[2], scs_bounds[2]]), np.min([scm_bounds[3], scs_bounds[3]])], 
                         [np.min([scm_bounds[4], scs_bounds[4]]), np.min([scm_bounds[5], scs_bounds[5]])]]
+        
+            xmin = self.get_region_CenterOfMass('root', unilateral=False)[2]
+
+
+            sc_points, niters = [], 0
+            while len(sc_points) < npoints:
+                x, y, z = np.random.randint(bounds[0][0], bounds[0][1]),  np.random.randint(bounds[1][0], bounds[1][1]),  np.random.randint(xmin = scene.get_region_CenterOfMass('root', unilateral=False)[2]
+                , bounds[2][1])
+                p = [x, y, z]
+                if scm.isInside(p) or scs.isInside(p):
+                    self.add_sphere_at_point(pos =p)
+                    sc_points.append(p)
+                niters += 1
         """
         raise NotImplementedError
 
@@ -386,7 +399,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             neurons = edit_neurons(neurons, **kwargs)
             self.actors["neurons"].extend(neurons)
         else:
-            raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
+            if isinstance(neurons, dict):
+                neurons = edit_neurons([neurons], **kwargs)
+                self.actors["neurons"].extend(neurons)
+            else:
+                raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
         return neurons
 
     def edit_neurons(self, neurons=None, copy=False, **kwargs): 
@@ -396,7 +413,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             neurons {[list, vtkactor]} -- [list of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
             copy {bool} -- [if true the neurons are copied first and then the copy is edited, otherwise the originals are edited] (default: {False})
         """
+        only_soma = False
         if "mirror" in list(kwargs.keys()):
+            if kwargs.get("miror") == "soma":
+                only_soma = True
             mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
         else:
             mirror_coord = None
@@ -415,12 +435,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 copied_neurons.append(copied)
             neurons = copied_neurons
 
-        edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, **kwargs)
+        edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs)
         self.actors["neurons"].extend(edited_neurons)
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False, 
-                        display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1,
-                        VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False):
+                        display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
+                        VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False,
+                        extract_region_from_inj_coords=False):
         """
             Color can be either None (in which case default is used), a single color (e.g. "red") or 
             a list of colors, in which case each tractography tract will have the corresponding color
@@ -433,7 +454,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         - region: color by the ABA RGB color of injection region
                         - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color
             include_all_inj_regions: if True use all regions in the experiment['injection-regions'] list from allen, else use only the main one
-        
+            extract_region_from_inj_coords: if True instead of using the allen provided injection region metadata. If a list only the points that are in the structures in the lists are rendered
         """
         # check argument
         if not isinstance(tractography, list):
@@ -484,14 +505,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         # add actors to represent tractography data
         actors, structures_acronyms = [], []
-        if VERBOSE:
+        if VERBOSE and verbose:
             print("Structures found to be projecting to target: ")
 
+        # Loop over injection experiments
         for i, (t, color) in enumerate(zip(tractography, COLORS)):
+            # Use allen metadata 
             if include_all_inj_regions:
                 inj_structures = [x['abbreviation'] for x in t['injection-structures']]
             else:
-                inj_structures = [t['structure-abbrev']]
+                inj_structures = [self.get_structure_parent(t['structure-abbrev'])['acronym']]
 
             # show brain structures in which injections happened
             if display_injection_structure:
@@ -501,7 +524,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                     elif not display_onlyVIP_injection_structure:
                         self.add_brain_regions([t['structure-abbrev']], colors=color)
                     
-            if VERBOSE and not is_any_item_in_list(inj_structures, structures_acronyms):
+            if VERBOSE and verbose and not is_any_item_in_list(inj_structures, structures_acronyms):
                 print("     -- ({})".format(t['structure-abbrev']))
                 structures_acronyms.append(t['structure-abbrev'])
 
@@ -513,8 +536,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
             if alpha == 0: continue # skip transparent ones
 
+            # check if we need to manually check injection coords
+            if extract_region_from_inj_coords:
+                try:
+                    region = self.get_region_from_point(t['injection-coordinates'])
+                    if region is None: continue
+                    inj_structures = [self.get_structure_parent(region)['acronym']]
+                except:
+                    raise ValueError(self.get_region_from_point(t['injection-coordinates']))
+                if inj_structures is None: continue
+                elif isinstance(extract_region_from_inj_coords, list):
+                    # check if injection coord are in one of the brain regions in list, otherwise skip
+                    if not is_any_item_in_list(inj_structures, extract_region_from_inj_coords):
+                        continue
+
             # represent injection site as sphere
-            actors.append(Sphere(pos=t['injection-coordinates'], c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+            actors.append(Sphere(pos=t['injection-coordinates'],
+                             c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
 
             points = [p['coord'] for p in t['path']]
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=alpha, res=TRACTO_RES))
@@ -678,7 +716,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
         elif video:
-            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=zoom)  
+            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=2.5)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 

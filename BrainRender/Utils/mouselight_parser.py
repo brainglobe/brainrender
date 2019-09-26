@@ -62,25 +62,27 @@ class NeuronsParser:
 
         # parse options
         if "scene" in list(kwargs.keys()):
-            self.scene = scene
+            self.scene = kwargs['scene']
         if "render_neurites" in list(kwargs.keys()):
-            self.render_neurites = render_neurites
+            self.render_neurites = kwargs['render_neurites']
         if "neurite_radius" in list(kwargs.keys()):
-            self.neurite_radius = neurite_radius
+            self.neurite_radius = kwargs['neurite_radius']
         if "color_neurites" in list(kwargs.keys()):
-            self.color_neurites = color_neurites
+            self.color_neurites = kwargs['color_neurites']
         if "axon_color" in list(kwargs.keys()):
-            self.axon_color = axon_color
+            self.axon_color = kwargs['axon_color']
         if "soma_color" in list(kwargs.keys()):
-            self.soma_color = soma_color
+            self.soma_color = kwargs['soma_color']
         if "dendrites_color" in list(kwargs.keys()):
-            self.dendrites_color = dendrites_color
+            self.dendrites_color = kwargs['dendrites_color']
         if "random_color" in list(kwargs.keys()):
-            self.random_color = random_color
+            self.random_color = kwargs['random_color']
         if "mirror" in list(kwargs.keys()):
-            self.mirror = mirror
+            self.mirror = kwargs['mirror']
         if "force_to_hemisphere" in list(kwargs.keys()):
-            self.force_to_hemisphere = force_to_hemisphere
+            self.force_to_hemisphere = kwargs['force_to_hemisphere']
+        if 'color_by_region' in list(kwargs.keys()):
+            self.color_by_region = kwargs['color_by_region']
 
         # if mirror. get mirror coordinates
         if self.mirror:
@@ -190,7 +192,7 @@ class NeuronsParser:
                 print("could not find default color for region: {}. Using random color instead".format(soma_region))
                 region_color = get_random_colors(n_colors=1)
 
-        axon_color = soma_color = dendrites_color = region_color
+            axon_color = soma_color = dendrites_color = region_color
 
         if VERBOSE:
             print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
@@ -360,6 +362,41 @@ class NeuronsParser:
             neuron[name] = actor.mirror(axis='n')
         return neuron
 
+    def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):
+        """[Only returns neurons whose soma is in one of the regions in regions]
+        
+        Arguments:
+            neurons {[type]} -- [description]
+            regions {[type]} -- [description]
+        """
+
+        if not isinstance(neurons, list): neurons = [neurons]
+        if not isinstance(regions, list): regions = [regions]
+        if neurons_regions is not None:
+            if not isinstance(neurons_regions, list):
+                neurons_regions = [neurons_regions]
+
+        keep = []
+        for i, neuron in enumerate(neurons):
+            if neurons_regions is None:
+                try:
+                    coords = neuron['soma'].centerOfMass()
+                except: raise ValueError(neuron)
+                region = self.scene.get_region_from_point(coords)
+            else:
+                if isinstance(neurons_regions[0], dict):
+                    region = neurons_regions[i]['soma']
+                else:
+                    region = neurons_regions[i]
+
+            if region is None: 
+                print("{} not in {}".format(region, regions))
+                continue
+            elif region in regions:
+                keep.append(neuron)
+        return neuron
+
+
 def edit_neurons(neurons, **kwargs):
     """
         Modify neurons actors after they have been created, at render time. 
@@ -425,6 +462,9 @@ def edit_neurons(neurons, **kwargs):
             
             # mirror X positoin
             for name, actor in neuron.items():
+                if "only_soma" in kwargs:
+                    if kwargs["only_soma"] and name != "soma": continue
+                    
                 # get mesh points coords and shift them to other hemisphere
                 if isinstance(actor, list):
                     continue
@@ -437,6 +477,8 @@ def edit_neurons(neurons, **kwargs):
 
 
     return neurons
+
+
 
 def test():
     """

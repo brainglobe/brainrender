@@ -4,7 +4,7 @@
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
-WHOLE_SCREEN = False            # If true render window is full screen
+WHOLE_SCREEN = True            # If true render window is full screen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -32,13 +32,13 @@ INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-ML_N_PROCESSES = 6              # max number of processes to use
-DEFAULT_NEURITE_RADIUS = 10     # radius of dendrites, axons...
-SOMA_RADIUS = 100                # radius of the soma sphere
-NEURON_RESOLUTION = 8          # resolution of actors used to render the neuron, 
-NEURON_ALPHA = 1                # transparency of the neurons actors
+DEFAULT_NEURITE_RADIUS = 12     # radius of dendrites, axons...
+SOMA_RADIUS = 50                # radius of the soma sphere
+NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
+NEURON_ALPHA = 0.85                # transparency of the neurons actors
 
 ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
+ML_N_PROCESSES = 6              # max number of processes to use
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
