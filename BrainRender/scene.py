@@ -374,14 +374,32 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.actors["neurons"].extend(neurons)
         else:
             raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
+        return neurons
 
-    def edit_neurons(self, **kwargs):
+    def edit_neurons(self, neurons=None, copy=False, **kwargs): 
+        """[summary]
+        
+        Keyword Arguments:
+            neurons {[list, vtkactor]} -- [list of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
+            copy {bool} -- [if true the neurons are copied first and then the copy is edited, otherwise the originals are edited] (default: {False})
         """
-            Edit already rendered neurons 
-        """
-        neurons = self.actors["neurons"]
-        self.actors["neurons"] = []
-        self.actors["neurons"] = edit_neurons(neurons, **kwargs)
+        if "mirror" in list(kwargs.keys()):
+            mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        else:
+            mirror_coord = None
+
+        if neurons is None:
+            neurons = self.actors["neurons"]
+            if not copy:
+                self.actors["neurons"] = []
+        elif not isinstance(neurons, list):
+            neurons = [neurons]
+
+        if copy:
+            neurons = [{'soma':n['soma'].clone(), 'dendrites':n['dendrites'].clone(), 'axon':n['axon'].clone()} for n in neurons]
+
+        edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, **kwargs)
+        self.actors["neurons"].extend(edited_neurons)
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False, 
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1,

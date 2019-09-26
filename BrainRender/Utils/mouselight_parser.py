@@ -371,6 +371,25 @@ def edit_neurons(neurons, **kwargs):
             neuron["axon"].color(axon_color)
         if dendrites_color is not None: 
             neuron["dendrites"].color(dendrites_color)
+
+
+        if "mirror" in kwargs:
+            if "mirror_coord" in kwargs:
+                mcoord = kwargs["mirror_coord"]
+            else:
+                raise ValueError("Need to pass the mirror point coordinate")
+            
+            # mirror X positoin
+            for name, actor in neuron.items():
+                # get mesh points coords and shift them to other hemisphere
+                coords = actor.coordinates()
+                shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
+                actor.setPoints(shifted_coords)
+            
+                # neuron[name] = actor.mirror(axis='z')
+            a = 1
+
+
     return neurons
 
 def test():
