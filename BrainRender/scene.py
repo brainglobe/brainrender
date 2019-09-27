@@ -560,16 +560,38 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['tracts'].extend(actors)
 
-    def add_streamlines(self, sl_file, *args, **kwargs):
+    def add_streamlines(self, sl_file,  colorby = None, *args, **kwargs):
+        """
+        [Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html]
+        Arguments:
+            sl_file {[str, list]} -- [Either a string to a JSON file with streamline data, or a list of json files.]
+        
+        Keyword Arguments:
+            colorby {[str]} -- [Acronym of brain region to use to color the streamline data] (default: {None})
+            
+        """
+        color = None
+        if not colorby is None:
+            try:
+                color = self.structure_tree.get_structures_by_acronym([colorby])[0]['rgb_triplet']
+                if "color" in kwargs.keys():
+                    del kwargs["color"]
+            except:
+                raise ValueError("Could not extract color for region: {}".format(colorby))
+
         if isinstance(sl_file, list):
             if isinstance(sl_file[0], str): # we have a list of files to add
                 for slf in tqdm(sl_file):
-                    streamlines = parse_streamline(slf, *args, **kwargs)
+                    if color is not None:
+                        streamlines = parse_streamline(slf, *args, color=color, **kwargs)
+                    else:
+                        streamlines = parse_streamline(slf, *args, **kwargs)
+
                     self.actors['tracts'].extend(streamlines)
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
         else:
-            streamlines = parse_streamline(sl_file, *args, **kwargs)
+            streamlines = parse_streamline(sl_file, *args,  **kwargs)
             self.actors['tracts'].extend(streamlines)
 
 

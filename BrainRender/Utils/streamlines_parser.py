@@ -18,6 +18,11 @@ from BrainRender.variables import *
 
 
 def extract_ids_from_csv(csv_file):
+    """
+        Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
+        extract experiments ID and get links to download (compressed) streamline data. 
+        Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
+    """
     #  url_model =  https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_480074702.json.gz.
     try:
         data = pd.read_csv(csv_file)
@@ -41,7 +46,10 @@ def extract_ids_from_csv(csv_file):
     print("\n")
     return data.id.values
 
-def parse_streamline(filepath, color='ivory', alpha=.8, radius=6):
+def parse_streamline(filepath, *args, color='ivory', alpha=.8, radius=6, **kwargs):
+    """
+        Given a path to a .json file with streamline data, render the streamline as tubes actors
+    """
     data = load_json(filepath)
 
     # create actors for streamlines
@@ -69,12 +77,7 @@ def test():
 
 
 if __name__ == "__main__":
-    # fld = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy\\streamlines"
-    # csvfile = os.path.join(fld, "VAL_injections.csv")
-    # print(extract_ids_from_csv(csvfile))
-
     test()
-# 
 
 
 
