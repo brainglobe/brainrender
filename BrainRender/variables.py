@@ -44,7 +44,7 @@ ML_N_PROCESSES = 6              # max number of processes to use
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # OTHER RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-SHADER_STYLE = "shiny"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
+SHADER_STYLE = "plastic"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
 DECIMATE_NEURONS = False
 SMOOTH_NEURONS = True
 

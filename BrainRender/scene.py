@@ -2,6 +2,7 @@ import numpy as np
 import os
 from vtkplotter import *
 import copy
+from tqdm import tqdm
 
 from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
@@ -602,7 +603,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
     ####### MANIPULATE SCENE
-    def Slice(self, axis="x", j=0, onlyroot=False, close_holes=False):
+    def Slice(self, axis="x", j=0, onlyroot=False, close_holes=False): # TODO keep right or left cut
         """
             x -> coronal
             y -> horizontal
@@ -649,9 +650,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                     pos = [0, 0, get_slice_coord(self.root_bounds['z'], i)]
                 else:
                     raise ValueError("Unrecognised ax for slicing actors: {}".format(ax))
-
-                # raise ValueError(self.root_center, self.root_bounds, pos)
-
                 actor = actor.cutWithPlane(origin=pos, normal=normal)
 
     def ortho_views(self):
