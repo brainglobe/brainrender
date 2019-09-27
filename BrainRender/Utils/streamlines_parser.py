@@ -65,11 +65,6 @@ def test():
     
     scene.render()
 
-    from BrainRender.videomaker import VideoMaker
-
-    vm = VideoMaker(scene=scene)
-    vm.make_video(videoname="VAL_streamliens.mp4", duration=15, azimuth=3, nsteps=250)
-
 
 
 
