@@ -390,11 +390,13 @@ class NeuronsParser:
                     region = neurons_regions[i]
 
             if region is None: 
-                print("{} not in {}".format(region, regions))
                 continue
             elif region in regions:
                 keep.append(neuron)
-        return neuron
+            else:
+                continue
+
+        return keep
 
 
 def edit_neurons(neurons, **kwargs):
@@ -473,8 +475,6 @@ def edit_neurons(neurons, **kwargs):
                 actor.setPoints(shifted_coords)
             
                 neuron[name] = actor.mirror(axis='n')
-            a = 1
-
 
     return neurons
 

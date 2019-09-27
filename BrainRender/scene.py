@@ -10,7 +10,7 @@ from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
 from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
-
+from BrainRender.Utils.streamlines_parser import parse_streamline
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
     It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
@@ -415,7 +415,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
         only_soma = False
         if "mirror" in list(kwargs.keys()):
-            if kwargs.get("miror") == "soma":
+            if kwargs["mirror"] == "soma":
                 only_soma = True
             mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
         else:
@@ -558,6 +558,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=alpha, res=TRACTO_RES))
 
         self.actors['tracts'].extend(actors)
+
+    def add_streamlines(self, sl_file, *args, **kwargs):
+        if isinstance(sl_file, list):
+            if isinstance(sl_file[0], str): # we have a list of files to add
+                for slf in tqdm(sl_file):
+                    streamlines = parse_streamline(slf, *args, **kwargs)
+                    self.actors['tracts'].extend(streamlines)
+            else:
+                raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
+        else:
+            streamlines = parse_streamline(sl_file, *args, **kwargs)
+            self.actors['tracts'].extend(streamlines)
+
+
 
     def add_injection_sites(self, experiments, color=None):
         """[Creates Spherse at the location of injections with a volume proportional to the injected volume]
@@ -716,7 +730,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
         elif video:
-            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=2.5)  
+            show(*self.get_actors(), interactive=False, offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=2.5)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
@@ -802,6 +816,25 @@ class DualScene:
 
         mv.show(actors[0], at=0, zoom=1.15, axes=4, roll=180,  interactive=False)    
         mv.show(actors[1], at=1,  interactive=False)
+        interactive()
+
+
+class MultiScene:
+    def __init__(self, N,  *args, **kwargs):
+        self.scenes = [Scene( *args, **kwargs) for i in range(N)]
+        self.N = N
+
+    def render(self):
+        mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True)
+
+        actors = []
+        for i, scene in enumerate(self.scenes):
+            scene_actors = scene.get_actors() 
+            actors.append(scene_actors)
+            mv.add(scene_actors)
+
+        for i, scene_actors in enumerate(actors):
+            mv.show(scene_actors, at=i,  interactive=False)
         interactive()
 
 

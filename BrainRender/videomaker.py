@@ -51,6 +51,7 @@ class VideoMaker:
 
         # Make video
         self.scene.render(interactive=False, video=True)
+        self.scene.plotter.camera.Zoom(2)
         for i in tqdm(range(nsteps)):
             self.scene.plotter.show(offscreen=True, interactive=False)
             if azimuth:
