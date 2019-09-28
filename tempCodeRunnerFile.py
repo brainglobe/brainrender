@@ -1,2 +1,1 @@
-
-from random import choice
+ata/anatomy/data")

@@ -21,12 +21,14 @@ import os
 import urllib.request as urlreq
 import urllib.error as urlerr
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = 1000000000
 import io
 import skimage.io as skio
 from skimage.measure import label, regionprops
 from skimage.filters import threshold_otsu
 from skimage import dtype_limits
 import os
+from tqdm import tqdm
 
 def send_query(query_string) -> dict:
     """
@@ -329,7 +331,7 @@ def save_all_section_images(data_set_id, data_directory=None) -> None:
         data_directory = os.path.expanduser(data_directory)  # tilde expansion
         os.chdir(data_directory)
 
-    new_dir_name = str(data_set_id) + '_raw_images'
+    new_dir_name = str(data_set_id)
     if new_dir_name not in os.listdir('.'):
         os.mkdir(new_dir_name)
     os.chdir(new_dir_name)
@@ -343,8 +345,8 @@ def save_all_section_images(data_set_id, data_directory=None) -> None:
     print(section_image_ids)
 
     existing_files = os.listdir('.')
-    for img_id in section_image_ids:
-        fname = "datasetID_{}_imageID_{}.jpg".format(data_set_id, img_id)
+    for img_id in tqdm(section_image_ids):
+        fname = "{}.jpg".format(img_id)
         if fname not in existing_files:
             save_section_image(img_id, img_file_name=fname)
 
@@ -398,7 +400,7 @@ def get_section_image(section_image_id, savepath=None) -> np.array:
         return np.array(img)
 
 
-def extract_region_props(img,
+def extract_region_props(img, params, 
                          section_dataset_id,
                          probes,
                          ish_minval=70
@@ -420,9 +422,6 @@ def extract_region_props(img,
         rprops (list): each element is a dictionary of region properties
             as defined by scikit-image's regionprops function
     """
-    # get the section dataset imaging params
-    params = get_imaging_params(section_dataset_id)
-
     # user must specify probe(s) (i.e., color channels) to analyze
     # if only one probe is specified, turn it into a list
     if type(probes) != list and type(probes) == str:
