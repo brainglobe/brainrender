@@ -135,13 +135,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def get_structure_parent(self, acronyms):
         if not isinstance(acronyms, list):
+            self.check_region(acronyms)
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
 
             if s['id'] in self.structures.id.values:
                 return s
-
-            parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
-            return self.structure_tree.get_structures_by_id([parent[0]])[0]
+            else:
+                return self.get_structure_ancestors(s['acronym']).iloc[-1].acronym.values
         else:
             parents = []
             for region in acronyms:
@@ -149,10 +149,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
 
                 if s['id'] in self.structures.id.values:
-                    parents.append(s)
-                    
-                parent =  self.structure_tree.get_ancestor_id_map()[s['id']]
-                parents.append(self.structure_tree.get_structures_by_id([parent[0]])[0])
+                    parents.append(s)                    
+                parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1].acronym.values)
             return parents
     
     def get_structure_childrens(self, acronyms):

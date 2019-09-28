@@ -9,6 +9,7 @@ from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
 from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
+from allensdk.api.queries.tree_search_api import TreeSearchApi
 
 from .Utils.mouselight_parser import NeuronsParser
 from .settings import *
@@ -52,6 +53,9 @@ class ABA:
 
         # mouse connectivity API [used for tractography]
         self.mca = MouseConnectivityApi()
+
+        # Get tree search api
+        self.tree_search = TreeSearchApi()
 
         # Get some metadata about experiments
         self.all_experiments = self.mcc.get_experiments(dataframe=True)
@@ -277,7 +281,27 @@ class ABA:
         else:
             return tract
 
+    ### OPERATIONS ON STRUCTURE TREES
+    def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
+        """
+            [Get's the ancestors of the region(s) passed as arguments]
         
+        Arguments:
+            regions {[str, list]} -- [List of acronyms of brain regions]
+        """
+
+        if not isinstance(regions, list):
+            struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
+            return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors))
+        else:
+            ancestors = []
+            for region in regions:
+                struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
+                ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors)))
+            return ancestors
+
+    def get_structure_descendants(self, regions):
+        return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
 
 if __name__ == "__main__":
     br = ABA()
