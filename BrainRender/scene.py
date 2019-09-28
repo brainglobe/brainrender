@@ -233,7 +233,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
         raise NotImplementedError
 
-
     def get_region_unilateral(self, region, hemisphere="both"):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
         
@@ -591,8 +590,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             streamlines = parse_streamline(sl_file, *args,  **kwargs)
             self.actors['tracts'].extend(streamlines)
 
-
-
     def add_injection_sites(self, experiments, color=None):
         """[Creates Spherse at the location of injections with a volume proportional to the injected volume]
         
@@ -620,6 +617,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
+
+    def add_cells(self, coords, color="red", radius=25):
+        spheres = Spheres(coords, c=color, r=radius, res=3)
+        self.actors['others'].append(spheres)
 
     ####### MANIPULATE SCENE
     def Slice(self, axis="x", j=0, onlyroot=False, close_holes=False): # TODO keep right or left cut
