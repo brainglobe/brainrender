@@ -26,16 +26,8 @@ class ABA:
     experimental metadata and results, tractography data etc. ]
 
     """
-    volume_threshold = 0.5
-    hemispheres = namedtuple("hemispheres", "left right both") # left: CONTRA, right: IPSI
-    hemispheres_names = ["left", "right", "both"]
-    
-    # useful vars for analysis
-    
+    # useful vars for analysis    
     excluded_regions = ["fiber tracts"]
-
-    # frequently used structures
-    main_structures = ["PAG", "SCm", "ZI", "SCs", "GRN"]
 
     def __init__(self, projection_metric = "projection_energy"):
         self.projection_metric = projection_metric
@@ -123,6 +115,90 @@ class ABA:
         acronyms, names = acronyms[sort_idx], names[sort_idx]
         [print("({}) - {}".format(a, n)) for a,n in zip(acronyms, names)]
 
+    def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
+        """
+            [Returns data about experiments whose injection was in the SOI, structure of interest]
+
+        
+            Arguments:
+                SOI {[str]} -- [acronym of the structure of interest to look at]
+        """
+        """
+            list of possible kwargs
+                injection_structures : list of integers or strings
+                    Integer Structure.id or String Structure.acronym.
+                target_domain : list of integers or strings, optional
+                    Integer Structure.id or String Structure.acronym.
+                injection_hemisphere : string, optional
+                    'right' or 'left', Defaults to both hemispheres.
+                target_hemisphere : string, optional
+                    'right' or 'left', Defaults to both hemispheres.
+                transgenic_lines : list of integers or strings, optional
+                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
+                injection_domain : list of integers or strings, optional
+                    Integer Structure.id or String Structure.acronym.
+                primary_structure_only : boolean, optional
+                product_ids : list of integers, optional
+                    Integer Product.id
+                start_row : integer, optional
+                    For paging purposes. Defaults to 0.
+                num_rows : integer, optional
+                    For paging purposes. Defaults to 2000.
+
+        """
+        transgenic_id = kwargs.pop('transgenic_id', 0) # id = 0 means use only wild type
+        primary_structure_only = kwargs.pop('primary_structure_only', True)
+
+        if not isinstance(SOI, list): SOI = [SOI]
+
+        if source:
+            injection_structures=SOI
+            target_domain = None
+        else:
+            injection_structures = None
+            target_domain = SOI
+
+        return pd.DataFrame(self.mca.experiment_source_search(injection_structures=injection_structures,
+                                            target_domain = target_domain,
+                                            transgenic_lines=transgenic_id,
+                                            primary_structure_only=primary_structure_only))
+
+    def experiments_target_search(self, *args, **kwargs):
+        return self.experiments_source_search(*args, source=False, **kwargs)
+
+    def fetch_experiments_data(self, experiments_id, *args, average_experiments=False, base_structures=True, **kwargs):
+        if isinstance(experiments_id, np.ndarray):
+            experiments_id = [int(x) for x in experiments_id]
+        elif not isinstance(experiments_id, list): 
+            experiments_id = [experiments_id]
+        if [x for x in experiments_id if not isinstance(x, int)]:
+            raise ValueError("Invalid experiments_id argument: {}".format(experiments_id))
+
+        default_structures_ids = self.structures.id.values
+
+
+        is_injection = kwargs.pop('is_injection', False) # Include only structures that are not injection
+        structure_ids = kwargs.pop('structure_ids', default_structures_ids) # Pass IDs of structures of interest 
+        hemisphere_ids= kwargs.pop('hemisphere_ids', None) # 1 left, 2 right, 3 both
+
+        if not average_experiments:
+            return pd.DataFrame(self.mca.get_structure_unionizes(experiments_id,
+                                                is_injection = is_injection,
+                                                structure_ids = structure_ids,
+                                                hemisphere_ids = hemisphere_ids))
+        else:
+            raise NotImplementedError("Need to find a way to average across experiments")
+            unionized = pd.DataFrame(self.mca.get_structure_unionizes(experiments_id,
+                                                is_injection = is_injection,
+                                                structure_ids = structure_ids,
+                                                hemisphere_ids = hemisphere_ids))
+
+        for regionid in list(set(unionized.structure_id)):
+            region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1)
+
+
+
+
     ####### ANALYSIS ON EXPERIMENTAL DATA
     def analyze_efferents(self, SOI, projection_metric = None):
         """[Loads the experiments on SOI and looks at average statistics of efferent projections]
@@ -144,7 +220,9 @@ class ABA:
 
             exp_target = experiment_data.loc[experiment_data.structure_id == target]
 
-            exp_target_hemi = self.hemispheres(exp_target.loc[exp_target.hemisphere_id == 1], exp_target.loc[exp_target.hemisphere_id == 2], exp_target.loc[exp_target.hemisphere_id == 3])
+            exp_target_hemi = self.hemispheres(exp_target.loc[exp_target.hemisphere_id == 1], 
+                                                exp_target.loc[exp_target.hemisphere_id == 2], 
+                                                exp_target.loc[exp_target.hemisphere_id == 3])
             proj_energy = self.hemispheres(np.nanmean(exp_target_hemi.left[projection_metric].values),
                                             np.nanmean(exp_target_hemi.right[projection_metric].values),
                                             np.nanmean(exp_target_hemi.both[projection_metric].values)
@@ -195,25 +273,12 @@ class ABA:
         results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
         return results
 
+
     ####### GET TRACTOGRAPHY AND SPATIAL DATA
-    def get_structure_location(self, acronym):
-        # ! currently this averages the location of injections in that structure, in the future it will get the centroid of the mesh corresponding to the brain region
-        struct = self.structure_tree.get_structures_by_acronym([acronym])[0]
-        experiments = self.mcc.get_experiments(cre=False,  injection_structure_ids=[struct["id"]])
-        x, y, z  = [], [], []
-        if not experiments: return None
-        for exp in experiments:
-            x.append(exp["injection_x"])
-            y.append(exp["injection_y"])
-            z.append(exp["injection_z"])
-
-        return [np.nanmean(x).astype(np.int32), np.nanmean(y).astype(np.int32), np.nanmean(z).astype(np.int32)]
-
-    def get_projection_tracts_to_target(self, acronym=None, p0=None, **kwargs):
+    def get_projection_tracts_to_target(self, p0=None, **kwargs):
         """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
         
         Keyword Arguments:
-            acronym {[str]} -- [acronym of brain region of interest] (default: {None})
             p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
         
         Raises:
@@ -223,30 +288,12 @@ class ABA:
         Returns:
             [type] -- [description]
         """
-        """
-            mca.experiment_injection_coordinate_search also takes these arguments:
-                transgenic_lines : list of integers or strings, optional
-                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
-                section_data_sets : list of integers, optional
-                    Ids to filter the results.
-                injection_structures : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                primary_structure_only : boolean, optional
-                product_ids : list of integers, optional
-                    Integer Product.id
-        """
+
         # check args
         if p0 is None:
-            if acronym is not None:
-                p0 = self.get_structure_location(acronym)
-            else: raise ValueError("Please pass either p0 or acronym")
-        else:
-            if acronym is not None:
-                print("both p0 and acronym passed, using p0")
-
-
-        if p0 is None: # something went wrong while extracting coordinates
-            raise ValueError("Could not find experiments for {} -> could not get coordinates of brain region. Please try again by passing coordinates as 'p0'")
+            raise ValueError("Please pass coordinates")
+        elif not isinstance(p0, (list, tuple)):
+            raise ValueError("Invalid argument passed (p0): {}".format(p0))
 
         tract = self.mca.experiment_spatial_search(seed_point=p0, **kwargs)
 
@@ -255,31 +302,7 @@ class ABA:
         else:
             return tract
 
-    def get_projection_tracts_from_target(self, acronym=None, **kwargs):
-        raise NotImplementedError
-        """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
-        
-        Keyword Arguments:
-            acronym {[str, list]} -- [acronym of brain region of interest or list of strings] (default: {None})
-        
-        Raises:
-            ValueError: [description]
-            ValueError: [description]
-        
-        Returns:
-            [type] -- [description]
-        """
 
-        # check args
-        if not isinstance(acronym, list):
-            acronym = [acronym]
-
-        tract = self.mca.experiment_spatial_search(injection_structures=acronym, **kwargs)
-
-        if isinstance(tract, str): 
-            raise ValueError('Something went wrong with query')
-        else:
-            return tract
 
     ### OPERATIONS ON STRUCTURE TREES
     def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
@@ -302,10 +325,4 @@ class ABA:
 
     def get_structure_descendants(self, regions):
         return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
-
-if __name__ == "__main__":
-    br = ABA()
-    tract = br.get_projection_tracts_from_target("PAG", injection_structures=["PAG"], primary_structure_only=True)
-
-    a = 1
 

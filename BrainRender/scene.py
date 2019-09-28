@@ -137,7 +137,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if not isinstance(acronyms, list):
             self.check_region(acronyms)
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
-
             if s['id'] in self.structures.id.values:
                 return s
             else:
