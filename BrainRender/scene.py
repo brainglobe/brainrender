@@ -3,6 +3,7 @@ import os
 from vtkplotter import *
 import copy
 from tqdm import tqdm
+import pandas as pd
 
 from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
@@ -619,6 +620,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
     def add_cells(self, coords, color="red", radius=25):
+        if isinstance(coords, pd.DataFrame):
+            coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
         spheres = Spheres(coords, c=color, r=radius, res=3)
         self.actors['others'].append(spheres)
 

@@ -4,6 +4,7 @@ sys.path.append("./")
 from BrainRender.expression.ecallen import *
 from BrainRender.settings import *
 
+import pandas as pd
 import random
 from tqdm import tqdm
 from PIL import Image
@@ -46,7 +47,6 @@ class ExpressionAnalyser:
         return skio.imread(filename)
 
     def get_cells(self, exp_id=None, N=None, save_cell_locations=True):
-
         exp_id = self._get_correct_id(exp_id)
         
         print("Fetching data and metadata")
@@ -68,7 +68,8 @@ class ExpressionAnalyser:
                 continue
             rprops = extract_region_props(img, metadata,
                                 exp_id,
-                                metadata['probes'])
+                                metadata['probes'], 
+                                ish_minval=200)
 
             # grab the X and Y pixels at the center of each labeled region
             cell_x_pix = np.array([roi['centroid'][1] for roi in rprops])
@@ -84,15 +85,22 @@ class ExpressionAnalyser:
             cells.extend(img_cells)
         
         if save_cell_locations:
-            a = 1
+            cells_dict = {"id":[], "x":[], "y":[], "z":[]}
+            for i,c in enumerate(cells):
+                cells_dict['id'].append(i)
+                cells_dict['x'].append(c[0])
+                cells_dict['y'].append(c[1])
+                cells_dict['z'].append(c[2])
+            cells_ds = pd.DataFrame.from_dict(cells_dict)
+            cells_ds.to_pickle(os.path.join(folders_paths['save_fld'], str(exp_id), "{}.pkl".format(exp_id)))
 
         if N is None:
             print("Task completed, found {} cells for experiment id: {}".format(len(cells), exp_id))
             self.cells = cells
         else:
             tot_cells = len(cells)
-            cells = self.get_n_cells(cells, N)
             print("Task completed, found {} cells for experiment id: {}. Returning {} randomly selected cells".format(len(cells), exp_id, N))
+            cells = self.get_n_cells(cells, N)
             self.cells = cells
         return cells
 
@@ -102,3 +110,13 @@ class ExpressionAnalyser:
         if not isinstance(N, int):
             raise ValueError("N must be an integer")
         return random.choices(cells, k=N)
+
+    def load_cells(self, exp_id=None, N=None):
+        exp_id = self._get_correct_id(exp_id)
+        cells = pd.read_pickle(os.path.join(folders_paths['save_fld'], str(exp_id), "{}.pkl".format(exp_id)))
+
+        if N is not None:
+            ids = random.choices(cells.id.values, k=N)
+            cells = cells.iloc[ids]
+
+        return cells
