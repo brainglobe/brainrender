@@ -6,6 +6,12 @@ from collections import namedtuple
 
 from allensdk.core.swc import read_swc
 
+def listdir(fld):
+    if not os.path.isdir(fld):
+        raise FileNotFoundError("Could not find directory: {}".format(fld))
+
+    return [os.path.join(fld, f) for f in os.listdir(fld)]
+
 def load_json(filepath):
     if not os.path.isfile(filepath) or not ".json" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
     with open(filepath) as f:

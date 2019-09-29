@@ -51,7 +51,7 @@ SMOOTH_NEURONS = True
 
 from vtkplotter import settings
 settings.useDepthPeeling = True
-
+settings.useFXAA = True
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES

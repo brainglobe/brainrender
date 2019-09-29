@@ -4,6 +4,11 @@ import numpy as np
 import urllib.request as urlreq
 import urllib.error as urlerr
 import untangle
+import rawpy
+
+from allensdk.api.queries.mouse_connectivity_cache import MouseConnectivityCache
+
+import skimage.io as io
 
 def send_query(query_string, clean=False):
 	response = requests.get(query_string)
@@ -71,7 +76,34 @@ def get_gene_data(gene_id=None, acronym=None):
 	return(pd.DataFrame(temp))
 
 
+def load_raw_img(filepath):
+	# raw = rawpy.imread(filepath)
+	# rgb = raw.postprocess()
+	# return rgb
+	sizeGrid = [33, 20, 28] #[132, 80, 114]
+	img = np.fromfile(filepath, dtype='int16', sep="").reshape([68,40,50])
 
 
-gd = get_gene_data(acronym="Vsx1")
-print(get_structure_unionizes("Vsx1", orientation='sagittal'))
+	a = 1
+
+# gd = get_gene_data(acronym="Vsx1")
+# print(get_structure_unionizes("Vsx1", orientation='sagittal'))
+
+# expid, _ = parse_expid_query("Vsx1")
+# mapi = MouseAtlasApi()
+
+# mapi.download_expression_energy("/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/analysis_metadata/anatomy", expid)
+
+# query = "http://mouse.brain-map.org/api/v2/data/query.json?criteria=model::Structure,rma::criteria,structure_sets%5Bid$eq2%5D,pipe::list%5Bxstructures$eq%27id%27%5D,model::SectionDataSet%5Bid$eq70445299%5D,rma::include,genes,plane_of_section,treatments,specimen(donor(age,organism)),probes(orientation,predicted_sequence,forward_primer_sequence,reverse_primer_sequence),products%5Bid$eq1%5D,model::StructureUnionize,rma::criteria,section_data_set%5Bid$eq70445299%5D,rma::include,structure%5Bid$in$xstructures%5D,rma::options%5Bonly$eqid,section_data_set_id,name,expression_energy,acronym,red,green,blue%5D,model::SectionImage%5Bdata_set_id$eq70445299%5D,rma::include,associates,alternate_images,rma::options%5Border$eq%27sub_images.section_number$asc%27%5D,"
+# data = send_query(query)
+# a = 1
+
+
+fp = "Examples/example_files/energy.raw"
+# img = load_raw_img(fp)
+mcc = MouseConnectivityCache()
+
+
+# get_affine_parameters: https://github.com/AllenInstitute/AllenSDK/blob/57df49c10ef301c84c00000f31abc735819ca141/allensdk/core/mouse_connectivity_cache.py
+
+a = 1
