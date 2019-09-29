@@ -73,7 +73,7 @@ class ABA:
 
         self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
 
-    def print_structures_list_to_test(self):
+    def print_structures_list_to_text(self):
         s = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
         with open('all_regions.txt', 'w') as o:
             for acr, name in zip(s.acronym.values, s['name'].values):
@@ -195,9 +195,6 @@ class ABA:
 
         for regionid in list(set(unionized.structure_id)):
             region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1)
-
-
-
 
     ####### ANALYSIS ON EXPERIMENTAL DATA
     def analyze_efferents(self, SOI, projection_metric = None):
