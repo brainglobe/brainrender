@@ -14,14 +14,17 @@ from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
 
-# https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
-
-
 def extract_ids_from_csv(csv_file):
     """
+        [Parse CSV file to extract experiments IDs and link to downloadable streamline data
+
         Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
-        extract experiments ID and get links to download (compressed) streamline data. 
+        extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl. 
         Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
+        ]
+
+        Arguments:
+            csv_file {[str]} --  [Path to a csv file.]
     """
     #  url_model =  https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_480074702.json.gz.
     try:
@@ -46,9 +49,17 @@ def extract_ids_from_csv(csv_file):
     print("\n")
     return data.id.values
 
-def parse_streamline(filepath, *args, color='ivory', alpha=.8, radius=6, **kwargs):
+def parse_streamline(filepath, *args, color='ivory', alpha=.8, radius=10, **kwargs):
     """
-        Given a path to a .json file with streamline data, render the streamline as tubes actors
+        [Given a path to a .json file with streamline data, render the streamline as tubes actors.]
+
+        Arguments:
+            filepath {[str, list]} -- [Either a path to a .json file or a list of file paths]
+
+        Keyword arguments:
+            color {[str, color]} -- [Color of the streamlines actors]
+            alpha {[float]} -- [range 0,1  transparency of the streamlines]
+            radius {[int]} -- [radius of the tubes used to render the streamlines]
     """
     data = load_json(filepath)
 
@@ -72,9 +83,6 @@ def test():
     scene.add_brain_regions(['VAL'], colors='ivory', alpha=.4)
     
     scene.render()
-
-
-
 
 if __name__ == "__main__":
     test()

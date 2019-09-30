@@ -405,7 +405,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return neurons
 
     def edit_neurons(self, neurons=None, copy=False, **kwargs): 
-        """[summary]
+        """[Edit neurons that have already been rendered. Change color, mirror them etc.]
         
         Keyword Arguments:
             neurons {[list, vtkactor]} -- [list of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
@@ -440,20 +440,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
                         VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False,
                         extract_region_from_inj_coords=False):
-        """
-            Color can be either None (in which case default is used), a single color (e.g. "red") or 
-            a list of colors, in which case each tractography tract will have the corresponding color
+        """[Edit neurons that have already been rendered. Change color, mirror them etc.]
+        
+        Arguments:
+            tractography {[list]} -- [List of dictionaries with tractography data. To get the tractography data use ABA_analyzer.get_traget_projection_tracts_to_target]
 
-            display_injection_structure: display the brain region in which the injection was made
-            display_onlyVIP_injection_structure: if True and display_injection_structure == True then only the brian structures that are in VIP_regions are displayed
-            color_by: [str] specify how to color tracts and, if displayed, injection structures.
-                    options are:
+        Keyword Arguments:
+            display_injection_structure {[Bool]} -- [If true the mesh for the injection structure is rendered] (default: {False})
+            colors {color, list} -- [If None default color is used. Alternatively can be either a color or list of colors] (default: {None})
+            display_onlyVIP_injection_structure {bool} -- [If true only the injection structures that are in VIP_regions are listed ] (default: {False})
+            color_by {str} -- [Specify how the tracts are colored (overrides colors).  options are:
                         - manual: use the value of 'color'
                         - region: color by the ABA RGB color of injection region
-                        - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color
-            include_all_inj_regions: if True use all regions in the experiment['injection-regions'] list from allen, else use only the main one
-            extract_region_from_inj_coords: if True instead of using the allen provided injection region metadata. If a list only the points that are in the structures in the lists are rendered
+                        - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color] (default: {False})
+            include_all_inj_regions {bool} -- [If true use all regions marked as injection region, otherwise only the primary one] (default: {False})
+            extract_region_from_inj_coords {bool} -- [f True instead of using the allen provided injection region metadata extracts the injection structure from the coordinates.] (default: {False})            
+
+            VIP_regions {list} -- [Optional. List of brain regions that can be rendered differently from 'others'] (default: {False})
+            VIP_color {str} -- [Color for VIP regions] 
+            others_color {str} -- [Color for 'others' regions] 
+            verbose {bool} -- [If true print useful info during rendering] (default: {True})
+            others_alpha {float} -- [Transparency of 'others' structures] (default: {False})
         """
+
         # check argument
         if not isinstance(tractography, list):
             if isinstance(tractography, dict):
@@ -568,7 +577,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             
         """
         color = None
-        if not colorby is None:
+        if colorby is not None:
             try:
                 color = self.structure_tree.get_structures_by_acronym([colorby])[0]['rgb_triplet']
                 if "color" in kwargs.keys():
@@ -588,6 +597,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
         else:
+            if not isinstance(sl_file, str): raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
             streamlines = parse_streamline(sl_file, *args,  **kwargs)
             self.actors['tracts'].extend(streamlines)
 
@@ -619,20 +629,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
-    def add_cells(self, coords, color="red", radius=25):
+    def add_cells(self, coords, color="red", radius=25): # WIP 
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
         spheres = Spheres(coords, c=color, r=radius, res=3)
         self.actors['others'].append(spheres)
 
     ####### MANIPULATE SCENE
-    def Slice(self, axis="x", j=0, onlyroot=False, close_holes=False): # TODO keep right or left cut
+    def Slice(self, axis="x", j=0, onlyroot=False): 
         """
-            x -> coronal
-            y -> horizontal
-            z -> sagittal
+            [Slice all actors in scene at one coordinate along a defined axis]
 
-            # values of J should be in range 0, 1
+            Keyword Arguments:
+                axis {[str]} -- [Possible values:       x -> coronal
+                                                        y -> horizontal
+                                                        z -> sagittal] (default: {None})
+                k {[float]} -- [Number between 0 and 1 to indicate position along the selected axis]
+                onlyroot {[bool]} -- [If True only the root actor is sliced] {default: False}
         """
         # check arguments
         if not isinstance(axis, str):
@@ -645,7 +658,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             j = [j for _ in range(len(axis))]
         elif isinstance(j, (list, tuple)) and len(j)!= len(axis) :
             raise ValueError("When slicing over multiple axes, pass a list of values for the slice number j (or a single value). The list must have the same length as the axes list")
-
 
         # store a copy of original actors
         self._actors = self.actors.copy()
