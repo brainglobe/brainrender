@@ -83,11 +83,34 @@ Tractography data can be displayed in combination with brain region anatomical d
 and neurons reconstruction data. To see how this works, have a look at the 
 example on [[tractography]](Examples/Tractography.ipynb)
 
+### Add streamline data
+Streamlines can be used to beautifully display projection data. To render streamliens you first need to
+download the data for the experiments you are interested in. The first step towards being able to render 
+streamlines data is to identify the set of experiments you are interested in 
+(i.e. injections in the primary visual cortex of wild type mice]. 
+To do so you can use the experiments explorer at [http://connectivity.brain-map.org].
+
+Once you have selected the experiments, you can download metadata about them using the 'download data as csv' 
+option at the bottom of the page. This metadata .csv is what we can then use to get a link to the data to download. 
+
+These data can then be simply rendered in BrainRender, as you can see in this [[example]](Examples/Streamlines.ipynb).
+
+
+### Scenes with multiple views
+To get a better understanding of the anatomy and connectivity of a brain region it is often uesful to 
+look at information from different sources at the same time: reconstruction of neurons in the brain region
+can be combined with rendering of neraby regions and tractography data for instance. This can make the scene
+cluttered. So it is convenient to be able to render similar variants of the same scene side by side 
+so that differend datasets can be rendered in each variant. This canbe done using the `DualScene`
+and `MultiScene` classes in brainrender. Their use is similar to that of `Scene`, except that they allow
+you to generate N scenes and specif what get's rendered in which. For more details have a look at the example
+on [[MultiScene]](Examples/MultiScene.ipynb).
+
 ### Make video
 `Scene` let's users create and display interactive 3D renderings which can be used 
 inspect anatomical data and grab screenshots. To create an animated video of your 
 scene to embed in talks and website you can use the `VideoMaker` class, as shown in 
-the example on [[making videos]](Examples/Video.ipynb)
+the example on [[making videos]](Examples/Video.ipynb).
 
 In the future BrainRender will also allow users to export their scenes so that they can 
 be embed into a web page. 

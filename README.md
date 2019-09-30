@@ -12,6 +12,8 @@ and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API
 Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight)
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). 
 
+Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details)
+
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
 Check the [user guide](UserGuide.md) and the [examples](Examples) for more information
@@ -21,12 +23,19 @@ In the future I aim to include support for VR applications, if you are intereste
 in this (or any other) aspect of the brain render project please get in touch.
 
 
-### Mouse Light neurons morphology rendering
+## Mouse Light neurons morphology rendering
 <img src="Screenshots/neuron.png" width="600" height="350">
 
+## Rendering of different sets of brainstem projecting neurons using MultiScene
+<img src="Screenshots/multiscene_1.png" width="600" height="350">
 
-### Janelia mouse connectome projection data rendering
+## Allen mouse connectome projection data rendering
+### Tractography
 <img src="Screenshots/tractography.png" width="600" height="350">
+
+### Streamlines
+<img src="Screenshots/streamlines2.png" width="600" height="350">
+
 
 
 

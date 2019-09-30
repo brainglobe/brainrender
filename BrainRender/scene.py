@@ -12,7 +12,7 @@ from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
 from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
-from BrainRender.Utils.streamlines_parser import parse_streamline
+from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
     It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
