@@ -25,17 +25,20 @@ in this (or any other) aspect of the brain render project please get in touch.
 
 ## Mouse Light neurons morphology rendering
 <img src="Screenshots/neuron.png" width="600" height="350">
+*Motor cortex piramidal neuron reconstruction from Mouse Light.*
 
 ## Rendering of different sets of brainstem projecting neurons using MultiScene
 <img src="Screenshots/multiscene_1.png" width="600" height="350">
+*Sets of neurons projecting to the brainstem, sorted by brain region.*
 
 ## Allen mouse connectome projection data rendering
 ### Tractography
 <img src="Screenshots/tractography.png" width="600" height="350">
+*Projections to the Zona Incerta, colored by projection area.*
 
 ### Streamlines
 <img src="Screenshots/streamlines2.png" width="600" height="350">
-
+*Efferents from the VAL nucleus of the thalamus.*
 
 
 
