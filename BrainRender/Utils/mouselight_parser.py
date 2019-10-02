@@ -17,7 +17,7 @@ from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
 
-import multiprocessing as mp
+# import multiprocessing as mp
 
 # import ray
 # ray.init(ignore_reinit_error=True)

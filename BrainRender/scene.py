@@ -234,7 +234,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
         raise NotImplementedError
 
-    def get_region_unilateral(self, region, hemisphere="both"):
+    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
         
         Arguments:
@@ -242,14 +242,21 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             hemisphere {[str]} -- [which hemispheres to return, options are "left", "right", and "both"]
 
         """
-        bilateralmesh = self._get_structure_mesh(region, c=ROOT_COLOR, alpha=ROOT_ALPHA)
+        if color is None: color = ROOT_COLOR
+        if alpha is None: alpha = ROOT_ALPHA
+        bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
 
         
         com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
         cut = bilateralmesh.cutWithPlane(showcut=True, origin=com, normal=(0, 0, 1))
 
         right = bilateralmesh.cutWithPlane(showcut=False, origin=com, normal=(0, 0, 1))
-        left = bilateralmesh.cutWithPlane(showcut=False, origin=com, normal=(0, 0, 1))
+        
+        # left is the mirror right # WIP
+        com = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        left = right.clone().mirror(axis="z")
+        left.z(np.int(com - (com - left.z())))
+
 
         if hemisphere == "both":
             return left, right
@@ -293,7 +300,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return self.root
 
     def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None, 
-                        colors=None, use_original_color=False, alpha=None): 
+                        colors=None, use_original_color=False, alpha=None, hemisphere=None): 
+        """[Adds rendered brain regions with data from the Allen brain atlas. ]
+        
+        Arguments:
+            brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
+        
+        Keyword Arguments:
+            VIP_regions {list} -- [list of regions acronyms for regions to render differently from other regions] (default: {None})
+            VIP_color {[str, color]} -- [Color of VIP regions] (default: {None})
+            colors {[str]} -- [Color of other's regions] (default: {None})
+            use_original_color {[bool]} -- [if true, color regions by the default allen color] (default: {False})
+            alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
+            hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
+        """
         if VIP_regions is None:
             VIP_regions = self.VIP_regions
         if VIP_color is None:
@@ -301,6 +321,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if alpha is None:
             _alpha = DEFAULT_STRUCTURE_ALPHA
         else: _alpha = alpha
+
         # check that we have a list
         if not isinstance(brain_regions, list):
             self.check_region(brain_regions)
@@ -354,8 +375,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 alpha = _alpha
 
             # Load the object file as a mesh and store the actor
-            self.actors["regions"][region] = self.plotter.load(obj_file, c=color, 
-                                                                        alpha=alpha) 
+
+            if hemisphere is not None:
+                if hemisphere.lower() == "left": raise NotImplementedError("only hemisphere='right' is supported for now, sorry.")
+                if hemisphere.lower() == "left" or hemisphere.lower() == "right":
+                    obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
+            else:
+                obj = self.plotter.load(obj_file, c=color, alpha=alpha) 
+
+            self.actors["regions"][region] =obj
 
     def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None, 
                     display_axon_regions=False, 
