@@ -46,7 +46,7 @@ To create a rendering, BrainRender uses vtkplotter to create a "scene" which can
 The scene is then rendered for the user to see and interact with, or used to create a video. 
 
 Most of the process therefore relies on the `Scene` class. 
-This class let's users add brain regions to the rendering [see example: [regions](Examples/Regions.ipynb)], but it also takes care of adding tractography and neuron morphology data to the scene before rendering it. 
+This class let's users add brain regions to the rendering (see example: [regions](Examples/Regions.ipynb)), but it also takes care of adding tractography and neuron morphology data to the scene before rendering it. 
 You can find a list of all structures that can be displayed [here](all_regions.txt).
 
 To see how to crate your first scene, check out the [tutorial](Examples/tutorial.ipynb).

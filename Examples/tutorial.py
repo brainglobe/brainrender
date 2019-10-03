@@ -5,10 +5,11 @@ import os
 
 
 """
-    This tutorial is aimed at showing the basic functionality of BrainRender, more advanced tutorials can be found in other Examples/*.py files. 
+    This tutorial is aimed at showing the basic functionality of BrainRender.
+    More advanced tutorials can be found in other Examples/*.py files. 
 """
 
-# ! ADD HOW TO SET UP FOLDER STRUCTURE FIRST
+# ! ADD HOW TO SET UP FOLDER STRUCTURE FIRST (see also UserGuide.md)
 
 # Brain render allows for the creation of a "scene" in which to render a number of 3d objects (e.g. brain structures, neurons reconstructions etc.)
 # so we first need to import the class Scene and create an instance to it, then we can add stuff to it. 
@@ -16,10 +17,12 @@ import os
 from BrainRender.scene import Scene
 tutorial_scene = Scene()
 
-""" ------------------------------
+"""
+    ------------------------------
     MODEL BRAIN REGIONS
         see more details in [neurons.py]
-    ------------------------------ """ 
+    ------------------------------ 
+"""
 
 # To add brain regions to our scene, we can use the "add_brain_regions" function. 
 # To spicy which brain regions to render, we pass a list of strings, each of which is the acronym that corresponds to the brain region of interest
