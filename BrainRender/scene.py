@@ -4,6 +4,7 @@ from vtkplotter import *
 import copy
 from tqdm import tqdm
 import pandas as pd
+from vtk import vtkOBJExporter, vtkRenderWindow
 
 from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
@@ -710,6 +711,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         interactive()
 
+    def _rotate_actors(self):
+        # Allen meshes are loaded upside down so we need to rotate actors by 180 degrees
+        for actor in self.get_actors():
+            if actor is None: continue
+            actor.rotateZ(180)
+
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -768,7 +775,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
     ####### EXPORT SCENE
-    def export_scene(self, save_dir=None, savename="exported_scene"):
+    def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
         """[Exports the scene as a numpy file]
         
         Keyword Arguments:
@@ -784,14 +791,42 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if not os.path.isdir(save_dir):
             raise ValueError("Save folder not valid: {}".format(save_dir))
 
-        if "." in savename and not "npy" in savename:
-            raise ValueError("Savename should have format: .npy")
-        elif not "." in savename:
-            savename = "{}.npy".format(savename)
+        if not isinstance(exportas, str): raise ValueError("Unrecognised argument exportas {}".format(exportas))
+        exportas = exportas.lower()
+
+        if exportas == 'obj':
+            savename = savename.split(".")[0]
+        elif exportas == 'npy':
+            if "." in savename and not "npy" in savename:
+                raise ValueError("Savename should have format: .npy when exporting as numpy")
+            elif not "." in savename:
+                savename = "{}.npy".format(savename)
+        else:
+            raise ValueError("can only export as OBJ and NPY for now, not: {}".format(exportas))
         
         curdir = os.getcwd()
         os.chdir(save_dir)
-        exportWindow(savename)
+
+        if exportas == 'npy':
+            exportWindow(savename)
+        else:
+            # Create a new vtkplotter window and add scene's renderer to it 
+            rw = vtkRenderWindow()
+
+            if self.plotter.renderer is None: # need to render the scene first
+                self.render(interactive=False)
+                self._rotate_actors()
+
+                closeWindow()
+
+            rw.AddRenderer(self.plotter.renderer)
+
+            w = vtkOBJExporter()
+            w.SetFilePrefix(savename)
+            w.SetRenderWindow(rw)
+            w.Write()
+
+        # Change back to original dir
         os.chdir(curdir)
 
         if VERBOSE:
@@ -871,27 +906,3 @@ class MultiScene:
         interactive()
 
 
-
-if __name__ == "__main__":
-    # get vars to populate test scene
-    br = ABA()
-
-    tract = br.get_projection_tracts_to_target("PRNr")
-
-
-    # makes cene
-    scene = Scene(tracts=tract)
-    scene.add_brain_regions(["PRNr", "PRNc"], VIP_color="red", VIP_regions=["PRNr", "PRNc"])
-
-    afferents = br.analyze_afferents("PRNc")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-
-    tract = br.get_projection_tracts_to_target("PRNc")
-    scene.add_tractography(tract, color="r")
-
-    afferents = br.analyze_afferents("PRNr")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-    # scene.add_injection_sites(experiments)
-
-
-    scene.render()
