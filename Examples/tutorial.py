@@ -8,7 +8,10 @@ import os
     This tutorial is aimed at showing the basic functionality of BrainRender, more advanced tutorials can be found in other Examples/*.py files. 
 """
 
-# ! ADD HOW TO SET UP FOLDER STRUCTURE FIRST
+# Set up folders
+from BrainRender.Utils.data_io import update_folders
+main_folder = "path to your folder"
+update_folders(main_folder)
 
 # Brain render allows for the creation of a "scene" in which to render a number of 3d objects (e.g. brain structures, neurons reconstructions etc.)
 # so we first need to import the class Scene and create an instance to it, then we can add stuff to it. 
