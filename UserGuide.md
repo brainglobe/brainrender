@@ -30,11 +30,13 @@ just use this command in you anaconda Prompt:
 
 ```conda env create --name NAME --file path_to_your_repo/Installation/environment.yml```
 
+
 ### Folder structure
-BrainRender needs to save and access data from your machine. For this reason you will need to specify the folder
-in which each type of data will be stored [for more details please see [settings.py](BrainRender\settings.py)]. The easiest way to do so is to edit [settings.py](BrainRender\settings.py)
-to make `folders_paths['main_fld']` the directory you want to stared the data in. If you then run `settings.py` it will take care of creating the subfolders for you. 
-Alternatively, you can change the 'main_fld' at runtime as shown in this [example](Examples\Tutorial.ipynb).
+BrainRender needs to save and access data from your machine. 
+For this reason you will need to specify the folder in which each type of data will be stored [for more details please see [settings.py](BrainRender/settings.py)]. 
+The easiest way to do so is to edit [settings.py](BrainRender/settings.py) to make `folders_paths['main_fld']` the directory in which you want to store the data. 
+If you then run `settings.py` it will take care of creating the subfolders for you. 
+Alternatively, you can change the 'main_fld' at runtime as shown in this [example](Examples/Tutorial.ipynb).
 
 
 ### Variables
