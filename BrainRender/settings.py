@@ -23,18 +23,5 @@ def make_folders(folders_paths):
           os.mkdir(folders_paths[fld])
 
 
-def update_folders(main_fld):
-  folders_paths = {}
-  folders_paths['main_fld'] = main_fld
-  folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 
-  folders_paths['models_fld'] = "Meshes"                                                           
-  folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             
-  folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  
-  folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
-  folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
-  folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
-  return folders_paths
-
-
 if __name__ == "__main__":
     make_folders(folders_paths)

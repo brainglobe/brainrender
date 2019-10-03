@@ -936,8 +936,5 @@ class MultiScene:
         for i, scene_actors in enumerate(actors):
             mv.show(scene_actors, at=i,  interactive=False)
         interactive()
-<<<<<<< HEAD
-=======
 
 
->>>>>>> dev
