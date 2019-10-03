@@ -5,11 +5,15 @@ import os
 
 
 """
-    This tutorial is aimed at showing the basic functionality of BrainRender, more advanced tutorials can be found in other Examples/*.py files. 
+    This tutorial is aimed at showing the basic functionality of BrainRender.
+    More advanced tutorials can be found in other Examples/*.py files. 
 """
 
 # Set up folders
 from BrainRender.Utils.data_io import update_folders
+
+# The following folder is the location where downloaded data are stored. 
+# i.e. a suitable location would be somewhere like: /path/to/userDirectory/BrainRenderCache
 main_folder = "path to your folder"
 update_folders(main_folder)
 
@@ -19,10 +23,12 @@ update_folders(main_folder)
 from BrainRender.scene import Scene
 tutorial_scene = Scene()
 
-""" ------------------------------
+"""
+    ------------------------------
     MODEL BRAIN REGIONS
         see more details in [neurons.py]
-    ------------------------------ """ 
+    ------------------------------ 
+"""
 
 # To add brain regions to our scene, we can use the "add_brain_regions" function. 
 # To spicy which brain regions to render, we pass a list of strings, each of which is the acronym that corresponds to the brain region of interest
