@@ -18,7 +18,7 @@ from BrainRender.variables import *
 class NeuronsParser:
     def __init__(self, scene=None, 
                 render_neurites = True, mirror=False, 
-                neurite_radius=None, color_by_region=False, force_to_hemisphere=False,
+                neurite_radius=None, color_by_region=False, force_to_hemisphere=None,
                 color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
         self.scene = scene # for the meaning of the arguments check self.render_neurons
         self.render_neurites = render_neurites 

@@ -4,6 +4,7 @@ from vtkplotter import *
 import copy
 from tqdm import tqdm
 import pandas as pd
+from vtk import vtkOBJExporter, vtkRenderWindow
 
 from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
@@ -736,6 +737,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         interactive()
 
+    def _rotate_actors(self):
+        # Allen meshes are loaded upside down so we need to rotate actors by 180 degrees
+        for actor in self.get_actors():
+            if actor is None: continue
+            actor.rotateZ(180)
+
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -801,7 +808,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
     ####### EXPORT SCENE
-    def export_scene(self, save_dir=None, savename="exported_scene"):
+    def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
         """[Exports the scene as a numpy file]
         
         Keyword Arguments:
@@ -817,14 +824,42 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if not os.path.isdir(save_dir):
             raise ValueError("Save folder not valid: {}".format(save_dir))
 
-        if "." in savename and not "npy" in savename:
-            raise ValueError("Savename should have format: .npy")
-        elif not "." in savename:
-            savename = "{}.npy".format(savename)
+        if not isinstance(exportas, str): raise ValueError("Unrecognised argument exportas {}".format(exportas))
+        exportas = exportas.lower()
+
+        if exportas == 'obj':
+            savename = savename.split(".")[0]
+        elif exportas == 'npy':
+            if "." in savename and not "npy" in savename:
+                raise ValueError("Savename should have format: .npy when exporting as numpy")
+            elif not "." in savename:
+                savename = "{}.npy".format(savename)
+        else:
+            raise ValueError("can only export as OBJ and NPY for now, not: {}".format(exportas))
         
         curdir = os.getcwd()
         os.chdir(save_dir)
-        exportWindow(savename)
+
+        if exportas == 'npy':
+            exportWindow(savename)
+        else:
+            # Create a new vtkplotter window and add scene's renderer to it 
+            rw = vtkRenderWindow()
+
+            if self.plotter.renderer is None: # need to render the scene first
+                self.render(interactive=False)
+                self._rotate_actors()
+
+                closeWindow()
+
+            rw.AddRenderer(self.plotter.renderer)
+
+            w = vtkOBJExporter()
+            w.SetFilePrefix(savename)
+            w.SetRenderWindow(rw)
+            w.Write()
+
+        # Change back to original dir
         os.chdir(curdir)
 
         if VERBOSE:
@@ -901,3 +936,8 @@ class MultiScene:
         for i, scene_actors in enumerate(actors):
             mv.show(scene_actors, at=i,  interactive=False)
         interactive()
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> dev
