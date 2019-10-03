@@ -5,7 +5,7 @@ sys.path.append('./')
 
 # Define the folder in which different datasets are saved and where the manifest for the MouseConnectivityCache is saved.
 folders_paths = {}
-folders_paths['main_fld'] = "/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/analysis_metadata/anatomy/"  # parent folder, all other folders should be within this
+folders_paths['main_fld'] = "D:\\Dropbox (UCL - SWC)\\Rotation_vte\\analysis_metadata\\anatomy"  # parent folder, all other folders should be within this
 folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 # here is where the MouseConnectivityCache stores experimental data downloaded from the AllenBrainAtlas server
 folders_paths['models_fld'] = "Meshes"                                                           # here is where the .obj with the mesh data for brain structures are saved [first time a structure is used it will be downloaded and saved here]
 folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             # to render 3d models of neurons downloaded from the Mouse Light dataset. Download the JSON from the website and save it here
