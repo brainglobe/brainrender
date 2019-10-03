@@ -8,19 +8,12 @@ from vtkplotter import *
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-# import multiprocessing as mp
-# from pathos.multiprocessing import ProcessingPool as Pool
 from functools import partial
 
 from BrainRender.Utils.data_io import load_json, load_neuron_swc
 from BrainRender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
-
-# import multiprocessing as mp
-
-# import ray
-# ray.init(ignore_reinit_error=True)
 
 class NeuronsParser:
     def __init__(self, scene=None, 
@@ -84,7 +77,7 @@ class NeuronsParser:
         if 'color_by_region' in list(kwargs.keys()):
             self.color_by_region = kwargs['color_by_region']
 
-        # if mirror. get mirror coordinates
+        # if mirror get mirror coordinates
         if self.mirror:
             self.mirror_coord = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
         else:

@@ -13,6 +13,7 @@ from BrainRender.ABA_analyzer import ABA
 from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
 from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
+
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
     It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
@@ -433,7 +434,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """[Edit neurons that have already been rendered. Change color, mirror them etc.]
         
         Keyword Arguments:
-            neurons {[list, vtkactor]} -- [list of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
+            neurons {[list, vtkactor]} -- [lis t of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
             copy {bool} -- [if true the neurons are copied first and then the copy is edited, otherwise the originals are edited] (default: {False})
         """
         only_soma = False
@@ -792,6 +793,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
+    def _add_actors(self): # TODO fix this
+        if self.plotter.renderer is None:
+            return
+        for actor in self.get_actors():
+            self.plotter.renderer.AddActor(actor)
+
+
     ####### EXPORT SCENE
     def export_scene(self, save_dir=None, savename="exported_scene"):
         """[Exports the scene as a numpy file]
@@ -862,7 +870,6 @@ class DualScene:
     def __init__(self, *args, **kwargs):
         self.scenes = [Scene( *args, **kwargs), Scene( *args, **kwargs)]
 
-
     def render(self):
         mv = Plotter(N=2, axes=4, size="auto", sharecam=True)
 
@@ -894,29 +901,3 @@ class MultiScene:
         for i, scene_actors in enumerate(actors):
             mv.show(scene_actors, at=i,  interactive=False)
         interactive()
-
-
-
-if __name__ == "__main__":
-    # get vars to populate test scene
-    br = ABA()
-
-    tract = br.get_projection_tracts_to_target("PRNr")
-
-
-    # makes cene
-    scene = Scene(tracts=tract)
-    scene.add_brain_regions(["PRNr", "PRNc"], VIP_color="red", VIP_regions=["PRNr", "PRNc"])
-
-    afferents = br.analyze_afferents("PRNc")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-
-    tract = br.get_projection_tracts_to_target("PRNc")
-    scene.add_tractography(tract, color="r")
-
-    afferents = br.analyze_afferents("PRNr")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-    # scene.add_injection_sites(experiments)
-
-
-    scene.render()
