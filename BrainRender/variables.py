@@ -4,7 +4,7 @@
 DISPLAY_INSET = True            # display a small version of the brain to show the orientation, 
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
-WHOLE_SCREEN = True            # If true render window is full screen
+WHOLE_SCREEN = False            # If true render window is full screen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -50,8 +50,9 @@ SMOOTH_NEURONS = True
 
 
 from vtkplotter import settings
-settings.useDepthPeeling = True
-settings.useFXAA = True
+settings.useDepthPeeling = True # necessary for rendering of semitransparent actors
+settings.useFXAA = True # necessary for rendering of semitransparent actors
+settings.screeshotScale = 2  # Improves resolution of saved screenshots
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES

@@ -62,16 +62,20 @@ class ABA:
         self.structures = pd.DataFrame(summary_structures)
 
         # Other structures sets
-        all_sets = pd.DataFrame(self.oapi.get_structure_sets())
-        sets = ["Summary structures of the pons", "Summary structures of the thalamus", 
-                    "Summary structures of the hypothalamus", "List of structures for ABA Fine Structure Search",
-                    "Structures representing the major divisions of the mouse brain", "Summary structures of the midbrain", "Structures whose surfaces are represented by a precomputed mesh"]
-        self.other_sets = {}
-        for set_name in sets:
-            set_id = all_sets.loc[all_sets.description == set_name].id.values[0]
-            self.other_sets[set_name] = pd.DataFrame(self.structure_tree.get_structures_by_set_id([set_id]))
+        try:
+            all_sets = pd.DataFrame(self.oapi.get_structure_sets())
+        except:
+            print("Could not retrieve data, possibly because there is no internet connection.")
+        else:
+            sets = ["Summary structures of the pons", "Summary structures of the thalamus", 
+                        "Summary structures of the hypothalamus", "List of structures for ABA Fine Structure Search",
+                        "Structures representing the major divisions of the mouse brain", "Summary structures of the midbrain", "Structures whose surfaces are represented by a precomputed mesh"]
+            self.other_sets = {}
+            for set_name in sets:
+                set_id = all_sets.loc[all_sets.description == set_name].id.values[0]
+                self.other_sets[set_name] = pd.DataFrame(self.structure_tree.get_structures_by_set_id([set_id]))
 
-        self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
+            self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
 
     def print_structures_list_to_text(self):
         s = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')

@@ -4,15 +4,17 @@ from vtkplotter import *
 import copy
 from tqdm import tqdm
 import pandas as pd
+from vtk import vtkOBJExporter, vtkRenderWindow
 
 from BrainRender.Utils.data_io import load_json
-from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
+from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
 from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
 from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
+
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
     It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
@@ -254,10 +256,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         # left is the mirror right # WIP
         com = self.get_region_CenterOfMass('root', unilateral=False)[2]
-        left = right.clone().mirror(axis="z")
-        left.z(np.int(com - (com - left.z())))
-
-
+        left = mirror_actor_at_point(right.clone(), com, axis='x')
+        
         if hemisphere == "both":
             return left, right
         elif hemisphere == "left":
@@ -377,7 +377,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             # Load the object file as a mesh and store the actor
 
             if hemisphere is not None:
-                if hemisphere.lower() == "left": raise NotImplementedError("only hemisphere='right' is supported for now, sorry.")
                 if hemisphere.lower() == "left" or hemisphere.lower() == "right":
                     obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
             else:
@@ -436,7 +435,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """[Edit neurons that have already been rendered. Change color, mirror them etc.]
         
         Keyword Arguments:
-            neurons {[list, vtkactor]} -- [list of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
+            neurons {[list, vtkactor]} -- [lis t of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
             copy {bool} -- [if true the neurons are copied first and then the copy is edited, otherwise the originals are edited] (default: {False})
         """
         only_soma = False
@@ -738,6 +737,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         interactive()
 
+    def _rotate_actors(self):
+        # Allen meshes are loaded upside down so we need to rotate actors by 180 degrees
+        for actor in self.get_actors():
+            if actor is None: continue
+            actor.rotateZ(180)
+
     ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
@@ -795,8 +800,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
+    def _add_actors(self): # TODO fix this
+        if self.plotter.renderer is None:
+            return
+        for actor in self.get_actors():
+            self.plotter.renderer.AddActor(actor)
+
+
     ####### EXPORT SCENE
-    def export_scene(self, save_dir=None, savename="exported_scene"):
+    def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
         """[Exports the scene as a numpy file]
         
         Keyword Arguments:
@@ -812,14 +824,42 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if not os.path.isdir(save_dir):
             raise ValueError("Save folder not valid: {}".format(save_dir))
 
-        if "." in savename and not "npy" in savename:
-            raise ValueError("Savename should have format: .npy")
-        elif not "." in savename:
-            savename = "{}.npy".format(savename)
+        if not isinstance(exportas, str): raise ValueError("Unrecognised argument exportas {}".format(exportas))
+        exportas = exportas.lower()
+
+        if exportas == 'obj':
+            savename = savename.split(".")[0]
+        elif exportas == 'npy':
+            if "." in savename and not "npy" in savename:
+                raise ValueError("Savename should have format: .npy when exporting as numpy")
+            elif not "." in savename:
+                savename = "{}.npy".format(savename)
+        else:
+            raise ValueError("can only export as OBJ and NPY for now, not: {}".format(exportas))
         
         curdir = os.getcwd()
         os.chdir(save_dir)
-        exportWindow(savename)
+
+        if exportas == 'npy':
+            exportWindow(savename)
+        else:
+            # Create a new vtkplotter window and add scene's renderer to it 
+            rw = vtkRenderWindow()
+
+            if self.plotter.renderer is None: # need to render the scene first
+                self.render(interactive=False)
+                self._rotate_actors()
+
+                closeWindow()
+
+            rw.AddRenderer(self.plotter.renderer)
+
+            w = vtkOBJExporter()
+            w.SetFilePrefix(savename)
+            w.SetRenderWindow(rw)
+            w.Write()
+
+        # Change back to original dir
         os.chdir(curdir)
 
         if VERBOSE:
@@ -865,7 +905,6 @@ class DualScene:
     def __init__(self, *args, **kwargs):
         self.scenes = [Scene( *args, **kwargs), Scene( *args, **kwargs)]
 
-
     def render(self):
         mv = Plotter(N=2, axes=4, size="auto", sharecam=True)
 
@@ -899,27 +938,3 @@ class MultiScene:
         interactive()
 
 
-
-if __name__ == "__main__":
-    # get vars to populate test scene
-    br = ABA()
-
-    tract = br.get_projection_tracts_to_target("PRNr")
-
-
-    # makes cene
-    scene = Scene(tracts=tract)
-    scene.add_brain_regions(["PRNr", "PRNc"], VIP_color="red", VIP_regions=["PRNr", "PRNc"])
-
-    afferents = br.analyze_afferents("PRNc")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-
-    tract = br.get_projection_tracts_to_target("PRNc")
-    scene.add_tractography(tract, color="r")
-
-    afferents = br.analyze_afferents("PRNr")
-    scene.add_brain_regions([a for a in afferents.acronym.values[-10:] if a not in ["PRNc", "PRNr"]])
-    # scene.add_injection_sites(experiments)
-
-
-    scene.render()

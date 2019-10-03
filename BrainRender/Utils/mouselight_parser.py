@@ -8,24 +8,17 @@ from vtkplotter import *
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-# import multiprocessing as mp
-# from pathos.multiprocessing import ProcessingPool as Pool
 from functools import partial
 
 from BrainRender.Utils.data_io import load_json, load_neuron_swc
-from BrainRender.Utils.data_manipulation import get_coords
+from BrainRender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
-
-# import multiprocessing as mp
-
-# import ray
-# ray.init(ignore_reinit_error=True)
 
 class NeuronsParser:
     def __init__(self, scene=None, 
                 render_neurites = True, mirror=False, 
-                neurite_radius=None, color_by_region=False, force_to_hemisphere=False,
+                neurite_radius=None, color_by_region=False, force_to_hemisphere=None,
                 color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
         self.scene = scene # for the meaning of the arguments check self.render_neurons
         self.render_neurites = render_neurites 
@@ -84,7 +77,7 @@ class NeuronsParser:
         if 'color_by_region' in list(kwargs.keys()):
             self.color_by_region = kwargs['color_by_region']
 
-        # if mirror. get mirror coordinates
+        # if mirror get mirror coordinates
         if self.mirror:
             self.mirror_coord = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
         else:
@@ -355,11 +348,7 @@ class NeuronsParser:
             # get mesh points coords and shift them to other hemisphere
             if isinstance(actor, (list, tuple, str)) or actor is None:
                 continue
-            coords = actor.coordinates()
-            shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
-            actor.setPoints(shifted_coords)
-        
-            neuron[name] = actor.mirror(axis='n')
+            neuron[name] = mirror_actor_at_point(neuron, mcoord, axis='x')
         return neuron
 
     def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):
