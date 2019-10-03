@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pandas as pd
 
 from BrainRender.Utils.data_io import load_json
-from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list
+from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.ABA_analyzer import ABA
@@ -254,10 +254,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         # left is the mirror right # WIP
         com = self.get_region_CenterOfMass('root', unilateral=False)[2]
-        left = right.clone().mirror(axis="z")
-        left.z(np.int(com - (com - left.z())))
-
-
+        left = mirror_actor_at_point(right.clone(), com, axis='x')
+        
         if hemisphere == "both":
             return left, right
         elif hemisphere == "left":
@@ -377,7 +375,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             # Load the object file as a mesh and store the actor
 
             if hemisphere is not None:
-                if hemisphere.lower() == "left": raise NotImplementedError("only hemisphere='right' is supported for now, sorry.")
                 if hemisphere.lower() == "left" or hemisphere.lower() == "right":
                     obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
             else:

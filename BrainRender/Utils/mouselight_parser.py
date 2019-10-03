@@ -13,7 +13,7 @@ import numpy as np
 from functools import partial
 
 from BrainRender.Utils.data_io import load_json, load_neuron_swc
-from BrainRender.Utils.data_manipulation import get_coords
+from BrainRender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
 
@@ -355,11 +355,7 @@ class NeuronsParser:
             # get mesh points coords and shift them to other hemisphere
             if isinstance(actor, (list, tuple, str)) or actor is None:
                 continue
-            coords = actor.coordinates()
-            shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
-            actor.setPoints(shifted_coords)
-        
-            neuron[name] = actor.mirror(axis='n')
+            neuron[name] = mirror_actor_at_point(neuron, mcoord, axis='x')
         return neuron
 
     def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):

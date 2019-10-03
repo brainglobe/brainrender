@@ -34,7 +34,6 @@ def flatten_list(lst):
             flatten.append(item)
     return flatten
 
-
 def is_any_item_in_list(L1, L2):
     # checks if any item of L1 is also in L2 and returns false otherwise
     inboth = [i for i in L1 if i in L2]
@@ -63,3 +62,18 @@ def get_slice_coord(bounds, n):
     delta = b1 - b0
 
     return b0 + delta*n
+
+def mirror_actor_at_point(actor, point, axis='x'):
+    coords = actor.coordinates()
+    if axis == 'x':
+        shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
+    elif axis == 'y':
+        shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
+    elif axis == 'z':
+        shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
+    
+    actor.setPoints(shifted_coords)
+    actor = actor.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+    return actor
+
+
