@@ -111,6 +111,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.inset = None  # the first time the scene is rendered create and store the inset here
 
     ####### UTILS
+    def add_from_file(self, filepath, name=None, **kwargs):
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError(filepath)
+        self.actors['others'].append(self.plotter.load(filepath, **kwargs))
+
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
