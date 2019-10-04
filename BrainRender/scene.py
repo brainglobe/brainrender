@@ -898,7 +898,7 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
         ids, names = ids[sort_idx], names[sort_idx]
         [print("(id: {}) - {}".format(a, n)) for a,n in zip(ids, names)]
 
-    def add_brain_regions(self, brain_regions ,
+    def add_brain_regions(self, brain_regions, use_original_color=False,
                             color=None, alpha=1, hemisphere=None): 
             """[Override Scnee.add_brain_reigions to get rat data. Adds rendered brain regions with data from the Allen brain atlas. ]
             
@@ -918,8 +918,8 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
                 brain_regions = [brain_regions]
 
             if color is None:
-                color = DEFAULT_STRUCTURE_COLOR
-            elif isinstance(color, (list, tuple)):
+                color = [DEFAULT_STRUCTURE_COLOR for region in brain_regions]
+            elif isinstance(color[0], (list, tuple)):
                 if not len(color) == len(brain_regions): 
                     raise ValueError("When passing a list of colors, the number of colors should be the same as the number of regions")
             else:
@@ -928,7 +928,9 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
             # loop over all brain regions
             for i, (col, region) in enumerate(zip(color, brain_regions)):
                 # Load the object file as a mesh and store the actor
-                self.actors["regions"][region] = get_rat_mesh_from_region(region, c=col, alpha=alpha)
+                obj = get_rat_mesh_from_region(region, c=col, alpha=alpha, use_original_color=use_original_color)
+                if obj is not None:
+                    self.actors["regions"][region] = obj
 
                 if VERBOSE:
                     print("rendered {}".format(region))
