@@ -930,6 +930,9 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
                 # Load the object file as a mesh and store the actor
                 self.actors["regions"][region] = get_rat_mesh_from_region(region, c=col, alpha=alpha)
 
+                if VERBOSE:
+                    print("rendered {}".format(region))
+
         
 
 
