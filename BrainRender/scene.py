@@ -14,6 +14,7 @@ from BrainRender.ABA_analyzer import ABA
 from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
 from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
+from BrainRender.Utils.rat_brain_parser import get_rat_mesh_from_region, get_rat_regions_metadata
 
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
@@ -111,13 +112,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.inset = None  # the first time the scene is rendered create and store the inset here
 
     ####### UTILS
-    def add_from_file(self, filepath, name=None, **kwargs):
-        actor = load_volume_file(filepath)
-
-        self.actors['others'].append(actor)
-
-        a = 1
-
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
@@ -291,6 +285,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     
 
     ###### ADD  and EDIT ACTORS TO SCENE
+    def add_from_file(self, filepath, name=None, **kwargs):
+        actor = load_volume_file(filepath)
+        self.actors['others'].append(actor)
+
     def add_root(self, render=True, **kwargs):
         if not render:
             self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
@@ -885,6 +883,54 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         os.chdir(save_dir)
         exportWindow('{}.x3d'.format(filename))
         os.chdir(curdir)
+
+
+class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
+    def __init__(self):
+        Scene.__init__(self, add_root=False, display_inset=False)
+
+        self.structures = get_rat_regions_metadata()
+        self.structures_names = list(self.structures['Name'].values)
+
+    def print_structures(self):
+        ids, names = self.structures.Id.values, self.structures['Name'].values
+        sort_idx = np.argsort(names)
+        ids, names = ids[sort_idx], names[sort_idx]
+        [print("(id: {}) - {}".format(a, n)) for a,n in zip(ids, names)]
+
+    def add_brain_regions(self, brain_regions ,
+                            color=None, alpha=1, hemisphere=None): 
+            """[Override Scnee.add_brain_reigions to get rat data. Adds rendered brain regions with data from the Allen brain atlas. ]
+            
+            Arguments:
+                brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
+            
+            Keyword Arguments:
+                color {[str, list]} -- [Color of other's regions] (default: {None})
+                alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
+                hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
+            """
+
+            if alpha is None:
+                alpha = DEFAULT_STRUCTURE_ALPHA
+
+            if not isinstance(brain_regions, list):
+                brain_regions = [brain_regions]
+
+            if color is None:
+                color = DEFAULT_STRUCTURE_COLOR
+            elif isinstance(color, (list, tuple)):
+                if not len(color) == len(brain_regions): 
+                    raise ValueError("When passing a list of colors, the number of colors should be the same as the number of regions")
+            else:
+                color = [color for region in brain_regions]
+
+            # loop over all brain regions
+            for i, (col, region) in enumerate(zip(color, brain_regions)):
+                # Load the object file as a mesh and store the actor
+                self.actors["regions"][region] = get_rat_mesh_from_region(region, c=col, alpha=alpha)
+
+        
 
 
 class LoadedScene:

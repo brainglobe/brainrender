@@ -26,6 +26,7 @@ def listdir(fld):
 
     return [os.path.join(fld, f) for f in os.listdir(fld)]
 
+
 def load_json(filepath):
     if not os.path.isfile(filepath) or not ".json" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
     with open(filepath) as f:
@@ -77,7 +78,6 @@ def load_neuron_swc(filepath):
     return data
 
 
-
 def load_volume_file(filepath):
     if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
@@ -90,7 +90,6 @@ def load_volume_file(filepath):
 
         act = Volume(d)
 
-        a = 1
     else:
         act = load(filepath)
         if act is None:
