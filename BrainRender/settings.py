@@ -23,5 +23,3 @@ def make_folders(folders_paths):
           os.mkdir(folders_paths[fld])
 
 
-if __name__ == "__main__":
-    make_folders(folders_paths)

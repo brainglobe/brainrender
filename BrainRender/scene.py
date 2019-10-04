@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
 
-from BrainRender.Utils.data_io import load_json
+from BrainRender.Utils.data_io import load_json, load_volume_file
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -112,9 +112,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ####### UTILS
     def add_from_file(self, filepath, name=None, **kwargs):
-        if not os.path.isfile(filepath):
-            raise FileNotFoundError(filepath)
-        self.actors['others'].append(self.plotter.load(filepath, **kwargs))
+        actor = load_volume_file(filepath)
+
+        self.actors['others'].append(actor)
+
+        a = 1
 
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it

@@ -3,8 +3,10 @@ import json
 import pandas as pd
 from collections import namedtuple
 
-
 from allensdk.core.swc import read_swc
+from vtkplotter import *
+from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+import vtk
 
 def update_folders(main_fld):
     from BrainRender.settings import folders_paths as folders_paths
@@ -74,7 +76,27 @@ def load_neuron_swc(filepath):
 
     return data
 
-        
+
+
+def load_volume_file(filepath):
+    if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
+
+    if ".x3d" in filepath.lower(): raise ValueError("BrainRender cannot use .x3d data as they are not supported by vtkplotter")
+
+    elif "nii" in filepath.lower() or ".label" in filepath.lower():
+        import nibabel as nb
+        data = nb.load(filepath)
+        d = data.get_fdata()
+
+        act = Actor(numpy_to_vtk(d.ravel(), deep=True, array_type=vtk.VTK_FLOAT))
+
+        a = 1
+    else:
+        act = load(filepath)
+        if act is None:
+            raise ValueError("Could not load {}".format(filepath))
+
+    return act
 
 
 if __name__ == "__main__":
