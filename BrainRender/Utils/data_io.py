@@ -88,7 +88,7 @@ def load_volume_file(filepath):
         data = nb.load(filepath)
         d = data.get_fdata()
 
-        act = Actor(numpy_to_vtk(d.ravel(), deep=True, array_type=vtk.VTK_FLOAT))
+        act = Volume(d)
 
         a = 1
     else:
