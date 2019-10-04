@@ -282,12 +282,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.2))  
-    
 
     ###### ADD  and EDIT ACTORS TO SCENE
+    def add_vtkactor(self, actor):
+        self.actors['others'].append(actor)
+
     def add_from_file(self, filepath, name=None, **kwargs):
         actor = load_volume_file(filepath)
         self.actors['others'].append(actor)
+        return actor
 
     def add_root(self, render=True, **kwargs):
         if not render:

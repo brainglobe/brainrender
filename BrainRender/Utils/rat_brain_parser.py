@@ -82,8 +82,8 @@ def get_rat_mesh_from_region(region, use_original_color=False, **kwargs):
             if "color" in list(kwargs.keys()): del kwargs["color"]
             elif "c" in list(kwargs.keys()): del kwargs["c"]
 
-            mesh = load(meshname, c=color, **kwargs) # 
-            mesh = mesh.smoothLaplacian().subdivide(1)
+            mesh = load(meshname, c=color, **kwargs) 
+            mesh = mesh.smoothLaplacian().subdivide(2)
             meshes.append(mesh)
         except:
             print("Could not load rat region: {}".format(entry["Name"].values[0]))

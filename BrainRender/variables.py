@@ -52,7 +52,7 @@ SMOOTH_NEURONS = True
 from vtkplotter import settings
 settings.useDepthPeeling = True # necessary for rendering of semitransparent actors
 settings.useFXAA = True # necessary for rendering of semitransparent actors
-settings.screeshotScale = 2  # Improves resolution of saved screenshots
+settings.screeshotScale = 1  # Improves resolution of saved screenshots
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES
