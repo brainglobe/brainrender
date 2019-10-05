@@ -80,7 +80,6 @@ This metadata .csv is what we can then use to get a link to the data to download
 
 These data can then be simply rendered in BrainRender, as you can see in this [example](Examples/Streamlines.ipynb).
 
-
 ### Scenes with multiple views
 To get a better understanding of the anatomy and connectivity of a brain region it is often uesful to look at information from different sources at the same time: reconstruction of neurons in the brain region can be combined with rendering of neraby regions and tractography data for instance. 
 This can make the scene cluttered. 
@@ -94,3 +93,10 @@ For more details have a look at the example on [MultiScene](Examples/MultiScene.
 the example on [making videos](Examples/Video.ipynb).
 
 In the future BrainRender will also allow users to export their scenes so that they can be embed into a web page. 
+
+
+### Rat Brain
+BrainRender also let's you visualize the rat brain! To do so simply
+use the `RatScene` as you would the standard `Scene` class. It works
+the same but it loads the meshes for the rat brain (from [3D-rat-brain](https://github.com/tfiers/3D-rat-brain)).
+You can find an example for `RatScene` [here](Examples/RatScene.ipynb).
