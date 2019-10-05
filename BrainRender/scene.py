@@ -889,8 +889,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
 class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
-    def __init__(self):
-        Scene.__init__(self, add_root=False, display_inset=False)
+    def __init__(self, *args, **kwargs):
+        Scene.__init__(self,*args, add_root=False, display_inset=False, **kwargs)
 
         self.structures = get_rat_regions_metadata()
         self.structures_names = list(self.structures['Name'].values)
