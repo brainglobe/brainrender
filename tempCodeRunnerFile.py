@@ -1,1 +1,0 @@
-ata/anatomy/data")
