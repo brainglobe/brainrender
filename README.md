@@ -1,8 +1,3 @@
-### Disclaimer
-BrainRender is a fairly new project and therefore incomplete and bound to include bugs.
-If you find a bug, or spot a feature that you'd like to see added, please open an issue
-and I'll get to work on it as soon as possible. 
-
 # BrainRender
 Python scripts to create 3D renderings of mouse brain anatomical and projection data and neurons reconstructions. 
 
