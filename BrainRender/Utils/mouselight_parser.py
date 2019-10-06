@@ -224,7 +224,6 @@ class NeuronsParser:
             else:
                 raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
 
-
         return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 
     @staticmethod
@@ -348,7 +347,7 @@ class NeuronsParser:
             # get mesh points coords and shift them to other hemisphere
             if isinstance(actor, (list, tuple, str)) or actor is None:
                 continue
-            neuron[name] = mirror_actor_at_point(neuron, mcoord, axis='x')
+            neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
         return neuron
 
     def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):
