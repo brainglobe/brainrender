@@ -629,11 +629,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 except:
                     raise ValueError("Could not extract color for region: {}".format(colorby))
         else:
-            color = kwargs.pop("color", None)
-            try:
-                get_n_shades_of(color, 1)
-            except:
-                raise ValueError("Invalide color argument: {}".format(color))
+            if colorby is not None:
+                color = kwargs.pop("color", None)
+                try:
+                    get_n_shades_of(color, 1)
+                except:
+                    raise ValueError("Invalide color argument: {}".format(color))
 
         if isinstance(sl_file, list):
             if isinstance(sl_file[0], str): # we have a list of files to add
@@ -647,7 +648,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         if color is not None:
                             col = get_n_shades_of(color, 1)[0]
                         else:
-                            col = get_random_colors(n_colors=1)[0]
+                            col = get_random_colors(n_colors=1)
                         streamlines = parse_streamline(slf, color=col, *args, **kwargs)
                     self.actors['tracts'].extend(streamlines)
             else:
@@ -660,7 +661,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 if color is not None:
                     col = get_n_shades_of(color, 1)[0]
                 else:
-                    col = get_random_colors(n_colors=1)[0]
+                    col = get_random_colors(n_colors=1)
                 streamlines = parse_streamline(sl_file, color=col, *args, **kwargs)
             self.actors['tracts'].extend(streamlines)
 
