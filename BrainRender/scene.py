@@ -287,7 +287,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_vtkactor(self, actor):
         self.actors['others'].append(actor)
 
-    def add_from_file(self, filepath, name=None, **kwargs):
+    def add_from_file(self, filepath, **kwargs):
         actor = load_volume_file(filepath)
         self.actors['others'].append(actor)
         return actor
