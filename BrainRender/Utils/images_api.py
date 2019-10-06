@@ -66,20 +66,24 @@ class ImageDownload(SvgApi, ImageDownloadApi):
             raise ValueError("Atlas id should be an integer not: {}".format(atlasid))
         return pd.DataFrame(self.atlas_image_query(atlasid))
 
-    def download_images_by_imagesid(self, savedir, imagesids, downsample=0, annotated=True, atlas_svg=True):
+    def download_images_by_imagesid(self, savedir, imagesids, downsample=0, annotated=True, snames=None,  atlas_svg=True):
         if not os.path.isdir(savedir):
             os.mkdir(savedir)
         
         curdir = os.getcwd()
         os.chdir(savedir)
 
-        for imgid in tqdm(imagesids):
+        for i, imgid in tqdm(enumerate(imagesids)):
             if not atlas_svg and not annotated:
                 savename = str(imgid)+".jpg"
             elif not atlas_svg and annotated:
                 savename = str(imgid)+"_annotated.jpg"
             else:
                 savename = str(imgid)+".svg"
+
+            if snames is not None:
+                sname, ext = savename.split(".")
+                savename = sname+"_sect{}_img{}.".format(snames[i], i+1)+ext
 
             if os.path.isfile(savename): continue
 
@@ -95,16 +99,21 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         os.chdir(curdir)
 
     def download_images_by_atlasid(self, savedir, atlasid, **kwargs):
-        imgsids = sorted(list(self.get_atlasimages_by_atlasid(atlasid)['id']))
-        self.download_images_by_imagesid(savedir, imgsids, **kwargs)
+        imgsids = self.get_atlasimages_by_atlasid(atlasid)['id']
+        imgs_secs_n = self.get_atlasimages_by_atlasid(atlasid)['section_number']
+
+        self.download_images_by_imagesid(savedir, imgsids, snames=imgs_secs_n,  **kwargs)
 
 
 imgd = ImageDownload()
 
 # %%
 # Products are the different types of experiments performed by allen
-path = "/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/Presentations/atlases/allen_mouse_coronal"
-imgd.download_images_by_atlasid(path, imgd.mouse_coronal_atlas_id, atlas_svg=True)
+path = "/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/Presentations/atlases/allen_mouse_sagittal"
+imgd.download_images_by_atlasid(path, imgd.mouse_sagittal_atlas_id, atlas_svg=True)
 
+
+#%%
+imgd.get_atlasimages_by_atlasid(imgd.mouse_coronal_atlas_id).columns
 
 #%%
