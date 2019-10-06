@@ -73,7 +73,6 @@ def parse_streamline(filepath, *args, color='ivory', alpha=.8, radius=10, **kwar
     merged.color(color)
     return [merged]
 
-
 def test():
     streamliens_file = "Examples\example_files\streamlines.json"
     

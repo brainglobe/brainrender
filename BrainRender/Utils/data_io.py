@@ -2,11 +2,30 @@ import os
 import json
 import pandas as pd
 from collections import namedtuple
+import requests
 
 from allensdk.core.swc import read_swc
 from vtkplotter import *
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 import vtk
+
+def connected_to_internet(url='http://www.google.com/', timeout=5):
+    try:
+        _ = requests.get(url, timeout=timeout)
+        return True
+    except requests.ConnectionError:
+        print("No internet connection available.")
+    return False
+
+def send_query(query_string, clean=False):
+	response = requests.get(query_string)
+	if response.ok:
+		if not clean:
+			return response.json()['msg']
+		else:
+			return response.json()
+	else:
+		raise ValueError("Invalide query string: {}".format(query_string))
 
 def update_folders(main_fld):
     from BrainRender.settings import folders_paths as folders_paths

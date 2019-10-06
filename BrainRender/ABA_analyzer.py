@@ -274,7 +274,6 @@ class ABA:
         results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
         return results
 
-
     ####### GET TRACTOGRAPHY AND SPATIAL DATA
     def get_projection_tracts_to_target(self, p0=None, **kwargs):
         """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
@@ -302,8 +301,6 @@ class ABA:
             raise ValueError('Something went wrong with query, query error message:\n{}'.format(tract))
         else:
             return tract
-
-
 
     ### OPERATIONS ON STRUCTURE TREES
     def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
