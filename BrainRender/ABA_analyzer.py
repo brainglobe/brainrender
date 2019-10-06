@@ -292,6 +292,8 @@ class ABA:
         # check args
         if p0 is None:
             raise ValueError("Please pass coordinates")
+        elif isinstance(p0, np.ndarray):
+            p0 = list(p0)
         elif not isinstance(p0, (list, tuple)):
             raise ValueError("Invalid argument passed (p0): {}".format(p0))
 

@@ -9,12 +9,16 @@ def get_coords(obj, mirror=False, mirror_ax='x'):
     try:
         z,y,x =  obj["z"].values[0], obj["y"].values[0], obj["x"].values[0]
     except:
-        if isinstance(obj['z'], list):
+        if isinstance(obj, list) and len(obj) == 3:
+            z, y, x = obj[0], obj[1], obj[2]
+        elif isinstance(obj, list) and len(obj) != 3:
+            raise ValueError("Could not extract coordinates from: {}".format(obj)) 
+        elif isinstance(obj['z'], list):
             z, y, x = obj["z"][0], obj["y"][0], obj["x"][0]
         else:
             z,y,x = obj["z"], obj["y"], obj["x"]
         
-    if not isinstance(z, float): raise ValueError("Could not extract coordinates from: {}".format(obj)) 
+    if not isinstance(z, (float, int)): raise ValueError("Could not extract coordinates from: {}".format(obj)) 
     else: 
         if mirror is None: mirror = False
         if mirror and mirror_ax == 'x':

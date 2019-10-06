@@ -182,12 +182,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 break
         return parent
     
-    def get_region_CenterOfMass(self, regions, unilateral=True):
+    def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
         
         Arguments:
             regions {[str, list]} -- [string or list of string with acronym of brain regions of interest]
             unilateral {[bool]} -- [Get the CoM of the structure in just on hemisphere. Useful for lateralized structures like CA1. ] (default: {True})
+            hemisphere {[str]} -- [left or right hemisphere] (default: {"right"})
 
         Returns:
             coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region. 
@@ -200,8 +201,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 mesh = self.get_region_unilateral(regions, hemisphere="left")
             else:
                 mesh = self._get_structure_mesh(regions)
-            return [np.int(x) for x in mesh.centerOfMass()]
 
+            if unilateral and hemisphere.lower() == 'right':
+                if self.root is None:
+                    self.add_root(render=False)
+                return list(np.array(get_coords([np.int(x) for x in mesh.centerOfMass()], mirror=self.root_center[2])).astype(np.int32))
+            else:
+                return [np.int(x) for x in mesh.centerOfMass()]
         else:
             coms = {}
             for region in regions:
