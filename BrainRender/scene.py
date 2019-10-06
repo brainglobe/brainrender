@@ -607,7 +607,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['tracts'].extend(actors)
 
-    def add_streamlines(self, sl_file,  colorby = None, *args, **kwargs):
+    def add_streamlines(self, sl_file,  colorby = None, color_each=False, *args, **kwargs):
         """
         [Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html]
         Arguments:
@@ -615,31 +615,53 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         Keyword Arguments:
             colorby {[str]} -- [Acronym of brain region to use to color the streamline data] (default: {None})
-            
+            colorby {[bool]} -- [If true streamlines for each experiment are shown in a different color. 
+                                    If a color is passed as color="colorname", shades of that color are used] (default: {False})
+
         """
         color = None
-        if colorby is not None:
+        if not color_each:
+            if colorby is not None:
+                try:
+                    color = self.structure_tree.get_structures_by_acronym([colorby])[0]['rgb_triplet']
+                    if "color" in kwargs.keys():
+                        del kwargs["color"]
+                except:
+                    raise ValueError("Could not extract color for region: {}".format(colorby))
+        else:
+            color = kwargs.pop("color", None)
             try:
-                color = self.structure_tree.get_structures_by_acronym([colorby])[0]['rgb_triplet']
-                if "color" in kwargs.keys():
-                    del kwargs["color"]
+                get_n_shades_of(color, 1)
             except:
-                raise ValueError("Could not extract color for region: {}".format(colorby))
+                raise ValueError("Invalide color argument: {}".format(color))
 
         if isinstance(sl_file, list):
             if isinstance(sl_file[0], str): # we have a list of files to add
                 for slf in tqdm(sl_file):
-                    if color is not None:
-                        streamlines = parse_streamline(slf, *args, color=color, **kwargs)
+                    if not color_each:
+                        if color is not None:
+                            streamlines = parse_streamline(slf, *args, color=color, **kwargs)
+                        else:
+                            streamlines = parse_streamline(slf, *args, **kwargs)
                     else:
-                        streamlines = parse_streamline(slf, *args, **kwargs)
-
+                        if color is not None:
+                            col = get_n_shades_of(color, 1)[0]
+                        else:
+                            col = get_random_colors(n_colors=1)[0]
+                        streamlines = parse_streamline(slf, color=col, *args, **kwargs)
                     self.actors['tracts'].extend(streamlines)
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
         else:
             if not isinstance(sl_file, str): raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
-            streamlines = parse_streamline(sl_file, *args,  **kwargs)
+            if not color_each:
+                streamlines = parse_streamline(sl_file, *args,  **kwargs)
+            else:
+                if color is not None:
+                    col = get_n_shades_of(color, 1)[0]
+                else:
+                    col = get_random_colors(n_colors=1)[0]
+                streamlines = parse_streamline(sl_file, color=col, *args, **kwargs)
             self.actors['tracts'].extend(streamlines)
 
     def add_injection_sites(self, experiments, color=None):
@@ -991,7 +1013,9 @@ class MultiScene:
         self.scenes = [Scene( *args, **kwargs) for i in range(N)]
         self.N = N
 
-    def render(self):
+    def render(self, _interactive=True,  **kwargs):
+        if self.N > 4:
+            print("Rendering {} scenes. Might take a few minutes.".format(self.N))
         mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True)
 
         actors = []
@@ -1002,6 +1026,9 @@ class MultiScene:
 
         for i, scene_actors in enumerate(actors):
             mv.show(scene_actors, at=i,  interactive=False)
-        interactive()
+        
+        print("Rendering complete")
+        if _interactive:
+            interactive()
 
 
