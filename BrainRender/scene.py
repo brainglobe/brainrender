@@ -976,7 +976,7 @@ class DrosophilaScene(Scene): # Subclass of Scene to override some methods for D
             self.add_brain_regions("root", color=ROOT_COLOR, alpha=ROOT_ALPHA)
 
         self.structures = get_drosophila_regions_metadata()
-        self.structures_names = list(self.structures['name'].values)
+        self.structures_acronyms = sorted(list(self.structures['acronym'].values))
 
     def print_structures(self):
         ids, names, acros = self.structures.Id.values, self.structures['name'].values, self.structures['acronym'].values

@@ -86,6 +86,13 @@ def fix_data():
     data = pd.DataFrame(data)
     data.to_pickle("Metadata/drosophila_structures.pkl")
 
+def remove_extra_meshes():
+    fld = "/Users/federicoclaudi/Documents/Github/BrainRender/Meshes/drosophila_meshes/domains"
+    for f in os.listdir(fld):
+        print(f)
+        if "_" in f or ".txt" in f:
+            os.remove(os.path.join(fld, f))
+
 
 if __name__ == "__main__":
-    fix_data()
+    remove_extra_meshes()
