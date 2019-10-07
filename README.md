@@ -15,6 +15,8 @@ BrainRender also includes meshes for a reconstruction of the rat brain. These me
 [3D-rat-brain](https://github.com/tfiers/3D-rat-brain) from [tfiers](https://github.com/tfiers). Original 
 data from [4] and [5]. 
 
+BrainRender also comes with meshes for the reconstruction of the brain of Drosophila Melanogaster. Data is from the [Virtual Fly Brain Project](https://github.com/VirtualFlyBrain)'s adult brain [template](https://github.com/VirtualFlyBrain/DrosAdultBRAINdomains) based on work from [Jennet et al 2012](https://www.cell.com/cell-reports/fulltext/S2211-1247(12)00292-6?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS2211124712002926%3Fshowall%3Dtrue).
+
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
 # Examples

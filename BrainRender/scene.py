@@ -15,6 +15,7 @@ from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
 from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
 from BrainRender.Utils.rat_brain_parser import get_rat_mesh_from_region, get_rat_regions_metadata
+from BrainRender.Utils.drosophila_brain_parser import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
 
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
@@ -967,7 +968,62 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
                 if VERBOSE:
                     print("rendered {}".format(region))
 
-        
+class DrosophilaScene(Scene): # Subclass of Scene to override some methods for Drosophila data
+    def __init__(self, *args, add_root=True, **kwargs):
+        Scene.__init__(self,*args, add_root=False, display_inset=False, **kwargs)
+
+        if add_root:
+            self.add_brain_regions("root", color=ROOT_COLOR, alpha=ROOT_ALPHA)
+
+        self.structures = get_drosophila_regions_metadata()
+        self.structures_names = list(self.structures['name'].values)
+
+    def print_structures(self):
+        ids, names, acros = self.structures.Id.values, self.structures['name'].values, self.structures['acronym'].values
+        sort_idx = np.argsort(ids)
+        ids, names, acros = ids[sort_idx], names[sort_idx], acros[sort_idx]
+        [print("(id: {}) - {} - {}".format(a, acr, n)) for a, acr, n in zip(ids, acros, names)]
+
+    def add_brain_regions(self, brain_regions, use_random_color=False,
+                            color=None, alpha=1, hemisphere=None): 
+            """[Override Scnee.add_brain_reigions to get rat data. Adds rendered brain regions with data from the Allen brain atlas. ]
+            
+            Arguments:
+                brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
+            
+            Keyword Arguments:
+                color {[str, list]} -- [Color of other's regions] (default: {None})
+                alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
+                hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
+            """
+
+            if alpha is None:
+                alpha = DEFAULT_STRUCTURE_ALPHA
+
+            if not isinstance(brain_regions, list):
+                brain_regions = [brain_regions]
+
+            if not use_random_color:
+                if color is None:
+                    color = [DEFAULT_STRUCTURE_COLOR for region in brain_regions]
+                elif isinstance(color[0], (list, tuple)):
+                    if not len(color) == len(brain_regions): 
+                        raise ValueError("When passing a list of colors, the number of colors should be the same as the number of regions")
+                else:
+                    color = [color for region in brain_regions]
+            else:
+                color = get_random_colors(n_colors=len(brain_regions))
+
+            # loop over all brain regions
+            for i, (col, region) in enumerate(zip(color, brain_regions)):
+                # Load the object file as a mesh and store the actor
+                obj = get_drosophila_mesh_from_region(region, c=col, alpha=alpha)
+                if obj is not None:
+                    self.actors["regions"][region] = obj
+
+                if VERBOSE:
+                    print("rendered {}".format(region))
+
 
 
 class LoadedScene:

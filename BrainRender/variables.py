@@ -48,6 +48,7 @@ SHADER_STYLE = "plastic"         # affects the look of rendered brain regions, v
 DECIMATE_NEURONS = False
 SMOOTH_NEURONS = True
 
+drosophila_root = "Meshes/drosophila_meshes/JFRC2RindMeshSmooth.obj"
 
 from vtkplotter import settings
 settings.useDepthPeeling = True # necessary for rendering of semitransparent actors
