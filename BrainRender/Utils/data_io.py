@@ -97,7 +97,7 @@ def load_neuron_swc(filepath):
     return data
 
 
-def load_volume_file(filepath):
+def load_volume_file(filepath, **kwargs):
     if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
     if ".x3d" in filepath.lower(): raise ValueError("BrainRender cannot use .x3d data as they are not supported by vtkplotter")
@@ -107,10 +107,10 @@ def load_volume_file(filepath):
         data = nb.load(filepath)
         d = data.get_fdata()
 
-        act = Volume(d)
+        act = Volume(d, **kwargs)
 
     else:
-        act = load(filepath)
+        act = load(filepath, **kwargs)
         if act is None:
             raise ValueError("Could not load {}".format(filepath))
 
