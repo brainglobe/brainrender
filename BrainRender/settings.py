@@ -7,7 +7,7 @@ sys.path.append('./')
 folders_paths = {}
 folders_paths['main_fld'] = ""  # parent folder, all other folders should be within this
 folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 # here is where the MouseConnectivityCache stores experimental data downloaded from the AllenBrainAtlas server
-folders_paths['models_fld'] = "Meshes"                                                           # here is where the .obj with the mesh data for brain structures are saved [first time a structure is used it will be downloaded and saved here]
+folders_paths['models_fld'] = "Meshes/mouse_meshes"                                                           # here is where the .obj with the mesh data for brain structures are saved [first time a structure is used it will be downloaded and saved here]
 folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             # to render 3d models of neurons downloaded from the Mouse Light dataset. Download the JSON from the website and save it here
 folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "data")                  # here is where the pandas DataFrame with unionized experiment dat is saved 
 folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     # folder where scenes are exported
