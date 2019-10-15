@@ -11,11 +11,10 @@ from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 from allensdk.api.queries.tree_search_api import TreeSearchApi
 
-from ...settings import *
+from BrainRender.Utils.paths_manager import Paths
 
 
-
-class ABA:
+class ABA(Paths):
     """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees, 
     experimental metadata and results, tractography data etc. ]
 
@@ -23,11 +22,15 @@ class ABA:
     # useful vars for analysis    
     excluded_regions = ["fiber tracts"]
 
-    def __init__(self, projection_metric = "projection_energy"):
+    def __init__(self, projection_metric = "projection_energy", path_file=None):
+        """ path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None}) """
+
+        Paths.__init__(self)
+
         self.projection_metric = projection_metric
 
         # get mouse connectivity cache and structure tree
-        self.mcc = MouseConnectivityCache(manifest_file=folders_paths['manifest'])
+        self.mcc = MouseConnectivityCache(manifest_file=os.path.join(self.mouse_connectivity_cache, "manifest.json"))
         self.structure_tree = self.mcc.get_structure_tree()
         
         # get ontologies API and brain structures sets
@@ -105,7 +108,7 @@ class ABA:
                                                             structure_ids=self.structures.id.values,
                                                             include_descendants=False)
             except: pass
-            structure_unionizes.to_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(acronym)))
+            structure_unionizes.to_pickle(os.path.join(self.output_data, "{}.pkl".format(acronym)))
     
     def print_structures(self):
         acronyms, names = self.structures.acronym.values, self.structures['name'].values
@@ -204,7 +207,7 @@ class ABA:
         if projection_metric is None: 
             projection_metric = self.projection_metric
 
-        experiment_data = pd.read_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(SOI)))
+        experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(SOI)))
         experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
         # Loop over all structures and get the injection density
@@ -250,7 +253,7 @@ class ABA:
             origin_acronym = self.structures.loc[self.structures.id == origin].acronym.values[0]
             origin_name = self.structures.loc[self.structures.id == origin].name.values[0]
 
-            experiment_data = pd.read_pickle(os.path.join(folders_paths['save_fld'], "{}.pkl".format(origin_acronym)))
+            experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(origin_acronym)))
             experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
             exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id]

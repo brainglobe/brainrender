@@ -14,11 +14,11 @@ class Paths:
         else:
             self.paths_file = paths_file
 
-        if not os.path.isfile(paths_file):
+        if not os.path.isfile(self.paths_file):
             raise FileNotFoundError("Could not find file specifying folder paths: {}".format(self.paths_file))
 
         # Parse paths file
-        paths_dict = load_yaml(paths_file)
+        paths_dict = load_yaml(self.paths_file)
         self.folders = paths_dict
 
         self.mouse_meshes = paths_dict['mouse_meshes']
@@ -27,13 +27,20 @@ class Paths:
         self.other_meshes = paths_dict['other_meshes']
         self.morphology_allen = paths_dict['morphology_allen']
         self.morphology_mouselight = paths_dict['morphology_mouselight']
+        
+        self.mouse_connectivity_cache = paths_dict['mouse_connectivity_cache']
+
         self.output_screenshots = paths_dict['output_screenshots']
         self.output_videos = paths_dict['output_videos']
         self.output_scenes = paths_dict['output_scenes']
+        self.output_data = paths_dict['output_data']
+
+
         self.user = paths_dict['user']
         self.metadata = paths_dict['metadata']
 
         # Create folders if they don't exist
-        for fld in list(self.folder.values()):
+        for fld in list(self.folders.values()):
             if not os.path.isdir(fld):
+                print("Creating folder at: {}".format(fld))
                 os.mkdir(fld)

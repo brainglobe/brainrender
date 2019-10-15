@@ -29,16 +29,17 @@ def send_query(query_string, clean=False):
 	else:
 		raise ValueError("Invalide query string: {}".format(query_string))
 
-def update_folders(main_fld):
-	from BrainRender.settings import folders_paths as folders_paths
-	folders_paths['main_fld'] = main_fld
-	folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 
-	folders_paths['models_fld'] = "Meshes/mouse_meshes"                                                           
-	folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             
-	folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  
-	folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
-	folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
-	folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
+# Outdated
+# def update_folders(main_fld):
+# 	from BrainRender.settings import folders_paths as folders_paths
+# 	folders_paths['main_fld'] = main_fld
+# 	folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 
+# 	folders_paths['models_fld'] = "Meshes/mouse_meshes"                                                           
+# 	folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             
+# 	folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  
+# 	folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
+# 	folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
+# 	folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
 
 
 def listdir(fld):
@@ -55,9 +56,9 @@ def load_json(filepath):
 	return data
 
 def load_yaml(filepath):
-	if not os.path.isfile(filepath): raise ValueError("unrecognized file path: {}".format(filepath))
+	if filepath is None or not os.path.isfile(filepath): raise ValueError("unrecognized file path: {}".format(filepath))
 	if not "yml" in filepath and not "yaml" in filepath: raise ValueError("unrecognized file path: {}".format(filepath))
-	return yaml.load(open('filename'))
+	return yaml.load(open(filepath))
 
 """ 
 import allensdk.core.swc as swc

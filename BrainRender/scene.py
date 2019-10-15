@@ -12,7 +12,6 @@ from BrainRender.variables import *
 from BrainRender.Utils.ABA.connectome import ABA
 from BrainRender.Utils.data_io import load_json, load_volume_file
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
-from BrainRender.Utils.paths_manager import Paths
 
 from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
@@ -27,7 +26,7 @@ from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region
     and other classes within the same package. 
 """
 
-class Scene(ABA, Paths):  # subclass brain render to have acces to structure trees
+class Scene(ABA):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
@@ -49,10 +48,8 @@ class Scene(ABA, Paths):  # subclass brain render to have acces to structure tre
             tracts {[list]} -- [list of tractography items, one per experiment] (default: {None})
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
             path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
-
         """
-        ABA.__init__(self)
-        Paths.__init__self()
+        ABA.__init__(self, path_file=path_file)
 
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color

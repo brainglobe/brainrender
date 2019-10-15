@@ -10,11 +10,14 @@ metadata: "Data/Metadata"
 morphology_allen:  "Data/Morphology/Allen" # .swc files with neurons morphology downloaded through allen API
 morphology_mouselight: "Data/Morphology/MouseLight" # .swc and .json files from mouse light dataset
 
+# Allen caches
+mouse_connectivity_cache: Data/ABA/MCC
 
 # OUTPUT Folders
 output_screenshots: "Output/Screenshots"
 output_videos: "Output/Videos"
 output_scenes: "Output/Scenes"
+output_data: "Output/Data"
 
 # User folder
 user: "User"
