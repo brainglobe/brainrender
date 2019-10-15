@@ -8,11 +8,11 @@ from vtk import vtkOBJExporter, vtkRenderWindow
 
 from BrainRender.colors import *
 from BrainRender.variables import *
-from BrainRender.settings import *
 
 from BrainRender.Utils.ABA.connectome import ABA
 from BrainRender.Utils.data_io import load_json, load_volume_file
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
+from BrainRender.Utils.paths_manager import PathManager
 
 from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
@@ -27,41 +27,17 @@ from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region
     and other classes within the same package. 
 """
 
-class Scene(ABA):  # subclass brain render to have acces to structure trees
+class Scene(ABA, PathManager):  # subclass brain render to have acces to structure trees
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
-    """
-            - pos, `(list)`,  the position of the camera in world coordinates
-            - focalPoint `(list)`, the focal point of the camera in world coordinates
-            - viewup `(list)`, the view up direction for the camera
-            - distance `(float)`, set the focal point to the specified distance from the camera position.
-            - clippingRange `(float)`, distance of the near and far clipping planes along the direction
-                of projection.
-            - parallelScale `(float)`,
-                scaling used for a parallel projection, i.e. the height of the viewport
-                in world-coordinate distances. The default is 1. Note that the "scale" parameter works as
-                an "inverse scale", larger numbers produce smaller images.
-                This method has no effect in perspective projection mode.
-            - thickness `(float)`,
-                set the distance between clipping planes. This method adjusts the far clipping
-                plane to be set a distance 'thickness' beyond the near clipping plane.
-            - viewAngle `(float)`,
-                the camera view angle, which is the angular height of the camera view
-                measured in degrees. The default angle is 30 degrees.
-                This method has no effect in parallel projection mode.
-                The formula for setting the angle up for perfect perspective viewing is:
-                angle = 2*atan((h/2)/d) where h is the height of the RenderWindow
-                (measured by holding a ruler up to your screen) and d is the distance
-                from your eyes to the screen.
-    """
     camera_params = {"viewup": [0.25, -1, 0]}
     video_camera_params = {"viewup": [0, -1, 0]}
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
-                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None):
+                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None, path_file=None):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
@@ -72,9 +48,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                                     be a list of already rendered neurons' actors] (default: {None})
             tracts {[list]} -- [list of tractography items, one per experiment] (default: {None})
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
+            path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
 
         """
         ABA.__init__(self)
+        PathManager.__init__self()
+
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
         self.jupyter = jupyter 
@@ -167,7 +146,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             plotter = self.plotter
 
         structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
-        obj_path = os.path.join(folders_paths['models_fld'], "{}.obj".format(acronym))
+        obj_path = os.path.join(self.mouse_meshes, "{}.obj".format(acronym))
 
         if self.check_obj_file(structure, obj_path):
             mesh = plotter.load(obj_path, **kwargs)
@@ -367,7 +346,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             
             # get the structure and check if we need to download the object file
             structure = self.structure_tree.get_structures_by_acronym([region])[0]
-            obj_file = os.path.join(folders_paths['models_fld'], "{}.obj".format(structure["acronym"]))
+            obj_file = os.path.join(self.mouse_meshes, "{}.obj".format(structure["acronym"]))
             
             if not self.check_obj_file(structure, obj_file):
                 print("Could not render {}, maybe we couldn't get the mesh?".format(structure["acronym"]))
@@ -859,7 +838,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             ValueError: [description]
         """
         if save_dir is None:
-            save_dir = folders_paths['output_fld']
+            save_dir = self.output_scenes
         
         if not os.path.isdir(save_dir):
             raise ValueError("Save folder not valid: {}".format(save_dir))
@@ -909,7 +888,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         # This exports the scene and generates 2 files:
         # embryo.x3d and an example embryo.html to inspect in the browser
         if save_dir is None:
-            save_dir = folders_paths['output_fld']
+            save_dir = self.output_scenes
         
         if not os.path.isdir(save_dir):
             raise ValueError("Save folder not valid: {}".format(save_dir))
@@ -924,7 +903,7 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
     def __init__(self, *args, **kwargs):
         Scene.__init__(self,*args, add_root=False, display_inset=False, **kwargs)
 
-        self.structures = get_rat_regions_metadata()
+        self.structures = get_rat_regions_metadata(self.metadata)
         self.structures_names = list(self.structures['Name'].values)
 
     def print_structures(self):
@@ -963,7 +942,7 @@ class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
             # loop over all brain regions
             for i, (col, region) in enumerate(zip(color, brain_regions)):
                 # Load the object file as a mesh and store the actor
-                obj = get_rat_mesh_from_region(region, c=col, alpha=alpha, use_original_color=use_original_color)
+                obj = get_rat_mesh_from_region(region, self.folders,  c=col, alpha=alpha, use_original_color=use_original_color)
                 if obj is not None:
                     self.actors["regions"][region] = obj
 
@@ -977,7 +956,7 @@ class DrosophilaScene(Scene): # Subclass of Scene to override some methods for D
         if add_root:
             self.add_brain_regions("root", color=ROOT_COLOR, alpha=ROOT_ALPHA)
 
-        self.structures = get_drosophila_regions_metadata()
+        self.structures = get_drosophila_regions_metadata(self.metadata)
         self.structures_acronyms = sorted(list(self.structures['acronym'].values))
 
     def print_structures(self):
@@ -1019,7 +998,7 @@ class DrosophilaScene(Scene): # Subclass of Scene to override some methods for D
             # loop over all brain regions
             for i, (col, region) in enumerate(zip(color, brain_regions)):
                 # Load the object file as a mesh and store the actor
-                obj = get_drosophila_mesh_from_region(region, c=col, alpha=alpha)
+                obj = get_drosophila_mesh_from_region(region, self.folders, c=col, alpha=alpha)
                 if obj is not None:
                     self.actors["regions"][region] = obj
 

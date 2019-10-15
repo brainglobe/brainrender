@@ -4,6 +4,11 @@ from .data_io import load_yaml
 
 class Paths:
     def __init__(self, paths_file = None):
+        """[Parses a YAML file to get data folders paths]
+        
+        Keyword Arguments:
+            path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
+        """
         if paths_file is None:
             self.paths_file = "default_paths.yml"
         else:
@@ -25,4 +30,10 @@ class Paths:
         self.output_screenshots = paths_dict['output_screenshots']
         self.output_videos = paths_dict['output_videos']
         self.output_scenes = paths_dict['output_scenes']
-        self.outpuserut_scenes = paths_dict['user']
+        self.user = paths_dict['user']
+        self.metadata = paths_dict['metadata']
+
+        # Create folders if they don't exist
+        for fld in list(self.folder.values()):
+            if not os.path.isdir(fld):
+                os.mkdir(fld)

@@ -9,17 +9,17 @@ from BrainRender.colors import *
 from BrainRender.variables import *
 
 
-def get_drosophila_regions_metadata():
-    return pd.read_pickle("Metadata/drosophila_structures.pkl")
+def get_drosophila_regions_metadata(metadata_fld):
+    return pd.read_pickle(os.path.join(metadata_fld,"drosophila_structures.pkl"))
 
 
-def get_drosophila_mesh_from_region(region, **kwargs):
+def get_drosophila_mesh_from_region(region, paths,  **kwargs):
     if not isinstance(region, (tuple, list)):
         region = [region]
         check = False
     else: check = True
 
-    metadata = get_drosophila_regions_metadata()
+    metadata = get_drosophila_regions_metadata(paths.metadata)
 
     if "color" in list(kwargs.keys()):
         color = kwargs.pop("color", DEFAULT_STRUCTURE_COLOR)
@@ -48,11 +48,11 @@ def get_drosophila_mesh_from_region(region, **kwargs):
             try:
                 eid = entry.Id.values[0]
                 if len(eid) == 1:
-                    meshname = "Meshes/drosophila_meshes/domains/AdultBrainDomain000{}.obj".format(eid)
+                    meshname = os.path.join(paths.drosophila_meshes, "domains/AdultBrainDomain000{}.obj".format(eid))
                 if len(eid) == 2:
-                    meshname = "Meshes/drosophila_meshes/domains/AdultBrainDomain00{}.obj".format(eid)
+                    meshname = os.path.join(paths.drosophila_meshes, "domains/AdultBrainDomain00{}.obj".format(eid))
                 if len(eid) == 3:
-                    meshname = "Meshes/drosophila_meshes/domains/AdultBrainDomain0{}.obj".format(eid)
+                    meshname = os.path.join(paths.drosophila_meshes, "domains/AdultBrainDomain0{}.obj".format(eid))
 
                 if not os.path.isfile(meshname):
                     raise FileExistsError(meshname)
@@ -69,30 +69,3 @@ def get_drosophila_mesh_from_region(region, **kwargs):
     else:
         return meshes
 
-def fix_data():
-    with open("Metadata/drosophila.txt", "r") as f:
-        content = f.readlines()
-
-    data = {"acronym":[], "name":[], "Id":[]}
-    for i,line in enumerate(content):
-        if i == 0: continue
-        line = line.replace("\n", '')
-        line = line.split("\t")
-
-        data['acronym'].append(line[0])
-        data['name'].append(line[1])
-        data['Id'].append(line[2])
-
-    data = pd.DataFrame(data)
-    data.to_pickle("Metadata/drosophila_structures.pkl")
-
-def remove_extra_meshes():
-    fld = "/Users/federicoclaudi/Documents/Github/BrainRender/Meshes/drosophila_meshes/domains"
-    for f in os.listdir(fld):
-        print(f)
-        if "_" in f or ".txt" in f:
-            os.remove(os.path.join(fld, f))
-
-
-if __name__ == "__main__":
-    remove_extra_meshes()
