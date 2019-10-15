@@ -11,15 +11,9 @@ from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 from allensdk.api.queries.tree_search_api import TreeSearchApi
 
-from .Utils.mouselight_parser import NeuronsParser
-from .settings import *
+from ...settings import *
 
-"""
-    Useful functions
-        mcc.get_experiments(cre=False,  injection_structure_ids=[])
-        structure_tree.get_structures_by_acronym([])
-        mca.experiment_spatial_search(seed_point=p0)
-"""
+
 
 class ABA:
     """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees, 

@@ -3,6 +3,8 @@ import json
 import pandas as pd
 from collections import namedtuple
 import requests
+import yaml
+
 
 from allensdk.core.swc import read_swc
 from vtkplotter import *
@@ -52,6 +54,10 @@ def load_json(filepath):
 		data = json.load(f)
 	return data
 
+def load_yaml(filepath):
+	if not os.path.isfile(filepath): raise ValueError("unrecognized file path: {}".format(filepath))
+	if not "yml" in filepath and not "yaml" in filepath: raise ValueError("unrecognized file path: {}".format(filepath))
+	return yaml.load(open('filename'))
 
 """ 
 import allensdk.core.swc as swc

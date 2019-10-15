@@ -6,16 +6,18 @@ from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
 
-from BrainRender.Utils.data_io import load_json, load_volume_file
-from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
-from BrainRender.ABA_analyzer import ABA
-from BrainRender.Utils.mouselight_parser import NeuronsParser, edit_neurons
 from BrainRender.settings import *
-from BrainRender.Utils.streamlines_parser import parse_streamline, extract_ids_from_csv
-from BrainRender.Utils.rat_brain_parser import get_rat_mesh_from_region, get_rat_regions_metadata
-from BrainRender.Utils.drosophila_brain_parser import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
+
+from BrainRender.Utils.ABA.connectome import ABA
+from BrainRender.Utils.data_io import load_json, load_volume_file
+from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
+
+from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
+from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
+from BrainRender.Utils.parsers.rat import get_rat_mesh_from_region, get_rat_regions_metadata
+from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
 
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..

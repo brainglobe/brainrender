@@ -1,5 +1,8 @@
 """ ------------------------------
     SET OF FUNCTIONS TO VISUALIZE AND DOWNLOAD IMAGES FROM ALLEN MOUSE BRAIN DATASETS
+
+
+    VERY MUCH WORK IN PROGRESS STILL
 """ 
 # %%
 import sys
@@ -48,7 +51,6 @@ class ImageDownload(SvgApi, ImageDownloadApi):
     def get_atlas_by_name(self, atlas_name):
         if not atlas_name in self.atlases_names: raise ValueError("Available atlases: {}".format(self.atlases_names))
         return self.atlases.loc[self.atlases['name'] == atlas_name].id.values[0]
-
 
     def get_products_by_species(self, species):
         return self.products.loc[self.products.species == species]
@@ -112,8 +114,3 @@ imgd = ImageDownload()
 path = "/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/Presentations/atlases/allen_mouse_sagittal"
 imgd.download_images_by_atlasid(path, imgd.mouse_sagittal_atlas_id, atlas_svg=True)
 
-
-#%%
-imgd.get_atlasimages_by_atlasid(imgd.mouse_coronal_atlas_id).columns
-
-#%%

@@ -8,19 +8,28 @@
 *.xml
 *.idea
 *.pyc
-.DS_Store
-Users/
-*/__pycache__
-__pycache__
 *.vtk
-*/.ipynb_checkpoints
-.ipynb_checkpoints
+*.obj
+*.stl
+*.nrrd
+*.swc
+*.json
+
+
+User/
+
 
 mouse_connectivity
 
+
 */tempCodeRunnerFile.py
+*/.ipynb_checkpoints
+.ipynb_checkpoints
+*/__pycache__
+__pycache__
+.DS_Store
+Users/
 
 workspace.py
 secrets
 
-screenshot.png

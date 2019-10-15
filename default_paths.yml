@@ -1,0 +1,19 @@
+# Default paths for Data Folders (store stuff like object meshes, neurons morphology data etc)
+# BRAIN REGIONS MESHES
+mouse_meshes: "Data/Meshes/Mouse" # allen brain atlas .obj meshes file, downloaded through allen API
+rat_meshes: "Data/Meshes/Rat"    # meshes with rat brain data, to be downloaded
+drosophila_meshes: "Data/Meshes/Drosophila"  # meshes with drosophila brain data, to be downloaded
+other_meshes: "Data/Meshes/Other"  # any other mesh the user might want to store
+
+# NEURONS MORPHOLOGY
+morphology_allen:  "Data/Morphology/Allen" # .swc files with neurons morphology downloaded through allen API
+morphology_mouselight: "Data/Morphology/MouseLight" # .swc and .json files from mouse light dataset
+
+
+# OUTPUT Folders
+output_screenshots: "Output/Screenshots"
+output_videos: "Output/Videos"
+output_scenes: "Output/Scenes"
+
+# User folder
+user: "User"
