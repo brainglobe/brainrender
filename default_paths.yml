@@ -12,6 +12,7 @@ morphology_mouselight: "Data/Morphology/MouseLight" # .swc and .json files from 
 
 # Allen caches
 mouse_connectivity_cache: Data/ABA/MCC
+mouse_celltype_cache: Data/ABA/MCTC
 
 # OUTPUT Folders
 output_screenshots: "Output/Screenshots"
