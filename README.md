@@ -39,10 +39,6 @@ Projections to the Zona Incerta, colored by projection area.
 <img src="Output/Screenshots/streamlines2.png" width="600" height="350">
 Efferents from the VAL nucleus of the thalamus.
 
-### Streamlines
-<img src="Output/Screenshots/streamlines2.png" width="600" height="350">
-Efferents from the VAL nucleus of the thalamus.
-
 ### Ratbrain
 <img src="Output/Screenshots/ratbrain2.png" width="600" height="350">
 The rat and mouse brains side by side. 
