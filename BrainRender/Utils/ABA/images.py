@@ -36,7 +36,6 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         self.mouse_sagittal_atlas_id = int(self.atlases.loc[self.atlases['name'] == "Mouse, P56, Sagittal"].id.values[0])
         self.mouse_3D_atlas_id = int(self.atlases.loc[self.atlases['name'] == "Mouse, Adult, 3D Coronal"].id.values[0])
 
-
         # Get metadata about products
         if connected_to_internet():
             self.products = pd.DataFrame(send_query("http://api.brain-map.org/api/v2/data/query.json?criteria=model::Product"))

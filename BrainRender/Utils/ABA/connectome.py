@@ -51,7 +51,6 @@ class ABA(Paths):
         self.strains = sorted([x for x in set(self.all_experiments.strain) if x is not None])
         self.transgenic_lines = sorted(set([x for x in set(self.all_experiments.transgenic_line) if x is not None]))
 
-
     ####### GET EXPERIMENTS DATA
     def get_structures_sets(self):
         summary_structures = self.structure_tree.get_structures_by_set_id([167587189])  # main summary structures
