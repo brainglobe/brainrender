@@ -36,7 +36,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     video_camera_params = {"viewup": [0, -1, 0]}
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
-                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None, path_file=None):
+                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None, paths_file=None):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
@@ -49,7 +49,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
             path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
         """
-        ABA.__init__(self, path_file=path_file)
+        ABA.__init__(self, paths_file=paths_file)
 
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color

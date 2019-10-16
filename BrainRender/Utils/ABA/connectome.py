@@ -22,10 +22,10 @@ class ABA(Paths):
     # useful vars for analysis    
     excluded_regions = ["fiber tracts"]
 
-    def __init__(self, projection_metric = "projection_energy", path_file=None):
+    def __init__(self, projection_metric = "projection_energy", paths_file=None):
         """ path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None}) """
 
-        Paths.__init__(self)
+        Paths.__init__(self, paths_file=paths_file)
 
         self.projection_metric = projection_metric
 
