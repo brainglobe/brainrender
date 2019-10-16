@@ -3,7 +3,7 @@ import os
 from .data_io import load_yaml
 
 class Paths:
-    def __init__(self, paths_file = None):
+    def __init__(self, paths_file=None):
         """[Parses a YAML file to get data folders paths]
         
         Keyword Arguments:
@@ -44,4 +44,4 @@ class Paths:
         for fld in list(self.folders.values()):
             if not os.path.isdir(fld):
                 print("Creating folder at: {}".format(fld))
-                os.mkdir(fld)
+                os.makedirs(fld)

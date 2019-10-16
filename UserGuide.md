@@ -24,6 +24,20 @@ If you are using anaconda you can simply crate an environment using the installa
 ```conda env create --name NAME --file path_to_your_repo/Installation/environment.yml```
 
 
+Alternatively, it should now be possible to install BrainRender as a package, thank's to [Adam Tyson](https://github.com/adamltyson)'s contribution:
+
+***
+Tested on Linux (Ubuntu 18.04) and Windows (10 Enterprise LTSC) with Python 3.6.9.
+
+Installation seems to work fine via:
+`conda create --name brainrender python=3.6`
+`conda activate brainrender`
+`pip install BrainRender`
+
+BrainRender should be installable with:
+`pip install git+https://github.com/BrancoLab/BrainRender`
+***
+
 ### Folder structure
 BrainRender needs to save and access data from your machine. 
 For this reason you will need to specify the folder in which each type of data will be stored [for more details please see [settings.py](BrainRender/settings.py)]. 
