@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import random
 from vtkplotter import *
 import copy
 from tqdm import tqdm
@@ -17,6 +18,8 @@ from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
 from BrainRender.Utils.parsers.rat import get_rat_mesh_from_region, get_rat_regions_metadata
 from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
+
+from BrainRender.Utils.image import image_to_surface
 
 """
     The code below aims to create a scene to which actors can be added or removed, changed etc..
@@ -677,6 +680,31 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
         spheres = Spheres(coords, c=color, r=radius, res=3)
         self.actors['others'].append(spheres)
+
+    def add_image(self, image_file_path, color=None, alpha=None,
+                  obj_file_path=None, voxel_size=1, orientation="saggital",
+                  invert_axes=None, extension=".obj", delete_obj_file=False):
+
+        if color is None:
+            color = [random.uniform(0, 1),
+                     random.uniform(0, 1),
+                     random.uniform(0, 1)]
+
+        if alpha is None:
+            alpha = DEFAULT_STRUCTURE_ALPHA
+
+        if obj_file_path is None:
+            obj_file_path = os.path.splitext(image_file_path)[0] + extension
+
+        # TODO: avoid temporary file & pass vertices directly
+        image_to_surface(image_file_path, obj_file_path, voxel_size=voxel_size,
+                         orientation=orientation, invert_axes=invert_axes)
+
+        self.add_from_file(obj_file_path, c=color, alpha=alpha)
+
+        if delete_obj_file:
+            os.remove(obj_file_path)
+
 
     ####### MANIPULATE SCENE
     def Slice(self, axis="x", j=0, onlyroot=False): 

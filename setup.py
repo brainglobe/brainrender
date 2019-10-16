@@ -9,7 +9,9 @@ requirements = [
     "allensdk",
     "k3d",
     "tqdm",
-    "pyyaml"
+    "pyyaml",
+    "scikit-image",
+    "brainio",
 ]
 
 setup(
