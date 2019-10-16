@@ -9,7 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 
-from BrainRender.Utils.data_io import load_json, load_neuron_swc
+from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
