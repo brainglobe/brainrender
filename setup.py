@@ -9,6 +9,7 @@ requirements = [
     "allensdk",
     "k3d",
     "tqdm",
+    "pyyaml"
 ]
 
 setup(

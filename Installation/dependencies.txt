@@ -7,4 +7,4 @@ allensdk
 k3d
 tqdm
 json
-multiprocessing
+pyyaml
