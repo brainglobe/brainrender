@@ -44,4 +44,4 @@ class Paths:
         for fld in list(self.folders.values()):
             if not os.path.isdir(fld):
                 print("Creating folder at: {}".format(fld))
-                os.mkdir(fld)
+                os.makedirs(fld)
