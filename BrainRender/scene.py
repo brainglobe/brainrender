@@ -15,6 +15,7 @@ from BrainRender.variables import *
 from BrainRender.Utils.ABA.connectome import ABA
 from BrainRender.Utils.data_io import load_json, load_volume_file
 from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
+from BrainRender.Utils import actors_funcs
 
 from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
@@ -803,12 +804,21 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise ValueError("Unrecognized value for argument overwrite: {}".format(overwrite))
 
-        # render obj file
-        self.add_from_file(obj_file_path, c=color, alpha=alpha)
+        # render obj file, smooth and clean up.
+        actor = self.add_from_file(obj_file_path, c=color, alpha=alpha)
+
+        if smooth:
+            actors_funcs.smooth(actor)
 
         if not keep_obj_file:
             os.remove(obj_file_path)
 
+    def edit_actors(self, actors, **kwargs):
+        if not isinstance(actors, list):
+            actors = list(actors)
+        
+        for actor in actors:
+            actor_funcs.edit_actor(actor, **kwargs)
 
     ####### MANIPULATE SCENE
     @staticmethod

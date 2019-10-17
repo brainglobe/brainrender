@@ -2,8 +2,6 @@ from skimage import measure
 import numpy as np
 from brainio import brainio
 
-from BrainRender.Utils import actors_funcs
-
 
 def marching_cubes_to_obj(marching_cubes_out, output_file):
     """[Saves the output of skimage.measure.marching_cubes as an .obj file]
