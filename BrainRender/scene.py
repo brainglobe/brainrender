@@ -6,6 +6,7 @@ import copy
 from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
+from pathlib import Path
 
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -674,6 +675,40 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
+
+    def add_cells_from_file(self, filepath, hdf_key=None, color="red",
+                            radius=25, res=3):
+
+        supported_formats = HDF_SUFFIXES
+        if hdf_key is None:
+            hdf_key = DEFAULT_HDF_KEY
+
+        filepath = Path(filepath)
+        if not filepath.exists():
+            raise FileNotFoundError(filepath)
+
+        if filepath.suffix in supported_formats:
+            if filepath.suffix in HDF_SUFFIXES:
+                try:
+                    cells = pd.read_hdf(filepath, key=hdf_key)
+                except TypeError:
+                    if hdf_key == DEFAULT_HDF_KEY:
+                        raise ValueError(
+                            f"The default identifier: {DEFAULT_HDF_KEY} "
+                            f"cannot be found in the hdf file. Please supply "
+                            f"a key using 'scene.add_cells(cells, "
+                            f"hdf_key='key'")
+                    else:
+                        raise ValueError(
+                            f"The key: {hdf_key} cannot be found in the hdf "
+                            f"file. Please check the correct identifer.")
+
+            self.add_cells(cells, color=color, radius=radius, res=res)
+
+        else:
+            raise NotImplementedError(
+                f"File format: {filepath.suffix} is not currently supported. "
+                f"Please use one of: {supported_formats}")
 
     def add_cells(self, coords, color="red", radius=25, res=3): # WIP
         if isinstance(coords, pd.DataFrame):
