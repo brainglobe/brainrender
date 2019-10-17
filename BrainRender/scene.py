@@ -681,15 +681,28 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_cells_from_file(self, filepath, hdf_key=None, color="red",
                             radius=25, res=3):
-
+        """
+            [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
+            Arguments:
+                filepath {str} -- [Path to the .csv or .h5 file with cell locations]
+            
+            Keyword Arguments:
+                hdf_key {[str]} -- [key used for parsing HDF file] (default: {None})
+                color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
+                radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
+                res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
+        """
         csv_suffix = ".csv"
         supported_formats = HDF_SUFFIXES + [csv_suffix]
 
+        #  check that the filepath makes sense
         filepath = Path(filepath)
         if not filepath.exists():
             raise FileNotFoundError(filepath)
 
+        # check that the file is of the supported types
         if filepath.suffix in supported_formats:
+            # parse file and load cell locations
             if filepath.suffix in HDF_SUFFIXES:
                 if hdf_key is None:
                     hdf_key = DEFAULT_HDF_KEY
@@ -700,7 +713,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         raise ValueError(
                             f"The default identifier: {DEFAULT_HDF_KEY} "
                             f"cannot be found in the hdf file. Please supply "
-                            f"a key using 'scene.add_cells(cells, "
+                            f"a key using 'scene.add_cells_from_file(filepath, "
                             f"hdf_key='key'")
                     else:
                         raise ValueError(
@@ -716,7 +729,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 f"File format: {filepath.suffix} is not currently supported. "
                 f"Please use one of: {supported_formats}")
 
-    def add_cells(self, coords, color="red", radius=25, res=3): # WIP
+    def add_cells(self, coords, color="red", radius=25, res=3): 
+        """
+            [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
+            Arguments:
+                coords {pd.DataFrame, list} -- [Either a dataframe of cell locations with columns 'x', 'y' and 'z' or a list of lists, 
+                                                each with the x,y,z coordinates of a cell]
+            
+            Keyword Arguments:
+                color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
+                radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
+                res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
+        """
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
         spheres = Spheres(coords, c=color, r=radius, res=res)
@@ -725,33 +749,69 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
                   invert_axes=None, extension=".obj", step_size=2,
-                  delete_obj_file=False):
+                  keep_obj_file=True, override='use'):
 
-        if color is None:
-            color = [random.uniform(0, 1),
-                     random.uniform(0, 1),
-                     random.uniform(0, 1)]
+        """
+            [Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
+            a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.]
 
+            Arguments:
+                image_file_path {str} -- [Path to 3d image data]
+            
+            Keyword Arguments:
+                hdf_key {[str]} -- [key used for parsing HDF file] (default: {None})
+                color {[str, color]} -- [color of rendered mesh. If None, random is used.] (default: {None})
+                alpha {[int]} -- [transparency of rendered mesh. If None, default is used.] (default: {None})
+                obj_file_path {[str]} -- [path in which to save .obj file. If None path is based on image_file_path] (default: {None})
+
+                voxel_size {[float]} -- [Voxel size of the image (in um). Only isotropic voxels supported currently] (default: {1})
+                orientation {[str]} -- [Used to orient 3d image.] (default: {saggital})
+                invert_axes {[tuple]} -- [Tuple of axes to invert (if not in the same orientation as the atlas] (default: {None})
+                extension {[str]} -- [Extension of the .obj file, others can be used.] (default: {.obj})
+                step_size {[int]} -- [Used in marching algorithm to process image data.] (default: {2})
+                keep_obj_file {[bool]} -- [if false, the .obj file is deleted after having used it.] (default: {True})
+                overwrite {[str]} -- [Allowed values:
+                                        'use': if a .obj found matching the image_file_path, use that and skip processing the image, 
+                                        'overwrite': if a .obj found matching the image_file_path, process image and overwrite it,
+                                        'catch': if a .obj found matching the image_file_path, throw error.] (default: {None})
+        """
+
+        # Check args
+        if color is None: color = get_random_colors() # get a random color
+        
         if alpha is None:
             alpha = DEFAULT_STRUCTURE_ALPHA
 
         if obj_file_path is None:
             obj_file_path = os.path.splitext(image_file_path)[0] + extension
 
-        # TODO: avoid temporary file & pass vertices directly
-        image_to_surface(image_file_path, obj_file_path, voxel_size=voxel_size,
-                         orientation=orientation, invert_axes=invert_axes,
-                         step_size=step_size)
+        if os.path.isinstance(obj_file_path):
+            if overwrite == "use":
+                print("Found a .obj file that matches your input data. Rendering that instead.")
+                print("If you would like to change this behaviour, change the 'overwrite' argument.")
+            elif overwrite == "overwrite":
+                print("Found a .obj file that matches your input data. Overriding it.")
+                print("If you would like to change this behaviour, change the 'overwrite' argument.")
+                # Process the image and save as .obj file
+                image_to_surface(image_file_path, obj_file_path, voxel_size=voxel_size,
+                                orientation=orientation, invert_axes=invert_axes,
+                                step_size=step_size)
+            elif overwrite == "catch":
+                raise FileExistsError("The .obj file exists alread, to overwrite change the 'overwrite' argument.")
+            else:
+                raise ValueError("Unrecognized value for argument overwrite: {}".format(overwrite))
 
+        # render obj file
         self.add_from_file(obj_file_path, c=color, alpha=alpha)
 
-        if delete_obj_file:
+        if not keep_obj_file:
             os.remove(obj_file_path)
 
 
     ####### MANIPULATE SCENE
     @staticmethod
     def slider_func(scene, widget, event):
+        # function used to change the transparency of meshes according to slider value (see self.add_slider())
         value = widget.GetRepresentation().GetValue()
         for actor in scene.slider_actors:
             actor.alpha(value)
@@ -778,8 +838,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             value=0.5,
             pos=4, 
             c="white", 
-            title="opacity"
-)
+            title="opacity")
 
     def add_actors_to_slider(self,  brain_regions=None, actors=None):
         """[Adds actors to the list of actors whose transparency is affected by the slider]
