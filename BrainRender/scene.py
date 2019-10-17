@@ -6,11 +6,8 @@ import copy
 from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
-<<<<<<< HEAD
 from functools import partial
-=======
 from pathlib import Path
->>>>>>> 1076e5f15880a70d9ab9dab9129dca5da0178699
 
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -97,6 +94,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
+        self.slider_actors = None # list to hold actors to be affected by opacity slider
 
     ####### UTILS
     def check_obj_file(self, structure, obj_file):
@@ -758,22 +756,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             actor.alpha(value)
 
     def add_slider(self, brain_regions=None, actors=None):
-        # parse arguments
-        if actors is None:
-            self.slider_actors = [] # this list will store all actors that will be affected by the slider value
-        else:
-            self.slider_actors = list(actors)
+        """[Creates a slider in the scene that can be used to adjust the transparency of select actors. 
+        Actors can be passed directly to add_slider or added in a second moment using add?actors_to_slider]
         
-        # Get actors that will have to be changed by the slider
-        if brain_regions is not None:
-            if not isinstance(brain_regions,list): brain_regions = list(brain_regions)
-            if 'root' in brain_regions:
-                self.slider_actors.append(self.actors['root'])
-                brain_regions.pop(brain_regions.index('root'))
-            
-            # Get other brain regions
-            regions_actors = [act for r,act in self.actors['regions'].items() if r in brain_regions]
-        self.slider_actors.extend(regions_actors)
+        Keyword Arguments:
+            brain_regions {[list]} -- [List of strings with acronyms of brain regions to be added to the slider] (default: {None})
+            actors {[type]} -- [list of vtk plotter actors to be added to the slider] (default: {None})
+        """
+        # Add actors to slider function
+        self.add_actors_to_slider(brain_regions=brain_regions, actors=actors)
 
         # create slider function
         sfunc = partial(self.slider_func, self)
@@ -786,10 +777,36 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             value=0.5,
             pos=4, 
             c="white", 
-            title="alpha value (opacity)"
+            title="opacity"
 )
 
-
+    def add_actors_to_slider(self,  brain_regions=None, actors=None):
+        """[Adds actors to the list of actors whose transparency is affected by the slider]
+        
+        Keyword Arguments:
+            brain_regions {[list]} -- [List of strings with acronyms of brain regions to be added to the slider] (default: {None})
+            actors {[type]} -- [list of vtk plotter actors to be added to the slider] (default: {None})
+        """
+        if self.slider_actors is None:
+            # parse arguments
+            if actors is None:
+                self.slider_actors = [] # this list will store all actors that will be affected by the slider value
+            else:
+                self.slider_actors = list(actors)
+        else:
+            if actors is not None:
+                self.slider_actors.extend(list(actors))
+        
+        # Get actors that will have to be changed by the slider
+        if brain_regions is not None:
+            if not isinstance(brain_regions,list): brain_regions = list(brain_regions)
+            if 'root' in brain_regions:
+                self.slider_actors.append(self.actors['root'])
+                brain_regions.pop(brain_regions.index('root'))
+            
+            # Get other brain regions
+            regions_actors = [act for r,act in self.actors['regions'].items() if r in brain_regions]
+        self.slider_actors.extend(regions_actors)
 
     def Slice(self, axis="x", j=0, onlyroot=False): 
         """
