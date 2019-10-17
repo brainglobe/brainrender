@@ -6,6 +6,7 @@ import copy
 from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
+from functools import partial
 
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -707,6 +708,46 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
     ####### MANIPULATE SCENE
+    @staticmethod
+    def slider_func(scene, widget, event):
+        value = widget.GetRepresentation().GetValue()
+        for actor in scene.slider_actors:
+            actor.alpha(value)
+
+    def add_slider(self, brain_regions=None, actors=None):
+        # parse arguments
+        if actors is None:
+            self.slider_actors = [] # this list will store all actors that will be affected by the slider value
+        else:
+            self.slider_actors = list(actors)
+        
+        # Get actors that will have to be changed by the slider
+        if brain_regions is not None:
+            if not isinstance(brain_regions,list): brain_regions = list(brain_regions)
+            if 'root' in brain_regions:
+                self.slider_actors.append(self.actors['root'])
+                brain_regions.pop(brain_regions.index('root'))
+            
+            # Get other brain regions
+            regions_actors = [act for r,act in self.actors['regions'].items() if r in brain_regions]
+        self.slider_actors.extend(regions_actors)
+
+        # create slider function
+        sfunc = partial(self.slider_func, self)
+
+        # Create slider
+        self.plotter.addSlider2D(
+            sfunc, 
+            xmin=0.01, 
+            xmax=0.99, 
+            value=0.5,
+            pos=4, 
+            c="white", 
+            title="alpha value (opacity)"
+)
+
+
+
     def Slice(self, axis="x", j=0, onlyroot=False): 
         """
             [Slice all actors in scene at one coordinate along a defined axis]
@@ -849,7 +890,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return
         for actor in self.get_actors():
             self.plotter.renderer.AddActor(actor)
-
 
     ####### EXPORT SCENE
     def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
