@@ -679,9 +679,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_cells_from_file(self, filepath, hdf_key=None, color="red",
                             radius=25, res=3):
 
-        supported_formats = HDF_SUFFIXES
-        if hdf_key is None:
-            hdf_key = DEFAULT_HDF_KEY
+        csv_suffix = ".csv"
+        supported_formats = HDF_SUFFIXES + [csv_suffix]
 
         filepath = Path(filepath)
         if not filepath.exists():
@@ -689,6 +688,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         if filepath.suffix in supported_formats:
             if filepath.suffix in HDF_SUFFIXES:
+                if hdf_key is None:
+                    hdf_key = DEFAULT_HDF_KEY
                 try:
                     cells = pd.read_hdf(filepath, key=hdf_key)
                 except TypeError:
@@ -702,6 +703,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         raise ValueError(
                             f"The key: {hdf_key} cannot be found in the hdf "
                             f"file. Please check the correct identifer.")
+            elif filepath.suffix == csv_suffix:
+                cells = pd.read_csv(filepath)
 
             self.add_cells(cells, color=color, radius=radius, res=res)
 
