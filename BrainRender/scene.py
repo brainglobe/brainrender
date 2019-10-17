@@ -8,6 +8,7 @@ import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
 from functools import partial
 from pathlib import Path
+import datetime
 
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -42,7 +43,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     video_camera_params = {"viewup": [0, -1, 0]}
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
-                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, display_inset=None, paths_file=None):
+                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, 
+                    display_inset=None, paths_file=None, add_screenshot_button=False, ):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
@@ -54,6 +56,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             tracts {[list]} -- [list of tractography items, one per experiment] (default: {None})
             add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
             path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
+            add_screenshot_button {[bool]} -- [If true it adds a button that is used to take screenshots] (default: {False})
+
         """
         ABA.__init__(self, paths_file=paths_file)
 
@@ -92,6 +96,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.add_root(render=True)
         else:
             self.root = None
+
+        self.add_screenshot_button_arg = add_screenshot_button
+        self.add_screenshot_button()
 
         self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
@@ -821,6 +828,22 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             actor_funcs.edit_actor(actor, **kwargs)
 
     ####### MANIPULATE SCENE
+    def add_screenshot_button(self):
+        print("adding")
+        button_func = partial(self._take_screenshot, self.output_screenshots)
+
+        bu = self.plotter.addButton(
+            button_func,
+            pos=(0.125, 0.95),  # x,y fraction from bottom left corner
+            states=["Screenshot"],
+            c=["white"],
+            bc=["darkgray"], 
+            font="courier",
+            size=18,
+            bold=True,
+            italic=False,
+        )
+
     @staticmethod
     def slider_func(scene, widget, event):
         # function used to change the transparency of meshes according to slider value (see self.add_slider())
@@ -1013,11 +1036,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.is_rendered = True
 
         if interactive and not video:
-            show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
+            show(*self.get_actors(), interactive=False, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
         elif video:
             show(*self.get_actors(), interactive=False, offscreen=True, camera=self.video_camera_params, zoom=2.5)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
+
+        if self.add_screenshot_button_arg:
+            self.add_screenshot_button()
+        
+        if interactive and not video:
+            show(*self.get_actors(), interactive=True, camera=self.camera_params)
 
     def _add_actors(self): # TODO fix this
         if self.plotter.renderer is None:
@@ -1097,14 +1126,32 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         exportWindow('{}.x3d'.format(filename))
         os.chdir(curdir)
 
-    def take_screenshot(self, filename="test.svg", scale=1, large=True, savefld=None):
+    @staticmethod
+    def _take_screenshot(default_fld, filename="screenshot.png", scale=1, large=True, savefld=None):
+        """[Takes a screenshot of the current scene's view]
+        
+        Keyword Arguments:
+            default_fld {[str]} -- [default path to directory in which to save screenshot if savefld is None]
+            filename {str} -- [filename, supported formats: png, jpg, svg] (default: {"screenshot.png"})
+            scale {int} -- [In theory values >1 should increase resolution, but it seems to be buggy] (default: {"1"})
+            large {bool} -- [Should increase resolution] (default: {"True"})
+            savefld {str} -- [alternative folder in which to save the screenshot.] (default: {"None"})
+        
+        Raises:
+            ValueError: [description]
+        """
         # Get file name
         if ".png" not in filename and ".svg" not in filename and ".jpg" not in filename:
             raise ValueError("Unrecognized image format. Should be either .png, .svg or .jpg.")
-
         if savefld is None:
-            savefld = "Output/Screenshots"
+            savefld = default_fld
         filename = os.path.join(savefld, filename)
+
+        # Check if a file with this name exists, change name if it does
+        if os.path.isfile(filename):
+            f, ext = os.path.splitext(filename)
+            now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            filename = f + now + ext
 
         # Get resolution settings
         settings.screeshotLargeImage = large
@@ -1112,8 +1159,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # take screenshot
         screenshot(filename)
+        print("Saved screenshot at: {}".format(filename))
 
-
+    def take_screenshot(self, **kwargs):
+        # for args definition check: self._take_screenshot
+        self._take_screenshot(self.output_screenshots, **kwargs)
 
 class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
     def __init__(self, *args, **kwargs):
