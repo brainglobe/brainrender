@@ -675,10 +675,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
-    def add_cells(self, coords, color="red", radius=25): # WIP 
+    def add_cells(self, coords, color="red", radius=25, res=3): # WIP
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
-        spheres = Spheres(coords, c=color, r=radius, res=3)
+        spheres = Spheres(coords, c=color, r=radius, res=res)
         self.actors['others'].append(spheres)
 
     def add_image(self, image_file_path, color=None, alpha=None,
