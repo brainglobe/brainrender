@@ -683,7 +683,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
-                  invert_axes=None, extension=".obj", delete_obj_file=False):
+                  invert_axes=None, extension=".obj", step_size=2,
+                  delete_obj_file=False):
 
         if color is None:
             color = [random.uniform(0, 1),
@@ -698,7 +699,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # TODO: avoid temporary file & pass vertices directly
         image_to_surface(image_file_path, obj_file_path, voxel_size=voxel_size,
-                         orientation=orientation, invert_axes=invert_axes)
+                         orientation=orientation, invert_axes=invert_axes,
+                         step_size=step_size)
 
         self.add_from_file(obj_file_path, c=color, alpha=alpha)
 
