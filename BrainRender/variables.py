@@ -61,6 +61,11 @@ settings.screeshotScale = 1  # Improves resolution of saved screenshots
 NEURONS_FILE = "Examples/example_files/one_neuron.json"
 VERBOSE = True                  # if True print useful messages during use
 
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
+        # SUPPORTED_FILE FORMATS
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
+HDF_SUFFIXES = [".h5", ".hdf", ".hdf5", ".he5"]
+DEFAULT_HDF_KEY = "df"
 
 
 

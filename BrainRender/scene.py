@@ -6,7 +6,11 @@ import copy
 from tqdm import tqdm
 import pandas as pd
 from vtk import vtkOBJExporter, vtkRenderWindow
+<<<<<<< HEAD
 from functools import partial
+=======
+from pathlib import Path
+>>>>>>> 1076e5f15880a70d9ab9dab9129dca5da0178699
 
 from BrainRender.colors import *
 from BrainRender.variables import *
@@ -676,15 +680,53 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
-    def add_cells(self, coords, color="red", radius=25): # WIP 
+    def add_cells_from_file(self, filepath, hdf_key=None, color="red",
+                            radius=25, res=3):
+
+        csv_suffix = ".csv"
+        supported_formats = HDF_SUFFIXES + [csv_suffix]
+
+        filepath = Path(filepath)
+        if not filepath.exists():
+            raise FileNotFoundError(filepath)
+
+        if filepath.suffix in supported_formats:
+            if filepath.suffix in HDF_SUFFIXES:
+                if hdf_key is None:
+                    hdf_key = DEFAULT_HDF_KEY
+                try:
+                    cells = pd.read_hdf(filepath, key=hdf_key)
+                except TypeError:
+                    if hdf_key == DEFAULT_HDF_KEY:
+                        raise ValueError(
+                            f"The default identifier: {DEFAULT_HDF_KEY} "
+                            f"cannot be found in the hdf file. Please supply "
+                            f"a key using 'scene.add_cells(cells, "
+                            f"hdf_key='key'")
+                    else:
+                        raise ValueError(
+                            f"The key: {hdf_key} cannot be found in the hdf "
+                            f"file. Please check the correct identifer.")
+            elif filepath.suffix == csv_suffix:
+                cells = pd.read_csv(filepath)
+
+            self.add_cells(cells, color=color, radius=radius, res=res)
+
+        else:
+            raise NotImplementedError(
+                f"File format: {filepath.suffix} is not currently supported. "
+                f"Please use one of: {supported_formats}")
+
+    def add_cells(self, coords, color="red", radius=25, res=3): # WIP
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
-        spheres = Spheres(coords, c=color, r=radius, res=3)
+        spheres = Spheres(coords, c=color, r=radius, res=res)
         self.actors['others'].append(spheres)
 
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
-                  invert_axes=None, extension=".obj", delete_obj_file=False):
+                  invert_axes=None, extension=".obj", step_size=2,
+                  delete_obj_file=False):
 
         if color is None:
             color = [random.uniform(0, 1),
@@ -699,7 +741,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # TODO: avoid temporary file & pass vertices directly
         image_to_surface(image_file_path, obj_file_path, voxel_size=voxel_size,
-                         orientation=orientation, invert_axes=invert_axes)
+                         orientation=orientation, invert_axes=invert_axes,
+                         step_size=step_size)
 
         self.add_from_file(obj_file_path, c=color, alpha=alpha)
 

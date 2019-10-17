@@ -47,7 +47,8 @@ def reorient_image(image, invert_axes=None, orientation="saggital"):
 
 
 def image_to_surface(image_path, obj_file_path, voxel_size=1.0,
-                     threshold=0, invert_axes=None, orientation="saggital"):
+                     threshold=0, invert_axes=None, orientation="saggital",
+                     step_size=1):
     """[Saves the surface of an image as an .obj file]
 
     Arguments:
@@ -63,7 +64,7 @@ def image_to_surface(image_path, obj_file_path, voxel_size=1.0,
     image = reorient_image(image, invert_axes=invert_axes,
                            orientation=orientation)
     verts, faces, normals, values = \
-        measure.marching_cubes_lewiner(image, threshold)
+        measure.marching_cubes_lewiner(image, threshold, step_size=step_size)
 
     # Scale to atlas spacing
     if voxel_size is not 1:
