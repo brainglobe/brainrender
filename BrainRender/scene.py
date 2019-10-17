@@ -1025,7 +1025,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         for actor in self.get_actors():
             self.plotter.renderer.AddActor(actor)
 
-    ####### EXPORT SCENE
+    ####### EXPORT SCENE + screenshot
     def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
         """[Exports the scene as a numpy file]
         
@@ -1096,6 +1096,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         os.chdir(save_dir)
         exportWindow('{}.x3d'.format(filename))
         os.chdir(curdir)
+
+    def take_screenshot(self, filename="test.svg", scale=1, large=True, savefld=None):
+        # Get file name
+        if ".png" not in filename and ".svg" not in filename and ".jpg" not in filename:
+            raise ValueError("Unrecognized image format. Should be either .png, .svg or .jpg.")
+
+        if savefld is None:
+            savefld = "Output/Screenshots"
+        filename = os.path.join(savefld, filename)
+
+        # Get resolution settings
+        settings.screeshotLargeImage = large
+        settings.screeshotScale = scale
+
+        # take screenshot
+        screenshot(filename)
+
 
 
 class RatScene(Scene): # Subclass of Scene to override some methods for Rat data

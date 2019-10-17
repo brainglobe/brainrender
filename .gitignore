@@ -12,7 +12,7 @@
 *.nrrd
 *.swc
 *.json
-
+*.svg
 
 User/
 
