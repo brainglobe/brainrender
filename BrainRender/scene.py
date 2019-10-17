@@ -95,7 +95,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
         self.slider_actors = None # list to hold actors to be affected by opacity slider
-
+        self.is_rendered = False # keep track of if the scene has already been rendered
+    
     ####### UTILS
     def check_obj_file(self, structure, obj_file):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
@@ -938,10 +939,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self._get_inset()
 
+        self.is_rendered = True
+
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
         elif video:
-            show(*self.get_actors(), interactive=False, offscreen=True, camera=self.video_camera_params, azimuth=azimuth, zoom=2.5)  
+            show(*self.get_actors(), interactive=False, offscreen=True, camera=self.video_camera_params, zoom=2.5)  
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)  
 
