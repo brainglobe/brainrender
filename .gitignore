@@ -1,6 +1,8 @@
+# Ignored file types
 *.ckpt
 *.vscode
 *.mp4
+*.avi
 *.tdms
 *.jpg
 *.xml
@@ -15,12 +17,13 @@
 *.svg
 *.png
 
+# User folder where they can save stuff without it being tracked by git
 User/
 
-
+# This folder is sometimes created when the incorrect paths are passed
 mouse_connectivity
 
-
+# Visual studio stuff
 */tempCodeRunnerFile.py
 */.ipynb_checkpoints
 .ipynb_checkpoints
@@ -29,6 +32,7 @@ __pycache__
 .DS_Store
 Users/
 
+# Test scripts and hidden files
 workspace.py
 secrets
 
