@@ -825,7 +825,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             actors = list(actors)
         
         for actor in actors:
-            actor_funcs.edit_actor(actor, **kwargs)
+            actors_funcs.edit_actor(actor, **kwargs)
 
     ####### MANIPULATE SCENE
     def add_screenshot_button(self):

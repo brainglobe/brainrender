@@ -118,8 +118,6 @@ class ABA(Paths):
     def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
         """
             [Returns data about experiments whose injection was in the SOI, structure of interest]
-
-        
             Arguments:
                 SOI {[str]} -- [acronym of the structure of interest to look at]
         """
