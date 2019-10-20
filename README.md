@@ -24,20 +24,20 @@ To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.
 
 # Example screenshots. 
 ## Mouse Light neurons morphology rendering
-<img src="Output/Screenshots/neuron.png" width="600" height="350">
+<img src="Docs/Media/neuron.png" width="600" height="350">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
 ## Rendering of different sets of brainstem projecting neurons using MultiScene
-<img src="Output/Screenshots/multiscene_1.png" width="600" height="350">
+<img src="Docs/Media/multiscene_1.png" width="600" height="350">
 Sets of neurons projecting to the brainstem, sorted by brain region.
 
 ## Allen mouse connectome projection data rendering
 ### Tractography
-<img src="Output/Screenshots/tractography.png" width="600" height="350">
+<img src="Docs/Media/tractography.png" width="600" height="350">
 Projections to the Zona Incerta, colored by projection area.
 
 ### Streamlines
-<img src="Output/Screenshots/streamlines2.png" width="600" height="350">
+<img src="Docs/Media/streamlines2.png" width="600" height="350">
 Efferents from the VAL nucleus of the thalamus.
 
 
