@@ -34,16 +34,23 @@ def query_mouselight(query):
 	# raise an exception if the API request failed
 	raise ValueError(exception_string)
 
-def post_mouselight(url, query=None):
+def post_mouselight(url, query=None, clean=False):
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 
 	if query is not None:
+		if not clean:
 			request = requests.post(url, json={'query': query})
+		else:
+			request = requests.post(url, json=query)
 	else:
 		raise  NotImplementedError
 	
 	if request.status_code == 200:
-		return request.json()['data']
+		jreq = request.json()
+		if 'data' in list(jreq.keys()):
+			return jreq['data']
+		else:
+			return jreq
 	else:
 		raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))

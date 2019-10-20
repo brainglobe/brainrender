@@ -370,12 +370,13 @@ class NeuronsParser:
 
         # get regions the neurites go through
         regions = []
-        for rid in set(neurites.allenId.values):
-            try:
-                region = self.alleninfo.loc[self.alleninfo.allenId == rid].acronym.values[0]
-                regions.append(self.scene.get_structure_parent(region)['acronym'])
-            except:
-                pass
+        if "allenId" in neurites.columns:
+            for rid in set(neurites.allenId.values):
+                try:
+                    region = self.alleninfo.loc[self.alleninfo.allenId == rid].acronym.values[0]
+                    regions.append(self.scene.get_structure_parent(region)['acronym'])
+                except:
+                    pass
 
         return merged, regions
 

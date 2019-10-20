@@ -408,29 +408,38 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             FileNotFoundError: [description]
             ValueError: [description]
         """
+        def runfile(parser, neuron_file, soma_regions_kwargs):
+            neurons, regions = parser.render_neurons(neuron_file)
+            self.actors["neurons"].extend(neurons)
+
+            # add soma's brain reigons
+            if soma_regions_kwargs is None:
+                soma_regions_kwargs = {
+                    "use_original_color":False, 
+                    "alpha":0.5
+                }                
+            if display_soma_region:
+                self.add_brain_regions(flatten_list([r['soma'] for r in regions]), **soma_regions_kwargs)
+            if display_axon_regions:
+                self.add_brain_regions(flatten_list([r['axon'] for r in regions]), **soma_regions_kwargs)
+            if display_dendrites_regions:
+                self.add_brain_regions(flatten_list([r['dendrites'] for r in regions]), **soma_regions_kwargs)                    
+                
         if isinstance(neurons, str):
             if os.path.isfile(neurons):
                 parser = NeuronsParser(scene=self, **kwargs)
-                neurons, regions = parser.render_neurons(neurons)
-                self.actors["neurons"].extend(neurons)
-
-                # add soma's brain reigons
-                if soma_regions_kwargs is None:
-                    soma_regions_kwargs = {
-                        "use_original_color":False, 
-                        "alpha":0.5
-                    }                
-                if display_soma_region:
-                    self.add_brain_regions(flatten_list([r['soma'] for r in regions]), **soma_regions_kwargs)
-                if display_axon_regions:
-                    self.add_brain_regions(flatten_list([r['axon'] for r in regions]), **soma_regions_kwargs)
-                if display_dendrites_regions:
-                    self.add_brain_regions(flatten_list([r['dendrites'] for r in regions]), **soma_regions_kwargs)                    
+                runfile(parser, neurons, soma_regions_kwargs)
             else:
                 raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
-            neurons = edit_neurons(neurons, **kwargs)
-            self.actors["neurons"].extend(neurons)
+            if not os.path.isfile(neurons[0]):
+                neurons = edit_neurons(neurons, **kwargs)
+                self.actors["neurons"].extend(neurons)
+            else:
+                # list of file paths
+                parser = NeuronsParser(scene=self, **kwargs)
+                for nfile in neurons:
+                    runfile(parser, nfile, soma_regions_kwargs)
         else:
             if isinstance(neurons, dict):
                 neurons = edit_neurons([neurons], **kwargs)
@@ -829,7 +838,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ####### MANIPULATE SCENE
     def add_screenshot_button(self):
-        print("adding")
         button_func = partial(self._take_screenshot, self.output_screenshots)
 
         bu = self.plotter.addButton(
