@@ -1,13 +1,10 @@
 # UserGuide
-
 BrainRender allows users to easily interface with the Allen Reference Atlas and Mouse Connectivty APIs to render three dimensional anatomical data. 
 In addition, it supports the rendering of neuronal morphological reconstructions of datasets downloaded from Janelia's Mouse Light project. 
 
 
 ## Overview
-BrainRender let's you interact with the Allen Brin Atlas API to download and visualize anatomical and projection data. 
-BrainRender also let's you visualize 3d morphological reconstruction of neurons shared by the Mouse Light project at Janelia alongside the anatomical data from Allen. 
-The aim of BrainRender is to make it easy to crate personalized renderings of mouse brain anatomy to let users get a better understanding of the brain regions they are working on, and to crate high quality images and videos for scientific talks, posters and publications. 
+The aim of BrainRender is to make it easy to crate personalized renderings of mouse brain anatomy to let users get a better understanding of the brain regions they are working on and to crate high quality images and videos for scientific talks, posters and publications. 
 
 In brief, the process of creating a rendering consists of creating a 'Scene' to which 'actors' can be added before rendering. 
 These 'actors' represent brain regions, neurons, tractography data etc. 
@@ -38,21 +35,6 @@ BrainRender should be installable with:
 `pip install git+https://github.com/BrancoLab/BrainRender`
 ***
 
-### Folder structure
-BrainRender needs to save and access data from your machine. 
-For this reason you will need to specify the folder in which each type of data will be stored [for more details please see [settings.py](BrainRender/settings.py)]. 
-The easiest way to do so is to edit [settings.py](BrainRender/settings.py) to make `folders_paths['main_fld']` the directory in which you want to store the data. 
-If you then run `settings.py` it will take care of creating the subfolders for you. 
-Alternatively, you can change the 'main_fld' at runtime as shown in this [example](Examples/Tutorial.ipynb).
-
-
-### Variables
-One of the main aims of BrainRender is to let users personalize their rendering as much as possible. 
-This include changing color and transparency of rendered items, coloring items according to different criteria etc. 
-This is achieved in part by passing different arguments to the functions that take care of the rendering 
-as shown in the [examples](Examples), but BrainRender's behaviour can also be controlled by variables defined in
-[variables.py](BrainRender/variables.py). 
-These variables define the default values for many parameters used for rendering, so it's definitively worth having a look at their description in [variables.py](BrainRender/variables.py) and playing around them to achieve the best results. 
 
 
 ### Create your scene
@@ -61,9 +43,8 @@ The scene is then rendered for the user to see and interact with, or used to cre
 
 Most of the process therefore relies on the `Scene` class. 
 This class let's users add brain regions to the rendering (see example: [regions](Examples/Regions.ipynb)), but it also takes care of adding tractography and neuron morphology data to the scene before rendering it. 
-You can find a list of all structures that can be displayed [here](all_regions.txt).
 
-To see how to crate your first scene, check out the [tutorial](Examples/tutorial.ipynb).
+To see how to crate your first scene, check out the [examples](Examples).
 
 ### Add neuron morphology data
 To add 3D neuronal morphological data to a scene, users have to first download the data from Janelia's Mouse Light [neurons browser](http://ml-neuronbrowser.janelia.org). 
@@ -108,9 +89,3 @@ the example on [making videos](Examples/Video.ipynb).
 
 In the future BrainRender will also allow users to export their scenes so that they can be embed into a web page. 
 
-
-### Rat Brain
-BrainRender also let's you visualize the rat brain! To do so simply
-use the `RatScene` as you would the standard `Scene` class. It works
-the same but it loads the meshes for the rat brain (from [3D-rat-brain](https://github.com/tfiers/3D-rat-brain)).
-You can find an example for `RatScene` [here](Examples/RatScene.ipynb).
