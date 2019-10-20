@@ -1,27 +1,28 @@
 # BrainRender
-Python scripts to create 3D renderings of mouse brain anatomical and projection data and neurons reconstructions. 
+Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and Mouse Light (Janelia) neurons
+reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
+on how to use BrainRender.
 
-### Resources
+## Resources
+### Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
 and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API](http://help.brain-map.org/display/api/Allen%2BBrain%2BAtlas%2BAPI)
-(© 2015 Allen Institute for Brain Science. Allen Brain Atlas API. Available from: [brain-map.org/api/index.html](brain-map.org/api/index.html)) 
-([1], [2]).
-Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details)
+(© 2015 Allen Institute for Brain Science. Allen Brain Atlas API. Available from: [brain-map.org/api/index.html](brain-map.org/api/index.html)) ([1], [2]).
 
-Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) 
+An interactive, in-browser 3D structure viewer, the Allen Brain Explorer, is available [here](http://connectivity.brain-map.org/3d-viewer?v=1). 
+
+### Streamlines
+Streamlines refer to the visualization of efferent projection as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org)).
+Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details).
+
+### Mouselight neurons morphology
+Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
 
-BrainRender also includes meshes for a reconstruction of the rat brain. These meshes are obtained and modified from  
-[3D-rat-brain](https://github.com/tfiers/3D-rat-brain) from [tfiers](https://github.com/tfiers). Original 
-data from [4] and [5]. 
-
-BrainRender also comes with meshes for the reconstruction of the brain of Drosophila Melanogaster. Data is from the [Virtual Fly Brain Project](https://github.com/VirtualFlyBrain)'s adult brain [template](https://github.com/VirtualFlyBrain/DrosAdultBRAINdomains) based on work from [Jennet et al 2012](https://www.cell.com/cell-reports/fulltext/S2211-1247(12)00292-6?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS2211124712002926%3Fshowall%3Dtrue).
-
+### 3D rendering in python
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
-# Examples
-Check the [user guide](UserGuide.md) and the [examples](Examples) for more information
-
+# Example screenshots. 
 ## Mouse Light neurons morphology rendering
 <img src="Output/Screenshots/neuron.png" width="600" height="350">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
@@ -39,14 +40,16 @@ Projections to the Zona Incerta, colored by projection area.
 <img src="Output/Screenshots/streamlines2.png" width="600" height="350">
 Efferents from the VAL nucleus of the thalamus.
 
-### Ratbrain
-<img src="Output/Screenshots/ratbrain2.png" width="600" height="350">
-The rat and mouse brains side by side. 
-
 
 ## Referencing Brain Render
-If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please aknowledge BrainRender's contribution.
+If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please accessknowledge BrainRender's contribution.
 
+
+# Similar tools
+## In R
+`cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://help.github.com/en/articles/creating-and-highlighting-code-blocks).
+
+`mouselightr` package generates 3D CCF mouse brain plots, along with MouseLight neuron reconstructions [github repository](https://github.com/jefferis/nat.mouselight)
 
 ## References
 * [1] Lein, E.S. et al. (2007) Genome-wide atlas of gene expression in the adult mouse brain, Nature 445: 168-176. doi:10.1038/nature05453
