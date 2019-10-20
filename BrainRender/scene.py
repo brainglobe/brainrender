@@ -425,7 +425,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
-            if not isinstance(neurons[0], list):
+            if not isinstance(neurons[0], str):
                 neurons = edit_neurons(neurons, **kwargs)
                 self.actors["neurons"].extend(neurons)
             else:

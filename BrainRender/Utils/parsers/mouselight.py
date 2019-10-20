@@ -137,7 +137,7 @@ class NeuronsParser:
             checkfile = ml_file[0]
             is_iter = True
         else:
-            checkfile = ml_file.copy()
+            checkfile = ml_file
             is_iter = False
 
         if ".swc" in checkfile.lower():
