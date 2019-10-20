@@ -5,6 +5,9 @@ import pandas as pd
 from collections import namedtuple
 
 from BrainRender.Utils.webqueries import *
+from BrainRender.Utils.ABA.connectome import ABA
+from BrainRender.Utils.data_manipulation import is_any_item_in_list
+
 
 def mouselight_api_info():
 	# Get infos from the ML API
@@ -50,7 +53,6 @@ def mouselight_get_brainregions():
 	structures_data = pd.DataFrame.from_dict(keys)
 	return structures_data
 
-
 def mouselight_structures_identifiers():
 	# Download the identifiers used in ML neurons tracers
 	url = mouselight_base_url + "graphql"
@@ -75,7 +77,7 @@ def mouselight_structures_identifiers():
 	structures_identifiers = pd.DataFrame.from_dict(keys)
 	return structures_identifiers
 
-def mouselight_fetch_neurons_metadata():
+def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None):
 	print("Querying MouseLight API...")
 	url = mouselight_base_url + "graphql"
 	query = """
@@ -91,10 +93,15 @@ def mouselight_fetch_neurons_metadata():
 				idString
 				  
 				brainArea{
+					id
 					acronym
+					name
+					safeName
+					atlasId
+					aliases
+					structureIdPath
 				}
 
-				  
 				tracings{
 					soma{
 					x
@@ -133,9 +140,21 @@ def mouselight_fetch_neurons_metadata():
 	cleaned_nurons = []
 	for neuron in neurons:
 		if neuron['brainArea'] is not None:
-			brainArea_acronym = neuron['brainArea']['acronym'],
+			brainArea_acronym = neuron['brainArea']['acronym']
+			brainArea_id = neuron['brainArea']['id']
+			brainArea_name = neuron['brainArea']['name']
+			brainArea_safename = neuron['brainArea']['safeName']
+			brainArea_atlasId = neuron['brainArea']['atlasId']
+			brainArea_aliases = neuron['brainArea']['aliases']
+			brainArea_structureIdPath = neuron['brainArea']['structureIdPath']
 		else:
-			brainArea_acronym = None,
+			brainArea_acronym = None
+			brainArea_id = None
+			brainArea_name = None
+			brainArea_safename = None
+			brainArea_atlasId = None
+			brainArea_aliases = None
+			brainArea_structureIdPath = None
 
 		if len(neuron['tracings']) > 1:
 			dendrite = tracing_structure(
@@ -147,9 +166,15 @@ def mouselight_fetch_neurons_metadata():
 		else:
 			dendrite = None
 
-
 		clean_neuron = dict(
 			brainArea_acronym = brainArea_acronym,
+			brainArea_id = brainArea_id,
+			brainArea_name = brainArea_name,
+			brainArea_safename = brainArea_safename,
+			brainArea_atlasId = brainArea_atlasId,
+			brainArea_aliases = brainArea_aliases,
+			brainArea_structureIdPath = brainArea_structureIdPath,
+
 			id = neuron['id'],
 			idNumber = neuron['idNumber'],
 			idString = neuron['idString'],
@@ -173,9 +198,29 @@ def mouselight_fetch_neurons_metadata():
 		)
 		cleaned_nurons.append(clean_neuron)
 
+	if filterby is not None:
+		if filter_regions is None:
+			raise ValueError("If filtering neuron by region, you need to pass a list of filter regions to use")
 
-	# TODO filter neurons by search criteria
+		# Get structure tree 
+		aba = ABA()
+		ancestors_tree = aba.structure_tree.get_ancestor_id_map()
+		filter_regions_ids = [struct['id'] for struct in aba.structure_tree.get_structures_by_acronym(filter_regions)]
 
-	neurons_ids = [n['id'] for n in cleaned_nurons]
+		if filterby == "soma":
+			filtered_neurons = []
+			for neuron in cleaned_nurons:
+				if neuron['brainArea_acronym'] is None: 
+					continue
+				region = aba.structure_tree.get_structures_by_acronym([neuron['brainArea_acronym']])[0]
+				region_ancestors = ancestors_tree[region['id']]
+				if is_any_item_in_list(filter_regions_ids, region_ancestors):
+					filtered_neurons.append(neuron)
 
-	return neurons_ids, cleaned_nurons
+
+			print("	... selected {} neurons out of {}".format(len(filtered_neurons), res["totalCount"]))
+			return filtered_neurons
+		else:
+			raise NotImplementedError("Filter neurons by {} is not implemented".format(filterby))
+	else:
+		return cleaned_nurons

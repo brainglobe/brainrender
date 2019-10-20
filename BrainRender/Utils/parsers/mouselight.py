@@ -220,7 +220,10 @@ class NeuronsParser:
             self.alleninfo = None
             soma_region = self.scene.get_region_from_point(get_coords(neuron['soma']))
 
-        soma_region = self.scene.get_structure_parent(soma_region)['acronym']
+        if soma_region is not None:
+            soma_region = self.scene.get_structure_parent(soma_region)['acronym']
+        else:
+            soma_region = "root"
 
         if self.color_by_region:
             try:

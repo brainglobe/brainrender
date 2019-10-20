@@ -63,9 +63,6 @@ def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
 	with open(file_path, 'w') as f:
 		json.dump(content, f)
 
-
-
-
 def download_neurons(neurons_metadata):
 	def get(url, tracing_id):
 			query = {"ids":[tracing_id]}
@@ -75,7 +72,7 @@ def download_neurons(neurons_metadata):
 	print("Downloading neurons tracing data from Mouse Light")
 
 	# variables
-	fld = "Data/Morphology/Allen"
+	fld = "Data/Morphology/MouseLight"
 	url = mouselight_base_url + "tracings/tracings"
 
 	# check arguments
