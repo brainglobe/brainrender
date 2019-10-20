@@ -1,7 +1,7 @@
 # Ignored file types
 *.ckpt
 *.vscode
-
+*.json
 *.xml
 *.idea
 *.pyc
