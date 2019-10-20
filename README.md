@@ -37,8 +37,7 @@ Sets of neurons projecting to the brainstem, sorted by brain region.
 Projections to the Zona Incerta, colored by projection area.
 
 ### Streamlines
-<img src="Docs/Media/streamlines2.png" width="600" height="350">
-Efferents from the VAL nucleus of the thalamus.
+<img src="Docs/Media/m1th_2.png" width="600" height="350">
 
 
 ## Referencing Brain Render
