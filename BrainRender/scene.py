@@ -432,11 +432,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
-            if not os.path.isfile(neurons[0]):
+            if not isinstance(neurons[0], list):
                 neurons = edit_neurons(neurons, **kwargs)
                 self.actors["neurons"].extend(neurons)
             else:
                 # list of file paths
+                if not os.path.isfile(neurons[0]): raise ValueError("Expected a list of file paths, got {} instead".format(neurons))
                 parser = NeuronsParser(scene=self, **kwargs)
                 for nfile in neurons:
                     runfile(parser, nfile, soma_regions_kwargs)
