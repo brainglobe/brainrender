@@ -37,7 +37,8 @@ Sets of neurons projecting to the brainstem, sorted by brain region.
 Projections to the Zona Incerta, colored by projection area.
 
 ### Streamlines
-<img src="Docs/Media/m1th_2.png" width="600" height="350">
+<img src="Docs/Media/m1th_2.png" width="750" height="400">
+<img src="Docs/Media/streamlines2.png" width="750" height="400">
 
 
 ## Referencing Brain Render
