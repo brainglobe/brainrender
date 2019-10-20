@@ -43,7 +43,7 @@ def extract_ids_from_csv(csv_file):
         string += "{},".format(x)
 
     print("To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html")
-    print("Then, copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
+    print("and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
     print("You can copy and paste each individually or a list of IDs separated by a comma")
     print("IDs: {}".format(string[:-1]))
     print("\n")

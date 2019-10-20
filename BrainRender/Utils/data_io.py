@@ -29,19 +29,6 @@ def send_query(query_string, clean=False):
 	else:
 		raise ValueError("Invalide query string: {}".format(query_string))
 
-# Outdated
-# def update_folders(main_fld):
-# 	from BrainRender.settings import folders_paths as folders_paths
-# 	folders_paths['main_fld'] = main_fld
-# 	folders_paths['connectivity_fld'] = os.path.join(folders_paths['main_fld'], "mouse_connectivity")                 
-# 	folders_paths['models_fld'] = "Meshes/mouse_meshes"                                                           
-# 	folders_paths['neurons_fld'] = os.path.join(folders_paths['main_fld'], "Mouse Light")                             
-# 	folders_paths['save_fld'] =  os.path.join(folders_paths['main_fld'], "fc_experiments_unionized")                  
-# 	folders_paths['rendered_scenes'] = os.path.join(folders_paths['main_fld'], "rendered_scenes")                     
-# 	folders_paths['manifest'] = os.path.join(folders_paths['connectivity_fld'], "manifest.json")  
-# 	folders_paths['output_fld'] = os.path.join(folders_paths['main_fld'], "output")
-
-
 def listdir(fld):
 	if not os.path.isdir(fld):
 		raise FileNotFoundError("Could not find directory: {}".format(fld))

@@ -611,7 +611,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['tracts'].extend(actors)
 
-    def add_streamlines(self, sl_file,  colorby = None, color_each=False, *args, **kwargs):
+    def add_streamlines(self, sl_file,  colorby=None, color_each=False, *args, **kwargs):
         """
         [Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html]
         Arguments:
@@ -619,7 +619,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         Keyword Arguments:
             colorby {[str]} -- [Acronym of brain region to use to color the streamline data] (default: {None})
-            colorby {[bool]} -- [If true streamlines for each experiment are shown in a different color. 
+            color_each {[bool]} -- [If true streamlines for each experiment are shown in a different color. 
                                     If a color is passed as color="colorname", shades of that color are used] (default: {False})
 
         """
