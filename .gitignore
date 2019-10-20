@@ -1,10 +1,7 @@
 # Ignored file types
 *.ckpt
 *.vscode
-*.mp4
-*.avi
-*.tdms
-*.jpg
+
 *.xml
 *.idea
 *.pyc
@@ -15,10 +12,23 @@
 *.swc
 *.json
 *.svg
-*.png
+
+*.tdms
+
+# These file formats are tracked
+# *.avi
+# *.png
+# *.mp4
+# *.jpg
+
+# Output folder where screnshots etx. are saved
+Output/Data/*
+Output/Scenes/*
+Output/Screenshots/*
+Output/Videos/*
 
 # User folder where they can save stuff without it being tracked by git
-User/
+User/*
 
 # This folder is sometimes created when the incorrect paths are passed
 mouse_connectivity
