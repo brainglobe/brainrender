@@ -4,7 +4,7 @@ These files include metadata about the meshes used for rendering brain structure
 
 # Data
 ## Mouse
-The mesh data (.obj files) collected [here](Meshes/mouse_meshes) are downloaded from the Allen Mouse Brain Atlas reference frame
+The mesh data (.obj files) collected [here](Data/Meshes/Mouse) are downloaded from the Allen Mouse Brain Atlas reference frame
 through the Allen API services. 
 
 Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
@@ -14,8 +14,7 @@ and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API
 
 
 ## Rat
-The .stl data collected in the "rat meshes" folder is from the [in browser 3D rat brain viewer](https://github.com/tfiers/3D-rat-brain)
-from [Tfiers](https://github.com/tfiers).
+The .stl data collected in the "rat meshes" folder is from the [in browser 3D rat brain viewer](https://github.com/tfiers/3D-rat-brain) by [Tfiers](https://github.com/tfiers).
 For more details of how the data was generated, read [here](https://github.com/tfiers/3D-rat-brain/blob/master/data/README.md).
 
 ## Drosophila
