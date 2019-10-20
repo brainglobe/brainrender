@@ -133,13 +133,29 @@ class NeuronsParser:
             neurite_radius = DEFAULT_NEURITE_RADIUS
         
         # Load the data
-        if ".swc" in ml_file.lower():
-            data = [parse_neuron_swc(ml_file)]
+        if isinstance(ml_file, (tuple, list)):
+            checkfile = ml_file[0]
+            is_iter = True
+        else:
+            checkfile = ml_file.copy()
+            is_iter = False
+
+        if ".swc" in checkfile.lower():
             self.is_json = False
+            if not is_iter:
+                data = [parse_neuron_swc(ml_file)]
+            else:
+                data = [parse_neuron_swc(f) for f in ml_file]
         else:
             self.is_json = True
-            data = load_json(ml_file)
-            data = data["neurons"]
+            if not is_iter:
+                data = load_json(checkfile)
+                data = data["neurons"]
+            else:
+                data = []
+                for f in ml_file:
+                    fdata = load_json(f)
+                    data.extend(fdata['neurons'])
             print("Found {} neurons".format(len(data)))
 
         # Render neurons

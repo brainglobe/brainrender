@@ -47,9 +47,12 @@ This class let's users add brain regions to the rendering (see example: [regions
 To see how to crate your first scene, check out the [examples](Examples).
 
 ### Add neuron morphology data
-To add 3D neuronal morphological data to a scene, users have to first download the data from Janelia's Mouse Light [neurons browser](http://ml-neuronbrowser.janelia.org). 
+BrainRender let's you visualize 3D neuronal morphology alongside other brain structures. Currently BrainRender can visualize any morpholy data presented as .swc file, but only supports direct interaction with the MouseLight API. In the future, .swc data from the Allen API will also be available. 
+
+You have two ways to get the morphology data:
+* Using BrainRender download them from Mouse Light API. This functionality is currently limited: it only lets you select neurons whose soma is in a region of interest. The Neurons Browser on the other hand supports more extensive search criteria. 
+* Downloading .json or .swc files directly from  from Janelia's Mouse Light [neurons browser](http://ml-neuronbrowser.janelia.org). 
 From the neurons browser, select the neurons you are interested in and download the data as a JSON file. 
-The downloaded data can then be used to recreate the neurons in the renderings. 
 
 Users can combine morphological renderings with the display of brain regions of interested in the same scene to get a better understanding of the projection targets of the neurons that users are interested in. 
 

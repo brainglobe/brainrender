@@ -212,30 +212,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
-    def get_n_rando_points_in_region(self, region):
-        """
-            npoints = 10
-
-            scm, scs = self.actors['regions']['SCm'], self.actors['regions']['SCs']
-            scm_bounds, scs_bounds = scm.bounds(), scs.bounds()
-            bounds = [[np.min([scm_bounds[0], scs_bounds[0]]), np.min([scm_bounds[1], scs_bounds[1]])], 
-                        [np.min([scm_bounds[2], scs_bounds[2]]), np.min([scm_bounds[3], scs_bounds[3]])], 
-                        [np.min([scm_bounds[4], scs_bounds[4]]), np.min([scm_bounds[5], scs_bounds[5]])]]
+    def get_n_rando_points_in_region(self, region, N, max_iters = 1000000):
+        if region not in self.actors['regions']:
+            raise ValueError("Region {} needs to be rendered first.".format(region))
         
-            xmin = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        region_mesh = self.actors['regions'][region]
+        region_bounds = region_mesh.bounds()
 
-
-            sc_points, niters = [], 0
-            while len(sc_points) < npoints:
-                x, y, z = np.random.randint(bounds[0][0], bounds[0][1]),  np.random.randint(bounds[1][0], bounds[1][1]),  np.random.randint(xmin = scene.get_region_CenterOfMass('root', unilateral=False)[2]
-                , bounds[2][1])
+        points, niters = [], 0
+        while len(points) < N and niters < max_iters:
+                x = np.random.randint(region_bounds[0], region_bounds[1])
+                y = np.random.randint(region_bounds[2], region_bounds[3])
+                z = np.random.randint(region_bounds[4], region_bounds[5])
                 p = [x, y, z]
-                if scm.isInside(p) or scs.isInside(p):
-                    self.add_sphere_at_point(pos =p)
-                    sc_points.append(p)
+                if region_mesh.isInside(p):
+                    points.append(p)
                 niters += 1
-        """
-        raise NotImplementedError
+        return points
 
     def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
@@ -739,9 +732,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                             f"file. Please check the correct identifer.")
             elif filepath.suffix == csv_suffix:
                 cells = pd.read_csv(filepath)
-
             self.add_cells(cells, color=color, radius=radius, res=res)
 
+        elif filepath.suffix == ".pkl":
+            cells = pd.read_picle(filepath)
+            self.add_cells(cells, color=color, radius=radius, res=res)
         else:
             raise NotImplementedError(
                 f"File format: {filepath.suffix} is not currently supported. "
