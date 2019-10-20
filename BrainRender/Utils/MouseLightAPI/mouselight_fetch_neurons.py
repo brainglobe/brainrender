@@ -8,8 +8,21 @@ from tqdm import tqdm
 from BrainRender.Utils.webqueries import *
 
 
+"""
+	These functions take care of downloading and parsing neurons reconstrucitions from: http://ml-neuronbrowser.janelia.org/
+	by sending requests to: http://ml-neuronbrowser.janelia.org/tracings/tracings. 
+"""
+
 def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
 	"""[Creates a .json file that can be read by the mouselight parser.]
+
+		Arguments:
+			neuron {[dict]} -- [A dictionary with all the information about a neuron as obtained from querying http://ml-neuronbrowser.janelia.org/graphql]
+			file_path {[st]} -- [path where to save the .json file]
+
+		Keyword arguments:
+			axon_tracing {[list]} -- [List of dictionaries with nodes data]
+			dendrite_tracing {[list]} -- [List of dictionaries with nodes data]
 	"""
 	# parse axon
 	if axon_tracing is not None:
@@ -64,7 +77,15 @@ def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
 		json.dump(content, f)
 
 def download_neurons(neurons_metadata):
-	def get(url, tracing_id):
+	"""
+	[Given a list of neurons metadata, as obtained by http://ml-neuronbrowser.janelia.org/graphql using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata, 
+		this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
+
+	Arguments:
+		neurons_metadata {[list]} -- [List of dictionaries with neurons metadata, used to download the tracking data and save everything to file. ]
+	"""
+
+	def get(url, tracing_id): # send a query for a single tracing ID
 			query = {"ids":[tracing_id]}
 			res = post_mouselight(url, query=query, clean=True)['tracings']
 			return res
@@ -86,12 +107,13 @@ def download_neurons(neurons_metadata):
 		files.append(file_path)
 		if os.path.isfile(file_path): continue
 
-
+		# Get tracings by requests
 		axon_tracing, dendrite_tracing = None, None
 		if neuron['axon'] is not None:
 			axon_tracing = get(url, neuron['axon'].id)
 		if neuron['dendrite'] is not None:
 			dendrite_tracing = get(url, neuron['dendrite'].id)
 
+		# Save as  .json file: this means next time we don't have to download. Also it's necessary for the parser to render the neurons 
 		make_json(neuron, file_path, axon_tracing=axon_tracing, dendrite_tracing=dendrite_tracing)
 	return files

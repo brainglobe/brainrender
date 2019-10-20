@@ -12,6 +12,9 @@ import urllib.error as urlerr
 mouselight_base_url = "http://ml-neuronbrowser.janelia.org/"
 
 def query_mouselight(query):
+	"""
+		[Sends a GET request, not currently used for anything.]
+	"""
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 	
@@ -35,6 +38,9 @@ def query_mouselight(query):
 	raise ValueError(exception_string)
 
 def post_mouselight(url, query=None, clean=False):
+	"""
+		[sends a POST request to a user URL. Query can be either a string (in which case clean should be False) or a dictionary.]
+	"""
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 
