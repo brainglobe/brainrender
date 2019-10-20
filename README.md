@@ -27,6 +27,8 @@ To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.
 <img src="Docs/Media/neuron.png" width="600" height="350">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
+<img src="Docs/Media/m1th_2.png" width="750" height="400">
+
 ## Rendering of different sets of brainstem projecting neurons using MultiScene
 <img src="Docs/Media/multiscene_1.png" width="600" height="350">
 Sets of neurons projecting to the brainstem, sorted by brain region.
@@ -37,7 +39,7 @@ Sets of neurons projecting to the brainstem, sorted by brain region.
 Projections to the Zona Incerta, colored by projection area.
 
 ### Streamlines
-<img src="Docs/Media/m1th_2.png" width="750" height="400">
+<img src="Docs/Media/streamlinesZI2.png" width="750" height="400">
 <img src="Docs/Media/streamlines2.png" width="750" height="400">
 
 
