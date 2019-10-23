@@ -33,7 +33,7 @@ INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 DEFAULT_NEURITE_RADIUS = 12     # radius of dendrites, axons...
-SOMA_RADIUS = 50                # radius of the soma sphere
+SOMA_RADIUS = 5 # 50                # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
 NEURON_ALPHA = 0.85                # transparency of the neurons actors
 

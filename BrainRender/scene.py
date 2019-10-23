@@ -410,7 +410,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 soma_regions_kwargs = {
                     "use_original_color":False, 
                     "alpha":0.5
-                }                
+                }
             if display_soma_region:
                 self.add_brain_regions(flatten_list([r['soma'] for r in regions]), **soma_regions_kwargs)
             if display_axon_regions:

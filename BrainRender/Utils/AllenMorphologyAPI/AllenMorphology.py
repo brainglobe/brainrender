@@ -7,6 +7,7 @@ import numpy as np
 
 from allensdk.core.cell_types_cache import CellTypesCache
 from allensdk.api.queries.cell_types_api import CellTypesApi
+from allensdk.core.swc import Morphology
 
 from BrainRender.Utils.paths_manager import Paths
 from BrainRender.Utils.data_io import connected_to_internet
@@ -28,7 +29,6 @@ class AllenMorphology(Paths):
 
         self.downloaded_neurons = self.get_downloaded_neurons()
 
-
     def get_downloaded_neurons(self):
         return [os.path.join(self.morphology_allen, f) for f in os.listdir(self.morphology_allen) if ".swc" in f]    
 
@@ -37,9 +37,10 @@ class AllenMorphology(Paths):
             ids = list(ids)
         if not isinstance(ids, (list)): ids = [ids]
 
-        for cellid in ids:
-            cell_file = os.path.join(self.morphology_allen, "{}.swc".format(cellid))
-            cell = self.ctc.get_reconstruction(cellid, file_name=cell_file)
+        for neuron_id in ids:
+            neuron_file = os.path.join(self.morphology_allen, "{}.swc".format(neuron_id))
+            neuron = self.ctc.get_reconstruction(neuron_id, file_name=neuron_file)
+
 
 
 

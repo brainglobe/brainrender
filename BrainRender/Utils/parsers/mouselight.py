@@ -82,6 +82,8 @@ class NeuronsParser:
 		if 'color_by_region' in list(kwargs.keys()):
 			self.color_by_region = kwargs['color_by_region']
 
+		self.rendering_necessary = True # It won't be if we are dealing with a list of Allen .swc files
+
 		# if mirror get mirror coordinates
 		if self.mirror:
 			self.mirror_coord = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
@@ -103,11 +105,7 @@ class NeuronsParser:
 
 		if ".swc" in checkfile.lower():
 			self.is_json = False
-			if not is_iter:
-				data = [self.parse_neuron_swc(ml_file, 0)]
-			else:
-				self.n_neurons = len(ml_file)
-				data = [self.parse_neuron_swc(f, i) for i, f in enumerate(ml_file)]
+			data = self.handle_parsing_swc(ml_file, is_iter)
 		else:
 			self.is_json = True
 			if not is_iter:
@@ -120,28 +118,31 @@ class NeuronsParser:
 					data.extend(fdata['neurons'])
 			print("Found {} neurons".format(len(data)))
 
-		# Render neurons
-		self.n_neurons  = len(data)
-		actors, regions = [], []
-		if not ML_PARALLEL_PROCESSING or self.n_neurons == 1: # parallel processing
-			# Loop over neurons
-			for nn, neuron in tqdm(enumerate(data)):
-				neuron_actors, soma_region = self.render_neuron(neuron, nn)
-				actors.append(neuron_actors); regions.append(soma_region)
-		else:
-			raise NotImplementedError("Multi core processing is not implemented yet")
-			# n_cores =  mp.cpu_count()
-			# print("Number of processors: ", n_cores)
+		if not self.rendering_necessary:
+			return self.actors, self.regions
+		else:	
+			# Render neurons
+			self.n_neurons  = len(data)
+			self.actors, self.regions = [], []
+			if not ML_PARALLEL_PROCESSING or self.n_neurons == 1: # parallel processing
+				# Loop over neurons
+				for nn, neuron in tqdm(enumerate(data)):
+					neuron_actors, soma_region = self.render_neuron(neuron, nn)
+					self.actors.append(neuron_actors); self.regions.append(soma_region)
+			else:
+				raise NotImplementedError("Multi core processing is not implemented yet")
+				# n_cores =  mp.cpu_count()
+				# print("Number of processors: ", n_cores)
 
-			# futures = []
-			# for nn, neuron in enumerate(data):
-			#     arguments = args.copy()
-			#     arguments.extend([neuron, nn])
-			#     futures.append(prender_neuron.remote(*arguments))
+				# futures = []
+				# for nn, neuron in enumerate(data):
+				#     arguments = args.copy()
+				#     arguments.extend([neuron, nn])
+				#     futures.append(prender_neuron.remote(*arguments))
 
-			# print(ray.get(futures))
+				# print(ray.get(futures))
 
-		return actors, regions
+			return self.actors, self.regions
 
 	def _render_neuron_get_params(self, neuron_number, neuron=None, soma_region=None, soma=None):
 		# Define colors of different components
@@ -224,7 +225,6 @@ class NeuronsParser:
 
 		return soma_color, axon_color, dendrites_color, soma_region
 
-
 	def render_neuron(self, neuron, neuron_number):
 		"""[This function takes care of rendering a single neuron.]
 		"""
@@ -257,19 +257,28 @@ class NeuronsParser:
 				neuron_actors = self.mirror_neuron(neuron_actors)
 		return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 
-	def mirro_neuron(self, neuron_actors):
+	def mirror_neuron(self, neuron_actors):
+		# Makes sure that the neuron is in the desired hemisphere
 		mirror_coor = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
 
 		if self.force_to_hemisphere.lower() == "left":
 			if self.soma_coords[2] > mirror_coor:
-				neuron_actors = self.mirror_neuron(neuron_actors, mirror_coor)
+				neuron_actors = self._mirror_neuron(neuron_actors, mirror_coor)
 		elif self.force_to_hemisphere.lower() == "right":
 			if self.soma_coords[2] < mirror_coor:
-				neuron_actors = self.mirror_neuron(neuron_actors, mirror_coor)
+				neuron_actors = self._mirror_neuron(neuron_actors, mirror_coor)
 		else:
 			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
 		return neuron_actors
 
+	def _mirror_neuron(self, neuron, mcoord):
+		# This function does the actual mirroring
+		for name, actor in neuron.items():
+			# get mesh points coords and shift them to other hemisphere
+			if isinstance(actor, (list, tuple, str)) or actor is None:
+				continue
+			neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
+		return neuron
 
 	@staticmethod
 	def decimate_neuron_actors(neuron_actors):
@@ -297,6 +306,12 @@ class NeuronsParser:
 					for actor in actors:
 						actor.smoothLaplacian()
 
+	def _get_neurites_radius(self):
+		if self.neurite_radius is None:
+			return DEFAULT_NEURITE_RADIUS
+		else:
+			return self.neurite_radius
+
 	def neurites_parser(self, neurites, color):
 		"""[Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.]
 		
@@ -317,10 +332,7 @@ class NeuronsParser:
 
 		Known issue: the axon initial segment is missing from renderings. 
 		"""
-		if self.neurite_radius is None:
-			neurite_radius = DEFAULT_NEURITE_RADIUS
-		else:
-			neurite_radius = self.neurite_radius
+		neurite_radius = self._get_neurites_radius()
 
 		# get branching points
 		try:
@@ -388,14 +400,6 @@ class NeuronsParser:
 		regions = []
 		return lines, regions
 
-	def mirror_neuron(self, neuron, mcoord):
-		for name, actor in neuron.items():
-			# get mesh points coords and shift them to other hemisphere
-			if isinstance(actor, (list, tuple, str)) or actor is None:
-				continue
-			neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
-		return neuron
-
 	def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):
 		"""[Only returns neurons whose soma is in one of the regions in regions]
 		
@@ -433,17 +437,59 @@ class NeuronsParser:
 		return keep
 
 	def parse_neurons_swc_allen(self, morphology, neuron_number):
-		key_maps = [("allenId",""), ("parentNumber",""), ("radius",""), ("sampleNumber",""), 
-						("x",""), ("y",""), ("z","")]
-		data = {'soma':     dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[]),
-				'axon':     dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[]),
-				'dendrite': dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[])}
+		# Get params
+		neurite_radius = self._get_neurites_radius()
+		soma_color, axon_color, dendrites_color, soma_region =  \
+			self._render_neuron_get_params(neuron_number, soma=morphology.soma)
 
-		soma_color, axon_color, dendrites_color, soma_region =  self._render_neuron_get_params(neuron_number, soma=morphology.soma)
-		# TODO render like you'd render a normal neuron
+		# Create soma actor
+		neuron_actors, regions = {"soma":None, "axon":[], "dendrites":[]}, {'soma':soma_region, 'dendrites':[], 'axon':[]}
+		neuron_actors['soma'] = Sphere(pos=get_coords(morphology.soma)[::-1], 
+										c=soma_color, r=SOMA_RADIUS)
 
-		data['soma']['x'] = morphology.soma['x']
+		# loop over trees
+		if self.render_neurites:
+			for tree in morphology._tree_list:
+				tree = pd.DataFrame(tree)
 
+				# get node numbers in t
+				# get the first non soma node
+				first_node_type = tree.loc[tree.type != morphology.SOMA].type.values[0]
+
+				# get the branch type
+				if first_node_type == morphology.AXON:
+					neurite = "axon"
+					color = axon_color
+				else:
+					neurite = "dendrites"
+					color = dendrites_color
+				
+				# Get all the points that make the branch
+				branch_points = [[x, y, z] for x, y, z in zip(tree.x.values, tree.y.values, tree.z.values)]
+
+				# Create actor
+				neuron_actors[neurite].append(\
+					shapes.Tube(branch_points, r=neurite_radius, 
+							c=color, alpha=1, res=NEURON_RESOLUTION))
+
+			# merge actors' meshes to make rendering faster
+			for neurite, color in zip(["axon", "dendrites"], [axon_color, dendrites_color]):
+				if neuron_actors[neurite]:
+					neuron_actors[neurite] = merge(*neuron_actors[neurite])
+					neuron_actors[neurite].color(color)
+
+		self.decimate_neuron_actors(neuron_actors)
+		self.smooth_neurons(neuron_actors)
+
+		# force to hemisphere
+		if self.force_to_hemisphere is not None:
+				neuron_actors = self.mirror_neuron(neuron_actors)
+
+		# Check output
+		if not neuron_actors["axon"]: neuron_actors["axon"] = None
+		if not neuron_actors["dendrites"]: neuron_actors["dendrites"] = None
+
+		return neuron_actors, regions
 
 	def parse_neuron_swc(self, filepath, neuron_number):
 		# details on swc files: http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html
@@ -469,7 +515,6 @@ class NeuronsParser:
 				'axon':     dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[]),
 				'dendrite': dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[])}
 
-
 		# start looping around samples
 		for sample in content:
 			if sample[0] == '#': 
@@ -493,6 +538,36 @@ class NeuronsParser:
 			data[key]['allenId'].append(-1) # TODO get allen ID from coords
 
 		return data
+
+	def handle_parsing_swc(self, swc_files, is_iter):
+		"""
+			Takes care of handling the case in which one or multiple SWC files are passed. 
+			Which renderer and what is returned varies depending on the source of the SWC, so this
+			function hadles this variable outcomes. 
+		"""
+		if not is_iter:
+			res = self.parse_neuron_swc(swc_files, 0)
+			if len(res) == 1:
+				return [res]
+			else:
+				self.actors, self.regions = [res[0]], res[1]
+				self.rendering_necessary = False
+				return None
+
+		else:
+			# ? Render multiple SWC files
+			self.n_neurons = len(swc_files)
+
+			# render
+			data = [self.parse_neuron_swc(f, i) for i, f in enumerate(swc_files)]
+
+			# Check outcome
+			if len(data[0]) == 1:
+				return data
+			else:
+				self.actors, self.regions = [d[0] for d in data], [d[1] for d in data]
+				self.rendering_necessary = False
+
 
 def edit_neurons(neurons, **kwargs):
 	"""
