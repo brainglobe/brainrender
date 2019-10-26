@@ -3,6 +3,9 @@ Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and 
 reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
 on how to use BrainRender.
 
+<img src="Docs/Media/brainrender.png" width="1000" height="750">
+
+
 ## Resources
 ### Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
