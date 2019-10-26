@@ -4,7 +4,7 @@ reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [ex
 on how to use BrainRender.
 
 <img src="Docs/Media/brainrender.png" width="1000">
-
+![]("Docs/Media/brainrender.gif")
 
 ## Resources
 ### Allen Mouse Brain Atlas
