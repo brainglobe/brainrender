@@ -69,6 +69,10 @@ To see how this works, have a look at the example on [tractography](Examples/Tra
 
 ### Add streamline data
 Streamlines can be used to beautifully display projection data. To render streamliens you first need to download the data for the experiments you are interested in. 
+
+If you wish to download streamlines data for experiments targeted at a specific brain structure, BrainRender takes care of downloading the data for you. Simply use the `StreamlinesAPI`'s method: `StreamlinesAPI.download_streamlines_for_region(REGION_NAME)` and let BrainRender take care of the rest. For more details on how to download and render streamlines data, check the [streamlines example](Examples/Streamlines.ipynb)
+
+To manually download the streamlines data, you can follow these steps:
 The first step towards being able to render streamlines data is to identify the set of experiments you are interested in 
 (i.e. injections in the primary visual cortex of wild type mice]. 
 To do so you can use the experiments explorer at [http://connectivity.brain-map.org](http://connectivity.brain-map.org).
