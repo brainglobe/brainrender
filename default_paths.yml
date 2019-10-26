@@ -14,11 +14,14 @@ morphology_mouselight: "Data/Morphology/MouseLight" # .swc and .json files from 
 mouse_connectivity_cache: Data/ABA/MCC
 mouse_celltype_cache: Data/ABA/MCTC
 
+# Streamlines cache
+streamlines_cache: Data/Streamlines
+
 # OUTPUT Folders
-output_screenshots: "Output/Screenshots"
-output_videos: "Output/Videos"
-output_scenes: "Output/Scenes"
-output_data: "Output/Data"
+output_screenshots: Output/Screenshots
+output_videos: Output/Videos
+output_scenes: Output/Scenes
+output_data: Output/Data
 
 # User folder
-user: "User"
+user: User

@@ -634,32 +634,47 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                     raise ValueError("Invalide color argument: {}".format(color))
 
         if isinstance(sl_file, list):
-            if isinstance(sl_file[0], str): # we have a list of files to add
+            if isinstance(sl_file[0], (str, pd.DataFrame)): # we have a list of files to add
                 for slf in tqdm(sl_file):
                     if not color_each:
                         if color is not None:
-                            streamlines = parse_streamline(slf, *args, color=color, **kwargs)
+                            if isinstance(slf, str):
+                                streamlines = parse_streamline(filepath=slf, *args, color=color, **kwargs)
+                            else:
+                                streamlines = parse_streamline(data=slf, *args, color=color, **kwargs)
                         else:
-                            streamlines = parse_streamline(slf, *args, **kwargs)
+                            if isinstance(slf, str):
+                                streamlines = parse_streamline(filepath=slf, *args, **kwargs)
+                            else:
+                                streamlines = parse_streamline(data=slf,  *args, **kwargs)
                     else:
                         if color is not None:
                             col = get_n_shades_of(color, 1)[0]
                         else:
                             col = get_random_colors(n_colors=1)
-                        streamlines = parse_streamline(slf, color=col, *args, **kwargs)
+                        if isinstance(slf, str):
+                            streamlines = parse_streamline(filepath=slf, color=col, *args, **kwargs)
+                        else:
+                            streamlines = parse_streamline(data= slf, color=col, *args, **kwargs)
                     self.actors['tracts'].extend(streamlines)
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
         else:
-            if not isinstance(sl_file, str): raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
+            if not isinstance(sl_file, (str, pd.DataFrame)): raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
             if not color_each:
-                streamlines = parse_streamline(sl_file, *args,  **kwargs)
+                if isinstance(sl_file, str):
+                    streamlines = parse_streamline(filepath=sl_file, *args,  **kwargs)
+                else:
+                    streamlines = parse_streamline(data=sl_file, *args,  **kwargs)
             else:
                 if color is not None:
                     col = get_n_shades_of(color, 1)[0]
                 else:
                     col = get_random_colors(n_colors=1)
-                streamlines = parse_streamline(sl_file, color=col, *args, **kwargs)
+                if isinstance(sl_file, str):
+                    streamlines = parse_streamline(filepath=sl_file, color=col, *args, **kwargs)
+                else:
+                    streamlines = parse_streamline(data=sl_file, color=col, *args, **kwargs)
             self.actors['tracts'].extend(streamlines)
 
     def add_injection_sites(self, experiments, color=None):

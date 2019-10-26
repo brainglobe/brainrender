@@ -11,6 +11,17 @@ import urllib.error as urlerr
 
 mouselight_base_url = "http://ml-neuronbrowser.janelia.org/"
 
+
+def request(url):
+	if not connected_to_internet():
+		raise ConnectionError("You need to have an internet connection to send requests.")
+	response = requests.get(url)
+	if response.ok:
+		return response
+	else:
+		exception_string = 'URL request failed: {}'.format(response.reason)
+	raise ValueError(exception_string)
+
 def query_mouselight(query):
 	"""
 		[Sends a GET request, not currently used for anything.]

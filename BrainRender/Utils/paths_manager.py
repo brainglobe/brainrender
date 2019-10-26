@@ -31,6 +31,8 @@ class Paths:
         self.mouse_connectivity_cache = paths_dict['mouse_connectivity_cache']
         self.mouse_celltype_cache = paths_dict['mouse_celltype_cache']
 
+        self.streamlines_cache = paths_dict['streamlines_cache']
+
         self.output_screenshots = paths_dict['output_screenshots']
         self.output_videos = paths_dict['output_videos']
         self.output_scenes = paths_dict['output_scenes']
