@@ -3,7 +3,7 @@ Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and 
 reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
 on how to use BrainRender.
 
-<img src="Docs/Media/brainrender.png" width="1000" height="750">
+<img src="Docs/Media/brainrender.png" width="1000" height="500">
 
 
 ## Resources
