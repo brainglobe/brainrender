@@ -9,6 +9,7 @@ import gzip
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
+from tqdm import tqdm
 
 from BrainRender.Utils.data_io import load_json
 from BrainRender.Utils.data_manipulation import get_coords
@@ -29,11 +30,38 @@ class StreamlinesAPI(ABA):
 
     def download_streamlines_for_region(self, region, *args, **kwargs):
         """
-            [ Given the acronym for a region, it downloads the relevant streamlines data]
+            [Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
+            were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
+            are selected for only WT mice and onl when the region was the primary injection target. Look at "ABA.experiments_source_search"
+            to see how to change this behaviour.]
+
+            Arguments:
+                region {[str]} -- [acronym for a brain region]
         """
         # Get experiments whose injections were targeted to the region
         region_experiments = self.experiments_source_search(region, *args, **kwargs)
         return self.download_streamlines(region_experiments.id.values)
+
+    def download_streamlines_to_region(self, p0, *args,  mouse_line = "wt", **kwargs):
+        """
+            [Using the Allen Mouse Connectivity data and corresponding API, this function finds injection experiments
+            which resulted in fluorescence being found in the target point, then downloads the streamlines data.]
+
+            Arguments:
+                p0 {[list, np.array]} -- [List of 3 integers defining target coordinates]
+
+            Keyword arguments:
+                mouse_line {[str, list]} -- [list of string with names to use to filter the results of the experiments search]
+        """
+        experiments = pd.DataFrame(self.get_projection_tracts_to_target(p0=p0))
+        if mouse_line == "wt":
+            experiments = experiments.loc[experiments["transgenic-line"] == ""]
+        else:
+            if not isinstance(mouse_line, list):
+                experiments = experiments.loc[experiments["transgenic-line"] == mouse_line]
+            else:
+                raise NotImplementedError("ops, you've found a bug!. For now you can only pass one mouse line at the time, sorry.")
+        return self.download_streamlines(experiments.id.values)
 
 
     @staticmethod
@@ -97,7 +125,7 @@ class StreamlinesAPI(ABA):
         if not isinstance(eids, (list, np.ndarray, tuple)): eids = [eids]
 
         filepaths, data = [], []
-        for eid in eids:
+        for eid in tqdm(eids):
             url = self.make_url_given_id(eid)
             jsonpath = os.path.join(streamlines_folder, str(eid)+".json")
             filepaths.append(jsonpath)
@@ -164,7 +192,7 @@ def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, 
 
         for inj in injection_data:
             coords.append(list(inj.values()))
-        spheres = [shapes.Spheres(coords, r=INJECTION_VOLUME_SIZE, c=color)]
+        spheres = [shapes.Spheres(coords, r=INJECTION_VOLUME_SIZE)]
     else:
         spheres = []
 
