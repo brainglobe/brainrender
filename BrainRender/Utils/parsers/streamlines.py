@@ -25,12 +25,13 @@ class StreamlinesAPI(ABA):
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
 
     def __init__(self):
-        ABA.__init__(self)
+        ABA.__init__(self) # get allen brain atlas methods
 
     def download_streamlines_for_region(self, region, *args, **kwargs):
         """
             [ Given the acronym for a region, it downloads the relevant streamlines data]
         """
+        # Get experiments whose injections were targeted to the region
         region_experiments = self.experiments_source_search(region, *args, **kwargs)
         return self.download_streamlines(region_experiments.id.values)
 
@@ -82,6 +83,14 @@ class StreamlinesAPI(ABA):
             return self.download_streamlines(data.id.values, **kwargs)
 
     def download_streamlines(self, eids, streamlines_folder=None):
+        """
+            [Given a list of expeirmental IDs, it downloads the streamline data from the https://neuroinformatics.nl cache and saves them as 
+            json files. ]
+
+            Arguments:
+                eids {[list, np.array, tuple]} -- [list of experiments IDs (either integers or strings)]
+                streamlines_folder {[str]} -- [path to folder in which to store the streamlines data, if None the default is used.]
+        """
         if streamlines_folder is None:
             streamlines_folder = self.streamlines_cache
 
@@ -117,7 +126,7 @@ class StreamlinesAPI(ABA):
 
 def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
     """
-        [Given a path to a .json file with streamline data, render the streamline as tubes actors.]
+        [Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.]
 
         Arguments:
             filepath {[str, list]} -- [Either a path to a .json file or a list of file paths]
@@ -146,9 +155,20 @@ def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, 
         points = [[l['x'], l['y'], l['z']] for l in line]
         lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=NEURON_RESOLUTION))
 
-    # TODO add injections rendering
+    coords = []
+    if show_injection_site:
+        if len(data['injection_sites']) == 1:
+            injection_data = data['injection_sites'][0]
+        else:
+            injection_data = data['injection_sites']
 
-    merged = merge(*lines)
+        for inj in injection_data:
+            coords.append(list(inj.values()))
+        spheres = [shapes.Spheres(coords, r=INJECTION_VOLUME_SIZE, c=color)]
+    else:
+        spheres = []
+
+    merged = merge(*lines, *spheres)
     merged.color(color)
     return [merged]
 
