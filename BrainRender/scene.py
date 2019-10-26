@@ -19,7 +19,7 @@ from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_sl
 from BrainRender.Utils import actors_funcs
 
 from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
-from BrainRender.Utils.parsers.streamlines import parse_streamline, extract_ids_from_csv
+from BrainRender.Utils.parsers.streamlines import parse_streamline
 from BrainRender.Utils.parsers.rat import get_rat_mesh_from_region, get_rat_regions_metadata
 from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
 

@@ -15,79 +15,105 @@ from BrainRender.Utils.data_manipulation import get_coords
 from BrainRender.colors import *
 from BrainRender.variables import *
 from BrainRender.Utils.webqueries import request
+from BrainRender.Utils.ABA.connectome import ABA
 
-def download_streamlines(urls, streamlines_folder="Data/Streamlines"):
-    if not isinstance(urls, list): urls = [urls]
-    filepaths, data = [], []
-    for url in urls:
-        exp_id = url.split(".json")[0].split("_")[-1]
-        jsonpath = os.path.join(streamlines_folder, exp_id+".json")
-        filepaths.append(jsonpath)
-        if not os.path.isfile(jsonpath):
-            response = request(url)
 
-            # Write the response content as a temporary compressed file
-            temp_path = os.path.join(streamlines_folder, "temp.gz")
-            with open(temp_path, "wb") as temp:
-                temp.write(response.content)
+class StreamlinesAPI(ABA):
+    """
+        [Takes care of downloading streamliens data and other useful stuff]
+    """
+    base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
 
-            # Open in pandas and delete temp
-            url_data = pd.read_json(temp_path, lines=True, compression='gzip')
-            os.remove(temp_path)
+    def __init__(self):
+        ABA.__init__(self)
 
-            # save json
-            url_data.to_json(jsonpath)
+    def download_streamlines_for_region(self, region, *args, **kwargs):
+        """
+            [ Given the acronym for a region, it downloads the relevant streamlines data]
+        """
+        region_experiments = self.experiments_source_search(region, *args, **kwargs)
+        return self.download_streamlines(region_experiments.id.values)
 
-            # append to lists and return
-            data.append(url_data)
+
+    @staticmethod
+    def make_url_given_id(expid):
+        return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(expid)
+
+    def extract_ids_from_csv(self, csv_file, download=False, **kwargs):
+        """
+            [Parse CSV file to extract experiments IDs and link to downloadable streamline data
+
+            Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
+            extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl. 
+            Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
+            ]
+
+            Arguments:
+                csv_file {[str]} --  [Path to a csv file.]
+        """
+
+        try:
+            data = pd.read_csv(csv_file)
+        except:
+            raise FileNotFoundError("Could not load: {}".format(csv_file))
         else:
-            data.append(pd.read_json(jsonpath))
-    return filepaths, data
+            if not download:
+                print("Found {} experiments.\n".format(len(data.id.values)))
+
+        if not download: 
+            print("To download compressed data, click on the following URLs:")
+            for eid in data.id.values:
+                url = self.make_url_given_id(eid)
+                print(url)
+
+            print("\n")
+            string = ""
+            for x in data.id.values:
+                string += "{},".format(x)
+
+            print("To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html")
+            print("and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
+            print("You can copy and paste each individually or a list of IDs separated by a comma")
+            print("IDs: {}".format(string[:-1]))
+            print("\n")
+
+            return data.id.values
+        else:
+            return self.download_streamlines(data.id.values, **kwargs)
+
+    def download_streamlines(self, eids, streamlines_folder=None):
+        if streamlines_folder is None:
+            streamlines_folder = self.streamlines_cache
+
+        if not isinstance(eids, (list, np.ndarray, tuple)): eids = [eids]
+
+        filepaths, data = [], []
+        for eid in eids:
+            url = self.make_url_given_id(eid)
+            jsonpath = os.path.join(streamlines_folder, str(eid)+".json")
+            filepaths.append(jsonpath)
+            if not os.path.isfile(jsonpath):
+                response = request(url)
+
+                # Write the response content as a temporary compressed file
+                temp_path = os.path.join(streamlines_folder, "temp.gz")
+                with open(temp_path, "wb") as temp:
+                    temp.write(response.content)
+
+                # Open in pandas and delete temp
+                url_data = pd.read_json(temp_path, lines=True, compression='gzip')
+                os.remove(temp_path)
+
+                # save json
+                url_data.to_json(jsonpath)
+
+                # append to lists and return
+                data.append(url_data)
+            else:
+                data.append(pd.read_json(jsonpath))
+        return filepaths, data
 
 
-def extract_ids_from_csv(csv_file, download=False, **kwargs):
-    """
-        [Parse CSV file to extract experiments IDs and link to downloadable streamline data
-
-        Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
-        extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl. 
-        Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
-        ]
-
-        Arguments:
-            csv_file {[str]} --  [Path to a csv file.]
-    """
-    #  url_model =  https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_480074702.json.gz.
-    try:
-        data = pd.read_csv(csv_file)
-    except:
-        raise FileNotFoundError("Could not load: {}".format(csv_file))
-    else:
-        print("Found {} experiments.\n".format(len(data.id.values)))
-
-    if not download: print("To download compressed data, click on the following URLs:")
-    urls = []
-    for eid in data.id.values:
-        url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(eid)
-        if not download: print(url)
-        urls.append(url)
-
-    if not download: 
-        print("\n")
-        string = ""
-        for x in data.id.values:
-            string += "{},".format(x)
-
-        print("To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html")
-        print("and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
-        print("You can copy and paste each individually or a list of IDs separated by a comma")
-        print("IDs: {}".format(string[:-1]))
-        print("\n")
-
-    if not download:
-        return data.id.values, urls
-    else:
-        return download_streamlines(urls, **kwargs)
 
 def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
     """
