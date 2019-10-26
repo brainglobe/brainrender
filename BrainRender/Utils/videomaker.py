@@ -1,5 +1,11 @@
+import sys
+sys.path.append("./")
+
 from vtkplotter import *
 import inspect
+import os
+
+from BrainRender.Utils.data_io import strip_path
 
 class VideoMaker:
     def __init__(self, scene, **kwargs):
@@ -7,6 +13,7 @@ class VideoMaker:
         """
         self.scene = scene
 
+        self.savename = kwargs.pop("savename", None)
         self.savefile = kwargs.pop("savefile", None) # path of the video to be saved
         self.duration = kwargs.pop("duration", None)
         self.niters = kwargs.pop("niters", None)
@@ -61,7 +68,11 @@ class VideoMaker:
         self._setup_videos()
 
         # open a video file and force it to last 3 seconds in total
-        video = Video(name=self.savefile, duration=self.duration, fps=self.fps)
+        stripped = strip_path(self.savefile)
+        folder, name = os.path.join(*stripped[:-1]), stripped[-1]
+        curdir = os.getcwd()
+        os.chdir(folder)
+        video = Video(name=name, duration=self.duration, fps=self.fps)
 
         for i in range(self.niters):
             self.scene.plotter.show()  # render the scene first
@@ -70,6 +81,7 @@ class VideoMaker:
             self.scene.plotter.camera.Roll(roll) 
             video.addFrame()
         video.close()  # merge all the recorded frames
+        os.chdir(curdir)
 
     def make_video_custom(self, videofunc):
         """[Let's users use a custom function to create the video. This function can do any manipulation of

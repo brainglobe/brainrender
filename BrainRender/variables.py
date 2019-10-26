@@ -14,7 +14,7 @@ DEFAULT_VIP_REGIONS = []        # list of acronyms of regions that must have dif
 DEFAULT_VIP_COLOR = [.8, .2, .2]  # default color of VIP regions
 
 ROOT_COLOR = [.8, .8, .8]       # color of the overall brain model's actor
-ROOT_ALPHA = .3                 # transparency of the overall brain model's actor'
+ROOT_ALPHA = .1                 # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
 DEFAULT_STRUCTURE_ALPHA = 0.5
