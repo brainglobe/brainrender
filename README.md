@@ -45,6 +45,10 @@ Projections to the Zona Incerta, colored by projection area.
 <img src="Docs/Media/streamlinesZI2.png" width="750" height="400">
 <img src="Docs/Media/streamlines2.png" width="750" height="400">
 
+## Video
+<img src="Docs/Media/brainrender.gif" width="1000">
+
+
 
 ## Referencing Brain Render
 If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please accessknowledge BrainRender's contribution.
