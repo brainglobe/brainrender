@@ -4,7 +4,6 @@ reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [ex
 on how to use BrainRender.
 
 <img src="Docs/Media/brainrender.png" width="1000">
-<img src="Docs/Media/brainrender.gif" width="1000">
 
 
 ## Resources
@@ -45,6 +44,10 @@ Projections to the Zona Incerta, colored by projection area.
 ### Streamlines
 <img src="Docs/Media/streamlinesZI2.png" width="750" height="400">
 <img src="Docs/Media/streamlines2.png" width="750" height="400">
+
+## Video
+<img src="Docs/Media/brainrender.gif" width="1000">
+
 
 
 ## Referencing Brain Render
