@@ -309,12 +309,12 @@ class ABA(Paths):
 
         if not isinstance(regions, list):
             struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
-            return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors))
+            return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants))
         else:
             ancestors = []
             for region in regions:
                 struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
-                ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors)))
+                ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants)))
             return ancestors
 
     def get_structure_descendants(self, regions):

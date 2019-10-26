@@ -40,7 +40,10 @@ class StreamlinesAPI(ABA):
         """
         # Get experiments whose injections were targeted to the region
         region_experiments = self.experiments_source_search(region, *args, **kwargs)
-        return self.download_streamlines(region_experiments.id.values)
+        try:
+            return self.download_streamlines(region_experiments.id.values)
+        except:
+            return [], [] # <- there were no experiments in the target region 
 
     def download_streamlines_to_region(self, p0, *args,  mouse_line = "wt", **kwargs):
         """
