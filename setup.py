@@ -12,7 +12,6 @@ requirements = [
     "pyyaml",
     "scikit-image",
     "brainio",
-    "gzip",
 ]
 
 setup(
