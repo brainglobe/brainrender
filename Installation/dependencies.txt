@@ -7,3 +7,4 @@ allensdk
 k3d
 tqdm
 pyyaml
+brainio
