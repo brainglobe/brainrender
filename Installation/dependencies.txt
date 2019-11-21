@@ -6,5 +6,4 @@ jupyter
 allensdk
 k3d
 tqdm
-json
 pyyaml
