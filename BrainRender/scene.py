@@ -706,7 +706,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
 
     def add_cells_from_file(self, filepath, hdf_key=None, color="red",
-                            radius=25, res=3):
+                            radius=25, res=3, alpha=1):
         """
             [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
             Arguments:
@@ -717,6 +717,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
                 radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
                 res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
+                alpha {[float]} -- [opacity of the spheres] (default: {1})
+
         """
         csv_suffix = ".csv"
         supported_formats = HDF_SUFFIXES + [csv_suffix]
@@ -747,17 +749,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                             f"file. Please check the correct identifer.")
             elif filepath.suffix == csv_suffix:
                 cells = pd.read_csv(filepath)
-            self.add_cells(cells, color=color, radius=radius, res=res)
+            self.add_cells(cells, color=color, radius=radius, res=res,
+                           alpha=alpha)
 
         elif filepath.suffix == ".pkl":
             cells = pd.read_picle(filepath)
-            self.add_cells(cells, color=color, radius=radius, res=res)
+            self.add_cells(cells, color=color, radius=radius, res=res,
+                           alpha=alpha)
         else:
             raise NotImplementedError(
                 f"File format: {filepath.suffix} is not currently supported. "
                 f"Please use one of: {supported_formats}")
 
-    def add_cells(self, coords, color="red", radius=25, res=3): 
+    def add_cells(self, coords, color="red", radius=25, res=3, alpha=1):
         """
             [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
             Arguments:
@@ -768,10 +772,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
                 radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
                 res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
+                alpha {[float]} -- [opacity of the spheres] (default: {1})
+
         """
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
-        spheres = Spheres(coords, c=color, r=radius, res=res)
+        spheres = Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
         self.actors['others'].append(spheres)
 
     def add_image(self, image_file_path, color=None, alpha=None,
