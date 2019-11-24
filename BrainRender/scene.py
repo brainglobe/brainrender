@@ -79,7 +79,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else: 
             sz = "auto"
 
-        self.plotter = Plotter(axes=4, size=sz)
+        self.plotter = Plotter(axes=4, size=sz, bg=BACKGROUND_COLOR)
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
 

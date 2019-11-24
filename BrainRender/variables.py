@@ -5,7 +5,7 @@ DISPLAY_INSET = True            # display a small version of the brain to show t
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
 WHOLE_SCREEN = False            # If true render window is full screen
-
+BACKGROUND_COLOR = "white"         # Secify the color of the background window (see colors.py)
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # BRAIN REGIONS RENDERING OPTIONS
