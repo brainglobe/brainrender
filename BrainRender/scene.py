@@ -477,7 +477,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_tractography(self, tractography, color=None, display_injection_structure=False, 
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
                         VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False,
-                        extract_region_from_inj_coords=False):
+                        extract_region_from_inj_coords=False, display_injection_volume=True):
         """[Edit neurons that have already been rendered. Change color, mirror them etc.]
         
         Arguments:
@@ -499,6 +499,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             others_color {str} -- [Color for 'others' regions] 
             verbose {bool} -- [If true print useful info during rendering] (default: {True})
             others_alpha {float} -- [Transparency of 'others' structures] (default: {False})
+            display_injection_volume {float} -- [If True a sphere is added to injection site with radius proportional to inj volume]
         """
 
         # check argument
@@ -596,8 +597,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         continue
 
             # represent injection site as sphere
-            actors.append(Sphere(pos=t['injection-coordinates'],
-                             c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
+            if display_injection_volume:
+                actors.append(Sphere(pos=t['injection-coordinates'],
+                                c=color, r=INJECTION_VOLUME_SIZE*t['injection-volume'], alpha=TRACTO_ALPHA))
 
             points = [p['coord'] for p in t['path']]
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=alpha, res=TRACTO_RES))
