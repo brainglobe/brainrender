@@ -78,8 +78,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             sz = "full"
         else: 
             sz = "auto"
+        
+        if SHOW_AXES:
+            axes = 4
+        else:
+            axes = 0
 
-        self.plotter = Plotter(axes=4, size=sz, bg=BACKGROUND_COLOR)
+        self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
 
@@ -274,7 +279,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 self.inset = self.root.clone().scale(.5)
 
             self.inset.alpha(1)
-            self.plotter.showInset(self.inset, pos=(0.9,0.2))  
+            self.plotter.showInset(self.inset, pos=(0.9,0.1))  
 
     ###### ADD  and EDIT ACTORS TO SCENE
     def add_vtkactor(self, actor):
