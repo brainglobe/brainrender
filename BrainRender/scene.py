@@ -899,7 +899,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             xmax=0.99, 
             value=0.5,
             pos=4, 
-            c="white", 
             title="opacity")
 
     def add_actors_to_slider(self,  brain_regions=None, actors=None):
