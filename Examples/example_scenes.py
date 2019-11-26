@@ -11,28 +11,56 @@ from BrainRender.Utils.MouseLightAPI.mouselight_download_neurons import download
 
 from BrainRender.Utils.parsers.streamlines import StreamlinesAPI
 from BrainRender.Utils.data_io import listdir
+from BrainRender.colors import get_n_shades_of
 
 aba = ABA()
 streamlines_api = StreamlinesAPI()
 
+
+camera = dict(
+    position = [-481.665, -5057.093, 33239.283] ,
+    focal = [6587.835, 3849.085, 5688.164],
+    viewup = [0.246, -0.939, -0.239],
+    distance = 29858.211,
+    clipping = [14486.361, 49280.223] ,
+)
+
+def set_camera(scene):
+    scene.rotated = True
+    scene.plotter.camera.SetPosition(camera['position'])
+    scene.plotter.camera.SetFocalPoint(camera['focal'])
+    scene.plotter.camera.SetViewUp(camera['viewup'])
+    scene.plotter.camera.SetDistance(camera['distance'])
+    scene.plotter.camera.SetClippingRange(camera['clipping'])
+
+
 # DEFINE A FUNCTION FOR EACH EXAMPLE SCENE, THEN CALL THE ONE YOU WANT TO DISPLAY_ROOT
 def BrainRegionsScene():
     scene = Scene()
-    scene.add_brain_regions(['CA2', 'CA3'], use_original_color=False, colors="ivory", alpha=1)
-    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=1)
+    scene.add_brain_regions(['TH', 'VP'], use_original_color=True, alpha=1)
 
+    act = scene.actors['regions']['TH']
+    scene.edit_actors([act], wireframe=True) 
+
+    set_camera(scene)
     scene.render()
 
 
 def NeuronsScene():
-    neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOs6b'])
-    neurons_files =  download_neurons(neurons_metadata)
-
     scene = Scene()
-    scene.add_neurons(neurons_files, soma_color="darkseagreen", force_to_hemisphere="right")
-    scene.add_brain_regions(['MOs'], use_original_color=True, alpha=.4)
-    mos = scene.actors['regions']['MOs']
-    scene.edit_actors([mos], wireframe=True) 
+    for region in ['MOp']:
+        neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=[region])
+        colors = ['darkseagreen', 'seagreen', 'darkolivegreen', 'palegreen', 'mediumseagreen']
+
+        for i,color in enumerate(colors):
+            scene.add_neurons(download_neurons(neurons_metadata)[i], soma_color=color, force_to_hemisphere="right",)
+
+        # scene.add_brain_regions(['PPN'], use_original_color=True, alpha=1)
+
+        # for act in scene.actors['regions'].values():
+        #     scene.edit_actors([act], wireframe=True) 
+
+    set_camera(scene)
     scene.render() 
 
 
@@ -44,6 +72,8 @@ def StreamlinesScene():
     scene.add_brain_regions(['MOs'], use_original_color=True, alpha=.9)
     mos = scene.actors['regions']['MOs']
     scene.edit_actors([mos], wireframe=True) 
+
+    set_camera(scene)
     scene.render() 
 
 def ConnectivityScene():
@@ -57,6 +87,8 @@ def ConnectivityScene():
     scene.add_tractography(tract, display_injection_structure=False, color_by="region", 
                         display_injection_volume=False, others_alpha=.25)
     scene.add_brain_regions(['ZI'], colors="darkred", alpha=1)
+
+    set_camera(scene)
     scene.render()
 
 
@@ -69,6 +101,8 @@ def CellsScene():
     # Visualise data
     scene = Scene()
     scene.add_cells(data)
+
+    set_camera(scene)
     scene.render() 
 
 
@@ -93,5 +127,7 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "ConnectivityScene"
+    scene = "NeuronsScene"
     scenes[scene]()
+
+
