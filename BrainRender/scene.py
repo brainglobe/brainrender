@@ -103,7 +103,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.root = None
 
         self.add_screenshot_button_arg = add_screenshot_button
-        self.add_screenshot_button()
 
         self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
@@ -437,8 +436,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 # list of file paths
                 if not os.path.isfile(neurons[0]): raise ValueError("Expected a list of file paths, got {} instead".format(neurons))
                 parser = NeuronsParser(scene=self, **kwargs)
-                for nfile in neurons:
-                    runfile(parser, nfile, soma_regions_kwargs)
+                
+                print('\n')
+                pb = ProgressBar(0, len(neurons), c="blue", ETA=1)
+                for i in pb.range():
+                    pb.print("Neuron {} of {}".format(i+1, len(neurons)))
+                    runfile(parser, neurons[i], soma_regions_kwargs)
         else:
             if isinstance(neurons, dict):
                 neurons = edit_neurons([neurons], **kwargs)

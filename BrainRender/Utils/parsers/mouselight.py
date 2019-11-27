@@ -6,7 +6,6 @@ import json
 from vtkplotter import *
 
 import pandas as pd
-from tqdm import tqdm
 import numpy as np
 from functools import partial
 from collections import namedtuple
@@ -116,7 +115,6 @@ class NeuronsParser:
 				for f in ml_file:
 					fdata = load_json(f)
 					data.extend(fdata['neurons'])
-			print("Found {} neurons".format(len(data)))
 
 		if not self.rendering_necessary:
 			return self.actors, self.regions
@@ -126,7 +124,7 @@ class NeuronsParser:
 			self.actors, self.regions = [], []
 			if not ML_PARALLEL_PROCESSING or self.n_neurons == 1: # parallel processing
 				# Loop over neurons
-				for nn, neuron in tqdm(enumerate(data)):
+				for nn, neuron in enumerate(data):
 					neuron_actors, soma_region = self.render_neuron(neuron, nn)
 					self.actors.append(neuron_actors); self.regions.append(soma_region)
 			else:
@@ -155,7 +153,6 @@ class NeuronsParser:
 				axon_color = soma_color = dendrites_color = color
 			else:
 				if self.soma_color is None:
-					print("No soma color is provided, picking a random one")
 					soma_color = get_random_colors(n_colors=1)
 
 				if not self.color_neurites:
@@ -163,12 +160,10 @@ class NeuronsParser:
 				else:
 					soma_color = self.soma_color
 					if self.axon_color is None:
-						print("No axon color provided, using soma color")
 						axon_color = soma_color
 					else:
 						axon_color = self.axon_color
 					if self.dendrites_color is None:
-						print("No dendrites color provided, using soma color")
 						dendrites_color = soma_color
 					else:
 						dendrites_color = self.dendrites_color
@@ -219,9 +214,6 @@ class NeuronsParser:
 				region_color = get_random_colors(n_colors=1)
 
 			axon_color = soma_color = dendrites_color = region_color
-
-		if VERBOSE:
-			print("Neuron {} - soma in: {}".format(neuron_number, soma_region))
 
 		return soma_color, axon_color, dendrites_color, soma_region
 
@@ -589,13 +581,13 @@ def edit_neurons(neurons, **kwargs):
 				axon_color = dendrites_color = soma_color
 			else:
 				if not "axon_color" in kwargs:
-					print("no axon color provided, using somacolor")
+					# print("no axon color provided, using somacolor")
 					axon_color = soma_color
 				else:
 					axon_color = kwargs["axon_color"]
 
 				if not "dendrites_color" in kwargs:
-					print("no dendrites color provided, using somacolor")
+					# print("no dendrites color provided, using somacolor")
 					dendrites_color = soma_color
 				else:
 					dendrites_color = kwargs["dendrites_color"]

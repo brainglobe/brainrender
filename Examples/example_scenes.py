@@ -50,15 +50,9 @@ def NeuronsScene():
     scene = Scene()
     for region in ['MOp']:
         neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=[region])
-        colors = ['darkseagreen', 'seagreen', 'darkolivegreen', 'palegreen', 'mediumseagreen']
+        scene.add_neurons(download_neurons(neurons_metadata)[:5], 
+                        soma_color='darkseagreen', force_to_hemisphere="right",)
 
-        for i,color in enumerate(colors):
-            scene.add_neurons(download_neurons(neurons_metadata)[i], soma_color=color, force_to_hemisphere="right",)
-
-        # scene.add_brain_regions(['PPN'], use_original_color=True, alpha=1)
-
-        # for act in scene.actors['regions'].values():
-        #     scene.edit_actors([act], wireframe=True) 
 
     set_camera(scene)
     scene.render() 
