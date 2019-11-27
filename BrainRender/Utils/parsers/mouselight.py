@@ -12,17 +12,18 @@ from collections import namedtuple
 
 import allensdk.core.swc as allen_swc
 
-from BrainRender.Utils.data_io import load_json
+from BrainRender.Utils.data_io import load_json, listdir
 from BrainRender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from BrainRender.colors import *
 from BrainRender.variables import *
 
+from BrainRender.Utils.paths_manager import Paths
 
 
-class NeuronsParser:
+class NeuronsParser(Paths):
 	def __init__(self, scene=None, 
 				render_neurites = True, mirror=False, 
-				neurite_radius=None, color_by_region=False, force_to_hemisphere=None,
+				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, paths_file=None,
 				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
 		self.scene = scene # for the meaning of the arguments check self.render_neurons
 		self.render_neurites = render_neurites 
@@ -35,6 +36,9 @@ class NeuronsParser:
 		self.mirror = mirror
 		self.color_by_region = color_by_region
 		self.force_to_hemisphere = force_to_hemisphere
+
+		Paths.__init__(self, paths_file=paths_file)
+
 
 	def render_neurons(self, ml_file, **kwargs):
 		"""[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
@@ -98,9 +102,11 @@ class NeuronsParser:
 		if isinstance(ml_file, (tuple, list)):
 			checkfile = ml_file[0]
 			is_iter = True
+			neurons_names = [os.path.split(f)[-1].split(".")[0] for f in ml_file]
 		else:
 			checkfile = ml_file
 			is_iter = False
+			neurons_names = [os.path.split(ml_file)[-1].split(".")[0]]
 
 		if ".swc" in checkfile.lower():
 			self.is_json = False
@@ -125,20 +131,12 @@ class NeuronsParser:
 			if not ML_PARALLEL_PROCESSING or self.n_neurons == 1: # parallel processing
 				# Loop over neurons
 				for nn, neuron in enumerate(data):
-					neuron_actors, soma_region = self.render_neuron(neuron, nn)
+					neuron_actors, soma_region = self.render_neuron(neuron, nn, neurons_names[nn])
 					self.actors.append(neuron_actors); self.regions.append(soma_region)
+			
 			else:
 				raise NotImplementedError("Multi core processing is not implemented yet")
-				# n_cores =  mp.cpu_count()
-				# print("Number of processors: ", n_cores)
 
-				# futures = []
-				# for nn, neuron in enumerate(data):
-				#     arguments = args.copy()
-				#     arguments.extend([neuron, nn])
-				#     futures.append(prender_neuron.remote(*arguments))
-
-				# print(ray.get(futures))
 
 			return self.actors, self.regions
 
@@ -191,11 +189,11 @@ class NeuronsParser:
 				soma_region = self.scene.get_structure_parent(self.alleninfo.loc[self.alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
 			else:
 				self.alleninfo = None
-				soma_region = self.scene.get_region_from_point(get_coords(neuron['soma']))
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))
 		elif soma_region is None:
 			self.alleninfo = None
 			if soma is not None:
-				soma_region = self.scene.get_region_from_point(get_coords(soma))
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))
 			else:
 				raise ValueError("You need to pass either a neuron, or a soma region or a soma")
 		else:
@@ -217,37 +215,69 @@ class NeuronsParser:
 
 		return soma_color, axon_color, dendrites_color, soma_region
 
-	def render_neuron(self, neuron, neuron_number):
+	def render_neuron(self, neuron, neuron_number, neuron_name):
 		"""[This function takes care of rendering a single neuron.]
 		"""
 		# Prepare variables for rendering
 		soma_color, axon_color, dendrites_color, soma_region =  self._render_neuron_get_params(neuron_number, neuron=neuron)
 		
 		# create soma actor
-		neuron_actors = {}
+		neuron_actors = None
+		if USE_MORPHOLOGY_CACHE:
+			neuron_actors = self._load_cached_neuron(neuron_name)
+			if neuron_actors is not None:
+				for component, color in zip(['soma', 'dendrites', 'axon'], [soma_color, dendrites_color, axon_color]):
+					if component in list(neuron_actors.keys()):
+						neuron_actors[component].color(color)
+				return neuron_actors, {'soma':soma_region, 'dendrites':None, 'axons':None}
 
-		self.soma_coords = get_coords(neuron["soma"], mirror=self.mirror_coord, mirror_ax=self.mirror_ax)
-		neuron_actors['soma'] = Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
+		if not USE_MORPHOLOGY_CACHE or neuron_actors is None:
+			neuron_actors = {}
 
-		# Draw dendrites and axons
-		if self.render_neurites:
-			if self.is_json:
-				neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), dendrites_color)
-				neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), axon_color)
+			self.soma_coords = get_coords(neuron["soma"], mirror=self.mirror_coord, mirror_ax=self.mirror_ax)
+			neuron_actors['soma'] = Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
+
+			# Draw dendrites and axons
+			if self.render_neurites:
+				if self.is_json:
+					neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+					neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), axon_color)
+				else:
+					neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+					neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), axon_color)
 			else:
-				neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), dendrites_color)
-				neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), axon_color)
+				neuron_actors['dendrites'], dendrites_regions = [], None
+				neuron_actors['axon'], axon_regions = [], None
+
+			self.decimate_neuron_actors(neuron_actors)
+			self.smooth_neurons(neuron_actors)
+
+			# force to hemisphere
+			if self.force_to_hemisphere is not None:
+					neuron_actors = self.mirror_neuron(neuron_actors)
+
+			if USE_MORPHOLOGY_CACHE:
+				self._cache_neuron(neuron_actors, neuron_name)
+
+			return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
+		
+	def _cache_neuron(self, neuron_actors, neuron_name):
+		for neurite, actor in neuron_actors.items():
+			fl = os.path.join(self.morphology_cache, neuron_name+"_"+neurite+".vtk")
+			actor.write(fl)
+
+	def _load_cached_neuron(self, neuron_name):
+		allowed_components = ['soma', 'axon', 'dendrites']
+		neuron_files = [f for f in listdir(self.morphology_cache) if neuron_name in f]
+		if not neuron_files: return None
 		else:
-			neuron_actors['dendrites'], dendrites_regions = [], None
-			neuron_actors['axon'], axon_regions = [], None
-
-		self.decimate_neuron_actors(neuron_actors)
-		self.smooth_neurons(neuron_actors)
-
-		# force to hemisphere
-		if self.force_to_hemisphere is not None:
-				neuron_actors = self.mirror_neuron(neuron_actors)
-		return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
+			neuron_actors = {}
+			for f in neuron_files:
+				component = os.path.split(f)[-1].split(".")[0].split("_")[-1]
+				if component not in allowed_components:
+					raise ValueError("Weird file name, unsure what to do: {}".format(f))
+				neuron_actors[component] = load(f)
+			return neuron_actors
 
 	def mirror_neuron(self, neuron_actors):
 		# Makes sure that the neuron is in the desired hemisphere

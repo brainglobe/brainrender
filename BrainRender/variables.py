@@ -5,15 +5,15 @@ DISPLAY_INSET = True            # display a small version of the brain to show t
                                 # useful when the overall brian is not displayed (DISPLAY_ROOT). inset is crated at render time
 DISPLAY_ROOT = True             # display the overall shape of the brain
 WHOLE_SCREEN = False            # If true render window is full screen
-BACKGROUND_COLOR = "white"         # Secify the color of the background window (see colors.py)
+BACKGROUND_COLOR = "white"      # Secify the color of the background window (see colors.py)
 SHOW_AXES = False               # If true a triad of orthogonal axes is used to show orientation
-WINDOW_POS = (250, 250)             # Position of the window in pixels from bottom left of screen. Only applies when not in fullscreen
+WINDOW_POS = (250, 250)         # Position of the window in pixels from bottom left of screen. Only applies when not in fullscreen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # BRAIN REGIONS RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-DEFAULT_VIP_REGIONS = []        # list of acronyms of regions that must have different colors by default
+DEFAULT_VIP_REGIONS = []          # list of acronyms of regions that must have different colors by default
 DEFAULT_VIP_COLOR = [.8, .2, .2]  # default color of VIP regions
 
 ROOT_COLOR = [.8, .8, .8]       # color of the overall brain model's actor
@@ -35,13 +35,14 @@ INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
+USE_MORPHOLOGY_CACHE = True     # If True once a neuron's data is parsed the resulting actor is saved to file and used for subsequent renderenings
 DEFAULT_NEURITE_RADIUS = 12     # radius of dendrites, axons...
-SOMA_RADIUS = 5 # 50                # radius of the soma sphere
+SOMA_RADIUS = 5                 # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
-NEURON_ALPHA = 0.85                # transparency of the neurons actors
+NEURON_ALPHA = 0.85             # transparency of the neurons actors
 
 ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
-ML_N_PROCESSES = 6              # max number of processes to use
+ML_N_PROCESSES = 6               # max number of processes to use
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

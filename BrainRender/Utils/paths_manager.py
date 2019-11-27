@@ -26,6 +26,7 @@ class Paths:
         self.drosophila_meshes = paths_dict['drosophila_meshes']
         self.other_meshes = paths_dict['other_meshes']
         self.morphology_allen = paths_dict['morphology_allen']
+        self.morphology_cache = paths_dict['morphology_cache']
         self.morphology_mouselight = paths_dict['morphology_mouselight']
         
         self.mouse_connectivity_cache = paths_dict['mouse_connectivity_cache']
@@ -37,7 +38,6 @@ class Paths:
         self.output_videos = paths_dict['output_videos']
         self.output_scenes = paths_dict['output_scenes']
         self.output_data = paths_dict['output_data']
-
 
         self.user = paths_dict['user']
         self.metadata = paths_dict['metadata']

@@ -8,6 +8,7 @@ metadata: "Data/Metadata"
 
 # NEURONS MORPHOLOGY
 morphology_allen:  "Data/Morphology/Allen" # .swc files with neurons morphology downloaded through allen API
+morphology_cache: "Data/Morphology/cache"
 morphology_mouselight: "Data/Morphology/MouseLight" # .swc and .json files from mouse light dataset
 
 # Allen caches

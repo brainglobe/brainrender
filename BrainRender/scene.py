@@ -170,15 +170,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
-    def get_region_from_point(self, p0):
-        # given a set of coordinates, get the brain region they are in
-        parent = None
-        for struct in sorted(list(self.structures.acronym.values)):
-            mesh = self._get_structure_mesh(struct).decimate()
-            if mesh.isInside(p0):
-                parent = struct
-                break
-        return parent
+    # ? OLD and slow
+    # def get_region_from_point(self, p0):
+    #     # given a set of coordinates, get the brain region they are in
+    #     parent = None
+    #     for struct in sorted(list(self.structures.acronym.values)):
+    #         mesh = self._get_structure_mesh(struct).decimate()
+    #         if mesh.isInside(p0):
+    #             parent = struct
+    #             break
+    #     return parent
     
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]

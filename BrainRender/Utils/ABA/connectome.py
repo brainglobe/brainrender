@@ -21,6 +21,7 @@ class ABA(Paths):
     """
     # useful vars for analysis    
     excluded_regions = ["fiber tracts"]
+    resolution = 25
 
     def __init__(self, projection_metric = "projection_energy", paths_file=None):
         """ path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None}) """
@@ -320,3 +321,13 @@ class ABA(Paths):
     def get_structure_descendants(self, regions):
         return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
 
+    def get_structure_from_coordinates(self, p0):
+            voxel = np.round(np.array(p0) / self.resolution).astype(int)
+            try:
+                structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
+            except:
+                return None
+
+            # Each voxel in the annotation volume is annotated as specifically as possible
+            structure = self.structure_tree.get_structures_by_id([structure_id])[0]
+            return structure
