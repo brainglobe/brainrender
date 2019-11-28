@@ -794,7 +794,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
                   invert_axes=None, extension=".obj", step_size=2,
-                  keep_obj_file=True, override='use', smooth=True):
+                  keep_obj_file=True, overwrite='use', smooth=True):
 
         """
             [Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
