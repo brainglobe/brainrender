@@ -847,6 +847,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise FileExistsError("The .obj file exists alread, to overwrite change the 'overwrite' argument.")
             else:
                 raise ValueError("Unrecognized value for argument overwrite: {}".format(overwrite))
+        else:
+            print(f"Converting file: {image_file_path} to surface")
+            image_to_surface(image_file_path, obj_file_path,
+                             voxel_size=voxel_size,
+                             orientation=orientation, invert_axes=invert_axes,
+                             step_size=step_size)
+
 
         # render obj file, smooth and clean up.
         actor = self.add_from_file(obj_file_path, c=color, alpha=alpha)
