@@ -832,7 +832,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if obj_file_path is None:
             obj_file_path = os.path.splitext(image_file_path)[0] + extension
 
-        if os.path.isinstance(obj_file_path):
+        if os.path.exists(obj_file_path):
             if overwrite == "use":
                 print("Found a .obj file that matches your input data. Rendering that instead.")
                 print("If you would like to change this behaviour, change the 'overwrite' argument.")
