@@ -794,7 +794,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
                   invert_axes=None, extension=".obj", step_size=2,
-                  keep_obj_file=True, override='use', smooth=True):
+                  keep_obj_file=True, overwrite='use', smooth=True):
 
         """
             [Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
@@ -832,7 +832,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if obj_file_path is None:
             obj_file_path = os.path.splitext(image_file_path)[0] + extension
 
-        if os.path.isinstance(obj_file_path):
+        if os.path.exists(obj_file_path):
             if overwrite == "use":
                 print("Found a .obj file that matches your input data. Rendering that instead.")
                 print("If you would like to change this behaviour, change the 'overwrite' argument.")
@@ -847,6 +847,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise FileExistsError("The .obj file exists alread, to overwrite change the 'overwrite' argument.")
             else:
                 raise ValueError("Unrecognized value for argument overwrite: {}".format(overwrite))
+        else:
+            print(f"Converting file: {image_file_path} to surface")
+            image_to_surface(image_file_path, obj_file_path,
+                             voxel_size=voxel_size,
+                             orientation=orientation, invert_axes=invert_axes,
+                             step_size=step_size)
+
 
         # render obj file, smooth and clean up.
         actor = self.add_from_file(obj_file_path, c=color, alpha=alpha)
