@@ -7,7 +7,7 @@ DISPLAY_ROOT = True             # display the overall shape of the brain
 WHOLE_SCREEN = True            # If true render window is full screen
 BACKGROUND_COLOR = "white"      # Secify the color of the background window (see colors.py)
 SHOW_AXES = False               # If true a triad of orthogonal axes is used to show orientation
-WINDOW_POS = (250, 250)         # Position of the window in pixels from bottom left of screen. Only applies when not in fullscreen
+WINDOW_POS = (10, 10)         # Position of the window in pixels from bottom left of screen. Only applies when not in fullscreen
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

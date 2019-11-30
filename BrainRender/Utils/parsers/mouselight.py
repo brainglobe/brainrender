@@ -264,7 +264,12 @@ class NeuronsParser(Paths):
 	def _cache_neuron(self, neuron_actors, neuron_name):
 		for neurite, actor in neuron_actors.items():
 			fl = os.path.join(self.morphology_cache, neuron_name+"_"+neurite+".vtk")
+			if isinstance(actor, list):
+				if not actor: continue
+				else:
+					raise ValueError("Something went wrong while saving the actor")
 			actor.write(fl)
+
 
 	def _load_cached_neuron(self, neuron_name):
 		allowed_components = ['soma', 'axon', 'dendrites']

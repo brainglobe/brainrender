@@ -46,15 +46,16 @@ def BrainRegionsScene():
     scene.render()
 
 
-def NeuronsScene():
+def NeuronsScene(show_regions = False):
     scene = Scene()
-    # for region in ['MOp']:
-    #     neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=[region])
-    #     scene.add_neurons(download_neurons(neurons_metadata)[:5], 
-    #                     soma_color='darkseagreen', force_to_hemisphere="right",)
 
     fl = 'Examples/example_files/one_neuron.json'
     scene.add_neurons(fl, soma_color='darkseagreen', force_to_hemisphere="right",)
+
+    if show_regions:
+        scene.add_brain_regions(['ZI', 'PAG', 'MRN', 'NPC', "VTA", "STN", "PPT", "SCm", "HY"], 
+                        use_original_color=True, alpha=.5)
+
 
     set_camera(scene)
     scene.render() 
@@ -122,7 +123,7 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "ConnectivityScene"
+    scene = "NeuronsScene"
     scenes[scene]()
 
 
