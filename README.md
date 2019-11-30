@@ -56,7 +56,7 @@ If you found BrainRender useful and decided to include a rendering in your talks
 
 # Similar tools
 ## In R
-`cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://help.github.com/en/articles/creating-and-highlighting-code-blocks).
+`cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://github.com/AllenInstitute/cocoframer).
 
 `mouselightr` package generates 3D CCF mouse brain plots, along with MouseLight neuron reconstructions [github repository](https://github.com/jefferis/nat.mouselight)
 
