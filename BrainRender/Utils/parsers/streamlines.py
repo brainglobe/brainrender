@@ -201,6 +201,7 @@ def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, 
 
     merged = merge(*lines, *spheres)
     merged.color(color)
+    merged.alpha(alpha)
     return [merged]
 
 

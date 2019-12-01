@@ -34,7 +34,11 @@ def set_camera(scene):
     scene.plotter.camera.SetClippingRange(camera['clipping'])
 
 
-# DEFINE A FUNCTION FOR EACH EXAMPLE SCENE, THEN CALL THE ONE YOU WANT TO DISPLAY_ROOT
+
+# ---------------------------------------------------------------------------- #
+#                   DEFINE A FUNCTION FOR EACH EXAMPLE SCENE                   #
+# ---------------------------------------------------------------------------- #
+
 def BrainRegionsScene():
     scene = Scene()
     scene.add_brain_regions(['TH', 'VP'], use_original_color=True, alpha=1)
@@ -45,6 +49,7 @@ def BrainRegionsScene():
     set_camera(scene)
     scene.render()
 
+# ---------------------------------------------------------------------------- #
 
 def NeuronsScene(show_regions = False):
     scene = Scene()
@@ -56,10 +61,27 @@ def NeuronsScene(show_regions = False):
         scene.add_brain_regions(['ZI', 'PAG', 'MRN', 'NPC', "VTA", "STN", "PPT", "SCm", "HY"], 
                         use_original_color=True, alpha=.5)
 
-
     set_camera(scene)
     scene.render() 
 
+# ---------------------------------------------------------------------------- #
+
+def NeuronsScene2():
+    scene = Scene()
+
+    neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOp5'])
+    neurons_files =  download_neurons(neurons_metadata[:5]) 
+    scene.add_neurons(neurons_files, soma_color='darkseagreen', force_to_hemisphere="right")
+
+    streamlines_files, data = streamlines_api.download_streamlines_for_region("MOp") 
+    scene.add_streamlines(data[0], color="palegreen", show_injection_site=False, alpha=.1, radius=10)
+
+
+
+    set_camera(scene)
+    scene.render()
+
+# ---------------------------------------------------------------------------- #
 
 def StreamlinesScene():
     streamlines_files, data = streamlines_api.download_streamlines_for_region("PAG") 
@@ -72,6 +94,8 @@ def StreamlinesScene():
 
     set_camera(scene)
     scene.render() 
+
+# ---------------------------------------------------------------------------- #
 
 def ConnectivityScene():
     scene = Scene()
@@ -87,6 +111,7 @@ def ConnectivityScene():
     set_camera(scene)
     scene.render()
 
+# ---------------------------------------------------------------------------- #
 
 def CellsScene():
     # Load and clean data
@@ -119,11 +144,12 @@ scenes = dict(
     StreamlinesScene = StreamlinesScene,
     CellsScene = CellsScene,
     ConnectivityScene = ConnectivityScene,
+    NeuronsScene2 = NeuronsScene2,
 )
 
 
 if __name__ == "__main__":
-    scene = "NeuronsScene"
+    scene = "NeuronsScene2"
     scenes[scene]()
 
 
