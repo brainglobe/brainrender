@@ -184,7 +184,7 @@ def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, 
         lines_data = data['lines']
     for line in lines_data:
         points = [[l['x'], l['y'], l['z']] for l in line]
-        lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=NEURON_RESOLUTION))
+        lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=STREAMLINES_RESOLUTION))
 
     coords = []
     if show_injection_site:

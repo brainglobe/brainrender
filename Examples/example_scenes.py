@@ -70,13 +70,28 @@ def NeuronsScene2():
     scene = Scene()
 
     neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOp5'])
-    neurons_files =  download_neurons(neurons_metadata[:5]) 
-    scene.add_neurons(neurons_files, soma_color='darkseagreen', force_to_hemisphere="right")
+    neurons_files =  download_neurons(neurons_metadata[2:6]) 
+    scene.add_neurons(neurons_files, soma_color='deepskyblue', force_to_hemisphere="right")
 
     streamlines_files, data = streamlines_api.download_streamlines_for_region("MOp") 
-    scene.add_streamlines(data[0], color="palegreen", show_injection_site=False, alpha=.1, radius=10)
+    scene.add_streamlines(data[:1], color="palegreen", show_injection_site=False, alpha=.2, radius=10)
 
+    set_camera(scene)
+    scene.render()
 
+def NeuronsScene3():
+    scene = Scene()
+
+    neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['VAL'])
+    neurons_files =  download_neurons(neurons_metadata[2:6]) 
+    scene.add_neurons(neurons_files, soma_color='deepskyblue', force_to_hemisphere="right")
+
+    scene.add_brain_regions(['VAL'], use_original_color=False, colors='palegreen', alpha=.9)
+    mos = scene.actors['regions']['VAL']
+    scene.edit_actors([mos], wireframe=True) 
+
+    streamlines_files, data = streamlines_api.download_streamlines_for_region("VAL") 
+    scene.add_streamlines(data[:1], color="palegreen", show_injection_site=False, alpha=.2, radius=10)
 
     set_camera(scene)
     scene.render()
@@ -87,9 +102,30 @@ def StreamlinesScene():
     streamlines_files, data = streamlines_api.download_streamlines_for_region("PAG") 
 
     scene = Scene()
-    scene.add_streamlines(data[3], color="powderblue", show_injection_site=False, alpha=.75, radius=10)
+    scene.add_streamlines(data[3], color="powderblue", show_injection_site=False, alpha=.3, radius=10)
     scene.add_brain_regions(['PAG'], use_original_color=False, colors='powderblue', alpha=.9)
     mos = scene.actors['regions']['PAG']
+    scene.edit_actors([mos], wireframe=True) 
+
+    set_camera(scene)
+    scene.render() 
+
+def StreamlinesScene2():
+    scene = Scene()
+
+    streamlines_files, data = streamlines_api.download_streamlines_for_region("VAL") 
+    scene.add_streamlines(data, color="palegreen", show_injection_site=False, alpha=.3, radius=10)
+
+    streamlines_files, data = streamlines_api.download_streamlines_for_region("VM") 
+    scene.add_streamlines(data, color="palevioletred", show_injection_site=False, alpha=.3, radius=10)
+
+    
+    scene.add_brain_regions(['VAL'], use_original_color=False, colors='palegreen', alpha=.9, hemisphere='right')
+    mos = scene.actors['regions']['VAL']
+    scene.edit_actors([mos], wireframe=True) 
+
+    scene.add_brain_regions(['VM'], use_original_color=False, colors='palevioletred', alpha=.9, hemisphere='right')
+    mos = scene.actors['regions']['VM']
     scene.edit_actors([mos], wireframe=True) 
 
     set_camera(scene)
@@ -142,14 +178,16 @@ scenes = dict(
     BrainRegionsScene = BrainRegionsScene,
     NeuronsScene = NeuronsScene,
     StreamlinesScene = StreamlinesScene,
+    StreamlinesScene2 = StreamlinesScene2,
     CellsScene = CellsScene,
     ConnectivityScene = ConnectivityScene,
     NeuronsScene2 = NeuronsScene2,
+    NeuronsScene3 = NeuronsScene3,
 )
 
 
 if __name__ == "__main__":
-    scene = "NeuronsScene2"
+    scene = "StreamlinesScene2"
     scenes[scene]()
 
 

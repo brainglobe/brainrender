@@ -22,6 +22,7 @@ ROOT_ALPHA = .1                 # transparency of the overall brain model's acto
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
 DEFAULT_STRUCTURE_ALPHA = 0.5
 
+
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # TRACTOGRAPHY & INJECTION RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -31,6 +32,8 @@ TRACTO_ALPHA = 1               # transparency of tracts
 TRACTO_RES = 12                # resolution of tubes used to represent tracts
 TRACT_DEFAULT_COLOR = "r"      # default color of tractography tubes
 INJECTION_DEFAULT_COLOR = "g"  # default color for experiments injection sites
+STREAMLINES_RESOLUTION = 3     # resolution of actors used to render the neuron, 
+
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
@@ -41,18 +44,12 @@ SOMA_RADIUS = 5                 # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
 NEURON_ALPHA = 0.85             # transparency of the neurons actors
 
-ML_PARALLEL_PROCESSING = False   # render neurons in parallel to speed things up !! the option is here but this is not supported yet
-ML_N_PROCESSES = 6               # max number of processes to use
-
-
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # OTHER RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 SHADER_STYLE = "plastic"         # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
 DECIMATE_NEURONS = False
 SMOOTH_NEURONS = True
-
-drosophila_root = "Meshes/drosophila_meshes/JFRC2RindMeshSmooth.obj"
 
 from vtkplotter import settings
 settings.useDepthPeeling = True # necessary for rendering of semitransparent actors

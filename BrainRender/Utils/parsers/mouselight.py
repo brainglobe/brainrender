@@ -128,16 +128,11 @@ class NeuronsParser(Paths):
 			# Render neurons
 			self.n_neurons  = len(data)
 			self.actors, self.regions = [], []
-			if not ML_PARALLEL_PROCESSING or self.n_neurons == 1: # parallel processing
-				# Loop over neurons
-				for nn, neuron in enumerate(data):
-					neuron_actors, soma_region = self.render_neuron(neuron, nn, neurons_names[nn])
-					self.actors.append(neuron_actors); self.regions.append(soma_region)
-			
-			else:
-				raise NotImplementedError("Multi core processing is not implemented yet")
 
-
+			# Loop over neurons
+			for nn, neuron in enumerate(data):
+				neuron_actors, soma_region = self.render_neuron(neuron, nn, neurons_names[nn])
+				self.actors.append(neuron_actors); self.regions.append(soma_region)
 			return self.actors, self.regions
 
 	def _render_neuron_get_params(self, neuron_number, neuron=None, soma_region=None, soma=None):

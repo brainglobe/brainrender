@@ -171,7 +171,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return None
 
     # ? OLD and slow
-    # def get_region_from_point(self, p0):
+    # def get_structure_from_coordinates(self, p0):
     #     # given a set of coordinates, get the brain region they are in
     #     parent = None
     #     for struct in sorted(list(self.structures.acronym.values)):
@@ -594,11 +594,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             # check if we need to manually check injection coords
             if extract_region_from_inj_coords:
                 try:
-                    region = self.get_region_from_point(t['injection-coordinates'])
+                    region = self.get_structure_from_coordinates(t['injection-coordinates'])
                     if region is None: continue
                     inj_structures = [self.get_structure_parent(region)['acronym']]
                 except:
-                    raise ValueError(self.get_region_from_point(t['injection-coordinates']))
+                    raise ValueError(self.get_structure_from_coordinates(t['injection-coordinates']))
                 if inj_structures is None: continue
                 elif isinstance(extract_region_from_inj_coords, list):
                     # check if injection coord are in one of the brain regions in list, otherwise skip

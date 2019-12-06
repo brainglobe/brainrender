@@ -10,6 +10,7 @@ from allensdk.api.queries.ontologies_api import OntologiesApi
 from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 from allensdk.api.queries.tree_search_api import TreeSearchApi
+from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
 from BrainRender.Utils.paths_manager import Paths
 
@@ -40,6 +41,12 @@ class ABA(Paths):
 
         # get reference space
         self.space = ReferenceSpaceApi()
+        self.spacecache = ReferenceSpaceCache(
+            manifest=os.path.join("Data/ABA", "manifest.json"),  # downloaded files are stored relative to here
+            resolution=self.resolution,
+            reference_space_key="annotation/ccf_2017"  # use the latest version of the CCF
+            )
+        self.annotation, _ = self.spacecache.get_annotation_volume()
 
         # mouse connectivity API [used for tractography]
         self.mca = MouseConnectivityApi()
