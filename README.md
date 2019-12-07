@@ -3,7 +3,7 @@ Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and 
 reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
 on how to use BrainRender.
 
-<img src="Docs/Media/brainrender.png" width="1000">
+<img src="Docs/Media/streamlines2.png" width="1000">
 
 
 ## Resources
@@ -27,10 +27,10 @@ To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.
 
 # Example screenshots. 
 ## Mouse Light neurons morphology rendering
-<img src="Docs/Media/neuron.png" width="600" height="350">
+<img src="Docs/Media/morphology.png" width="600" height="350">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
-<img src="Docs/Media/m1th_2.png" width="750" height="400">
+<img src="Docs/Media/neuronsandstreamlines2.png" width="750" height="400">
 
 ## Rendering of different sets of brainstem projecting neurons using MultiScene
 <img src="Docs/Media/multiscene_1.png" width="600" height="350">
@@ -42,7 +42,7 @@ Sets of neurons projecting to the brainstem, sorted by brain region.
 Projections to the Zona Incerta, colored by projection area.
 
 ### Streamlines
-<img src="Docs/Media/streamlinesZI2.png" width="750" height="400">
+<img src="Docs/Media/streamlines.png" width="750" height="400">
 <img src="Docs/Media/streamlines2.png" width="750" height="400">
 
 ## Video
