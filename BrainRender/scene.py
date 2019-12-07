@@ -126,8 +126,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     @staticmethod
     def check_region(region):
         if not isinstance(region, int) and not isinstance(region, str):
-            raise ValueError("region must be a list, integer or string")
-        else: return True
+            raise ValueError("region must be a list, integer or string, not: {}".format(type(region)))
+        else: 
+            return True
 
     def get_region_color(self, regions):
         if not isinstance(regions, list):
@@ -596,7 +597,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 try:
                     region = self.get_structure_from_coordinates(t['injection-coordinates'])
                     if region is None: continue
-                    inj_structures = [self.get_structure_parent(region)['acronym']]
+                    inj_structures = [self.get_structure_parent(region['acronym'])['acronym']]
                 except:
                     raise ValueError(self.get_structure_from_coordinates(t['injection-coordinates']))
                 if inj_structures is None: continue
@@ -713,8 +714,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['injection_sites'].extend(injection_sites)
 
-    def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1):
-        self.actors['others'].append(Sphere(pos=pos, r=radius, c=color, alpha=alpha))
+    def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs):
+        sphere = Sphere(pos=pos, r=radius, c=color, alpha=alpha, **kwargs)
+        self.actors['others'].append(sphere)
+        return sphere
 
     def add_cells_from_file(self, filepath, hdf_key=None, color="red",
                             radius=25, res=3, alpha=1):

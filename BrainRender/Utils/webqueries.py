@@ -7,6 +7,7 @@ import requests
 import json
 import urllib.request as urlreq
 import urllib.error as urlerr
+import time
 
 
 mouselight_base_url = "http://ml-neuronbrowser.janelia.org/"
@@ -48,18 +49,32 @@ def query_mouselight(query):
 	# raise an exception if the API request failed
 	raise ValueError(exception_string)
 
-def post_mouselight(url, query=None, clean=False):
+def post_mouselight(url, query=None, clean=False, attempts=3):
 	"""
 		[sends a POST request to a user URL. Query can be either a string (in which case clean should be False) or a dictionary.]
 	"""
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 
+	request = None
 	if query is not None:
-		if not clean:
-			request = requests.post(url, json={'query': query})
-		else:
-			request = requests.post(url, json=query)
+		for i in range(attempts):
+			try:
+				if not clean:
+					time.sleep(0.01) # avoid getting an error from server
+					request = requests.post(url, json={'query': query})
+				else:
+					time.sleep(0.01) # avoid getting an error from server
+					request = requests.post(url, json=query)
+			except Exception as e:
+				exception = e
+				request = None
+				print('MouseLight API query failed. Attempt {} of {}'.format(i+1, attempts))
+			if request is not None: break
+
+		if request is None:
+			raise ConnectionError("\n\nMouseLight API query failed with error message:\n{}.\
+						\nPerhaps the server is down, visit 'http://ml-neuronbrowser.janelia.org' to find out.".format(exception))
 	else:
 		raise  NotImplementedError
 	

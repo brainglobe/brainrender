@@ -187,7 +187,7 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "StreamlinesScene2"
+    scene = "NeuronsScene2"
     scenes[scene]()
 
 

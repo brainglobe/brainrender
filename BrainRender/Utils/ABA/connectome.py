@@ -46,7 +46,7 @@ class ABA(Paths):
             resolution=self.resolution,
             reference_space_key="annotation/ccf_2017"  # use the latest version of the CCF
             )
-        self.annotation, _ = self.spacecache.get_annotation_volume()
+        self.annotated_volume, _ = self.spacecache.get_annotation_volume()
 
         # mouse connectivity API [used for tractography]
         self.mca = MouseConnectivityApi()

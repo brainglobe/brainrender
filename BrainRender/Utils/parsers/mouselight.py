@@ -184,11 +184,11 @@ class NeuronsParser(Paths):
 				soma_region = self.scene.get_structure_parent(self.alleninfo.loc[self.alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
 			else:
 				self.alleninfo = None
-				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))['acronym']
 		elif soma_region is None:
 			self.alleninfo = None
 			if soma is not None:
-				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))['acronym']
 			else:
 				raise ValueError("You need to pass either a neuron, or a soma region or a soma")
 		else:
