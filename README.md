@@ -26,6 +26,10 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
 # Example screenshots. 
+## Brain Regions anatomy from the Allen Mouse Brain
+<img src="Docs/Media/brainregions.png" width="750">
+Location of the Ventral posterior complex of the thalamus within the thalamus.
+
 ## Mouse Light neurons morphology rendering
 <img src="Docs/Media/morphology.png" width="750">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
