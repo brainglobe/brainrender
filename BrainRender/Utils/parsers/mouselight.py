@@ -129,6 +129,10 @@ class NeuronsParser(Paths):
 			self.n_neurons  = len(data)
 			self.actors, self.regions = [], []
 
+			if len(neurons_names) < self.n_neurons: 
+				name = neurons_names[0]
+				neurons_names = [name+"_{}".format(i) for i in range(self.n_neurons)]
+
 			# Loop over neurons
 			for nn, neuron in enumerate(data):
 				neuron_actors, soma_region = self.render_neuron(neuron, nn, neurons_names[nn])
@@ -257,6 +261,7 @@ class NeuronsParser(Paths):
 			return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 		
 	def _cache_neuron(self, neuron_actors, neuron_name):
+		if not neuron_name or neuron_name is None: return
 		for neurite, actor in neuron_actors.items():
 			fl = os.path.join(self.morphology_cache, neuron_name+"_"+neurite+".vtk")
 			if isinstance(actor, list):
@@ -267,6 +272,8 @@ class NeuronsParser(Paths):
 
 
 	def _load_cached_neuron(self, neuron_name):
+		if not neuron_name or neuron_name is None:
+			return None
 		allowed_components = ['soma', 'axon', 'dendrites']
 		neuron_files = [f for f in listdir(self.morphology_cache) if neuron_name in f]
 		if not neuron_files: return None
