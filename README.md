@@ -54,7 +54,7 @@ Efferent projections from the secondary motor cortex.
 
 
 ## Referencing Brain Render
-If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please accessknowledge BrainRender's contribution.
+If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution.
 
 
 # Similar tools
