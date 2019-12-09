@@ -188,11 +188,15 @@ class NeuronsParser(Paths):
 				soma_region = self.scene.get_structure_parent(self.alleninfo.loc[self.alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
 			else:
 				self.alleninfo = None
-				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))['acronym']
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))
+				if soma_region is not None:
+					soma_region = soma_region['acronym']
 		elif soma_region is None:
 			self.alleninfo = None
 			if soma is not None:
-				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))['acronym']
+				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))
+				if soma_region is not None:
+					soma_region = soma_region['acronym']
 			else:
 				raise ValueError("You need to pass either a neuron, or a soma region or a soma")
 		else:
@@ -263,6 +267,7 @@ class NeuronsParser(Paths):
 	def _cache_neuron(self, neuron_actors, neuron_name):
 		if not neuron_name or neuron_name is None: return
 		for neurite, actor in neuron_actors.items():
+			if actor is None: continue
 			fl = os.path.join(self.morphology_cache, neuron_name+"_"+neurite+".vtk")
 			if isinstance(actor, list):
 				if not actor: continue
@@ -274,15 +279,24 @@ class NeuronsParser(Paths):
 	def _load_cached_neuron(self, neuron_name):
 		if not neuron_name or neuron_name is None:
 			return None
-		allowed_components = ['soma', 'axon', 'dendrites']
+
+		if self.render_neurites:
+			allowed_components = ['soma', 'axon', 'dendrites']
+			skipped_components = []
+		else:
+			allowed_components = ['soma']
+			skipped_components = ['axon', 'dendrites']
+
 		neuron_files = [f for f in listdir(self.morphology_cache) if neuron_name in f]
 		if not neuron_files: return None
 		else:
 			neuron_actors = {}
 			for f in neuron_files:
 				component = os.path.split(f)[-1].split(".")[0].split("_")[-1]
-				if component not in allowed_components:
+				if component not in allowed_components and component not in skipped_components:
 					raise ValueError("Weird file name, unsure what to do: {}".format(f))
+				elif component not in allowed_components and component in skipped_components:
+					continue
 				neuron_actors[component] = load(f)
 			return neuron_actors
 
@@ -329,6 +343,7 @@ class NeuronsParser(Paths):
 		"""
 		if SMOOTH_NEURONS:
 			for k, actors in neuron_actors.items():
+				if actors is None: continue
 				if not isinstance(actors, list):
 					actors.smoothLaplacian()
 				else:
@@ -408,6 +423,8 @@ class NeuronsParser(Paths):
 		
 		# merge actors' meshes to make rendering faster
 		merged = merge(*actors)
+		if merged is None:
+			return None, None
 		merged.color(color)
 
 		# get regions the neurites go through

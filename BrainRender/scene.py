@@ -431,6 +431,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
         elif isinstance(neurons, list):
+            if not neurons:
+                print("Didn't find any neuron to render.")
+                return
             if not isinstance(neurons[0], str):
                 neurons = edit_neurons(neurons, **kwargs)
                 self.actors["neurons"].extend(neurons)
@@ -486,7 +489,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False, 
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
-                        VIP_regions=[], VIP_color="red", others_color="white", include_all_inj_regions=False,
+                        VIP_regions=[], VIP_color=None, others_color="white", include_all_inj_regions=False,
                         extract_region_from_inj_coords=False, display_injection_volume=True):
         """[Edit neurons that have already been rendered. Change color, mirror them etc.]
         
@@ -522,7 +525,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             if not isinstance(tractography[0], dict):
                 raise ValueError("the 'tractography' variable passed must be a list of dictionaries")
 
-        if not isinstance(VIP_regions, list): raise ValueError("VIP_regions should be a list of acronyms")
+        if not isinstance(VIP_regions, list): 
+            raise ValueError("VIP_regions should be a list of acronyms")
 
         # check coloring mode used and prepare a list COLORS to use for coloring stuff
         if color_by == "manual":
@@ -548,14 +552,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             COLORS = [self.get_region_color(t['structure-abbrev']) for t in tractography]
 
         elif color_by == "target_region":
-            if not check_colors(VIP_color) or not check_colors(others_color): raise ValueError("Invalid VIP or other color passed")
-            try:
-                if include_all_inj_regions:
-                    COLORS = [VIP_color if is_any_item_in_list( [x['abbreviation'] for x in t['injection-structures']], VIP_regions) else others_color for t in tractography]
-                else:
-                    COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
-            except:
-                raise ValueError("Something went wrong while getting colors for tractography")
+            if VIP_color is not None:
+                if not check_colors(VIP_color) or not check_colors(others_color): 
+                    raise ValueError("Invalid VIP or other color passed")
+                try:
+                    if include_all_inj_regions:
+                        COLORS = [VIP_color if is_any_item_in_list( [x['abbreviation'] for x in t['injection-structures']], VIP_regions)\
+                            else others_color for t in tractography]
+                    else:
+                        COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+                except:
+                    raise ValueError("Something went wrong while getting colors for tractography")
+            else:
+                COLORS = [self.get_region_color(t['structure-abbrev']) if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
         else:
             raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
         
@@ -590,7 +599,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 alpha = TRACTO_ALPHA
 
-            if alpha == 0: continue # skip transparent ones
+            if alpha == 0: 
+                continue # skip transparent ones
 
             # check if we need to manually check injection coords
             if extract_region_from_inj_coords:
