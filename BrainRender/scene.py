@@ -316,8 +316,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         return self.root
 
-    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None, 
-                        colors=None, use_original_color=False, alpha=None, hemisphere=None): 
+    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+                        colors=None, use_original_color=False, alpha=None, hemisphere=None, **kwargs): 
         """[Adds rendered brain regions with data from the Allen brain atlas. ]
         
         Arguments:
@@ -392,14 +392,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 alpha = _alpha
 
             # Load the object file as a mesh and store the actor
-
             if hemisphere is not None:
                 if hemisphere.lower() == "left" or hemisphere.lower() == "right":
                     obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
             else:
                 obj = self.plotter.load(obj_file, c=color, alpha=alpha) 
 
-            self.actors["regions"][region] =obj
+            actors_funcs.edit_actor(obj, **kwargs)
+
+            self.actors["regions"][region] = obj
 
     def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None, 
                     display_axon_regions=False, 
