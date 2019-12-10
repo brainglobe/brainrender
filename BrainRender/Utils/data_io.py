@@ -35,9 +35,6 @@ def listdir(fld):
 
 	return [os.path.join(fld, f) for f in os.listdir(fld)]
 
-def strip_path(path):
-    return path.strip('/').strip('\\').split('/')[-1].split('\\')
-
 def load_json(filepath):
 	if not os.path.isfile(filepath) or not ".json" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
 	with open(filepath) as f:
