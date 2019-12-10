@@ -219,22 +219,32 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return coms
 
     def get_n_rando_points_in_region(self, region, N, max_iters = 1000000):
+        """
+            [Gets N random points inside (or on the surface) of the mesh defining a brain region.
+            The fast method returns a random subset of the points that define the mesh, therefore the points
+            are on the surface of the mesh and not inside the volume. The slow method is better but slow.]
+
+            Arguments:
+                region {[str]} -- [acronym of the brain region]
+                N {[int]} -- [numner of points to return]
+            
+            Keyword Arguments:
+                max_iters {[int]}  -- [stop the slow method if it exceeds this number of iterations]
+        """
         if region not in self.actors['regions']:
             raise ValueError("Region {} needs to be rendered first.".format(region))
         
         region_mesh = self.actors['regions'][region]
         region_bounds = region_mesh.bounds()
 
-        points, niters = [], 0
-        while len(points) < N and niters < max_iters:
-                x = np.random.randint(region_bounds[0], region_bounds[1])
-                y = np.random.randint(region_bounds[2], region_bounds[3])
-                z = np.random.randint(region_bounds[4], region_bounds[5])
-                p = [x, y, z]
-                if region_mesh.isInside(p):
-                    points.append(p)
-                niters += 1
-        return points
+        X = np.random.randint(region_bounds[0], region_bounds[1], size=10000)
+        Y = np.random.randint(region_bounds[2], region_bounds[3], size=10000)
+        Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
+        pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
+
+        ipts = region_mesh.insidePoints(pts)
+        return random.choices(ipts, k=N)
+
 
     def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
         """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
