@@ -85,4 +85,4 @@ def post_mouselight(url, query=None, clean=False, attempts=3):
 		else:
 			return jreq
 	else:
-		raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+		raise Exception("Query failed to run by returning code of {}. {} -- \n\n{}".format(request.status_code, query, request.text))

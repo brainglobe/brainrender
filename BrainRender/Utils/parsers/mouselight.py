@@ -39,7 +39,6 @@ class NeuronsParser(Paths):
 
 		Paths.__init__(self, paths_file=paths_file)
 
-
 	def render_neurons(self, ml_file, **kwargs):
 		"""[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website, 
 			this function creates VTKplotter actors that can be used to render the neurons, returns them as nested dictionaries]
@@ -274,7 +273,6 @@ class NeuronsParser(Paths):
 				else:
 					raise ValueError("Something went wrong while saving the actor")
 			actor.write(fl)
-
 
 	def _load_cached_neuron(self, neuron_name):
 		if not neuron_name or neuron_name is None:

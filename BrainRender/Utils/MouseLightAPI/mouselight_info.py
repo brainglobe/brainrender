@@ -94,22 +94,18 @@ def mouselight_structures_identifiers():
 	structures_identifiers = pd.DataFrame.from_dict(keys)
 	return structures_identifiers
 
-def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None):
-	"""
-		[Download neurons metadata from the API. The downloaded metadata can be filtered to keep only
-		the neurons whose soma is in a list of user selected brain regions.]
 
-		Keyword arguments:
-			filterby {[str]} -- [Accepted values: "soma". If it's "soma", neurons are kept only when their soma
-									is in the list of brain regions defined by filter_regions] {(default:None)}
-			filter_regions {[list]} -- [List of brain regions acronyms. If filtering neurons, these specify the filter criteria.] {(default:None)}
+def make_query(filterby=None, filter_regions=None, invert=False):
+	# !!!! THIS FEATURE IS STILL VERY MUCH EXPERIMENTAL
 	"""
-	# Download all metadata
-	print("Querying MouseLight API...")
-	url = mouselight_base_url + "graphql"
-	query = """
- 			query {
-				searchNeurons{
+		[Constructs the strings used to submit graphql queries to the mouse light api]
+
+		Keyword Arguments:
+			filterby {[str]} -- [soma, axon on dendrite. Search by neurite structure]
+			filter_regions {[list, tuple]} -- [list of strings. Acronyms of brain regions to use for query]
+			invert {[bool]} -- [default False. If true the inverse of the query is return (i.e. the neurons NOT in a brain region)]
+	"""
+	searchneurons = """
 				queryTime
 				totalCount
 				
@@ -118,7 +114,7 @@ def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None):
 				id
 				idNumber
 				idString
-				  
+				
 				brainArea{
 					id
 					acronym
@@ -137,25 +133,104 @@ def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None):
 					radius
 					brainArea{
 						id
-					  	acronym
+						acronym
 					}
 					sampleNumber
 					parentNumber
 					
 					}
-				  
-				  id
-				  tracingStructure{
+				
+				id
+				tracingStructure{
 					name
 					value
 					id
-				  }
 				}
 				}
 			}
-			}
-			"""
+	"""
 
+
+	if filterby is None or filterby == 'soma':
+		query = """
+					query {{
+						searchNeurons {{
+							{}
+						}}
+					}}
+					""".format(searchneurons)
+	else:
+		raise NotImplementedError("This feature is not available yet")
+		# Get predicate type
+		if filterby.lower() in ['axon','axons', 'end point', 'branch point']:     
+			predicateType = 1
+			
+		elif filterby.lower() in ['dendrite', 'apical dendrite', '(basal) dendrite']:
+			raise NotImplementedError
+			filterby = "(basal) dendrite"
+			predicateType = 2
+		else:
+			raise ValueError("invalid search by argument")
+
+		# Get neuron structure id
+		structures_identifiers = mouselight_structures_identifiers()
+		structureid = str(structures_identifiers.loc[structures_identifiers.name == filterby]['id'].values[0])
+
+		# Get brain regions ids
+		brainregions = mouselight_get_brainregions()
+		brainareaids = [str(brainregions.loc[brainregions.acronym == a]['id'].values[0]) for a in filter_regions]
+
+		# Get inversion
+		if invert:
+			invert = "true"
+		else:
+			invert = "false"
+
+		query = """
+		query {{
+			searchNeurons (
+				context: {{
+				scope: 6
+				predicates: [{{
+					predicateType: {predicate}
+					tracingIdsOrDOIs: []
+					tracingIdsOrDOIsExactMatch: false
+					tracingStructureIds: []
+					amount: 0
+		 			nodeStructureIds: ['{structure}']
+		 			brainAreaIds: {brainarea}
+					invert: {invert}
+					composition: 1
+					}}]
+				}}
+			) {{
+				{base}
+			}}
+		}}
+		""".format(predicate=predicateType,  structure=str(structureid), brainarea=brainareaids, invert=invert, base=searchneurons)
+
+		query = query.replace("\\t", "").replace("'", '"')
+	return query
+	
+
+
+
+def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None, **kwargs):
+	"""
+		[Download neurons metadata from the API. The downloaded metadata can be filtered to keep only
+		the neurons whose soma is in a list of user selected brain regions.]
+
+		Keyword arguments:
+			filterby {[str]} -- [Accepted values: "soma". If it's "soma", neurons are kept only when their soma
+									is in the list of brain regions defined by filter_regions] {(default:None)}
+			filter_regions {[list]} -- [List of brain regions acronyms. If filtering neurons, these specify the filter criteria.] {(default:None)}
+	"""
+	# Download all metadata
+	print("Querying MouseLight API...")
+	url = mouselight_base_url + "graphql"
+	query = make_query(filterby=filterby, filter_regions=filter_regions, **kwargs)
+
+	
 	res =  post_mouselight(url, query=query)['searchNeurons']
 	print("     ... fetched metadata for {} neurons in {}s".format(res["totalCount"], round(res["queryTime"]/1000, 2)))
 
@@ -252,6 +327,7 @@ def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None):
 			print("	... selected {} neurons out of {}".format(len(filtered_neurons), res["totalCount"]))
 			return filtered_neurons
 		else:
-			raise NotImplementedError("Filter neurons by {} is not implemented".format(filterby))
+			print("	... selected {} neurons out of {}".format(len(cleaned_nurons), res["totalCount"]))
+			return cleaned_nurons
 	else:
 		return cleaned_nurons

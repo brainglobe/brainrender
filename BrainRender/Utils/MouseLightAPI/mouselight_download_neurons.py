@@ -90,6 +90,8 @@ def download_neurons(neurons_metadata):
 			res = post_mouselight(url, query=query, clean=True)['tracings']
 			return res
 
+	if neurons_metadata is None or not neurons_metadata:
+		return None
 	print("Downloading neurons tracing data from Mouse Light")
 
 	# variables
