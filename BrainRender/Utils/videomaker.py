@@ -5,8 +5,6 @@ from vtkplotter import *
 import inspect
 import os
 
-from BrainRender.Utils.data_io import strip_path
-
 class VideoMaker:
     def __init__(self, scene, **kwargs):
         """[This class takes care of creating videos with animating scenes.]
@@ -68,8 +66,8 @@ class VideoMaker:
         self._setup_videos()
 
         # open a video file and force it to last 3 seconds in total
-        stripped = strip_path(self.savefile)
-        folder, name = os.path.join(*stripped[:-1]), stripped[-1]
+        folder = os.path.dirname(self.savefile)
+        name = os.path.basename(self.savefile)
         curdir = os.getcwd()
         os.chdir(folder)
         video = Video(name=name, duration=self.duration, fps=self.fps)
