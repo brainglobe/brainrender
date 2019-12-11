@@ -2,6 +2,7 @@ import numpy as np
 import os
 import random
 from vtkplotter import *
+import vtkplotter
 import copy
 from tqdm import tqdm
 import pandas as pd
@@ -171,16 +172,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
-    # ? OLD and slow
-    # def get_structure_from_coordinates(self, p0):
-    #     # given a set of coordinates, get the brain region they are in
-    #     parent = None
-    #     for struct in sorted(list(self.structures.acronym.values)):
-    #         mesh = self._get_structure_mesh(struct).decimate()
-    #         if mesh.isInside(p0):
-    #             parent = struct
-    #             break
-    #     return parent
     
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
@@ -1085,6 +1076,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             roll = azimuth = elevation = None
 
+        if len(vtkplotter.settings.plotter_instances) > 1:
+            self._rotate_actors()
+
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
@@ -1113,6 +1107,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params)
+
+        # Delete the plotter
+        plotter = vtkplotter.settings.plotter_instances[vtkplotter.settings.plotter_instances.index(self.plotter)]
+        plotter.closeWindow()
+        del plotter
 
     def _add_actors(self): # TODO fix this
         if self.plotter.renderer is None:
