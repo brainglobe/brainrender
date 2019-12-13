@@ -2,9 +2,7 @@ numpy
 pandas
 vtkplotter
 vtk
-jupyter
 allensdk
-k3d
 tqdm
 pyyaml
 brainio
