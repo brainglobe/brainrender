@@ -102,19 +102,11 @@ class VideoMaker:
         """
         self._setup_videos()
 
-        # check if the custom function takes scene as a keyword argument
-        sig =  inspect.signature(videofunc)
-        kwargs = [p.name for p in sig.parameters.values() if p.kind == p.KEYWORD_ONLY]
-        if 'scene' not in kwargs:
-            raise ValueError("The custom video function should have a keyword argument called 'scene'")
-        if 'video' not in kwargs:
-            raise ValueError("The custom video function should have a keyword argument called 'video'")
-
         # open a video file and force it to last 3 seconds in total
         video = Video(name=self.savefile, duration=self.duration, fps=self.fps)
 
         # run custom function
-        video = videofunc(scene=scene, video=video)
+        video = videofunc(scene=self, video=video)
 
         if video is None: raise ValueError("The custom video function didn't return anything. It must return the video object so that it can be closed properly.")
 
