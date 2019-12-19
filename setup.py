@@ -9,7 +9,7 @@ requirements = [
     "tqdm",
     "pyyaml",
     "scikit-image",
-    "brainio",
+    "brainio>=0.0.9",
 ]
 
 setup(
