@@ -21,6 +21,7 @@ from BrainRender.Utils.data_io import send_query, connected_to_internet
 
 # %%
 class ImageDownload(SvgApi, ImageDownloadApi):
+    """ """
     # useful tutorial: https://allensdk.readthedocs.io/en/latest/_static/examples/nb/image_download.html
     def __init__(self):
         SvgApi.__init__(self)           # https://github.com/AllenInstitute/AllenSDK/blob/master/allensdk/api/queries/svg_api.py
@@ -48,26 +49,62 @@ class ImageDownload(SvgApi, ImageDownloadApi):
 
     # UTILS
     def get_atlas_by_name(self, atlas_name):
+        """
+
+        :param atlas_name: 
+
+        """
         if not atlas_name in self.atlases_names: raise ValueError("Available atlases: {}".format(self.atlases_names))
         return self.atlases.loc[self.atlases['name'] == atlas_name].id.values[0]
 
     def get_products_by_species(self, species):
+        """
+
+        :param species: 
+
+        """
         return self.products.loc[self.products.species == species]
 
     def get_experimentsid_by_productid(self, productid, **kwargs):
+        """
+
+        :param productid: 
+        :param **kwargs: 
+
+        """
         # for more details: https://github.com/AllenInstitute/AllenSDK/blob/master/allensdk/api/queries/image_download_api.py
         return pd.DataFrame(self.get_section_data_sets_by_product([productid], **kwargs))
 
     def get_experimentimages_by_expid(self, expid):
+        """
+
+        :param expid: 
+
+        """
         # expid should be a section dataset id
         return pd.DataFrame(self.section_image_query(expid))
 
     def get_atlasimages_by_atlasid(self, atlasid):
+        """
+
+        :param atlasid: 
+
+        """
         if not isinstance(atlasid, int): 
             raise ValueError("Atlas id should be an integer not: {}".format(atlasid))
         return pd.DataFrame(self.atlas_image_query(atlasid))
 
     def download_images_by_imagesid(self, savedir, imagesids, downsample=0, annotated=True, snames=None,  atlas_svg=True):
+        """
+
+        :param savedir: 
+        :param imagesids: 
+        :param downsample:  (Default value = 0)
+        :param annotated:  (Default value = True)
+        :param snames:  (Default value = None)
+        :param atlas_svg:  (Default value = True)
+
+        """
         if not os.path.isdir(savedir):
             os.mkdir(savedir)
         
@@ -100,6 +137,13 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         os.chdir(curdir)
 
     def download_images_by_atlasid(self, savedir, atlasid, **kwargs):
+        """
+
+        :param savedir: 
+        :param atlasid: 
+        :param **kwargs: 
+
+        """
         imgsids = self.get_atlasimages_by_atlasid(atlasid)['id']
         imgs_secs_n = self.get_atlasimages_by_atlasid(atlasid)['section_number']
 

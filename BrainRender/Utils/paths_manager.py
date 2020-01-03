@@ -4,11 +4,12 @@ from .data_io import load_yaml
 
 class Paths:
     def __init__(self, paths_file=None):
-        """[Parses a YAML file to get data folders paths]
-        
-        Keyword Arguments:
-            path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
-        """
+    """
+    Parses a YAML file to get data folders paths. Stores paths to a number of folders used throughtout BrainRender. 
+    Other classes (e.g. BrainRender.Scene) subclass Paths.
+    
+    :argument paths_file: Path to a YAML file specifying paths to data folders, to replace default paths, which is used if None is used. 
+    """
         if paths_file is None:
             self.paths_file = "default_paths.yml"
         else:

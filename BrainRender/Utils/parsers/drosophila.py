@@ -10,10 +10,22 @@ from BrainRender.variables import *
 
 
 def get_drosophila_regions_metadata(metadata_fld):
+    """
+
+    :param metadata_fld: 
+
+    """
     return pd.read_pickle(os.path.join(metadata_fld,"drosophila_structures.pkl"))
 
 
 def get_drosophila_mesh_from_region(region, paths,  **kwargs):
+    """
+
+    :param region: 
+    :param paths: 
+    :param **kwargs: 
+
+    """
     if not isinstance(region, (tuple, list)):
         region = [region]
         check = False

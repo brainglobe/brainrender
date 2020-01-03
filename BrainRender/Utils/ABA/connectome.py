@@ -16,8 +16,9 @@ from BrainRender.Utils.paths_manager import Paths
 
 
 class ABA(Paths):
-    """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees, 
+    """[This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees,
     experimental metadata and results, tractography data etc. ]
+
 
     """
     # useful vars for analysis    
@@ -61,6 +62,7 @@ class ABA(Paths):
 
     ####### GET EXPERIMENTS DATA
     def get_structures_sets(self):
+        """ """
         summary_structures = self.structure_tree.get_structures_by_set_id([167587189])  # main summary structures
         summary_structures = [s for s in summary_structures if s["acronym"] not in self.excluded_regions]
         self.structures = pd.DataFrame(summary_structures)
@@ -82,19 +84,18 @@ class ABA(Paths):
             self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
 
     def print_structures_list_to_text(self):
+        """ """
         s = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
         with open('all_regions.txt', 'w') as o:
             for acr, name in zip(s.acronym.values, s['name'].values):
                 o.write("({}) -- {}\n".format(acr, name))
 
     def load_all_experiments(self, cre=False):
-        """
-            This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results 
-            as pickled pandas dataframes. The process is slow, but the ammount of disk space necessary to save the data is small, 
-            so it's worth downloading all the experiments at once to speed up subsequent analysis. 
+        """This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results
+            as pickled pandas dataframes. The process is slow, but the ammount of disk space necessary to save the data is small,
+            so it's worth downloading all the experiments at once to speed up subsequent analysis.
 
-            params:
-                cre [Bool] - default (False). Set to true if you want to download experimental data from injections in cre driver lines
+        :param cre: Bool (Default value = False)
 
         """
         
@@ -118,16 +119,20 @@ class ABA(Paths):
             structure_unionizes.to_pickle(os.path.join(self.output_data, "{}.pkl".format(acronym)))
     
     def print_structures(self):
+        """ """
         acronyms, names = self.structures.acronym.values, self.structures['name'].values
         sort_idx = np.argsort(acronyms)
         acronyms, names = acronyms[sort_idx], names[sort_idx]
         [print("({}) - {}".format(a, n)) for a,n in zip(acronyms, names)]
 
     def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
-        """
-            [Returns data about experiments whose injection was in the SOI, structure of interest]
-            Arguments:
-                SOI {[str]} -- [acronym of the structure of interest to look at]
+        """[Returns data about experiments whose injection was in the SOI, structure of interest]
+
+        :param SOI: str
+        :param *args: 
+        :param source:  (Default value = True)
+        :param **kwargs: 
+
         """
         """
             list of possible kwargs
@@ -170,9 +175,24 @@ class ABA(Paths):
                                             primary_structure_only=primary_structure_only))
 
     def experiments_target_search(self, *args, **kwargs):
+        """
+
+        :param *args: 
+        :param **kwargs: 
+
+        """
         return self.experiments_source_search(*args, source=False, **kwargs)
 
     def fetch_experiments_data(self, experiments_id, *args, average_experiments=False, base_structures=True, **kwargs):
+        """
+
+        :param experiments_id: 
+        :param *args: 
+        :param average_experiments:  (Default value = False)
+        :param base_structures:  (Default value = True)
+        :param **kwargs: 
+
+        """
         if isinstance(experiments_id, np.ndarray):
             experiments_id = [int(x) for x in experiments_id]
         elif not isinstance(experiments_id, list): 
@@ -205,9 +225,10 @@ class ABA(Paths):
     ####### ANALYSIS ON EXPERIMENTAL DATA
     def analyze_efferents(self, SOI, projection_metric = None):
         """[Loads the experiments on SOI and looks at average statistics of efferent projections]
-        
-        Arguments:
-            SOI {[str]} -- [acronym of the structure of interest to look at]
+
+        :param SOI: str
+        :param projection_metric:  (Default value = None)
+
         """
         if projection_metric is None: 
             projection_metric = self.projection_metric
@@ -243,9 +264,10 @@ class ABA(Paths):
 
     def analyze_afferents(self, SOI, projection_metric = None):
         """[Loads the experiments on SOI and looks at average statistics of afferent projections]
-        
-        Arguments:
-            SOI {[str]} -- [structure of intereset]
+
+        :param SOI: str
+        :param projection_metric:  (Default value = None)
+
         """
         if projection_metric is None: 
             projection_metric = self.projection_metric
@@ -282,13 +304,13 @@ class ABA(Paths):
         
         Keyword Arguments:
             p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
-        
-        Raises:
-            ValueError: [description]
-            ValueError: [description]
-        
-        Returns:
-            [type] -- [description]
+
+        :param p0:  (Default value = None)
+        :param **kwargs: 
+        :returns: [type] -- [description]
+        :raises ValueError: [description]
+        :raises ValueError: [description]
+
         """
 
         # check args
@@ -308,11 +330,12 @@ class ABA(Paths):
 
     ### OPERATIONS ON STRUCTURE TREES
     def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
-        """
-            [Get's the ancestors of the region(s) passed as arguments]
-        
-        Arguments:
-            regions {[str, list]} -- [List of acronyms of brain regions]
+        """[Get's the ancestors of the region(s) passed as arguments]
+
+        :param regions: str
+        :param ancestors:  (Default value = True)
+        :param descendants:  (Default value = False)
+
         """
 
         if not isinstance(regions, list):
@@ -326,9 +349,19 @@ class ABA(Paths):
             return ancestors
 
     def get_structure_descendants(self, regions):
+        """
+
+        :param regions: 
+
+        """
         return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
 
     def get_structure_from_coordinates(self, p0):
+        """
+
+        :param p0: 
+
+        """
             voxel = np.round(np.array(p0) / self.resolution).astype(int)
             try:
                 structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]

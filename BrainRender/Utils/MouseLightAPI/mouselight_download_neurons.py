@@ -14,16 +14,15 @@ from BrainRender.Utils.webqueries import *
 """
 
 def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
-	"""[Creates a .json file that can be read by the mouselight parser.]
+    """[Creates a .json file that can be read by the mouselight parser.]
 
-		Arguments:
-			neuron {[dict]} -- [A dictionary with all the information about a neuron as obtained from querying http://ml-neuronbrowser.janelia.org/graphql]
-			file_path {[st]} -- [path where to save the .json file]
+    :param neuron: dict
+    :param file_path: st
+    :param Keyword: arguments
+    :param axon_tracing: list (Default value = None)
+    :param dendrite_tracing: list (Default value = None)
 
-		Keyword arguments:
-			axon_tracing {[list]} -- [List of dictionaries with nodes data]
-			dendrite_tracing {[list]} -- [List of dictionaries with nodes data]
-	"""
+    """
 	# parse axon
 	if axon_tracing is not None:
 		nodes = axon_tracing[0]['nodes']
@@ -77,15 +76,20 @@ def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
 		json.dump(content, f)
 
 def download_neurons(neurons_metadata):
-	"""
-	[Given a list of neurons metadata, as obtained by http://ml-neuronbrowser.janelia.org/graphql using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata, 
-		this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
+    """[Given a list of neurons metadata, as obtained by http://ml-neuronbrowser.janelia.org/graphql using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata,
+    		this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
 
-	Arguments:
-		neurons_metadata {[list]} -- [List of dictionaries with neurons metadata, used to download the tracking data and save everything to file. ]
-	"""
+    :param neurons_metadata: list
+
+    """
 
 	def get(url, tracing_id): # send a query for a single tracing ID
+		"""
+
+		:param url: 
+		:param tracing_id: 
+
+		"""
 			query = {"ids":[tracing_id]}
 			res = post_mouselight(url, query=query, clean=True)['tracings']
 			return res

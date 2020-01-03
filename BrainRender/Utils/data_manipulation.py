@@ -1,8 +1,12 @@
 def get_coords(obj, mirror=False, mirror_ax='x'):
-    """[Get the XYZ coordinates of an object. Can take a dict, Pandas Dataframe or Series]
-    
-    Arguments:
-        obj {[dict, DataFrame, Series]} -- [some variable with fields X Y Z from which the coordinates can be extracted]
+    """
+    Takes coordinates in various format and turns them into what's expected from VTK plotter for rendering. 
+    Can take a dict, Pandas Dataframe or Series
+
+    :param obj: dict, pandas.DataFrame or pandas.Series
+    :param mirror:  if True, the coordinates are mirrored around mirror_ax (Default value = False)
+    :param mirror_ax: ax to be used for mirroring ['x', 'y', 'z'] (Default value = 'x')
+
     """
     if len(obj) == 0: raise ValueError
 
@@ -30,6 +34,12 @@ def get_coords(obj, mirror=False, mirror_ax='x'):
         return z,y,x
 
 def flatten_list(lst):
+    """
+    Flattens a list of lists
+    
+    :param lst: list
+
+    """
     flatten = []
     for item in lst:
         if isinstance(item, list):
@@ -39,6 +49,13 @@ def flatten_list(lst):
     return flatten
 
 def is_any_item_in_list(L1, L2):
+    """
+    Checks if an item in a list is in another  list
+
+    :param L1: 
+    :param L2: 
+
+    """
     # checks if any item of L1 is also in L2 and returns false otherwise
     inboth = [i for i in L1 if i in L2]
     if inboth:
@@ -48,11 +65,13 @@ def is_any_item_in_list(L1, L2):
 
 def get_slice_coord(bounds, n):
     """
-        # Given the bounds of an actor, return the point that 
-        # corresponds to the n% of the bounds range
+    Given the bounds of an actor, return the point that
+    corresponds to the n% of the bounds range
+    
 
-        bounds should be a list of two floats
-        n should be a float in range 0, 1
+    :param bounds: should be a list of two floats
+    :param n: n should be a float in range 0, 1
+
     """
     if not isinstance(bounds,(list, tuple)) or not isinstance(bounds[0],float) or not isinstance(bounds[1],float):
         raise ValueError("bounds should be a list or tuple of floats: {}".format(bounds))
@@ -68,6 +87,14 @@ def get_slice_coord(bounds, n):
     return b0 + delta*n
 
 def mirror_actor_at_point(actor, point, axis='x'):
+    """
+    Mirror an actor around a point
+
+    :param actor: 
+    :param point: 
+    :param axis:  (Default value = 'x')
+
+    """
     if not isinstance(actor, dict):
         coords = actor.coordinates()
         if axis == 'x':

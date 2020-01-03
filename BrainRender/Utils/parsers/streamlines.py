@@ -20,23 +20,22 @@ from BrainRender.Utils.ABA.connectome import ABA
 
 
 class StreamlinesAPI(ABA):
-    """
-        [Takes care of downloading streamliens data and other useful stuff]
-    """
+    """[Takes care of downloading streamliens data and other useful stuff]"""
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
 
     def __init__(self):
         ABA.__init__(self) # get allen brain atlas methods
 
     def download_streamlines_for_region(self, region, *args, **kwargs):
-        """
-            [Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
+        """[Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
             were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
             are selected for only WT mice and onl when the region was the primary injection target. Look at "ABA.experiments_source_search"
             to see how to change this behaviour.]
 
-            Arguments:
-                region {[str]} -- [acronym for a brain region]
+        :param region: str
+        :param *args: 
+        :param **kwargs: 
+
         """
         # Get experiments whose injections were targeted to the region
         region_experiments = self.experiments_source_search(region, *args, **kwargs)
@@ -46,15 +45,15 @@ class StreamlinesAPI(ABA):
             return [], [] # <- there were no experiments in the target region 
 
     def download_streamlines_to_region(self, p0, *args,  mouse_line = "wt", **kwargs):
-        """
-            [Using the Allen Mouse Connectivity data and corresponding API, this function finds injection experiments
+        """[Using the Allen Mouse Connectivity data and corresponding API, this function finds injection experiments
             which resulted in fluorescence being found in the target point, then downloads the streamlines data.]
 
-            Arguments:
-                p0 {[list, np.array]} -- [List of 3 integers defining target coordinates]
+        :param p0: list
+        :param Keyword: arguments
+        :param mouse_line: str (Default value = "wt")
+        :param *args: 
+        :param **kwargs: 
 
-            Keyword arguments:
-                mouse_line {[str, list]} -- [list of string with names to use to filter the results of the experiments search]
         """
         experiments = pd.DataFrame(self.get_projection_tracts_to_target(p0=p0))
         if mouse_line == "wt":
@@ -69,19 +68,25 @@ class StreamlinesAPI(ABA):
 
     @staticmethod
     def make_url_given_id(expid):
+        """
+
+        :param expid: 
+
+        """
         return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(expid)
 
     def extract_ids_from_csv(self, csv_file, download=False, **kwargs):
-        """
-            [Parse CSV file to extract experiments IDs and link to downloadable streamline data
-
+        """[Parse CSV file to extract experiments IDs and link to downloadable streamline data
+        
             Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
-            extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl. 
+            extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl.
             Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
             ]
 
-            Arguments:
-                csv_file {[str]} --  [Path to a csv file.]
+        :param csv_file: str
+        :param download:  (Default value = False)
+        :param **kwargs: 
+
         """
 
         try:
@@ -114,13 +119,12 @@ class StreamlinesAPI(ABA):
             return self.download_streamlines(data.id.values, **kwargs)
 
     def download_streamlines(self, eids, streamlines_folder=None):
-        """
-            [Given a list of expeirmental IDs, it downloads the streamline data from the https://neuroinformatics.nl cache and saves them as 
+        """[Given a list of expeirmental IDs, it downloads the streamline data from the https://neuroinformatics.nl cache and saves them as
             json files. ]
 
-            Arguments:
-                eids {[list, np.array, tuple]} -- [list of experiments IDs (either integers or strings)]
-                streamlines_folder {[str]} -- [path to folder in which to store the streamlines data, if None the default is used.]
+        :param eids: list
+        :param streamlines_folder: str (Default value = None)
+
         """
         if streamlines_folder is None:
             streamlines_folder = self.streamlines_cache
@@ -156,18 +160,18 @@ class StreamlinesAPI(ABA):
 
 
 def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
-    """
-        [Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.]
+    """[Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.]
 
-        Arguments:
-            filepath {[str, list]} -- [Either a path to a .json file or a list of file paths]
-            data {[pd.DataFrame, list]} -- [Either a dataframe or a list of dataframes with streamlines data]
+    :param filepath: str (Default value = None)
+    :param data: pd (Default value = None)
+    :param Keyword: arguments
+    :param color: str (Default value = 'ivory')
+    :param alpha: float (Default value = .8)
+    :param radius: int (Default value = 10)
+    :param show_injection_site: bool (Default value = True)
+    :param *args: 
+    :param **kwargs: 
 
-        Keyword arguments:
-            color {[str, color]} -- [Color of the streamlines actors]
-            alpha {[float]} -- [range 0,1  transparency of the streamlines]
-            radius {[int]} -- [radius of the tubes used to render the streamlines]
-            show_injection_site {[bool]} -- [If true a sphere is rendered at the coordinates for the injection site]
     """
     if filepath is not None and data is None:
         data = load_json(filepath)

@@ -14,6 +14,12 @@ mouselight_base_url = "http://ml-neuronbrowser.janelia.org/"
 
 
 def request(url):
+    """
+	Sends a request to a url
+
+    :param url: 
+
+    """
 	if not connected_to_internet():
 		raise ConnectionError("You need to have an internet connection to send requests.")
 	response = requests.get(url)
@@ -24,9 +30,12 @@ def request(url):
 	raise ValueError(exception_string)
 
 def query_mouselight(query):
-	"""
-		[Sends a GET request, not currently used for anything.]
-	"""
+    """
+	Sends a GET request, not currently used for anything.
+
+    :param query: 
+
+    """
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 	
@@ -50,9 +59,15 @@ def query_mouselight(query):
 	raise ValueError(exception_string)
 
 def post_mouselight(url, query=None, clean=False, attempts=3):
-	"""
-		[sends a POST request to a user URL. Query can be either a string (in which case clean should be False) or a dictionary.]
-	"""
+    """
+	sends a POST request to a user URL. Query can be either a string (in which case clean should be False) or a dictionary.
+
+    :param url: 
+    :param query: string or dictionary with query   (Default value = None)
+    :param clean: if not clean, the query is assumed to be in JSON format (Default value = False)
+    :param attempts: number of attempts  (Default value = 3)
+
+    """
 	if not connected_to_internet():
 		raise ConnectionError("You need an internet connection for API queries, sorry.")
 

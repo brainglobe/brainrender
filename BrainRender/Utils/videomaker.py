@@ -7,7 +7,8 @@ import os
 
 class VideoMaker:
     def __init__(self, scene, **kwargs):
-        """[This class takes care of creating videos with animating scenes.]
+        """
+        This class takes care of creating videos with animating scenes.
         """
         self.scene = scene
 
@@ -23,13 +24,19 @@ class VideoMaker:
         self.default_niters = 50
 
     def update_params(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         self.savefile = kwargs.pop("savefile", self.savefile)
         self.duration = kwargs.pop("duration", self.duration)
         self.niters = kwargs.pop("niters", self.niters)
         self.fps = kwargs.pop("fps", self.fps)
 
     def _setup_videos(self):
-        """[Checks that variables useful for creating a video (e.g. fps) have been set, sets them as default parameters otherwise.]
+        """
+        Checks that variables useful for creating a video (e.g. fps) have been set, sets them as default parameters otherwise.
         """
         # check if scene is rendered
         if not self.scene.is_rendered:
@@ -56,12 +63,13 @@ class VideoMaker:
 
 
     def make_video(self, azimuth=0, elevation=0, roll=0):
-        """[Creates a video using user defined parameters]
-        
-        Keyword Arguments:
-            azimuth {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
-            elevation {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
-            roll {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
+        """
+        Creates a video using user defined parameters
+    
+        :param azimuth: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+        :param elevation: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+        :param roll: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+
         """
         self._setup_videos()
 
@@ -82,23 +90,11 @@ class VideoMaker:
         os.chdir(curdir)
 
     def make_video_custom(self, videofunc):
-        """[Let's users use a custom function to create the video. This function can do any manipulation of
-        video frames it wants, but it MUST have 'scene' and 'video' keyword arguments. The function must also return video object.]
-        
-        Arguments:
-            videofunc {[function]} -- [custom function used to generate frames]
-        
-        Raises:
-            ValueError: [Raises an error if videofunc doesn't have 'scene' and 'video' keyword arguments]
+        """
+        Let's users use a custom function to create the video. This function can do any manipulation of
+        video frames it wants, but it MUST have 'scene' and 'video' keyword arguments. The function must also return video object.
 
-
-            The content of the custom videofunc should look something like this:
-            def func(scene=None, video=None):
-                for i in range(100):
-                    scene.plotter.show()  
-                    scene.plotter.camera.Elevation(5)
-                    video.addFrame()
-                return video
+        :param videofunc: function
         """
         self._setup_videos()
 

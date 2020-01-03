@@ -12,6 +12,13 @@ from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 import vtk
 
 def connected_to_internet(url='http://www.google.com/', timeout=5):
+    """
+	Check that there is an internet connection
+
+    :param url: url to use for testing (Default value = 'http://www.google.com/')
+    :param timeout:  timeout to wait for [in seconds] (Default value = 5)
+
+    """
 	try:
 		_ = requests.get(url, timeout=timeout)
 		return True
@@ -20,6 +27,13 @@ def connected_to_internet(url='http://www.google.com/', timeout=5):
 	return False
 
 def send_query(query_string, clean=False):
+    """
+	Send a query/request to a website
+
+    :param query_string: string with query content
+    :param clean:  (Default value = False)
+
+    """
 	response = requests.get(query_string)
 	if response.ok:
 		if not clean:
@@ -30,53 +44,49 @@ def send_query(query_string, clean=False):
 		raise ValueError("Invalide query string: {}".format(query_string))
 
 def listdir(fld):
+    """
+	List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
+
+    :param fld: string, folder path
+
+    """
 	if not os.path.isdir(fld):
 		raise FileNotFoundError("Could not find directory: {}".format(fld))
 
 	return [os.path.join(fld, f) for f in os.listdir(fld)]
 
 def load_json(filepath):
+    """
+	Load a JSON file
+
+    :param filepath: path to a file
+
+    """
 	if not os.path.isfile(filepath) or not ".json" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
 	with open(filepath) as f:
 		data = json.load(f)
 	return data
 
 def load_yaml(filepath):
+    """
+	Load a YAML file
+
+    :param filepath: path to yaml file
+
+    """
 	if filepath is None or not os.path.isfile(filepath): raise ValueError("unrecognized file path: {}".format(filepath))
 	if not "yml" in filepath and not "yaml" in filepath: raise ValueError("unrecognized file path: {}".format(filepath))
 	return yaml.load(open(filepath), Loader=yaml.FullLoader)
 
-""" 
-import allensdk.core.swc as swc
-
-# if you ran the examples above, you will have a reconstruction here
-file_name = 'cell_types/specimen_485909730/reconstruction.swc'
-morphology = swc.read_swc(file_name)
-
-# subsample the morphology 3x. root, soma, junctions, and the first child of the root are preserved.
-sparse_morphology = morphology.sparsify(3)
-
-# compartments in the order that they were specified in the file
-compartment_list = sparse_morphology.compartment_list
-
-# a dictionary of compartments indexed by compartment id
-compartments_by_id = sparse_morphology.compartment_index
-
-# the root soma compartment 
-soma = morphology.soma
-
-# all compartments are dictionaries of compartment properties
-# compartments also keep track of ids of their children
-for child in morphology.children_of(soma):
-	print(child['x'], child['y'], child['z'], child['radius'])
-
-
-"""
-
-
-
 
 def load_volume_file(filepath, **kwargs):
+    """
+	Load a volume file (e.g., .nii) and return vtk actor
+
+    :param filepath: path to file
+    :param **kwargs: 
+
+    """
 	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
 	if ".x3d" in filepath.lower(): raise ValueError("BrainRender cannot use .x3d data as they are not supported by vtkplotter")
@@ -94,10 +104,4 @@ def load_volume_file(filepath, **kwargs):
 			raise ValueError("Could not load {}".format(filepath))
 
 	return act
-
-
-if __name__ == "__main__":
-	# testing load_neuron_swc
-	NEURONS_FILE = "Examples/example_files/AA0007.swc"
-	load_neuron_swc(NEURONS_FILE)
 

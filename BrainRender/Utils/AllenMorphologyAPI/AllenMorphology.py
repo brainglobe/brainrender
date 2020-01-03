@@ -13,6 +13,7 @@ from BrainRender.Utils.paths_manager import Paths
 from BrainRender.Utils.data_io import connected_to_internet
 
 class AllenMorphology(Paths):
+    """ """
     def __init__(self, *args, **kwargs):
         if not connected_to_internet():
             raise ConnectionError("You will need to be connected to the internet to use the AllenMorphology class")
@@ -30,9 +31,15 @@ class AllenMorphology(Paths):
         self.downloaded_neurons = self.get_downloaded_neurons()
 
     def get_downloaded_neurons(self):
+        """ """
         return [os.path.join(self.morphology_allen, f) for f in os.listdir(self.morphology_allen) if ".swc" in f]    
 
     def download_neurons(self, ids):
+        """
+
+        :param ids: 
+
+        """
         if isinstance(ids, np.ndarray):
             ids = list(ids)
         if not isinstance(ids, (list)): ids = [ids]

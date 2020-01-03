@@ -16,9 +16,7 @@ from BrainRender.Utils.data_manipulation import is_any_item_in_list#
 """
 
 def mouselight_api_info():
-	"""
-		[Get the number of cells available in the database]
-	"""
+    """[Get the number of cells available in the database]"""
 	# Get info from the ML API
 	url = mouselight_base_url + "graphql"
 
@@ -34,9 +32,7 @@ def mouselight_api_info():
 	print("{} neurons on MouseLight database. ".format(res['queryData']['totalCount']))
 
 def mouselight_get_brainregions():
-	"""
-		[ Get metadata about the brain brain regions as they are known by Janelia's Mouse Light. IDs and Names sometimes differ from Allen's CCF.]
-	"""
+    """[ Get metadata about the brain brain regions as they are known by Janelia's Mouse Light. IDs and Names sometimes differ from Allen's CCF.]"""
 	# Download metadata about brain regions from the ML API
 	url = mouselight_base_url + "graphql"
 	# query =  "systemSettings {apiVersion apiRelease neuronCount\}}"
@@ -67,10 +63,11 @@ def mouselight_get_brainregions():
 	return structures_data
 
 def mouselight_structures_identifiers():
-	"""
-		[When the data are downloaded as SWC, each node has a structure identifier ID to tell if it's soma, axon or dendrite.
-		BrainRender doesn't downlaod .swc from the API, but this might be useful for others or in the future.]
-	"""
+    """[When the data are downloaded as SWC, each node has a structure identifier ID to tell if it's soma, axon or dendrite.
+    		BrainRender doesn't downlaod .swc from the API, but this might be useful for others or in the future.]
+
+
+    """
 	# Download the identifiers used in ML neurons tracers
 	url = mouselight_base_url + "graphql"
 	# query =  "systemSettings {apiVersion apiRelease neuronCount\}}"
@@ -96,14 +93,18 @@ def mouselight_structures_identifiers():
 
 
 def make_query(filterby=None, filter_regions=None, invert=False):
-	"""
-		[Constructs the strings used to submit graphql queries to the mouse light api]
+    """[Constructs the strings used to submit graphql queries to the mouse light api]
+    
+    		Keyword Arguments:
+    			filterby {[str]} -- [soma, axon on dendrite. Search by neurite structure]
+    			filter_regions {[list, tuple]} -- [list of strings. Acronyms of brain regions to use for query]
+    			invert {[bool]} -- [default False. If true the inverse of the query is return (i.e. the neurons NOT in a brain region)]
 
-		Keyword Arguments:
-			filterby {[str]} -- [soma, axon on dendrite. Search by neurite structure]
-			filter_regions {[list, tuple]} -- [list of strings. Acronyms of brain regions to use for query]
-			invert {[bool]} -- [default False. If true the inverse of the query is return (i.e. the neurons NOT in a brain region)]
-	"""
+    :param filterby:  (Default value = None)
+    :param filter_regions:  (Default value = None)
+    :param invert:  (Default value = False)
+
+    """
 	searchneurons = """
 				queryTime
 				totalCount
@@ -215,15 +216,19 @@ def make_query(filterby=None, filter_regions=None, invert=False):
 
 
 def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None, **kwargs):
-	"""
-		[Download neurons metadata and data from the API. The downloaded metadata can be filtered to keep only
-		the neurons whose soma is in a list of user selected brain regions.]
+    """[Download neurons metadata and data from the API. The downloaded metadata can be filtered to keep only
+    		the neurons whose soma is in a list of user selected brain regions.]
+    
+    		Keyword arguments:
+    			filterby {[str]} -- [Accepted values: "soma". If it's "soma", neurons are kept only when their soma
+    									is in the list of brain regions defined by filter_regions] {(default:None)}
+    			filter_regions {[list]} -- [List of brain regions acronyms. If filtering neurons, these specify the filter criteria.] {(default:None)}
 
-		Keyword arguments:
-			filterby {[str]} -- [Accepted values: "soma". If it's "soma", neurons are kept only when their soma
-									is in the list of brain regions defined by filter_regions] {(default:None)}
-			filter_regions {[list]} -- [List of brain regions acronyms. If filtering neurons, these specify the filter criteria.] {(default:None)}
-	"""
+    :param filterby:  (Default value = None)
+    :param filter_regions:  (Default value = None)
+    :param **kwargs: 
+
+    """
 	# Download all metadata
 	print("Querying MouseLight API...")
 	url = mouselight_base_url + "graphql"

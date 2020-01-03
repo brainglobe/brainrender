@@ -11,9 +11,22 @@ from BrainRender.Utils.paths_manager import Paths
 
 
 def get_rat_regions_metadata(metadata_fld):
+    """
+
+    :param metadata_fld: 
+
+    """
     return pd.read_pickle(os.path.join(metadata_fld, "rat_structures.pkl"))
 
 def get_rat_mesh_from_region(region, paths, use_original_color=False, **kwargs):
+    """
+
+    :param region: 
+    :param paths: 
+    :param use_original_color:  (Default value = False)
+    :param **kwargs: 
+
+    """
     if not isinstance(region, (tuple, list)):
         region = [region]
         check = False
