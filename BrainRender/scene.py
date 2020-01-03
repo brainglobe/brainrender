@@ -26,15 +26,15 @@ from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region
 
 from BrainRender.Utils.image import image_to_surface
 
-"""
-    The code below aims to create a scene to which actors can be added or removed, changed etc..
-    It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
-    snapshots or animated videos. 
-    The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
-    and other classes within the same package. 
-"""
 
 class Scene(ABA):  # subclass brain render to have acces to structure trees
+    """ 
+        The code below aims to create a scene to which actors can be added or removed, changed etc..
+        It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of 
+        snapshots or animated videos. 
+        The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
+        and other classes within the same package. 
+    """
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
 
@@ -46,19 +46,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def __init__(self, brain_regions=None, regions_aba_color=False, 
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, 
                     display_inset=None, paths_file=None, add_screenshot_button=False):
-        """[Creates and manages a Plotter instance]
+        """
+            Creates and manages a Plotter instance
         
-        Keyword Arguments:
-            brain_regions {[list]} -- [list of brain regions acronyms or ID numebers to be added to the sceme] (default: {None})
-            regions_aba_color {[bool]} -- [If true use the Allen Brain Atlas regions coors] (default: {False})
-            
-            neurons {[str]} -- [path to JSON file for neurons to be rendered by mouselight_parser. Alternatively it can 
-                                    be a list of already rendered neurons' actors] (default: {None})
-            tracts {[list]} -- [list of tractography items, one per experiment] (default: {None})
-            add_root {[bool]} -- [if true add semi transparent brain shape to scene. If None the default setting is used] (default: {None})
-            path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None})
-            add_screenshot_button {[bool]} -- [If true it adds a button that is used to take screenshots] (default: {False})
-
+            :param brain_regions: list of brain regions acronyms to be added to the rendered scene (default value None)
+            :param regions_aba_color: if True, use the Allen Brain Atlas regions colors (default value None)
+            :param neurons: path to JSON or SWC file with data of neurons to be rendered [or list of files] (default value None)
+            :param tracts: list of JSON files with tractography data to be rendered (default value None)
+            :param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
+            :param verbose: if False less feedback is printed to screen (default value True)
+            :param jupyter: when using BrainRender in Jupyter notebooks, this should be set to True (default value False)
+            :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
+            :param paths_file: path to a JSON file with specified path to folders used to save data (default value None)
+            :param add_screenshot_button: if True a button is added to the scene to take screenshots of rendered data (default value None)
         """
         ABA.__init__(self, paths_file=paths_file)
 
@@ -112,6 +112,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     
     ####### UTILS
     def check_obj_file(self, structure, obj_file):
+        """
+        If the .obj file for a brain region hasn't been downloaded already, this function downloads it and saves it.
+
+        :param structure: string, acronym of brain region
+        :param obj_file: path to .obj file to save downloaded data. 
+
+        """
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
             try:
@@ -126,18 +133,37 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     @staticmethod
     def check_region(region):
+        """
+        Check that the string passed is a valid brain region name. 
+
+        :param region: string, acronym of a brain region according to the Allen Brain Atlas. 
+
+        """
         if not isinstance(region, int) and not isinstance(region, str):
             raise ValueError("region must be a list, integer or string, not: {}".format(type(region)))
         else: 
             return True
 
     def get_region_color(self, regions):
+        """
+        Gets the RGB color of a brain region from the Allen Brain Atlas.
+
+        :param regions:  list of regions acronyms. 
+
+        """
         if not isinstance(regions, list):
             return self.structure_tree.get_structures_by_acronym([regions])[0]['rgb_triplet']
         else:
             return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
 
     def get_structure_parent(self, acronyms):
+        """
+        Gets the parent of a brain region (or list of regions) from the hierarchical structure of the 
+        Allen Brain Atals. 
+
+        :param acronyms: list of acronyms of brain regions. 
+
+        """
         if not isinstance(acronyms, list):
             self.check_region(acronyms)
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
@@ -157,9 +183,24 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return parents
     
     def get_structure_childrens(self, acronyms):
+        """
+        Gets the children of a brain region (or list of regions) from the hierarchical structure of the 
+        Allen Brain Atals. 
+
+        :param acronyms:  list of acronyms of brain regions. 
+
+        """
         raise NotImplementedError()
 
     def _get_structure_mesh(self, acronym, plotter=None,  **kwargs):
+        """
+        Fetches the mesh for a brain region from the ALlen Brain Atlas SDK. 
+
+        :param acronym: string, acronym of brain region
+        :param plotter:  Optional. Use a vtk plotter different from the scene's default one (Default value = None)
+        :param **kwargs: 
+
+        """
         if plotter is None: 
             plotter = self.plotter
 
@@ -174,16 +215,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
-        """[Get the center of mass of the 3d mesh of  (or multiple) brain s. ]
-        
-        Arguments:
-            regions {[str, list]} -- [string or list of string with acronym of brain regions of interest]
-            unilateral {[bool]} -- [Get the CoM of the structure in just on hemisphere. Useful for lateralized structures like CA1. ] (default: {True})
-            hemisphere {[str]} -- [left or right hemisphere] (default: {"right"})
+        """
+        Get the center of mass of the 3d mesh of one or multiple brain regions.
 
-        Returns:
-            coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region. 
+        :param regions: str, list of brain regions acronyms
+        :param unilateral: bool, if True, the CoM is relative to one hemisphere (Default value = True)
+        :param hemisphere: str, if unilteral=True, specifies which hemisphere to use ['left' or 'right'] (Default value = "right")
+        :returns: coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region.
                                 If a list is passed then a dictionary is returned. ]
+
         """
 
         if not isinstance(regions, list): 
@@ -209,18 +249,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
-    def get_n_rando_points_in_region(self, region, N, max_iters = 1000000):
+    def get_n_rando_points_in_region(self, region, N):
         """
-            [Gets N random points inside (or on the surface) of the mesh defining a brain region.
-            The fast method returns a random subset of the points that define the mesh, therefore the points
-            are on the surface of the mesh and not inside the volume. The slow method is better but slow.]
+        Gets N random points inside (or on the surface) of the mesh defining a brain region.
 
-            Arguments:
-                region {[str]} -- [acronym of the brain region]
-                N {[int]} -- [numner of points to return]
-            
-            Keyword Arguments:
-                max_iters {[int]}  -- [stop the slow method if it exceeds this number of iterations]
+        :param region: str, acronym of the brain region.
+        :param N: int, number of points to return.
+
         """
         if region not in self.actors['regions']:
             raise ValueError("Region {} needs to be rendered first.".format(region))
@@ -238,11 +273,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
     def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
-        """[Regions meshes are loaded with both hemispheres' meshes. This function splits them in two. ]
-        
-        Arguments:
-            region {[str]} -- [acronym of the brain region]
-            hemisphere {[str]} -- [which hemispheres to return, options are "left", "right", and "both"]
+        """
+        Regions meshes are loaded with both hemispheres' meshes by default. 
+        This function splits them in two. 
+
+        :param region: str, actors of brain region
+        :param hemisphere: str, which hemisphere to return ['left', 'right' or 'both'] (Default value = "both")
+        :param color: color of each side's mesh. (Default value = None)
+        :param alpha: transparency of each side's mesh.  (Default value = None)
 
         """
         if color is None: color = ROOT_COLOR
@@ -267,6 +305,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return right
 
     def _get_inset(self, **kwargs):
+        """
+        Handles the rendering of the inset showing the outline of the whole brain (root) in a corner of the scene. 
+
+        :param **kwargs: 
+
+        """
         if "plotter" in list(kwargs.keys()):
             root = self.add_root(render=False, **kwargs)
             inset = root.clone().scale(.5)
@@ -285,14 +329,34 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ###### ADD  and EDIT ACTORS TO SCENE
     def add_vtkactor(self, actor):
+        """
+        Add a vtk actor to the scene
+
+        :param actor: 
+
+        """
         self.actors['others'].append(actor)
 
     def add_from_file(self, filepath, **kwargs):
+        """
+        Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files. 
+
+        :param filepath: path to the file. 
+        :param **kwargs: 
+
+        """
         actor = load_volume_file(filepath, **kwargs)
         self.actors['others'].append(actor)
         return actor
 
     def add_root(self, render=True, **kwargs):
+        """
+        adds the root the scene
+
+        :param render:  (Default value = True)
+        :param **kwargs: 
+
+        """
         if not render:
             self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
         else:
@@ -309,19 +373,21 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
                         colors=None, use_original_color=False, alpha=None, hemisphere=None, **kwargs): 
-        """[Adds rendered brain regions with data from the Allen brain atlas. ]
-        
-        Arguments:
-            brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
-        
-        Keyword Arguments:
-            VIP_regions {list} -- [list of regions acronyms for regions to render differently from other regions] (default: {None})
-            VIP_color {[str, color]} -- [Color of VIP regions] (default: {None})
-            colors {[str]} -- [Color of other's regions] (default: {None})
-            use_original_color {[bool]} -- [if true, color regions by the default allen color] (default: {False})
-            alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
-            hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
         """
+        Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered. 
+        To treat a subset of the rendered regions, specify which regions are VIP. Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
+
+        :param brain_regions: str list of acronyms of brain regions
+        :param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
+        :param VIP_color: if passed, this color is used for the VIP regions (Default value = None)
+        :param colors: str, color of rendered brian regions (Default value = None)
+        :param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
+        :param alpha: float, transparency of the rendered brain regions (Default value = None)
+        :param hemisphere: str (Default value = None)
+        :param **kwargs: 
+
+        """
+
         if VIP_regions is None:
             VIP_regions = self.VIP_regions
         if VIP_color is None:
@@ -396,20 +462,25 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None, 
                     display_axon_regions=False, 
                     display_dendrites_regions=False, **kwargs):
-        """[Adds rendered morphological data of neurons reconstructions downloaded from the Mouse Light project at Janelia. ]
-        
-        Arguments:
-            neurons {[str, list]} -- [Either a string to a JSON file with neurons data, or a list of neurons actors that have already been rendered.]
-        
-        Keyword Arguments:
-            display_soma_region, axon_regions_kwargs, dendrites_regions_kwargs {bool} -- [add the brain region in which the soma is to the scene, or where axons/dendrites go through] (default: {False})
-            soma_regions_kwargs {[dict]} -- [dictionary of keywards arguments to pass to self.add_brain_regions] (default: {None})
-        
-        Raises:
-            FileNotFoundError: [description]
-            ValueError: [description]
+        """
+        Adds rendered morphological data of neurons reconstructions downloaded from the Mouse Light project at Janelia (or other sources). Can accept rendered neurons
+        or a list of files to be parsed for rendering. Several arguments can be passed to specify how the neurons are rendered. 
+
+        :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
+        :param display_soma_region: if True, the region in which the neuron's soma is located is rendered (Default value = False)
+        :param soma_regions_kwargs: dict, specifies how the soma regions should be rendered (Default value = None)
+        :param display_axon_regions: if True, the regions through which the axons go through are rendered (Default value = False)
+        :param display_dendrites_regions: if True, the regions through which the dendrites go through are rendered  (Default value = False)
+        :param **kwargs: 
         """
         def runfile(parser, neuron_file, soma_regions_kwargs):
+            """
+
+            :param parser: 
+            :param neuron_file: 
+            :param soma_regions_kwargs: 
+
+            """
             neurons, regions = parser.render_neurons(neuron_file)
             self.actors["neurons"].extend(neurons)
 
@@ -457,12 +528,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
         return neurons
 
+
     def edit_neurons(self, neurons=None, copy=False, **kwargs): 
-        """[Edit neurons that have already been rendered. Change color, mirror them etc.]
-        
-        Keyword Arguments:
-            neurons {[list, vtkactor]} -- [lis t of neurons actors to edit, if None all neurons in the scene are edited] (default: {None})
-            copy {bool} -- [if true the neurons are copied first and then the copy is edited, otherwise the originals are edited] (default: {False})
+        """
+        Edit neurons that have already been rendered. Change color, mirror them etc.
+
+        :param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
+        :param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
+        :param **kwargs: 
+
         """
         only_soma = False
         if "mirror" in list(kwargs.keys()):
@@ -493,28 +567,24 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
                         VIP_regions=[], VIP_color=None, others_color="white", include_all_inj_regions=False,
                         extract_region_from_inj_coords=False, display_injection_volume=True):
-        """[Edit neurons that have already been rendered. Change color, mirror them etc.]
-        
-        Arguments:
-            tractography {[list]} -- [List of dictionaries with tractography data. To get the tractography data use ABA_analyzer.get_traget_projection_tracts_to_target]
+        """
+        Renders tractography data and adds it to the scene. A subset of tractography data can receive special treatment using the  with VIP regions argument:
+        if the injection site for the tractography data is in a VIP regions, this is colored differently. 
 
-        Keyword Arguments:
-            display_injection_structure {[Bool]} -- [If true the mesh for the injection structure is rendered] (default: {False})
-            colors {color, list} -- [If None default color is used. Alternatively can be either a color or list of colors] (default: {None})
-            display_onlyVIP_injection_structure {bool} -- [If true only the injection structures that are in VIP_regions are listed ] (default: {False})
-            color_by {str} -- [Specify how the tracts are colored (overrides colors).  options are:
-                        - manual: use the value of 'color'
-                        - region: color by the ABA RGB color of injection region
-                        - target_region: color tracts and regions in VIP_regions with VIP_coor and others with others_color] (default: {False})
-            include_all_inj_regions {bool} -- [If true use all regions marked as injection region, otherwise only the primary one] (default: {False})
-            extract_region_from_inj_coords {bool} -- [f True instead of using the allen provided injection region metadata extracts the injection structure from the coordinates.] (default: {False})            
+        :param tractography: list of dictionaries with tractography data
+        :param color: color of rendered tractography data
 
-            VIP_regions {list} -- [Optional. List of brain regions that can be rendered differently from 'others'] (default: {False})
-            VIP_color {str} -- [Color for VIP regions] 
-            others_color {str} -- [Color for 'others' regions] 
-            verbose {bool} -- [If true print useful info during rendering] (default: {True})
-            others_alpha {float} -- [Transparency of 'others' structures] (default: {False})
-            display_injection_volume {float} -- [If True a sphere is added to injection site with radius proportional to inj volume]
+        :param display_injection_structure: Bool, if True the injection structure is rendered (Default value = False)
+        :param display_onlyVIP_injection_structure: bool if true displays the injection structure only for VIP regions (Default value = False)
+        :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
+        :param others_alpha: float (Default value = 1)
+        :param verbose: bool (Default value = True)
+        :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
+        :param VIP_color: str, color to use for VIP data (Default value = None)
+        :param others_color: str, color for not VIP data (Default value = "white")
+        :param include_all_inj_regions: bool (Default value = False)
+        :param extract_region_from_inj_coords: bool (Default value = False)
+        :param display_injection_volume: float, if True a spehere is added to display the injection coordinates and volume (Default value = True)
         """
 
         # check argument
@@ -628,16 +698,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         self.actors['tracts'].extend(actors)
 
-    def add_streamlines(self, sl_file,  colorby=None, color_each=False, *args, **kwargs):
+    def add_streamlines(self, sl_file, *args, colorby=None, color_each=False,  **kwargs):
         """
-        [Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html]
-        Arguments:
-            sl_file {[str, list]} -- [Either a string to a JSON file with streamline data, or a list of json files.]
-        
-        Keyword Arguments:
-            colorby {[str]} -- [Acronym of brain region to use to color the streamline data] (default: {None})
-            color_each {[bool]} -- [If true streamlines for each experiment are shown in a different color. 
-                                    If a color is passed as color="colorname", shades of that color are used] (default: {False})
+        Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
+
+        :param sl_file: path to JSON file with streamliens data [or list of files]
+        :param colorby: str,  criteria for how to color the streamline data (Default value = None)
+        :param color_each: bool, if True, the streamlines for each injection is colored differently (Default value = False)
+        :param *args: 
+        :param **kwargs: 
 
         """
         color = None
@@ -702,10 +771,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.actors['tracts'].extend(streamlines)
 
     def add_injection_sites(self, experiments, color=None):
-        """[Creates Spherse at the location of injections with a volume proportional to the injected volume]
-        
-        Arguments:
-            experiments {[list]} -- [list of dictionaries with experiments metadata]
+        """
+        Creates Spherse at the location of injections with a volume proportional to the injected volume
+
+        :param experiments: list of dictionaries with tractography data
+        :param color:  (Default value = None)
+
         """
         # check arguments
         if not isinstance(experiments, list):
@@ -727,6 +798,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors['injection_sites'].extend(injection_sites)
 
     def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs):
+        """
+        Adds a shere at a location specified by the user
+
+        :param pos: list of x,y,z coordinates (Default value = [0, 0, 0])
+        :param radius: int, radius of the sphere (Default value = 100)
+        :param color: color of the sphere (Default value = "black")
+        :param alpha: transparency of the sphere (Default value = 1)
+        :param **kwargs: 
+        """
         sphere = Sphere(pos=pos, r=radius, c=color, alpha=alpha, **kwargs)
         self.actors['others'].append(sphere)
         return sphere
@@ -734,16 +814,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     def add_cells_from_file(self, filepath, hdf_key=None, color="red",
                             radius=25, res=3, alpha=1):
         """
-            [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
-            Arguments:
-                filepath {str} -- [Path to the .csv or .h5 file with cell locations]
-            
-            Keyword Arguments:
-                hdf_key {[str]} -- [key used for parsing HDF file] (default: {None})
-                color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
-                radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
-                res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
-                alpha {[float]} -- [opacity of the spheres] (default: {1})
+        Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. 
+
+        :param filepath: str path to file
+        :param hdf_key: str (Default value = None)
+        :param color: str, color of spheres used to render the cells (Default value = "red")
+        :param radius: int, radius of spheres used to render the cells (Default value = 25)
+        :param res: int, resolution of spheres used to render the cells (Default value = 3)
+        :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
 
         """
         csv_suffix = ".csv"
@@ -789,20 +867,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def add_cells(self, coords, color="red", radius=25, res=3, alpha=1):
         """
-            [Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh. ]
-            Arguments:
-                coords {pd.DataFrame, list} -- [Either a dataframe of cell locations with columns 'x', 'y' and 'z' or a list of lists, 
-                                                each with the x,y,z coordinates of a cell]
-            
-            Keyword Arguments:
-                color {[str, color]} -- [color of the spheres used to render the cells.] (default: {red})
-                radius {[int]} -- [radius of the sphere used to render cells] (default: {25})
-                res {[int]} -- [resolution of the spheres. The lower the faster the rendering] (default: {3})
-                alpha {[float]} -- [opacity of the spheres] (default: {1})
+        Renders cells given their coordinates as a collection of spheres. 
+
+        :param coords: pandas dataframe with x,y,z coordinates 
+        :param color: str, color of spheres used to render the cells (Default value = "red")
+        :param radius: int, radius of spheres used to render the cells (Default value = 25)
+        :param res: int, resolution of spheres used to render the cells (Default value = 3)
+        :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
 
         """
         if isinstance(coords, pd.DataFrame):
             coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
+        else:
+            raise ValueError("Unrecognized argument for cell coordinates")
+
         spheres = Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
         self.actors['others'].append(spheres)
 
@@ -812,29 +890,22 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                   keep_obj_file=True, overwrite='use', smooth=True):
 
         """
-            [Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
-            a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.]
+        Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
+        a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.
 
-            Arguments:
-                image_file_path {str} -- [Path to 3d image data]
-            
-            Keyword Arguments:
-                hdf_key {[str]} -- [key used for parsing HDF file] (default: {None})
-                color {[str, color]} -- [color of rendered mesh. If None, random is used.] (default: {None})
-                alpha {[int]} -- [transparency of rendered mesh. If None, default is used.] (default: {None})
-                obj_file_path {[str]} -- [path in which to save .obj file. If None path is based on image_file_path] (default: {None})
-
-                voxel_size {[float]} -- [Voxel size of the image (in um). Only isotropic voxels supported currently] (default: {1})
-                orientation {[str]} -- [Used to orient 3d image.] (default: {saggital})
-                invert_axes {[tuple]} -- [Tuple of axes to invert (if not in the same orientation as the atlas] (default: {None})
-                extension {[str]} -- [Extension of the .obj file, others can be used.] (default: {.obj})
-                step_size {[int]} -- [Used in marching algorithm to process image data.] (default: {2})
-                keep_obj_file {[bool]} -- [if false, the .obj file is deleted after having used it.] (default: {True})
-                overwrite {[str]} -- [Allowed values:
-                                        'use': if a .obj found matching the image_file_path, use that and skip processing the image, 
-                                        'overwrite': if a .obj found matching the image_file_path, process image and overwrite it,
-                                        'catch': if a .obj found matching the image_file_path, throw error.] (default: {None})
-                smooth {[bool]} -- [If true the rendered mesh is smoothed.] (default: {True})
+        :param image_file_path: str
+        :param color: str (Default value = None)
+        :param alpha: int (Default value = None)
+        :param obj_file_path: str (Default value = None)
+        :param voxel_size: float (Default value = 1)
+        :param orientation: str (Default value = "saggital")
+        :param invert_axes: tuple (Default value = None)
+        :param extension: str (Default value = ".obj")
+        :param step_size: int (Default value = 2)
+        :param keep_obj_file: bool (Default value = True)
+        :param overwrite: str (Default value = 'use')
+        :param overwrite: if a (Default value = 'use')
+        :param smooth: bool (Default value = True)
 
         """
 
@@ -880,6 +951,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             os.remove(obj_file_path)
 
     def edit_actors(self, actors, **kwargs):
+        """
+        edits a list of actors (e.g. render as wireframe or solid)
+        :param actors: list of actors
+        :param **kwargs: 
+
+        """
         if not isinstance(actors, list):
             actors = list(actors)
         
@@ -888,6 +965,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ####### MANIPULATE SCENE
     def add_screenshot_button(self):
+        """ 
+        Adds a button that can be used to take a screenshot of the rendered scene. 
+        """
         button_func = partial(self._take_screenshot, self.output_screenshots)
 
         bu = self.plotter.addButton(
@@ -904,18 +984,22 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     @staticmethod
     def slider_func(scene, widget, event):
+        """
+        Function used to handle slider widget
+        """
         # function used to change the transparency of meshes according to slider value (see self.add_slider())
         value = widget.GetRepresentation().GetValue()
         for actor in scene.slider_actors:
             actor.alpha(value)
 
     def add_slider(self, brain_regions=None, actors=None):
-        """[Creates a slider in the scene that can be used to adjust the transparency of select actors. 
-        Actors can be passed directly to add_slider or added in a second moment using add?actors_to_slider]
-        
-        Keyword Arguments:
-            brain_regions {[list]} -- [List of strings with acronyms of brain regions to be added to the slider] (default: {None})
-            actors {[type]} -- [list of vtk plotter actors to be added to the slider] (default: {None})
+        """
+        Creates a slider in the scene that can be used to adjust the transparency of select actors.
+        Actors can be passed directly to add_slider or added in a second moment using add_actors_to_slider.
+
+        :param brain_regions: List of strings with acronyms of brain regions to be added to the slider (Default value = None)
+        :param actors: list of vtk plotter actors to be added to the slider (Default value = None)
+
         """
         # Add actors to slider function
         self.add_actors_to_slider(brain_regions=brain_regions, actors=actors)
@@ -933,11 +1017,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             title="opacity")
 
     def add_actors_to_slider(self,  brain_regions=None, actors=None):
-        """[Adds actors to the list of actors whose transparency is affected by the slider]
+        """
+        Adds actors to the list of actors whose transparency is affected by the slider.
         
-        Keyword Arguments:
-            brain_regions {[list]} -- [List of strings with acronyms of brain regions to be added to the slider] (default: {None})
-            actors {[type]} -- [list of vtk plotter actors to be added to the slider] (default: {None})
+        :param brain_regions:  (Default value = None)
+        :param actors:  (Default value = None)
+
         """
         if self.slider_actors is None:
             # parse arguments
@@ -960,81 +1045,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             regions_actors = [act for r,act in self.actors['regions'].items() if r in brain_regions]
         self.slider_actors.extend(regions_actors)
 
-    def Slice(self, axis="x", j=0, onlyroot=False): 
-        """
-            [Slice all actors in scene at one coordinate along a defined axis]
-
-            Keyword Arguments:
-                axis {[str]} -- [Possible values:       x -> coronal
-                                                        y -> horizontal
-                                                        z -> sagittal] (default: {None})
-                k {[float]} -- [Number between 0 and 1 to indicate position along the selected axis]
-                onlyroot {[bool]} -- [If True only the root actor is sliced] {default: False}
-        """
-        # check arguments
-        if not isinstance(axis, str):
-            if not isinstance(axis, list):
-                raise ValueError("Unrecognised axis for slicing actors: {}".format(axis))
-        else:
-            axis = [axis]
-
-        if not isinstance(j, (list, tuple)):
-            j = [j for _ in range(len(axis))]
-        elif isinstance(j, (list, tuple)) and len(j)!= len(axis) :
-            raise ValueError("When slicing over multiple axes, pass a list of values for the slice number j (or a single value). The list must have the same length as the axes list")
-
-        # store a copy of original actors
-        self._actors = self.actors.copy()
-
-        # Check if root is in scene to get the center of the root
-        if self.root is None:
-            self.add_root(render=False)
-
-        # slice actors
-        if not onlyroot:
-            all_actors = self.get_actors()
-        else:
-            all_actors = [self.root]
-
-        for actor in all_actors:
-            for ax, i in zip(axis, j):
-                if ax.lower() == "x":
-                    normal = [1, 0, 0]
-                    pos = [get_slice_coord(self.root_bounds['x'], i), 0, 0]
-                elif ax.lower() == "y":
-                    normal = [0, 1, 0]
-                    pos = [0, get_slice_coord(self.root_bounds['y'], i), 0]
-                elif ax.lower() == "z":
-                    normal = [0, 0, 1]
-                    pos = [0, 0, get_slice_coord(self.root_bounds['z'], i)]
-                else:
-                    raise ValueError("Unrecognised ax for slicing actors: {}".format(ax))
-                actor = actor.cutWithPlane(origin=pos, normal=normal)
-
-    def ortho_views(self):
-        self.render(interactive=False)
-        closeWindow()
-
-        # create a new scene with top and side views of the scene
-        if self.plotter is None:
-            print("nothing to render, populate scene first")
-            return
-
-        mv = Plotter(N=2, axes=4, size="auto", sharecam=False)
-
-        # # TODO make root inset appear
-        # self._get_inset(plotter=top)
-        # self._get_inset(plotter=side)
-
-        # mv.add(self.get_actors())
-        mv.add(self.get_actors())
-
-        mv.show(mv.actors, at=0, zoom=1.15, axes=4, roll=180,  interactive=False, camera=dict(viewup=[0, -1, 0]))    
-        mv.show(mv.actors, at=1, zoom=10, axes=4, roll=180, interactive=False, camera=dict(viewup=[0, 0, 0]))
-
-        interactive()
-
     def _rotate_actors(self):
+        """
+        Rotate actors to make sure they're not upside down during rendering
+        """
         # Allen meshes are loaded upside down so we need to rotate actors by 180 degrees
         for actor in self.get_actors():
             if actor is None: continue
@@ -1068,6 +1082,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     def render(self, interactive=True, video=False):
+        """
+        Takes care of rendering the scene
+        """
         self.apply_render_style()
 
         if not self.rotated:
@@ -1113,97 +1130,25 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         plotter.closeWindow()
         del plotter
 
-    def _add_actors(self): # TODO fix this
+    def _add_actors(self):
         if self.plotter.renderer is None:
             return
         for actor in self.get_actors():
             self.plotter.renderer.AddActor(actor)
 
-    ####### EXPORT SCENE + screenshot
-    def export(self, save_dir=None, savename="exported_scene", exportas="obj"):
-        """[Exports the scene as a numpy file]
-        
-        Keyword Arguments:
-            save_dir {[str]} -- [path to folder, if none default output folder is used] (default: {None})
-            savename {str} -- [filename, can not include ".npy"] (default: {"exported_scene"})
-        
-        Raises:
-            ValueError: [description]
-        """
-        if save_dir is None:
-            save_dir = self.output_scenes
-        
-        if not os.path.isdir(save_dir):
-            raise ValueError("Save folder not valid: {}".format(save_dir))
-
-        if not isinstance(exportas, str): raise ValueError("Unrecognised argument exportas {}".format(exportas))
-        exportas = exportas.lower()
-
-        if exportas == 'obj':
-            savename = savename.split(".")[0]
-        elif exportas == 'npy':
-            if "." in savename and not "npy" in savename:
-                raise ValueError("Savename should have format: .npy when exporting as numpy")
-            elif not "." in savename:
-                savename = "{}.npy".format(savename)
-        else:
-            raise ValueError("can only export as OBJ and NPY for now, not: {}".format(exportas))
-        
-        curdir = os.getcwd()
-        os.chdir(save_dir)
-
-        if exportas == 'npy':
-            exportWindow(savename)
-        else:
-            # Create a new vtkplotter window and add scene's renderer to it 
-            rw = vtkRenderWindow()
-
-            if self.plotter.renderer is None: # need to render the scene first
-                self.render(interactive=False)
-                self._rotate_actors()
-
-                closeWindow()
-
-            rw.AddRenderer(self.plotter.renderer)
-
-            w = vtkOBJExporter()
-            w.SetFilePrefix(savename)
-            w.SetRenderWindow(rw)
-            w.Write()
-
-        # Change back to original dir
-        os.chdir(curdir)
-
-        if VERBOSE:
-            print("Save scene in {} with filename {}".format(save_dir, savename))
-
-    def export_for_web(self, save_dir=None, filename='scene'):
-        # This exports the scene and generates 2 files:
-        # embryo.x3d and an example embryo.html to inspect in the browser
-        if save_dir is None:
-            save_dir = self.output_scenes
-        
-        if not os.path.isdir(save_dir):
-            raise ValueError("Save folder not valid: {}".format(save_dir))
-
-        curdir = os.getcwd()
-        os.chdir(save_dir)
-        exportWindow('{}.x3d'.format(filename))
-        os.chdir(curdir)
-
+    ####### SCREENSHOT
     @staticmethod
     def _take_screenshot(default_fld, filename="screenshot.png", scale=1, large=True, savefld=None):
-        """[Takes a screenshot of the current scene's view]
-        
-        Keyword Arguments:
-            default_fld {[str]} -- [default path to directory in which to save screenshot if savefld is None]
-            filename {str} -- [filename, supported formats: png, jpg, svg] (default: {"screenshot.png"})
-            scale {int} -- [In theory values >1 should increase resolution, but it seems to be buggy] (default: {"1"})
-            large {bool} -- [Should increase resolution] (default: {"True"})
-            savefld {str} -- [alternative folder in which to save the screenshot.] (default: {"None"})
-        
-        Raises:
-            ValueError: [description]
+        """
+        Takes a screenshot of the current scene's view and save to file
+
+        :param default_fld: default path to directory in which to save screenshot if savefld is None
+        :param filename:  filename, supported formats: png, jpg, svg (Default value = "screenshot.png")
+        :param scale: In theory values >1 should increase resolution, but it seems to be buggy  (Default value = 1)
+        :param large:  Should increase resolution (Default value = True)
+        :param savefld: alternative folder in which to save the screenshot. (Default value = None)
+        :raises ValueError: [description]
+
         """
         # Get file name
         if ".png" not in filename and ".svg" not in filename and ".jpg" not in filename:
@@ -1227,118 +1172,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         print("Saved screenshot at: {}".format(filename))
 
     def take_screenshot(self, **kwargs):
+        """
+        :param **kwargs: 
+        """
         # for args definition check: self._take_screenshot
         self._take_screenshot(self.output_screenshots, **kwargs)
 
-class RatScene(Scene): # Subclass of Scene to override some methods for Rat data
-    def __init__(self, *args, **kwargs):
-        Scene.__init__(self,*args, add_root=False, display_inset=False, **kwargs)
-
-        self.structures = get_rat_regions_metadata(self.metadata)
-        self.structures_names = list(self.structures['Name'].values)
-
-    def print_structures(self):
-        ids, names = self.structures.Id.values, self.structures['Name'].values
-        sort_idx = np.argsort(names)
-        ids, names = ids[sort_idx], names[sort_idx]
-        [print("(id: {}) - {}".format(a, n)) for a,n in zip(ids, names)]
-
-    def add_brain_regions(self, brain_regions, use_original_color=False,
-                            color=None, alpha=1, hemisphere=None): 
-            """[Override Scnee.add_brain_reigions to get rat data. Adds rendered brain regions with data from the Allen brain atlas. ]
-            
-            Arguments:
-                brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
-            
-            Keyword Arguments:
-                color {[str, list]} -- [Color of other's regions] (default: {None})
-                alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
-                hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
-            """
-
-            if alpha is None:
-                alpha = DEFAULT_STRUCTURE_ALPHA
-
-            if not isinstance(brain_regions, list):
-                brain_regions = [brain_regions]
-
-            if color is None:
-                color = [DEFAULT_STRUCTURE_COLOR for region in brain_regions]
-            elif isinstance(color[0], (list, tuple)):
-                if not len(color) == len(brain_regions): 
-                    raise ValueError("When passing a list of colors, the number of colors should be the same as the number of regions")
-            else:
-                color = [color for region in brain_regions]
-
-            # loop over all brain regions
-            for i, (col, region) in enumerate(zip(color, brain_regions)):
-                # Load the object file as a mesh and store the actor
-                obj = get_rat_mesh_from_region(region, self.folders,  c=col, alpha=alpha, use_original_color=use_original_color)
-                if obj is not None:
-                    self.actors["regions"][region] = obj
-
-                if VERBOSE:
-                    print("rendered {}".format(region))
-
-class DrosophilaScene(Scene): # Subclass of Scene to override some methods for Drosophila data
-    def __init__(self, *args, add_root=True, **kwargs):
-        Scene.__init__(self,*args, add_root=False, display_inset=False, **kwargs)
-
-        if add_root:
-            self.add_brain_regions("root", color=ROOT_COLOR, alpha=ROOT_ALPHA)
-
-        self.structures = get_drosophila_regions_metadata(self.metadata)
-        self.structures_acronyms = sorted(list(self.structures['acronym'].values))
-
-    def print_structures(self):
-        ids, names, acros = self.structures.Id.values, self.structures['name'].values, self.structures['acronym'].values
-        sort_idx = np.argsort(ids)
-        ids, names, acros = ids[sort_idx], names[sort_idx], acros[sort_idx]
-        [print("(id: {}) - {} - {}".format(a, acr, n)) for a, acr, n in zip(ids, acros, names)]
-
-    def add_brain_regions(self, brain_regions, use_random_color=False,
-                            color=None, alpha=1, hemisphere=None): 
-            """[Override Scnee.add_brain_reigions to get rat data. Adds rendered brain regions with data from the Allen brain atlas. ]
-            
-            Arguments:
-                brain_regions {[str, list]} -- [List of acronym of brain regions, should include any VIP region. Alternatively numerical IDs can be passed instead of acronym]
-            
-            Keyword Arguments:
-                color {[str, list]} -- [Color of other's regions] (default: {None})
-                alpha {[float]} -- [Transparency of rendered brain regions] (default: {None})
-                hemisphere {[str]} -- [If 'left' or 'right' only the mesh in the corresponding hemisphereis rendered ] (default: {False})
-            """
-
-            if alpha is None:
-                alpha = DEFAULT_STRUCTURE_ALPHA
-
-            if not isinstance(brain_regions, list):
-                brain_regions = [brain_regions]
-
-            if not use_random_color:
-                if color is None:
-                    color = [DEFAULT_STRUCTURE_COLOR for region in brain_regions]
-                elif isinstance(color[0], (list, tuple)):
-                    if not len(color) == len(brain_regions): 
-                        raise ValueError("When passing a list of colors, the number of colors should be the same as the number of regions")
-                else:
-                    color = [color for region in brain_regions]
-            else:
-                color = get_random_colors(n_colors=len(brain_regions))
-
-            # loop over all brain regions
-            for i, (col, region) in enumerate(zip(color, brain_regions)):
-                # Load the object file as a mesh and store the actor
-                obj = get_drosophila_mesh_from_region(region, self.folders, c=col, alpha=alpha)
-                if obj is not None:
-                    self.actors["regions"][region] = obj
-
-                if VERBOSE:
-                    print("rendered {}".format(region))
-
-
 
 class LoadedScene:
+    """ """
     def __init__(self, filepath=None):
         if filepath is not None:
             self.load_scene(filepath)
@@ -1346,12 +1188,18 @@ class LoadedScene:
             self.plotter = None
 
     def load_scene(self, filepath):
+        """
+
+        :param filepath: 
+
+        """
         if not os.path.isfile(filepath) or not ".npy" in filepath:
             raise ValueError("Invalid file path: {}".format(filepath))
 
         self.plotter = importWindow(filepath)
 
     def render(self):
+        """ """
         if self.plotter is None:
             print("Nothing to render, need to load a scene first")
         else:
@@ -1359,11 +1207,13 @@ class LoadedScene:
 
 
 class DualScene:
+    """ """
     # A class that manages two scenes to display side by side
     def __init__(self, *args, **kwargs):
         self.scenes = [Scene( *args, **kwargs), Scene( *args, **kwargs)]
 
     def render(self):
+        """ """
         mv = Plotter(N=2, axes=4, size="auto", sharecam=True)
 
         actors = []
@@ -1378,11 +1228,18 @@ class DualScene:
 
 
 class MultiScene:
+    """ """
     def __init__(self, N,  *args, **kwargs):
         self.scenes = [Scene( *args, **kwargs) for i in range(N)]
         self.N = N
 
     def render(self, _interactive=True,  **kwargs):
+        """
+
+        :param _interactive:  (Default value = True)
+        :param **kwargs: 
+
+        """
         if self.N > 4:
             print("Rendering {} scenes. Might take a few minutes.".format(self.N))
         mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True)
