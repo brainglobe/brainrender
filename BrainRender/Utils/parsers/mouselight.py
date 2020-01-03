@@ -25,6 +25,7 @@ class NeuronsParser(Paths):
 				render_neurites = True, mirror=False, 
 				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, paths_file=None,
 				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
+		
 		self.scene = scene # for the meaning of the arguments check self.render_neurons
 		self.render_neurites = render_neurites 
 		self.neurite_radius = neurite_radius 

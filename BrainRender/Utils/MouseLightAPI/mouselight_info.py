@@ -96,7 +96,6 @@ def mouselight_structures_identifiers():
 
 
 def make_query(filterby=None, filter_regions=None, invert=False):
-	# !!!! THIS FEATURE IS STILL VERY MUCH EXPERIMENTAL
 	"""
 		[Constructs the strings used to submit graphql queries to the mouse light api]
 
@@ -217,7 +216,7 @@ def make_query(filterby=None, filter_regions=None, invert=False):
 
 def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None, **kwargs):
 	"""
-		[Download neurons metadata from the API. The downloaded metadata can be filtered to keep only
+		[Download neurons metadata and data from the API. The downloaded metadata can be filtered to keep only
 		the neurons whose soma is in a list of user selected brain regions.]
 
 		Keyword arguments:
@@ -230,7 +229,6 @@ def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None, **kw
 	url = mouselight_base_url + "graphql"
 	query = make_query(filterby=filterby, filter_regions=filter_regions, **kwargs)
 
-	
 	res =  post_mouselight(url, query=query)['searchNeurons']
 	print("     ... fetched metadata for {} neurons in {}s".format(res["totalCount"], round(res["queryTime"]/1000, 2)))
 

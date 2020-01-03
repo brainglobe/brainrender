@@ -45,7 +45,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, 
-                    display_inset=None, paths_file=None, add_screenshot_button=False, ):
+                    display_inset=None, paths_file=None, add_screenshot_button=False):
         """[Creates and manages a Plotter instance]
         
         Keyword Arguments:
