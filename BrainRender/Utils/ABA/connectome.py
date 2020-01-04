@@ -26,7 +26,13 @@ class ABA(Paths):
     resolution = 25
 
     def __init__(self, projection_metric = "projection_energy", paths_file=None):
-        """ path_file {[str]} -- [Path to a YAML file specifying paths to data folders, to replace default paths] (default: {None}) """
+        """ 
+        Set up file paths and Allen SDKs
+        
+        :param path_file: - str, Path to a YAML file specifying paths to data folders, to replace default paths. (default value None)
+        :param path_fiprojection_metricle: - str, metric to quantify the strength of projections from the Allen Connectome. (default value 'projection_energy')
+
+        """
 
         Paths.__init__(self, paths_file=paths_file)
 
@@ -62,7 +68,9 @@ class ABA(Paths):
 
     ####### GET EXPERIMENTS DATA
     def get_structures_sets(self):
-        """ """
+        """ 
+        Get the Allen's structure sets.
+        """
         summary_structures = self.structure_tree.get_structures_by_set_id([167587189])  # main summary structures
         summary_structures = [s for s in summary_structures if s["acronym"] not in self.excluded_regions]
         self.structures = pd.DataFrame(summary_structures)
@@ -84,23 +92,25 @@ class ABA(Paths):
             self.all_avaliable_meshes = sorted(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].acronym.values)
 
     def print_structures_list_to_text(self):
-        """ """
+        """ 
+        Saves the name of every brain structure for which a 3d mesh (.obj file) is available in a text file.
+        """
         s = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
         with open('all_regions.txt', 'w') as o:
             for acr, name in zip(s.acronym.values, s['name'].values):
                 o.write("({}) -- {}\n".format(acr, name))
 
     def load_all_experiments(self, cre=False):
-        """This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results
-            as pickled pandas dataframes. The process is slow, but the ammount of disk space necessary to save the data is small,
-            so it's worth downloading all the experiments at once to speed up subsequent analysis.
+        """
+        This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results
+        as pickled pandas dataframes. The process is slow, but the ammount of disk space necessary to save the data is small,
+        so it's worth downloading all the experiments at once to speed up subsequent analysis.
 
-        :param cre: Bool (Default value = False)
+        :param cre: Bool - data from either wild time or cre mice lines (Default value = False)
 
         """
         
-        # TODO allow user to select specific cre lines?
-
+        if not cre: raise NotImplementedError("Only works for wild type sorry")
         # Downloads all experiments from allen brain atlas and saves the results as an easy to read pkl file
         for acronym in self.structures.acronym.values:
             print("Fetching experiments for : {}".format(acronym))
@@ -119,16 +129,19 @@ class ABA(Paths):
             structure_unionizes.to_pickle(os.path.join(self.output_data, "{}.pkl".format(acronym)))
     
     def print_structures(self):
-        """ """
+        """ 
+        Prints the name of every structure in the structure tree to the console.
+        """
         acronyms, names = self.structures.acronym.values, self.structures['name'].values
         sort_idx = np.argsort(acronyms)
         acronyms, names = acronyms[sort_idx], names[sort_idx]
         [print("({}) - {}".format(a, n)) for a,n in zip(acronyms, names)]
 
     def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
-        """[Returns data about experiments whose injection was in the SOI, structure of interest]
+        """
+        Returns data about experiments whose injection was in the SOI, structure of interest
 
-        :param SOI: str
+        :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
         :param *args: 
         :param source:  (Default value = True)
         :param **kwargs: 
@@ -183,13 +196,13 @@ class ABA(Paths):
         """
         return self.experiments_source_search(*args, source=False, **kwargs)
 
-    def fetch_experiments_data(self, experiments_id, *args, average_experiments=False, base_structures=True, **kwargs):
+    def fetch_experiments_data(self, experiments_id, *args, average_experiments=False, **kwargs):
         """
-
-        :param experiments_id: 
+        Get data and metadata for expeirments in the Allen Mouse Connectome project. 
+    
+        :param experiments_id: int, list, np.ndarray with ID of experiments whose data need to be fetched
         :param *args: 
         :param average_experiments:  (Default value = False)
-        :param base_structures:  (Default value = True)
         :param **kwargs: 
 
         """
@@ -223,17 +236,18 @@ class ABA(Paths):
             region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1)
 
     ####### ANALYSIS ON EXPERIMENTAL DATA
-    def analyze_efferents(self, SOI, projection_metric = None):
-        """[Loads the experiments on SOI and looks at average statistics of efferent projections]
+    def analyze_efferents(self, ROI, projection_metric = None):
+        """
+        Loads the experiments on ROI and looks at average statistics of efferent projections
 
-        :param SOI: str
-        :param projection_metric:  (Default value = None)
+        :param ROI: str, acronym of brain region of interest
+        :param projection_metric: if None, the default projection metric is used, otherwise pass a string with metric to use (Default value = None)
 
         """
         if projection_metric is None: 
             projection_metric = self.projection_metric
 
-        experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(SOI)))
+        experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(ROI)))
         experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
         # Loop over all structures and get the injection density
@@ -262,16 +276,16 @@ class ABA(Paths):
         results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
         return results
 
-    def analyze_afferents(self, SOI, projection_metric = None):
-        """[Loads the experiments on SOI and looks at average statistics of afferent projections]
+    def analyze_afferents(self, ROI, projection_metric = None):
+        """[Loads the experiments on ROI and looks at average statistics of afferent projections]
 
-        :param SOI: str
-        :param projection_metric:  (Default value = None)
+        :param ROI: str, acronym of region of itnerest
+        :param projection_metric: if None, the default projection metric is used, otherwise pass a string with metric to use (Default value = None)
 
         """
         if projection_metric is None: 
             projection_metric = self.projection_metric
-        SOI_id = self.structure_tree.get_structures_by_acronym([SOI])[0]["id"]
+        ROI_id = self.structure_tree.get_structures_by_acronym([ROI])[0]["id"]
 
         # Loop over all strctures and get projection towards SOI
         results = {"left":[], "right":[], "both":[], "id":[], "acronym":[], "name":[]}
@@ -300,17 +314,11 @@ class ABA(Paths):
 
     ####### GET TRACTOGRAPHY AND SPATIAL DATA
     def get_projection_tracts_to_target(self, p0=None, **kwargs):
-        """[Gets tractography data for all experiments whose projections reach the brain region or location of iterest.]
+        """
+        Gets tractography data for all experiments whose projections reach the brain region or location of iterest.
         
-        Keyword Arguments:
-            p0 {[list]} -- [list of 3 floats with XYZ coordinates of point to be used as seed] (default: {None})
-
-        :param p0:  (Default value = None)
+        :param p0: list of 3 floats with XYZ coordinates of point to be used as seed (Default value = None)
         :param **kwargs: 
-        :returns: [type] -- [description]
-        :raises ValueError: [description]
-        :raises ValueError: [description]
-
         """
 
         # check args
@@ -330,11 +338,12 @@ class ABA(Paths):
 
     ### OPERATIONS ON STRUCTURE TREES
     def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
-        """[Get's the ancestors of the region(s) passed as arguments]
+        """
+        Get's the ancestors of the region(s) passed as arguments
 
-        :param regions: str
-        :param ancestors:  (Default value = True)
-        :param descendants:  (Default value = False)
+        :param regions: str, list of str with acronums of regions of interest
+        :param ancestors: if True, returns the ancestors of the region  (Default value = True)
+        :param descendants: if True, returns the descendants of the region (Default value = False)
 
         """
 
@@ -349,17 +358,13 @@ class ABA(Paths):
             return ancestors
 
     def get_structure_descendants(self, regions):
-        """
-
-        :param regions: 
-
-        """
         return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
 
     def get_structure_from_coordinates(self, p0):
         """
+        Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
 
-        :param p0: 
+        :param p0: list of floats with XYZ coordinates. 
 
         """
             voxel = np.round(np.array(p0) / self.resolution).astype(int)

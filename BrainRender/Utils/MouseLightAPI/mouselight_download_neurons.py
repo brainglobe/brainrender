@@ -14,13 +14,13 @@ from BrainRender.Utils.webqueries import *
 """
 
 def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
-    """[Creates a .json file that can be read by the mouselight parser.]
+    """
+	Creates a .json file with the neuron's data that can be read by the mouselight parser.
 
-    :param neuron: dict
-    :param file_path: st
-    :param Keyword: arguments
-    :param axon_tracing: list (Default value = None)
-    :param dendrite_tracing: list (Default value = None)
+    :param neuron: dict with neuron's data
+    :param file_path: str, path where to save the json file
+    :param axon_tracing: list with data for axon tracing (Default value = None)
+    :param dendrite_tracing: list with data for dendrite tracing (Default value = None)
 
     """
 	# parse axon
@@ -76,18 +76,21 @@ def make_json(neuron, file_path,  axon_tracing=None, dendrite_tracing=None):
 		json.dump(content, f)
 
 def download_neurons(neurons_metadata):
-    """[Given a list of neurons metadata, as obtained by http://ml-neuronbrowser.janelia.org/graphql using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata,
-    		this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
+    """
+	Given a list of neurons metadata, as obtained by interaction with the mouselight databse [http://ml-neuronbrowser.janelia.org/graphql]
+	using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata,
+	this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
 
-    :param neurons_metadata: list
+    :param neurons_metadata: list with metadata for neurons to download
 
     """
 
 	def get(url, tracing_id): # send a query for a single tracing ID
 		"""
+		Creates the URL for each neuron to download
 
-		:param url: 
-		:param tracing_id: 
+		:param url: str with url
+		:param tracing_id: str with the neuron's ID
 
 		"""
 			query = {"ids":[tracing_id]}

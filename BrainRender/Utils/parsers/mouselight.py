@@ -21,12 +21,33 @@ from BrainRender.Utils.paths_manager import Paths
 
 
 class NeuronsParser(Paths):
-    """ """
+    """ 
+		Takes care of parsing neuron's morphology data from different formats (.json, .swc) and rendering them as vtk actors. 
+		Supports various ways to specify how things should be rendered and classes to edit/modify rendered neurons. 
+		Also saves and loads the results of parsing. 
+	"""
 	def __init__(self, scene=None, 
 				render_neurites = True, mirror=False, 
 				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, paths_file=None,
 				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
-		
+		"""
+		Set up variables used for rendering
+
+		:param scene: instance of class BrainRender.Scene (Default value = None)
+		:param render_neurites: Bool, If true, axons and dendrites are rendered (Default value = True)
+		:param neurite_radius: float with radius of axons and dendrites. If None default is used. (Default value = None)
+		:param color_neurites: Bool, if True axons and neurites are colored differently from the soma (Default value = True)
+		:param mirror: Bool if True neurons are mirrored so that there is a version in each hemisphere (Default value = None)
+		:param soma_color: soma_color color of the neurons' soma. Also used for neurites if they are not to be colored differently (Default value = None)
+		:param axon_color: color of the neurons' axon. If none or False, the soma's color is used. (Default value = None)
+		:param dendrites_color: color of the neurons' dendrites. If none or False, the soma's color is used.(Default value = None)
+		:param random_color: Bool, if True a random color is used for each neuron.  (Default value = False)
+		:param color_by_region: bool, if True, neurons are colored according to the Allen Brain Atlas color for the region the soma is in.  (Default value = False)
+		:param force_to_hemisphere: str, if 'left' or 'right' neurons are rendered in the selected hemisphere, if False or None they are rendered in the original hemisphere.  (Default value = None)
+		:param paths_file: str, optional, file with specified paths to replace the default ones. (default value = None)
+		:param **kwargs: 
+
+		"""
 		self.scene = scene # for the meaning of the arguments check self.render_neurons
 		self.render_neurites = render_neurites 
 		self.neurite_radius = neurite_radius 
@@ -42,21 +63,12 @@ class NeuronsParser(Paths):
 		Paths.__init__(self, paths_file=paths_file)
 
 	def render_neurons(self, ml_file, **kwargs):
-		"""[Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website,
-			this function creates VTKplotter actors that can be used to render the neurons, returns them as nested dictionaries]
+		"""
+		Given a file with JSON data about neuronal structures downloaded from the Mouse Light neurons browser website,
+		this function creates VTKplotter actors that can be used to render the neurons, returns them as nested dictionaries.
 
-		:param ml_file: string
-		:param scene: Scene
-		:param render_neurites: boolean
-		:param neurite_radius: float
-		:param color_neurites: Bool
-		:param mirror: Bool
-		:param axon_color: soma_color
-		:param colors: can be either strings
-		:param random_color: Bool
-		:param color_by_region: bool
-		:param force_to_hemisphere: str
-		:param **kwargs: 
+		:param ml_file: str, path to a JSON file with neurons data
+		:param **kwargs: see kwargs of NeuronsParser.__init__
 		:returns: actors [list] -- [list of dictionaries, each dictionary contains the VTK actors of one neuron]
 
 		"""
@@ -141,11 +153,12 @@ class NeuronsParser(Paths):
 
 	def _render_neuron_get_params(self, neuron_number, neuron=None, soma_region=None, soma=None):
 		"""
+		Makes sure that all the parameters to specify how neurons should be rendered. 
 
-		:param neuron_number: 
-		:param neuron:  (Default value = None)
-		:param soma_region:  (Default value = None)
-		:param soma:  (Default value = None)
+		:param neuron_number: number of the neuron being rendered
+		:param neuron: neuron's metadata (Default value = None)
+		:param soma_region: str with the acronym of the region the soma is in (Default value = None)
+		:param soma: list with XYZ coordinates of the neuron's soma. (Default value = None)
 
 		"""
 		# Define colors of different components
@@ -227,11 +240,12 @@ class NeuronsParser(Paths):
 		return soma_color, axon_color, dendrites_color, soma_region
 
 	def render_neuron(self, neuron, neuron_number, neuron_name):
-		"""[This function takes care of rendering a single neuron.]
+		"""
+		This function takes care of rendering a single neuron.
 
-		:param neuron: 
-		:param neuron_number: 
-		:param neuron_name: 
+		:param neuron: dictionary with neurons data
+		:param neuron_number: number of neuron being rendered
+		:param neuron_name: name of the neuron, used to load/save the .vtk files with the rendered neuron.
 
 		"""
 		# Prepare variables for rendering
@@ -279,9 +293,10 @@ class NeuronsParser(Paths):
 		
 	def _cache_neuron(self, neuron_actors, neuron_name):
 		"""
+		Save a loaded neuron
 
-		:param neuron_actors: 
-		:param neuron_name: 
+		:param neuron_actors: list of neuron's actors
+		:param neuron_name: name of the neuron
 
 		"""
 		if not neuron_name or neuron_name is None: return
@@ -296,8 +311,9 @@ class NeuronsParser(Paths):
 
 	def _load_cached_neuron(self, neuron_name):
 		"""
+		Load a cached neuron's VTK actors
 
-		:param neuron_name: 
+		:param neuron_name: str with neuron name
 
 		"""
 		if not neuron_name or neuron_name is None:
@@ -325,10 +341,27 @@ class NeuronsParser(Paths):
 
 	def mirror_neuron(self, neuron_actors):
 		"""
+		Mirror over the sagittal plane between the two hemispheres.
 
-		:param neuron_actors: 
+		:param neuron_actors: list of actors for one neuron.
 
 		"""
+		def _mirror_neuron(neuron, mcoord):
+			"""
+			Actually takes care of mirroring a neuron
+
+			:param neuron: neuron's meshes
+			:param mcoord: coordinates of the point to use for the mirroring
+
+			"""
+			# This function does the actual mirroring
+			for name, actor in neuron.items():
+				# get mesh points coords and shift them to other hemisphere
+				if isinstance(actor, (list, tuple, str)) or actor is None:
+					continue
+				neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
+			return neuron
+
 		# Makes sure that the neuron is in the desired hemisphere
 		mirror_coor = self.scene.get_region_CenterOfMass('root', unilateral=False)[2]
 
@@ -342,26 +375,14 @@ class NeuronsParser(Paths):
 			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
 		return neuron_actors
 
-	def _mirror_neuron(self, neuron, mcoord):
-		"""
 
-		:param neuron: 
-		:param mcoord: 
-
-		"""
-		# This function does the actual mirroring
-		for name, actor in neuron.items():
-			# get mesh points coords and shift them to other hemisphere
-			if isinstance(actor, (list, tuple, str)) or actor is None:
-				continue
-			neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
-		return neuron
 
 	@staticmethod
 	def decimate_neuron_actors(neuron_actors):
-		"""Can be used to decimate the VTK actors for the neurons (i.e. reduce number of polygons). Should make the rendering faster
+		"""
+		Can be used to decimate the VTK actors for the neurons (i.e. reduce number of polygons). Should make the rendering faster.
 
-		:param neuron_actors: 
+		:param neuron_actors: list of actors for a neuron
 
 		"""
 		if DECIMATE_NEURONS:
@@ -374,9 +395,10 @@ class NeuronsParser(Paths):
 
 	@staticmethod
 	def smooth_neurons(neuron_actors):
-		"""Can be used to smooth the VTK actors for the neurons. Should improve apect of neurons
+		"""
+		Can be used to smooth the VTK actors for the neurons. Should improve apect of neurons
 
-		:param neuron_actors: 
+		:param neuron_actors: list of actors for a neuron
 
 		"""
 		if SMOOTH_NEURONS:
@@ -389,25 +411,17 @@ class NeuronsParser(Paths):
 						actor.smoothLaplacian()
 
 	def _get_neurites_radius(self):
-		""" """
+		""" 
+			Get the neurites radius parameter
+		"""
 		if self.neurite_radius is None:
 			return DEFAULT_NEURITE_RADIUS
 		else:
 			return self.neurite_radius
 
 	def neurites_parser(self, neurites, color):
-		"""[Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.]
-		
-		Arguments:
-			neurites {[DataFrame]} -- [dataframe with each sample for the neurites]
-			neurite_radius {[float]} -- [radius of the Tube actors]
-			color {[color object]} -- [color to be assigned to the Tube actor]
-			alleninfo {Data frame]} -- [dataframe with Info about brain regions from Allen]
-		
-		
-		Returns:
-			actors {[list]} -- [list of VTK actors]
-		
+		"""
+		Given a dataframe with all the samples for some neurites, create "Tube" actors that render each neurite segment.	
 		----------------------------------------------------------------
 		This function works by first identifyingt the branching points of a neurite structure. Then each segment between either two branchin points
 		or between a branching point and a terminal is modelled as a Tube. This minimizes the number of actors needed to represent the neurites
@@ -415,8 +429,8 @@ class NeuronsParser(Paths):
 		
 		Known issue: the axon initial segment is missing from renderings.
 
-		:param neurites: 
-		:param color: 
+		:param neurites: dataframe with each sample for the neurites
+		:param color: color to be assigned to the Tube actor
 
 		
 		"""
@@ -485,9 +499,10 @@ class NeuronsParser(Paths):
 
 	def neurites_parser_swc(self, neurites, color):
 		"""
+		Parses neuron's  neurites when the data are provided as .swc
 
-		:param neurites: 
-		:param color: 
+		:param neurites: datafarme with neurites samples 
+		:param color: color for vtk actor
 
 		"""
 		coords = [self.soma_coords]
@@ -497,11 +512,12 @@ class NeuronsParser(Paths):
 		return lines, regions
 
 	def filter_neurons_by_region(self, neurons, regions, neurons_regions=None):
-		"""[Only returns neurons whose soma is in one of the regions in regions]
+		"""
+		Only returns neurons whose soma is in one of the regions in regions
 
-		:param neurons: type
-		:param regions: type
-		:param neurons_regions:  (Default value = None)
+		:param neurons: list of neurons
+		:param regions: list of regions
+		:param neurons_regions: list of regions each neuron is in (Default value = None)
 
 		"""
 
@@ -535,9 +551,10 @@ class NeuronsParser(Paths):
 
 	def parse_neurons_swc_allen(self, morphology, neuron_number):
 		"""
+		SWC parser for Allen neuron's morphology data, they're a bit different from the Mouse Light SWC
 
-		:param morphology: 
-		:param neuron_number: 
+		:param morphology: data with morphology
+		:param neuron_number: int, number of the neuron being rendered.
 
 		"""
 		# Get params
@@ -596,9 +613,10 @@ class NeuronsParser(Paths):
 
 	def parse_neuron_swc(self, filepath, neuron_number):
 		"""
+		Given an swc file, render the neuron
 
-		:param filepath: 
-		:param neuron_number: 
+		:param filepath: str with path to swc file
+		:param neuron_number: numnber of neuron being rendered
 
 		"""
 		# details on swc files: http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html
@@ -649,11 +667,12 @@ class NeuronsParser(Paths):
 		return data
 
 	def handle_parsing_swc(self, swc_files, is_iter):
-		"""Takes care of handling the case in which one or multiple SWC files are passed.
+		"""
+			Takes care of handling the case in which one or multiple SWC files are passed.
 			Which renderer and what is returned varies depending on the source of the SWC, so this
 			function hadles this variable outcomes.
 
-		:param swc_files: 
+		:param swc_files: list of swc files
 		:param is_iter: 
 
 		"""
@@ -682,10 +701,11 @@ class NeuronsParser(Paths):
 
 
 def edit_neurons(neurons, **kwargs):
-    """Modify neurons actors after they have been created, at render time.
-    		neurons should be a list of dictionaries with soma, dendrite and axon actors of each neuron.
+    """
+		Modify neurons actors after they have been created, at render time.
+		neurons should be a list of dictionaries with soma, dendrite and axon actors of each neuron.
 
-    :param neurons: 
+    :param neurons: list of dictionaries with vtk actors for each neuron
     :param **kwargs: 
 
     """
