@@ -12,13 +12,13 @@ from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 import vtk
 
 def connected_to_internet(url='http://www.google.com/', timeout=5):
-    """
-	Check that there is an internet connection
+	"""
+		Check that there is an internet connection
 
-    :param url: url to use for testing (Default value = 'http://www.google.com/')
-    :param timeout:  timeout to wait for [in seconds] (Default value = 5)
-
-    """
+		:param url: url to use for testing (Default value = 'http://www.google.com/')
+		:param timeout:  timeout to wait for [in seconds] (Default value = 5)
+	"""
+	
 	try:
 		_ = requests.get(url, timeout=timeout)
 		return True
@@ -27,13 +27,13 @@ def connected_to_internet(url='http://www.google.com/', timeout=5):
 	return False
 
 def send_query(query_string, clean=False):
-    """
+	"""
 	Send a query/request to a website
 
-    :param query_string: string with query content
-    :param clean:  (Default value = False)
+	:param query_string: string with query content
+	:param clean:  (Default value = False)
 
-    """
+	"""
 	response = requests.get(query_string)
 	if response.ok:
 		if not clean:
@@ -44,49 +44,49 @@ def send_query(query_string, clean=False):
 		raise ValueError("Invalide query string: {}".format(query_string))
 
 def listdir(fld):
-    """
+	"""
 	List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
 
-    :param fld: string, folder path
+	:param fld: string, folder path
 
-    """
+	"""
 	if not os.path.isdir(fld):
 		raise FileNotFoundError("Could not find directory: {}".format(fld))
 
 	return [os.path.join(fld, f) for f in os.listdir(fld)]
 
 def load_json(filepath):
-    """
+	"""
 	Load a JSON file
 
-    :param filepath: path to a file
+	:param filepath: path to a file
 
-    """
+	"""
 	if not os.path.isfile(filepath) or not ".json" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
 	with open(filepath) as f:
 		data = json.load(f)
 	return data
 
 def load_yaml(filepath):
-    """
+	"""
 	Load a YAML file
 
-    :param filepath: path to yaml file
+	:param filepath: path to yaml file
 
-    """
+	"""
 	if filepath is None or not os.path.isfile(filepath): raise ValueError("unrecognized file path: {}".format(filepath))
 	if not "yml" in filepath and not "yaml" in filepath: raise ValueError("unrecognized file path: {}".format(filepath))
 	return yaml.load(open(filepath), Loader=yaml.FullLoader)
 
 
 def load_volume_file(filepath, **kwargs):
-    """
+	"""
 	Load a volume file (e.g., .nii) and return vtk actor
 
-    :param filepath: path to file
-    :param **kwargs: 
+	:param filepath: path to file
+	:param **kwargs: 
 
-    """
+	"""
 	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
 	if ".x3d" in filepath.lower(): raise ValueError("BrainRender cannot use .x3d data as they are not supported by vtkplotter")

@@ -45,7 +45,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def __init__(self, brain_regions=None, regions_aba_color=False, 
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False, 
-                    display_inset=None, paths_file=None, add_screenshot_button=False):
+                    display_inset=None, base_dir=None, add_screenshot_button=False, **kwargs):
         """
             Creates and manages a Plotter instance
         
@@ -57,10 +57,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param verbose: if False less feedback is printed to screen (default value True)
             :param jupyter: when using BrainRender in Jupyter notebooks, this should be set to True (default value False)
             :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
-            :param paths_file: path to a JSON file with specified path to folders used to save data (default value None)
+            :param base_dir: path to directory to use for saving data (default value None)
             :param add_screenshot_button: if True a button is added to the scene to take screenshots of rendered data (default value None)
+            :param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
         """
-        ABA.__init__(self, paths_file=paths_file)
+        ABA.__init__(self, base_dir=base_dir, **kwargs)
 
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color

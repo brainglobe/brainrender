@@ -21,15 +21,15 @@ from BrainRender.Utils.paths_manager import Paths
 
 
 class NeuronsParser(Paths):
-    """ 
+	""" 
 		Takes care of parsing neuron's morphology data from different formats (.json, .swc) and rendering them as vtk actors. 
 		Supports various ways to specify how things should be rendered and classes to edit/modify rendered neurons. 
 		Also saves and loads the results of parsing. 
 	"""
 	def __init__(self, scene=None, 
 				render_neurites = True, mirror=False, 
-				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, paths_file=None,
-				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False):
+				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, base_dir=None,
+				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False, **kwargs):
 		"""
 		Set up variables used for rendering
 
@@ -44,8 +44,8 @@ class NeuronsParser(Paths):
 		:param random_color: Bool, if True a random color is used for each neuron.  (Default value = False)
 		:param color_by_region: bool, if True, neurons are colored according to the Allen Brain Atlas color for the region the soma is in.  (Default value = False)
 		:param force_to_hemisphere: str, if 'left' or 'right' neurons are rendered in the selected hemisphere, if False or None they are rendered in the original hemisphere.  (Default value = None)
-		:param paths_file: str, optional, file with specified paths to replace the default ones. (default value = None)
-		:param **kwargs: 
+		:param base_dir: path to directory to use for saving data (default value None)
+		:param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
 
 		"""
 		self.scene = scene # for the meaning of the arguments check self.render_neurons
@@ -60,7 +60,7 @@ class NeuronsParser(Paths):
 		self.color_by_region = color_by_region
 		self.force_to_hemisphere = force_to_hemisphere
 
-		Paths.__init__(self, paths_file=paths_file)
+		Paths.__init__(self, base_dir=base_dir, **kwargs)
 
 	def render_neurons(self, ml_file, **kwargs):
 		"""
@@ -701,14 +701,14 @@ class NeuronsParser(Paths):
 
 
 def edit_neurons(neurons, **kwargs):
-    """
+	"""
 		Modify neurons actors after they have been created, at render time.
 		neurons should be a list of dictionaries with soma, dendrite and axon actors of each neuron.
 
-    :param neurons: list of dictionaries with vtk actors for each neuron
-    :param **kwargs: 
+	:param neurons: list of dictionaries with vtk actors for each neuron
+	:param **kwargs: 
 
-    """
+	"""
 	soma_color, axon_color, dendrites_color = None, None, None
 	for neuron in neurons:
 		if "random_color" in kwargs:

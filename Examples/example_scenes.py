@@ -7,7 +7,7 @@ from BrainRender.variables import *
 from BrainRender.Utils.ABA.connectome import ABA
 
 from BrainRender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
-from BrainRender.Utils.MouseLightAPI.mouselight_download_neurons import download_neurons
+from BrainRender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
 
 from BrainRender.Utils.parsers.streamlines import StreamlinesAPI
 from BrainRender.Utils.data_io import listdir
@@ -15,6 +15,7 @@ from BrainRender.colors import get_n_shades_of
 
 aba = ABA()
 streamlines_api = StreamlinesAPI()
+mlapi = MouseLightAPI()
 
 
 camera = dict(
@@ -70,7 +71,7 @@ def NeuronsScene2():
     scene = Scene()
 
     neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOp5'])
-    neurons_files =  download_neurons(neurons_metadata[2:6]) 
+    neurons_files =  mlapi.download_neurons(neurons_metadata[2:6]) 
     scene.add_neurons(neurons_files, soma_color='deepskyblue', force_to_hemisphere="right")
 
     streamlines_files, data = streamlines_api.download_streamlines_for_region("MOp") 
@@ -83,7 +84,7 @@ def NeuronsScene3():
     scene = Scene()
 
     neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['VAL'])
-    neurons_files =  download_neurons(neurons_metadata[2:6]) 
+    neurons_files =  mlapi.download_neurons(neurons_metadata[2:6]) 
     scene.add_neurons(neurons_files, soma_color='deepskyblue', force_to_hemisphere="right")
 
     scene.add_brain_regions(['VAL'], use_original_color=False, colors='palegreen', alpha=.9)

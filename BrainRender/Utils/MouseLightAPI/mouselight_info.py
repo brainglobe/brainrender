@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from BrainRender.Utils.webqueries import *
 from BrainRender.Utils.ABA.connectome import ABA
-from BrainRender.Utils.data_manipulation import is_any_item_in_list#
+from BrainRender.Utils.data_manipulation import is_any_item_in_list
 
 
 """
@@ -16,7 +16,7 @@ from BrainRender.Utils.data_manipulation import is_any_item_in_list#
 """
 
 def mouselight_api_info():
-    """
+	"""
 		Get the number of cells available in the database
 	"""
 	# Get info from the ML API
@@ -34,7 +34,7 @@ def mouselight_api_info():
 	print("{} neurons on MouseLight database. ".format(res['queryData']['totalCount']))
 
 def mouselight_get_brainregions():
-    """
+	"""
 		Get metadata about the brain brain regions as they are known by Janelia's Mouse Light. IDs and Names sometimes differ from Allen's CCF.
 	"""
 
@@ -68,11 +68,11 @@ def mouselight_get_brainregions():
 	return structures_data
 
 def mouselight_structures_identifiers():
-    """
+	"""
 	When the data are downloaded as SWC, each node has a structure identifier ID to tell if it's soma, axon or dendrite.
 	This function returns the ID number --> structure table. 
 	BrainRender doesn't downlaod .swc from the API, but this might be useful for others or in the future.
-    """
+	"""
 
 	# Download the identifiers used in ML neurons tracers
 	url = mouselight_base_url + "graphql"
@@ -98,15 +98,16 @@ def mouselight_structures_identifiers():
 	return structures_identifiers
 
 
+
 def make_query(filterby=None, filter_regions=None, invert=False):
-    """
+	"""
 	Constructs the strings used to submit graphql queries to the mouse light api
 
-    :param filterby: str, soma, axon on dendrite. Search by neurite structure (Default value = None)
-    :param filter_regions:  list, tuple. list of strings. Acronyms of brain regions to use for query (Default value = None)
-    :param invert:  If true the inverse of the query is return (i.e. the neurons NOT in a brain region) (Default value = False)
+	:param filterby: str, soma, axon on dendrite. Search by neurite structure (Default value = None)
+	:param filter_regions:  list, tuple. list of strings. Acronyms of brain regions to use for query (Default value = None)
+	:param invert:  If true the inverse of the query is return (i.e. the neurons NOT in a brain region) (Default value = False)
 
-    """
+	"""
 	searchneurons = """
 				queryTime
 				totalCount
@@ -199,8 +200,8 @@ def make_query(filterby=None, filter_regions=None, invert=False):
 					tracingIdsOrDOIsExactMatch: false
 					tracingStructureIds: []
 					amount: 0
-		 			nodeStructureIds: ['{structure}']
-		 			brainAreaIds: {brainarea}
+					nodeStructureIds: ['{structure}']
+					brainAreaIds: {brainarea}
 					invert: {invert}
 					composition: 1
 					}}]
@@ -218,16 +219,16 @@ def make_query(filterby=None, filter_regions=None, invert=False):
 
 
 def mouselight_fetch_neurons_metadata(filterby = None, filter_regions=None, **kwargs):
-    """
+	"""
 	Download neurons metadata and data from the API. The downloaded metadata can be filtered to keep only
 	the neurons whose soma is in a list of user selected brain regions.
-    
-    :param filterby: Accepted values: "soma". If it's "soma", neurons are kept only when their soma
+	
+	:param filterby: Accepted values: "soma". If it's "soma", neurons are kept only when their soma
 					is in the list of brain regions defined by filter_regions (Default value = None)
-    :param filter_regions: List of brain regions acronyms. If filtering neurons, these specify the filter criteria. (Default value = None)
-    :param **kwargs: 
+	:param filter_regions: List of brain regions acronyms. If filtering neurons, these specify the filter criteria. (Default value = None)
+	:param **kwargs: 
 
-    """
+	"""
 	# Download all metadata
 	print("Querying MouseLight API...")
 	url = mouselight_base_url + "graphql"
