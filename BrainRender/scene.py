@@ -754,7 +754,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
         else:
-            if not isinstance(sl_file, (str, pd.DataFrame)): raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
+            if not isinstance(sl_file, (str, pd.DataFrame)): 
+                raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
             if not color_each:
                 if isinstance(sl_file, str):
                     streamlines = parse_streamline(filepath=sl_file, *args,  **kwargs)
@@ -1243,7 +1244,7 @@ class MultiScene:
         """
         if self.N > 4:
             print("Rendering {} scenes. Might take a few minutes.".format(self.N))
-        mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True)
+        mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True, bg=BACKGROUND_COLOR)
 
         actors = []
         for i, scene in enumerate(self.scenes):
