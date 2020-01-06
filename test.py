@@ -3,7 +3,7 @@
 """
 
 try:
-    from brainrender.scene import Scene, DualScene, RatScene, MultiScene , DrosophilaScene
+    from brainrender.scene import Scene, MultiScene
     from brainrender.variables import *
     from brainrender.colors import get_n_shades_of
     from brainrender.Utils.ABA.connectome import ABA
@@ -11,10 +11,10 @@ try:
     from brainrender.Utils.parsers.mouselight import NeuronsParser
     from brainrender.Utils.data_io import listdir
     from brainrender.Utils.MouseLightAPI.mouselight_info import *
-    from brainrender.Utils.MouseLightAPI.mouselight_download_neurons import *
+    from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
     from brainrender.Utils.videomaker import VideoMaker
-except:
-    raise ValueError("Failed at imports")
+except Exception as e:
+    raise ValueError("Failed at imports: {}".format(e))
 
 import os
 from random import choice
@@ -25,41 +25,42 @@ import json
 
 
 # ! TESTING SCENE CREATION
-print("Ceating scene + adding brain rgions")
+print("\n\nCeating scene + adding brain rgions")
 try:
     scene = Scene()
     regions = ["MOs", "VISp", "ZI"]
 
     scene.add_brain_regions(regions, colors="green")
-except:
-    raise ValueError("Failed at SCENE")
+except Exception as e:
+    raise ValueError("Failed at SCENE {}".format(e))
 
 # ! TESTING NEURONS RENDERING
-print("Rendering neurons")
+print("\n\nRendering neurons")
 try:
+    mlapi = MouseLightAPI()
     neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
-    neurons_files =  download_neurons(neurons_metadata[:2])
+    neurons_files =  mlapi.download_neurons(neurons_metadata[:2])
 
     parser = NeuronsParser(scene=scene, 
                          color_neurites=True, axon_color="antiquewhite", 
                          soma_color="darkgoldenrod", dendrites_color="firebrick")
     neurons, regions = parser.render_neurons(neurons_files)
 
-    scene.add_neurons(neurons_files, color_neurites=False, random_color="jet", display_axon_regions=True)
-except:
-    raise ValueError("Failed at NEURONS")
+    scene.add_neurons(neurons_files, color_neurites=False, random_color="jet", display_axon_regions=False)
+except Exception as e:
+    raise ValueError("Failed at NEURONS {}".format(e))
 
 # ! TESTING STREAMLINES
-print("Rendering streamlines")
+print("\n\nRendering streamlines")
 try:
     streamlines_files = listdir("Examples/example_files/streamlines")[:2]
     scene.add_streamlines(streamlines_files, color="green")
-except:
-    raise ValueError("Failed at STREAMLINES")
+except Exception as e:
+    raise ValueError("Failed at STREAMLINES {}".format(e))
 
 
 # ! TESTING TRACTOGRAPHY
-print("Rendering tractography")
+print("\n\nRendering tractography")
 try:
     analyzer = ABA()
     p0 = scene.get_region_CenterOfMass("ZI")
@@ -67,21 +68,14 @@ try:
     scene.add_tractography(tract, display_injection_structure=False, color_by="target_region", 
                                 VIP_regions=['MOs'], VIP_color="red", others_color="ivory"
                                )
-except:
-    raise ValueError("Failed at TRACTOGRAPHY")
+except Exception as e:
+    raise ValueError("Failed at TRACTOGRAPHY {}".format(e))
 
-# ! TESTING VIDEO
-print("Making video")
-try:
-    vm = VideoMaker(scene, savefile="Output/Videos/video.mp4", niters=25)
-    vm.make_video(elevation=1, roll=5)
-except:
-    raise ValueError("Failed at VIDEO")
 
 # ! TESTING RENDERING
-print("Rendering scene")
+print("\n\nRendering scene")
 try:
     scene.render()
-except:
-    raise ValueError("Failed at rendering")
+except Exception as e:
+    raise ValueError("Failed at rendering {}".format(e))
 
