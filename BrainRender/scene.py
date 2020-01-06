@@ -1127,10 +1127,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if interactive and not video:
             show(*self.get_actors(), interactive=True, camera=self.camera_params)
 
-        # Delete the plotter
-        plotter = vtkplotter.settings.plotter_instances[vtkplotter.settings.plotter_instances.index(self.plotter)]
-        plotter.closeWindow()
-        del plotter
 
     def _add_actors(self):
         if self.plotter.renderer is None:
