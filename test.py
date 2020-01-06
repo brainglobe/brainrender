@@ -34,6 +34,16 @@ try:
 except Exception as e:
     raise ValueError("Failed at SCENE {}".format(e))
 
+# ! TESTING STREAMLINES
+print("\n\nRendering streamlines")
+try:
+    streamlines_files = listdir("Examples/example_files/streamlines")[:2]
+    scene.add_streamlines(streamlines_files, color="green")
+except Exception as e:
+    raise ValueError("Failed at STREAMLINES {}".format(e))
+
+
+
 # ! TESTING NEURONS RENDERING
 print("\n\nRendering neurons")
 try:
@@ -49,14 +59,6 @@ try:
     scene.add_neurons(neurons_files, color_neurites=False, random_color="jet", display_axon_regions=False)
 except Exception as e:
     raise ValueError("Failed at NEURONS {}".format(e))
-
-# ! TESTING STREAMLINES
-print("\n\nRendering streamlines")
-try:
-    streamlines_files = listdir("Examples/example_files/streamlines")[:2]
-    scene.add_streamlines(streamlines_files, color="green")
-except Exception as e:
-    raise ValueError("Failed at STREAMLINES {}".format(e))
 
 
 # ! TESTING TRACTOGRAPHY
