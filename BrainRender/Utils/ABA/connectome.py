@@ -50,7 +50,7 @@ class ABA(Paths):
 		# get reference space
 		self.space = ReferenceSpaceApi()
 		self.spacecache = ReferenceSpaceCache(
-			manifest=os.path.join("Data/ABA", "manifest.json"),  # downloaded files are stored relative to here
+			manifest=os.path.join(self.annotated_volume, "manifest.json"),  # downloaded files are stored relative to here
 			resolution=self.resolution,
 			reference_space_key="annotation/ccf_2017"  # use the latest version of the CCF
 			)
