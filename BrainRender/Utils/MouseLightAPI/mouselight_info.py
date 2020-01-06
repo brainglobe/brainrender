@@ -4,9 +4,9 @@ sys.path.append('./')
 import pandas as pd
 from collections import namedtuple
 
-from BrainRender.Utils.webqueries import *
-from BrainRender.Utils.ABA.connectome import ABA
-from BrainRender.Utils.data_manipulation import is_any_item_in_list
+from brainrender.Utils.webqueries import *
+from brainrender.Utils.ABA.connectome import ABA
+from brainrender.Utils.data_manipulation import is_any_item_in_list
 
 
 """
@@ -71,7 +71,7 @@ def mouselight_structures_identifiers():
 	"""
 	When the data are downloaded as SWC, each node has a structure identifier ID to tell if it's soma, axon or dendrite.
 	This function returns the ID number --> structure table. 
-	BrainRender doesn't downlaod .swc from the API, but this might be useful for others or in the future.
+	brainrender doesn't downlaod .swc from the API, but this might be useful for others or in the future.
 	"""
 
 	# Download the identifiers used in ML neurons tracers

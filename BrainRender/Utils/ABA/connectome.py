@@ -12,7 +12,7 @@ from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 from allensdk.api.queries.tree_search_api import TreeSearchApi
 from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
-from BrainRender.Utils.paths_manager import Paths
+from brainrender.Utils.paths_manager import Paths
 
 
 class ABA(Paths):
@@ -31,7 +31,7 @@ class ABA(Paths):
 		
 		:param base_dir: path to directory to use for saving data (default value None)
 		:param path_fiprojection_metricle: - str, metric to quantify the strength of projections from the Allen Connectome. (default value 'projection_energy')
-		:param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
+		:param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
 
 		"""
 

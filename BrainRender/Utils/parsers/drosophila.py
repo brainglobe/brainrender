@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from vtkplotter import *
 
-from BrainRender.colors import *
-from BrainRender.variables import *
+from brainrender.colors import *
+from brainrender.variables import *
 
 
 def get_drosophila_regions_metadata(metadata_fld):

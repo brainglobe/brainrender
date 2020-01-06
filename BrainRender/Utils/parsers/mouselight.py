@@ -12,12 +12,12 @@ from collections import namedtuple
 
 import allensdk.core.swc as allen_swc
 
-from BrainRender.Utils.data_io import load_json, listdir
-from BrainRender.Utils.data_manipulation import get_coords, mirror_actor_at_point
-from BrainRender.colors import *
-from BrainRender.variables import *
+from brainrender.Utils.data_io import load_json, listdir
+from brainrender.Utils.data_manipulation import get_coords, mirror_actor_at_point
+from brainrender.colors import *
+from brainrender.variables import *
 
-from BrainRender.Utils.paths_manager import Paths
+from brainrender.Utils.paths_manager import Paths
 
 
 class NeuronsParser(Paths):
@@ -33,7 +33,7 @@ class NeuronsParser(Paths):
 		"""
 		Set up variables used for rendering
 
-		:param scene: instance of class BrainRender.Scene (Default value = None)
+		:param scene: instance of class brainrender.Scene (Default value = None)
 		:param render_neurites: Bool, If true, axons and dendrites are rendered (Default value = True)
 		:param neurite_radius: float with radius of axons and dendrites. If None default is used. (Default value = None)
 		:param color_neurites: Bool, if True axons and neurites are colored differently from the soma (Default value = True)
@@ -45,7 +45,7 @@ class NeuronsParser(Paths):
 		:param color_by_region: bool, if True, neurons are colored according to the Allen Brain Atlas color for the region the soma is in.  (Default value = False)
 		:param force_to_hemisphere: str, if 'left' or 'right' neurons are rendered in the selected hemisphere, if False or None they are rendered in the original hemisphere.  (Default value = None)
 		:param base_dir: path to directory to use for saving data (default value None)
-		:param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
+		:param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
 
 		"""
 		self.scene = scene # for the meaning of the arguments check self.render_neurons

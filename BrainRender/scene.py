@@ -11,20 +11,20 @@ from functools import partial
 from pathlib import Path
 import datetime
 
-from BrainRender.colors import *
-from BrainRender.variables import *
+from brainrender.colors import *
+from brainrender.variables import *
 
-from BrainRender.Utils.ABA.connectome import ABA
-from BrainRender.Utils.data_io import load_json, load_volume_file
-from BrainRender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
-from BrainRender.Utils import actors_funcs
+from brainrender.Utils.ABA.connectome import ABA
+from brainrender.Utils.data_io import load_json, load_volume_file
+from brainrender.Utils.data_manipulation import get_coords, flatten_list, get_slice_coord, is_any_item_in_list, mirror_actor_at_point
+from brainrender.Utils import actors_funcs
 
-from BrainRender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
-from BrainRender.Utils.parsers.streamlines import parse_streamline
-from BrainRender.Utils.parsers.rat import get_rat_mesh_from_region, get_rat_regions_metadata
-from BrainRender.Utils.parsers.drosophila import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
+from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
+from brainrender.Utils.parsers.streamlines import parse_streamline
+from brainrender.Utils.parsers.rat import get_rat_mesh_from_region, get_rat_regions_metadata
+from brainrender.Utils.parsers.drosophila import get_drosophila_mesh_from_region, get_drosophila_regions_metadata
 
-from BrainRender.Utils.image import image_to_surface
+from brainrender.Utils.image import image_to_surface
 
 
 class Scene(ABA):  # subclass brain render to have acces to structure trees
@@ -55,11 +55,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param tracts: list of JSON files with tractography data to be rendered (default value None)
             :param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
             :param verbose: if False less feedback is printed to screen (default value True)
-            :param jupyter: when using BrainRender in Jupyter notebooks, this should be set to True (default value False)
+            :param jupyter: when using brainrender in Jupyter notebooks, this should be set to True (default value False)
             :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
             :param base_dir: path to directory to use for saving data (default value None)
             :param add_screenshot_button: if True a button is added to the scene to take screenshots of rendered data (default value None)
-            :param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
+            :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
         """
         ABA.__init__(self, base_dir=base_dir, **kwargs)
 

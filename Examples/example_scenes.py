@@ -2,16 +2,16 @@ import sys
 sys.path.append("./")
 import pandas as pd
 
-from BrainRender.scene import Scene
-from BrainRender.variables import *
-from BrainRender.Utils.ABA.connectome import ABA
+from brainrender.scene import Scene
+from brainrender.variables import *
+from brainrender.Utils.ABA.connectome import ABA
 
-from BrainRender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
-from BrainRender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
+from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
+from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
 
-from BrainRender.Utils.parsers.streamlines import StreamlinesAPI
-from BrainRender.Utils.data_io import listdir
-from BrainRender.colors import get_n_shades_of
+from brainrender.Utils.parsers.streamlines import StreamlinesAPI
+from brainrender.Utils.data_io import listdir
+from brainrender.colors import get_n_shades_of
 
 aba = ABA()
 streamlines_api = StreamlinesAPI()
@@ -188,7 +188,7 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "NeuronsScene2"
+    scene = "BrainRegionsScene"
     scenes[scene]()
 
 

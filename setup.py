@@ -23,7 +23,7 @@ setup(
     packages=find_namespace_packages(exclude=(
         "Installation", "Meshes", "Metadata", "Screenshots")),
     include_package_data=True,
-    url="https://github.com/BrancoLab/BrainRender",
+    url="https://github.com/BrancoLab/brainrender",
     author="Federico Claudi",
     zip_safe=False,
 )

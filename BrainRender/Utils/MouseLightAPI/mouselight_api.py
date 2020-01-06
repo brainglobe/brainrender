@@ -5,8 +5,8 @@ import json
 import os 
 from tqdm import tqdm
 
-from BrainRender.Utils.webqueries import *
-from BrainRender.Utils.paths_manager import Paths
+from brainrender.Utils.webqueries import *
+from brainrender.Utils.paths_manager import Paths
 
 
 """
@@ -19,7 +19,7 @@ class MouseLightAPI(Paths):
 			Handles the download of neurons morphology data from the Mouse Light project
 
 			:param base_dir: path to directory to use for saving data (default value None)
-			:param kwargs: can be used to pass path to individual data folders. See BrainRender/Utils/paths_manager.py
+			:param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
 		"""
 		Paths.__init__(self, base_dir=base_dir, **kwargs)
 
@@ -90,7 +90,7 @@ class MouseLightAPI(Paths):
 	def download_neurons(self, neurons_metadata):
 		"""
 		Given a list of neurons metadata, as obtained by interaction with the mouselight databse [http://ml-neuronbrowser.janelia.org/graphql]
-		using BrainRender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata,
+		using brainrender.Utils.MouseLightAPI.mouselight_info.mouselight_fetch_neurons_metadata,
 		this function downlaods tracing data from http://ml-neuronbrowser.janelia.org/tracings/tracings.]
 
 		:param neurons_metadata: list with metadata for neurons to download

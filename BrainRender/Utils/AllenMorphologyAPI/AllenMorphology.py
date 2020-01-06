@@ -9,8 +9,8 @@ from allensdk.core.cell_types_cache import CellTypesCache
 from allensdk.api.queries.cell_types_api import CellTypesApi
 from allensdk.core.swc import Morphology
 
-from BrainRender.Utils.paths_manager import Paths
-from BrainRender.Utils.data_io import connected_to_internet
+from brainrender.Utils.paths_manager import Paths
+from brainrender.Utils.data_io import connected_to_internet
 
 """
     WORK IN PROGRESS

@@ -3,16 +3,16 @@
 """
 
 try:
-    from BrainRender.scene import Scene, DualScene, RatScene, MultiScene , DrosophilaScene
-    from BrainRender.variables import *
-    from BrainRender.colors import get_n_shades_of
-    from BrainRender.Utils.ABA.connectome import ABA
-    from BrainRender.Utils.parsers.streamlines import *
-    from BrainRender.Utils.parsers.mouselight import NeuronsParser
-    from BrainRender.Utils.data_io import listdir
-    from BrainRender.Utils.MouseLightAPI.mouselight_info import *
-    from BrainRender.Utils.MouseLightAPI.mouselight_download_neurons import *
-    from BrainRender.Utils.videomaker import VideoMaker
+    from brainrender.scene import Scene, DualScene, RatScene, MultiScene , DrosophilaScene
+    from brainrender.variables import *
+    from brainrender.colors import get_n_shades_of
+    from brainrender.Utils.ABA.connectome import ABA
+    from brainrender.Utils.parsers.streamlines import *
+    from brainrender.Utils.parsers.mouselight import NeuronsParser
+    from brainrender.Utils.data_io import listdir
+    from brainrender.Utils.MouseLightAPI.mouselight_info import *
+    from brainrender.Utils.MouseLightAPI.mouselight_download_neurons import *
+    from brainrender.Utils.videomaker import VideoMaker
 except:
     raise ValueError("Failed at imports")
 

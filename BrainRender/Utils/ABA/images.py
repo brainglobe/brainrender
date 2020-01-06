@@ -15,7 +15,7 @@ from allensdk.api.queries.image_download_api import ImageDownloadApi
 from allensdk.api.queries.annotated_section_data_sets_api import AnnotatedSectionDataSetsApi
 from allensdk.api.queries.ontologies_api import OntologiesApi
 
-from BrainRender.Utils.data_io import send_query, connected_to_internet
+from brainrender.Utils.data_io import send_query, connected_to_internet
 
 class ImageDownload(SvgApi, ImageDownloadApi):
     """ 

@@ -47,8 +47,8 @@ class Paths:
 
     def __init__(self, base_dir=None, **kwargs):
         """
-        Parses a YAML file to get data folders paths. Stores paths to a number of folders used throughtout BrainRender. 
-        Other classes (e.g. BrainRender.Scene) subclass Paths.
+        Parses a YAML file to get data folders paths. Stores paths to a number of folders used throughtout brainrender. 
+        Other classes (e.g. brainrender.Scene) subclass Paths.
         
         :param base_dir: str with path to directory to use to save data. If none the user's base directiry is used. 
         :param kwargs: use the name of a folder as key and a path as argument to specify the path of individual subfolders
@@ -57,7 +57,7 @@ class Paths:
         if base_dir is None:
             user_dir = os.path.expanduser("~")
             if not os.path.isdir(user_dir):
-                raise FileExistsError("Could not find user base folder (to save BrainRender data). Platform: {}".format(sys.platform))
+                raise FileExistsError("Could not find user base folder (to save brainrender data). Platform: {}".format(sys.platform))
             self.base_dir = os.path.join(user_dir, ".brainrender")
         else:
             self.base_dir = base_dir

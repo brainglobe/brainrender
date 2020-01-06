@@ -5,9 +5,9 @@ import os
 import pandas as pd
 from vtkplotter import *
 
-from BrainRender.colors import *
-from BrainRender.variables import *
-from BrainRender.Utils.paths_manager import Paths
+from brainrender.colors import *
+from brainrender.variables import *
+from brainrender.Utils.paths_manager import Paths
 
 
 def get_rat_regions_metadata(metadata_fld):

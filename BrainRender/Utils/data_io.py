@@ -89,7 +89,7 @@ def load_volume_file(filepath, **kwargs):
 	"""
 	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
-	if ".x3d" in filepath.lower(): raise ValueError("BrainRender cannot use .x3d data as they are not supported by vtkplotter")
+	if ".x3d" in filepath.lower(): raise ValueError("brainrender cannot use .x3d data as they are not supported by vtkplotter")
 
 	elif "nii" in filepath.lower() or ".label" in filepath.lower():
 		import nibabel as nb

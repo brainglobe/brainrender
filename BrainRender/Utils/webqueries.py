@@ -1,7 +1,7 @@
 import sys
 sys.path.append("./")
 
-from BrainRender.Utils.data_io import connected_to_internet
+from brainrender.Utils.data_io import connected_to_internet
 
 import requests
 import json
