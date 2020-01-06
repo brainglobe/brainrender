@@ -1,10 +1,8 @@
 """ ------------------------------
-    SET OF FUNCTIONS TO VISUALIZE AND DOWNLOAD IMAGES FROM ALLEN MOUSE BRAIN DATASETS
-
-
-    VERY MUCH WORK IN PROGRESS STILL
+    SET OF FUNCTIONS TO VISUALIZE AND DOWNLOAD IMAGES FROM ALLEN MOUSE BRAIN DATASETS:
+        - Download images from experiments (e.g. ISH gene expression images)
+        - Download SVG/PNG version of the Allen Brain Atlas images (for any atlas)
 """ 
-# %%
 import sys
 sys.path.append('./')
 
@@ -19,8 +17,10 @@ from allensdk.api.queries.ontologies_api import OntologiesApi
 
 from BrainRender.Utils.data_io import send_query, connected_to_internet
 
-# %%
 class ImageDownload(SvgApi, ImageDownloadApi):
+    """ 
+    Handles query to the Allen ImageDownloadApi and saves the data
+    """
     # useful tutorial: https://allensdk.readthedocs.io/en/latest/_static/examples/nb/image_download.html
     def __init__(self):
         SvgApi.__init__(self)           # https://github.com/AllenInstitute/AllenSDK/blob/master/allensdk/api/queries/svg_api.py
@@ -48,26 +48,69 @@ class ImageDownload(SvgApi, ImageDownloadApi):
 
     # UTILS
     def get_atlas_by_name(self, atlas_name):
+        """
+        Get a brain atlas in the Allen's database given it's name
+
+        :param atlas_name: str with atlas name
+
+        """
         if not atlas_name in self.atlases_names: raise ValueError("Available atlases: {}".format(self.atlases_names))
         return self.atlases.loc[self.atlases['name'] == atlas_name].id.values[0]
 
     def get_products_by_species(self, species):
+        """
+        Get all 'products' in the Allen Database for a given species
+
+        :param species: str
+
+        """
         return self.products.loc[self.products.species == species]
 
     def get_experimentsid_by_productid(self, productid, **kwargs):
+        """
+        Get the experiment's ID that belong to the same project (product).
+
+        :param productid: int with product ID number
+        :param **kwargs: 
+
+        """
         # for more details: https://github.com/AllenInstitute/AllenSDK/blob/master/allensdk/api/queries/image_download_api.py
         return pd.DataFrame(self.get_section_data_sets_by_product([productid], **kwargs))
 
     def get_experimentimages_by_expid(self, expid):
+        """
+        Get's images that belong to an experiment
+
+        :param expid: int with experiment name. 
+
+        """
         # expid should be a section dataset id
         return pd.DataFrame(self.section_image_query(expid))
 
     def get_atlasimages_by_atlasid(self, atlasid):
+        """
+        Get the metadata of images that belong to an atlas. 
+
+        :param atlasid: int with atlas number
+
+        """
         if not isinstance(atlasid, int): 
             raise ValueError("Atlas id should be an integer not: {}".format(atlasid))
         return pd.DataFrame(self.atlas_image_query(atlasid))
 
     def download_images_by_imagesid(self, savedir, imagesids, downsample=0, annotated=True, snames=None,  atlas_svg=True):
+        """
+        Downloads and saves images given a list of images IDs. 
+
+
+        :param savedir: str, folder in which to save the image
+        :param imagesids: list of int with images IDs
+        :param downsample: downsample factor, to reduce the image size and resolution (Default value = 0)
+        :param annotated: if True the images are overlayed with annotations  (Default value = True)
+        :param snames: if True the images are overlayed with the structures names (Default value = None)
+        :param atlas_svg: if True fetches the images as SVG, otherwise as PNG (Default value = True)
+
+        """
         if not os.path.isdir(savedir):
             os.mkdir(savedir)
         
@@ -100,16 +143,16 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         os.chdir(curdir)
 
     def download_images_by_atlasid(self, savedir, atlasid, **kwargs):
+        """
+        Downloads all the images that belong to an altlas
+
+        :param savedir: str, folder in which to save the images
+        :param atlasid: int, ID of the atlas to use
+        :param **kwargs: keyword arguments for self.download_images_by_imagesid
+
+        """
         imgsids = self.get_atlasimages_by_atlasid(atlasid)['id']
         imgs_secs_n = self.get_atlasimages_by_atlasid(atlasid)['section_number']
 
         self.download_images_by_imagesid(savedir, imgsids, snames=imgs_secs_n,  **kwargs)
-
-
-imgd = ImageDownload()
-
-# %%
-# Products are the different types of experiments performed by allen
-path = "/Users/federicoclaudi/Dropbox (UCL - SWC)/Rotation_vte/Presentations/atlases/allen_mouse_sagittal"
-imgd.download_images_by_atlasid(path, imgd.mouse_sagittal_atlas_id, atlas_svg=True)
 

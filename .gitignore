@@ -24,6 +24,7 @@ Output/Data/*
 Output/Scenes/*
 Output/Screenshots/*
 Output/Videos/*
+Data/ABA/*
 
 # User folder where they can save stuff without it being tracked by git
 User/*

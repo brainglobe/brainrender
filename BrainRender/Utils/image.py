@@ -4,11 +4,12 @@ from brainio import brainio
 
 
 def marching_cubes_to_obj(marching_cubes_out, output_file):
-    """[Saves the output of skimage.measure.marching_cubes as an .obj file]
+    """
+    Saves the output of skimage.measure.marching_cubes as an .obj file
 
-    Arguments:
-        marching_cubes_out {[tuple]} -- [skimage.measure.marching_cubes output]
-        output_file {[str]} -- [File to write to]
+    :param marching_cubes_out: tuple
+    :param output_file: str
+
     """
 
     verts, faces, normals, _ = marching_cubes_out
@@ -24,12 +25,15 @@ def marching_cubes_to_obj(marching_cubes_out, output_file):
 
 
 def reorient_image(image, invert_axes=None, orientation="saggital"):
-    """[Reorients the image to the coordinate space of the atlas]
+    """
+    Reorients the image to the coordinate space of the atlas
 
-    Arguments:
-        image_path {[str]} -- [Path of image file]
-        threshold {[float]} -- [Image threshold to define the surface] (default: {0})
-        invert_axes {[tuple]} -- [Tuple of axes to invert (if not in the same orientation as the atlas] (default: {None})
+    :param image_path: str
+    :param threshold: float
+    :param invert_axes: tuple (Default value = None)
+    :param image: 
+    :param orientation:  (Default value = "saggital")
+
     """
     # TODO: move this to brainio
     if invert_axes is not None:
@@ -49,14 +53,18 @@ def reorient_image(image, invert_axes=None, orientation="saggital"):
 def image_to_surface(image_path, obj_file_path, voxel_size=1.0,
                      threshold=0, invert_axes=None, orientation="saggital",
                      step_size=1):
-    """[Saves the surface of an image as an .obj file]
+    """
+    Saves the surface of an image as an .obj file
 
-    Arguments:
-        image_path {[str]} -- [Path of image file]
-        output_file {[obj_file_path]} -- [File to write to]
-        voxel_size {[float]} -- [Voxel size of the image (in um). Only isotropic voxels supported currently] (default: {1})
-        threshold {[float]} -- [Image threshold to define the surface] (default: {0})
-        invert_axes {[tuple]} -- [Tuple of axes to invert (if not in the same orientation as the atlas] (default: {None})
+    :param image_path: str
+    :param output_file: obj_file_path
+    :param voxel_size: float (Default value = 1.0)
+    :param threshold: float (Default value = 0)
+    :param invert_axes: tuple (Default value = None)
+    :param obj_file_path: 
+    :param orientation:  (Default value = "saggital")
+    :param step_size:  (Default value = 1)
+
     """
 
     image = brainio.load_any(image_path)

@@ -3,7 +3,7 @@ Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and 
 reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
 on how to use BrainRender.
 
-<img src="Docs/Media/brainrender.png" width="1000">
+<img src="Docs/Media/streamlines2.png" width="1000">
 
 
 ## Resources
@@ -26,24 +26,27 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
 
 # Example screenshots. 
+## Brain Regions anatomy from the Allen Mouse Brain
+<img src="Docs/Media/brainregions.png" width="750">
+Location of the Ventral posterior complex of the thalamus within the thalamus.
+
 ## Mouse Light neurons morphology rendering
-<img src="Docs/Media/neuron.png" width="600" height="350">
+<img src="Docs/Media/morphology.png" width="750">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
-<img src="Docs/Media/m1th_2.png" width="750" height="400">
-
-## Rendering of different sets of brainstem projecting neurons using MultiScene
-<img src="Docs/Media/multiscene_1.png" width="600" height="350">
-Sets of neurons projecting to the brainstem, sorted by brain region.
+<img src="Docs/Media/neuronsandstreamlines2.png" width="750">
+Motor cortex piramidal neurons reconstruction from Mouse Light alongside streamlines
+tractography from the Allen Mouse Connectome data.
 
 ## Allen mouse connectome projection data rendering
-### Tractography
-<img src="Docs/Media/tractography.png" width="600" height="350">
+<img src="Docs/Media/tractography.png" width="750">
 Projections to the Zona Incerta, colored by projection area.
 
-### Streamlines
-<img src="Docs/Media/streamlinesZI2.png" width="750" height="400">
-<img src="Docs/Media/streamlines2.png" width="750" height="400">
+<img src="Docs/Media/streamlines.png" width="750">
+Efferent projections from the PAG.
+
+<img src="Docs/Media/streamlines2.png" width="750">
+Efferent projections from the secondary motor cortex.
 
 ## Video
 <img src="Docs/Media/brainrender.gif" width="500">
@@ -51,12 +54,12 @@ Projections to the Zona Incerta, colored by projection area.
 
 
 ## Referencing Brain Render
-If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please accessknowledge BrainRender's contribution.
+If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution.
 
 
 # Similar tools
 ## In R
-`cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://help.github.com/en/articles/creating-and-highlighting-code-blocks).
+`cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://github.com/AllenInstitute/cocoframer).
 
 `mouselightr` package generates 3D CCF mouse brain plots, along with MouseLight neuron reconstructions [github repository](https://github.com/jefferis/nat.mouselight)
 

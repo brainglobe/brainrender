@@ -12,8 +12,20 @@ from allensdk.core.swc import Morphology
 from BrainRender.Utils.paths_manager import Paths
 from BrainRender.Utils.data_io import connected_to_internet
 
+"""
+    WORK IN PROGRESS
+
+    This class should handle the download and visualisation of neuronal morphology data from the Allen database.
+"""
+
+
 class AllenMorphology(Paths):
+    """ Handles the download and visualisation of neuronal morphology data from the Allen database. """
+
     def __init__(self, *args, **kwargs):
+        """
+            Initialise API interaction and fetch metadata of neurons in the Allen Database. 
+        """
         if not connected_to_internet():
             raise ConnectionError("You will need to be connected to the internet to use the AllenMorphology class")
 
@@ -30,9 +42,18 @@ class AllenMorphology(Paths):
         self.downloaded_neurons = self.get_downloaded_neurons()
 
     def get_downloaded_neurons(self):
+        """ 
+            Get's the path to files of downloaded neurons
+        """
         return [os.path.join(self.morphology_allen, f) for f in os.listdir(self.morphology_allen) if ".swc" in f]    
 
     def download_neurons(self, ids):
+        """
+            Download neurons
+
+        :param ids: list of integers with neurons IDs
+
+        """
         if isinstance(ids, np.ndarray):
             ids = list(ids)
         if not isinstance(ids, (list)): ids = [ids]

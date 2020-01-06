@@ -5,13 +5,11 @@ requirements = [
     "pandas",
     "vtkplotter",
     "vtk",
-    "jupyter",
     "allensdk",
-    "k3d",
     "tqdm",
     "pyyaml",
     "scikit-image",
-    "brainio",
+    "brainio>=0.0.9",
 ]
 
 setup(
@@ -20,6 +18,7 @@ setup(
     description="Python scripts to use Allen Brain Map data for analysis "
                 "and rendering",
     install_requires=requirements,
+    extras_require={"nb": ["jupyter", "k3d" ]},
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=(
         "Installation", "Meshes", "Metadata", "Screenshots")),

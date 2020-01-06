@@ -269,12 +269,23 @@ colors2 = [
 
 
 def get_n_shades_of(shade, n):
+    """
+
+    :param shade: 
+    :param n: 
+
+    """
     shades = [k for k,v in colors.items() if shade in k]
     if not shades: raise ValueError("Could not find shades for {}".format(shade))
     else:
         return random.choices(shades, k=n)
 
 def _isSequence(arg):
+    """
+
+    :param arg: 
+
+    """
     # Check if input is iterable.
     if hasattr(arg, "strip"):
         return False
@@ -286,9 +297,9 @@ def _isSequence(arg):
 
 
 def getColor(rgb=None, hsv=None):
-    """
-    Convert a color or list of colors to (r,g,b) format from many different input formats.
-    :param bool hsv: if set to `True`, rgb is assumed as (hue, saturation, value).
+    """Convert a color or list of colors to (r,g,b) format from many different input formats.
+
+    :param bool: hsv: if set to `True`, rgb is assumed as (hue, saturation, value).
     Example:
          - RGB    = (255, 255, 255), corresponds to white
          - rgb    = (1,1,1) is white
@@ -299,6 +310,9 @@ def getColor(rgb=None, hsv=None):
          - int    =  7 picks color nr. 7 in a predefined color list
          - int    = -7 picks color nr. 7 in a different predefined list
     |colorcubes| |colorcubes.py|_
+    :param rgb:  (Default value = None)
+    :param hsv:  (Default value = None)
+
     """
     # recursion, return a list if input is list of colors:
     if _isSequence(rgb) and (len(rgb) > 3 or _isSequence(rgb[0])):
@@ -368,9 +382,11 @@ def getColor(rgb=None, hsv=None):
 
 
 def getColorName(c):
-    """
-    Find the name of a color.
+    """Find the name of a color.
     |colorpalette| |colorpalette.py|_
+
+    :param c: 
+
     """
     c = np.array(getColor(c))  # reformat to rgb
     mdist = 99.0
@@ -385,30 +401,45 @@ def getColorName(c):
 
 
 def hsv2rgb(hsv):
-    """Convert HSV to RGB color."""
+    """Convert HSV to RGB color.
+
+    :param hsv: 
+
+    """
     ma = vtk.vtkMath()
     return ma.HSVToRGB(hsv)
 
 
 def rgb2hsv(rgb):
-    """Convert RGB to HSV color."""
+    """Convert RGB to HSV color.
+
+    :param rgb: 
+
+    """
     ma = vtk.vtkMath()
     return ma.RGBToHSV(getColor(rgb))
 
 
 def rgb2int(rgb_tuple):
-    """Return the int number of a color from (r,g,b), with 0<r<1 etc."""
+    """
+
+    :param rgb_tuple: 
+
+    """
     rgb = (int(rgb_tuple[0] * 255), int(rgb_tuple[1] * 255), int(rgb_tuple[2] * 255))
     return 65536 * rgb[0] + 256 * rgb[1] + rgb[2]
 
 
 def colorMap(value, name="jet", vmin=None, vmax=None):
     """Map a real value in range [vmin, vmax] to a (r,g,b) color scale.
+
     :param value: scalar value to transform into a color
     :type value: float, list
-    :param name: color map name
+    :param name: color map name (Default value = "jet")
     :type name: str, matplotlib.colors.LinearSegmentedColormap
-    :return: (r,g,b) color, or a list of (r,g,b) colors.
+    :param vmin:  (Default value = None)
+    :param vmax:  (Default value = None)
+    :returns: return: (r,g,b) color, or a list of (r,g,b) colors.
     .. note:: Most frequently used color maps:
         |colormaps|
         Matplotlib full list:
@@ -420,6 +451,7 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
                 import matplotlib.cm as cm
                 print( colorMap(0.2, cm.flag, 0, 1) )
                 (1.0, 0.809016994374948, 0.6173258487801733)
+
     """
     if not _mapscales:
         print("-------------------------------------------------------------------")
@@ -459,14 +491,17 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
 
 
 def makePalette(color1, color2, N, hsv=True):
-    """
-    Generate N colors starting from `color1` to `color2`
+    """Generate N colors starting from `color1` to `color2`
     by linear interpolation HSV in or RGB spaces.
-    :param int N: number of output colors.
+
+    :param int: N: number of output colors.
     :param color1: first rgb color.
     :param color2: second rgb color.
-    :param bool hsv: if `False`, interpolation is calculated in RGB space.
+    :param bool: hsv: if `False`, interpolation is calculated in RGB space.
     .. hint:: Example: |colorpalette.py|_
+    :param N: 
+    :param hsv:  (Default value = True)
+
     """
     if hsv:
         color1 = rgb2hsv(color1)
@@ -483,6 +518,11 @@ def makePalette(color1, color2, N, hsv=True):
 
 
 def get_random_colors(n_colors=1):
+    """
+
+    :param n_colors:  (Default value = 1)
+
+    """
     if not isinstance(n_colors, np.int): raise ValueError("n_colors should be an integer")
     if n_colors <= 0: raise ValueError("n_colors should be bigger or equal to 0")
 
@@ -493,6 +533,11 @@ def get_random_colors(n_colors=1):
 
 
 def check_colors(color):
+    """
+
+    :param color: 
+
+    """
     if isinstance(color, list):
         for col in color:
             try:

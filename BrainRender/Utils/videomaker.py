@@ -5,11 +5,10 @@ from vtkplotter import *
 import inspect
 import os
 
-from BrainRender.Utils.data_io import strip_path
-
 class VideoMaker:
     def __init__(self, scene, **kwargs):
-        """[This class takes care of creating videos with animating scenes.]
+        """
+        This class takes care of creating videos with animating scenes.
         """
         self.scene = scene
 
@@ -25,13 +24,19 @@ class VideoMaker:
         self.default_niters = 50
 
     def update_params(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         self.savefile = kwargs.pop("savefile", self.savefile)
         self.duration = kwargs.pop("duration", self.duration)
         self.niters = kwargs.pop("niters", self.niters)
         self.fps = kwargs.pop("fps", self.fps)
 
     def _setup_videos(self):
-        """[Checks that variables useful for creating a video (e.g. fps) have been set, sets them as default parameters otherwise.]
+        """
+        Checks that variables useful for creating a video (e.g. fps) have been set, sets them as default parameters otherwise.
         """
         # check if scene is rendered
         if not self.scene.is_rendered:
@@ -58,18 +63,19 @@ class VideoMaker:
 
 
     def make_video(self, azimuth=0, elevation=0, roll=0):
-        """[Creates a video using user defined parameters]
-        
-        Keyword Arguments:
-            azimuth {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
-            elevation {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
-            roll {int} -- [integer, specify the rotation in degrees per frame on the relative axis.] (default: {0})
+        """
+        Creates a video using user defined parameters
+    
+        :param azimuth: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+        :param elevation: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+        :param roll: integer, specify the rotation in degrees per frame on the relative axis. (Default value = 0)
+
         """
         self._setup_videos()
 
         # open a video file and force it to last 3 seconds in total
-        stripped = strip_path(self.savefile)
-        folder, name = os.path.join(*stripped[:-1]), stripped[-1]
+        folder = os.path.dirname(self.savefile)
+        name = os.path.basename(self.savefile)
         curdir = os.getcwd()
         os.chdir(folder)
         video = Video(name=name, duration=self.duration, fps=self.fps)
@@ -84,39 +90,19 @@ class VideoMaker:
         os.chdir(curdir)
 
     def make_video_custom(self, videofunc):
-        """[Let's users use a custom function to create the video. This function can do any manipulation of
-        video frames it wants, but it MUST have 'scene' and 'video' keyword arguments. The function must also return video object.]
-        
-        Arguments:
-            videofunc {[function]} -- [custom function used to generate frames]
-        
-        Raises:
-            ValueError: [Raises an error if videofunc doesn't have 'scene' and 'video' keyword arguments]
+        """
+        Let's users use a custom function to create the video. This function can do any manipulation of
+        video frames it wants, but it MUST have 'scene' and 'video' keyword arguments. The function must also return video object.
 
-
-            The content of the custom videofunc should look something like this:
-            def func(scene=None, video=None):
-                for i in range(100):
-                    scene.plotter.show()  
-                    scene.plotter.camera.Elevation(5)
-                    video.addFrame()
-                return video
+        :param videofunc: function
         """
         self._setup_videos()
-
-        # check if the custom function takes scene as a keyword argument
-        sig =  inspect.signature(videofunc)
-        kwargs = [p.name for p in sig.parameters.values() if p.kind == p.KEYWORD_ONLY]
-        if 'scene' not in kwargs:
-            raise ValueError("The custom video function should have a keyword argument called 'scene'")
-        if 'video' not in kwargs:
-            raise ValueError("The custom video function should have a keyword argument called 'video'")
 
         # open a video file and force it to last 3 seconds in total
         video = Video(name=self.savefile, duration=self.duration, fps=self.fps)
 
         # run custom function
-        video = videofunc(scene=scene, video=video)
+        video = videofunc(scene=self, video=video)
 
         if video is None: raise ValueError("The custom video function didn't return anything. It must return the video object so that it can be closed properly.")
 
