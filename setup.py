@@ -3,7 +3,7 @@ from setuptools import setup, find_namespace_packages
 requirements = [
     "numpy",
     "pandas",
-    "vtkplotter",
+    "vtkplotter>=2020.0.1",
     "vtk",
     "allensdk",
     "tqdm",
@@ -14,7 +14,7 @@ requirements = [
 
 setup(
     name="brainrender",
-    version="0.2.4",
+    version="0.2.5",
     description="Python scripts to use Allen Brain Map data for analysis "
                 "and rendering",
     install_requires=requirements,
