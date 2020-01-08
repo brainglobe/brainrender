@@ -775,9 +775,9 @@ def edit_neurons(neurons, **kwargs):
 				# get mesh points coords and shift them to other hemisphere
 				if isinstance(actor, list):
 					continue
-				coords = actor.coordinates()
+				coords = actor.points()
 				shifted_coords = [[c[0], c[1], mcoord + (mcoord-c[2])] for c in coords]
-				actor.setPoints(shifted_coords)
+				actor.points(shifted_coords)
 			
 				neuron[name] = actor.mirror(axis='n')
 
