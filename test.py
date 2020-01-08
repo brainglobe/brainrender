@@ -4,7 +4,7 @@
 
 try:
     from brainrender.scene import Scene, MultiScene
-    from brainrender.variables import *
+    from brainrender import *
     from brainrender.colors import get_n_shades_of
     from brainrender.Utils.ABA.connectome import ABA
     from brainrender.Utils.parsers.streamlines import *

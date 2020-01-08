@@ -12,7 +12,7 @@ from pathlib import Path
 import datetime
 
 from brainrender.colors import *
-from brainrender.variables import *
+from brainrender import *
 
 from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_io import load_json, load_volume_file

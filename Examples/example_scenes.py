@@ -3,7 +3,7 @@ sys.path.append("./")
 import pandas as pd
 
 from brainrender.scene import Scene
-from brainrender.variables import *
+from brainrender import *
 from brainrender.Utils.ABA.connectome import ABA
 
 from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata

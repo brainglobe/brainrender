@@ -14,7 +14,7 @@ from tqdm import tqdm
 from brainrender.Utils.data_io import load_json
 from brainrender.Utils.data_manipulation import get_coords
 from brainrender.colors import *
-from brainrender.variables import *
+from brainrender import *
 from brainrender.Utils.webqueries import request
 from brainrender.Utils.ABA.connectome import ABA
 

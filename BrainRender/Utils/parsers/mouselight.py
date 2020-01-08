@@ -15,7 +15,7 @@ import allensdk.core.swc as allen_swc
 from brainrender.Utils.data_io import load_json, listdir
 from brainrender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from brainrender.colors import *
-from brainrender.variables import *
+from brainrender import *
 
 from brainrender.Utils.paths_manager import Paths
 
