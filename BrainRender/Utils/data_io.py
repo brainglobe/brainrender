@@ -55,6 +55,46 @@ def listdir(fld):
 
 	return [os.path.join(fld, f) for f in os.listdir(fld)]
 
+def save_json(filepath, content, append=False):
+	"""
+	Saves content to a JSON file
+
+	:param filepath: path to a file (must include .json)
+	:param content: dictionary of stuff to save
+
+	"""
+	if not 'json' in filepath:
+		raise ValueError("filepath is invalid")
+
+	if not append:
+		with open(filepath, 'w') as json_file:
+			json.dump(content, json_file, indent=4)
+	else:
+		with open(filepath, 'w+') as json_file:
+			json.dump(content, json_file, indent=4)
+
+
+def save_yaml(filepath, content, append=False, topcomment=None):
+	"""
+	Saves content to a yaml file
+
+	:param filepath: path to a file (must include .yaml)
+	:param content: dictionary of stuff to save
+
+	"""
+	if not 'yaml' in filepath:
+		raise ValueError("filepath is invalid")
+
+	if not append:
+		method = 'w'
+	else:
+		method = 'w+'
+
+	with open(filepath, method) as yaml_file:
+		if topcomment is not None:
+			yaml_file.write(topcomment)
+		yaml.dump(content,yaml_file, default_flow_style=False, indent=4)
+
 def load_json(filepath):
 	"""
 	Load a JSON file
