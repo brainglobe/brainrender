@@ -29,7 +29,7 @@ notifications:
   email:
     recipients:
     - adam.tyson@ucl.ac.uk
-    - federicoclaudi@protnmail.com
+    - federicoclaudi@protonmail.com
     on_success: change
     on_failure: always
 deploy:
