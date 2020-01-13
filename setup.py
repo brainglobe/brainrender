@@ -18,7 +18,15 @@ setup(
     description="Python scripts to use Allen Brain Map data for analysis "
                 "and rendering",
     install_requires=requirements,
-    extras_require={"nb": ["jupyter", "k3d"]},
+    extras_require={
+        "nb": ["jupyter", "k3d"],
+        "dev": [
+            "pytest-cov",
+            "pytest",
+            "coveralls",
+            "coverage<=4.5.4",
+        ]
+    },
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=(
         "Installation", "Meshes", "Metadata", "Screenshots")),
