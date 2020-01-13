@@ -27,7 +27,7 @@ setup(
             "coverage<=4.5.4",
         ]
     },
-    python_requires=">=3.6",
+    python_requires=">=3.6, <3.8",
     packages=find_namespace_packages(exclude=(
         "Installation", "Meshes", "Metadata", "Screenshots")),
     include_package_data=True,
