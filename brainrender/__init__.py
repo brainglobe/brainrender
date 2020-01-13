@@ -69,7 +69,7 @@ if not os.path.isdir(_user_dir):
 _base_dir = os.path.join(_user_dir, ".brainrender")
 
 if not os.path.isdir(_base_dir):
-    os.makedir(_base_dir)
+    os.mkdir(_base_dir)
 
 # Create config path
 _config_path = os.path.join(_base_dir, 'config.yaml')
