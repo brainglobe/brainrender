@@ -23,6 +23,7 @@ before_install:
 install:
 - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
 - source activate test-environment
+- $PIP_CMD
 - conda info -a
 script:
 - travis_wait 20 bash $TEST_CMD
