@@ -3,11 +3,9 @@ sys.path.append('./')
 
 import os
 import pandas as pd
-from vtkplotter import *
+from vtkplotter import load
 
-from brainrender.colors import *
-from brainrender import *
-from brainrender.Utils.paths_manager import Paths
+from brainrender import DEFAULT_STRUCTURE_COLOR
 
 
 def get_rat_regions_metadata(metadata_fld):
@@ -80,4 +78,5 @@ def get_rat_mesh_from_region(region, paths, use_original_color=False, **kwargs):
         return meshes
 
 if __name__ == "__main__":
-    fix_data()
+    pass
+    #fix_data() ## UNDEFINED!!??

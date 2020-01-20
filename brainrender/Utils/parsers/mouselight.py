@@ -2,20 +2,19 @@ import sys
 sys.path.append('./')
 
 import os
-import json
-from vtkplotter import *
+from vtkplotter import shapes, load, merge
 
 import pandas as pd
 import numpy as np
-from functools import partial
 from collections import namedtuple
 
 import allensdk.core.swc as allen_swc
 
 from brainrender.Utils.data_io import load_json, listdir
 from brainrender.Utils.data_manipulation import get_coords, mirror_actor_at_point
-from brainrender.colors import *
-from brainrender import *
+from brainrender.colors import get_random_colors, colorMap, check_colors
+from brainrender import DEFAULT_NEURITE_RADIUS, USE_MORPHOLOGY_CACHE, SOMA_RADIUS, DECIMATE_NEURONS, SMOOTH_NEURONS
+from brainrender import NEURON_RESOLUTION
 
 from brainrender.Utils.paths_manager import Paths
 
@@ -108,7 +107,7 @@ class NeuronsParser(Paths):
 
 		# Check neurite radius
 		if self.neurite_radius is None:
-			neurite_radius = DEFAULT_NEURITE_RADIUS
+			neurite_radius = DEFAULT_NEURITE_RADIUS ## NOT USED !!??
 		
 		# Load the data
 		if isinstance(ml_file, (tuple, list)):
@@ -265,7 +264,7 @@ class NeuronsParser(Paths):
 			neuron_actors = {}
 
 			self.soma_coords = get_coords(neuron["soma"], mirror=self.mirror_coord, mirror_ax=self.mirror_ax)
-			neuron_actors['soma'] = Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
+			neuron_actors['soma'] = shapes.Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
 
 			# Draw dendrites and axons
 			if self.render_neurites:
@@ -473,7 +472,7 @@ class NeuronsParser(Paths):
 
 				# if the branch is too short for a tube, create a sphere instead
 				if len(branch_points) < 2: # plot either a line between two branch_points or  a spheere
-					actors.append(Sphere(branch_points[0], c="g", r=100))
+					actors.append(shapes.Sphere(branch_points[0], c="g", r=100))
 					continue 
 				
 				# create tube actor
@@ -507,7 +506,7 @@ class NeuronsParser(Paths):
 		"""
 		coords = [self.soma_coords]
 		coords.extend([get_coords(sample, mirror=self.mirror_coord, mirror_ax=self.mirror_ax) for i, sample in neurites.iterrows()])
-		lines = Spheres(coords, r=38, c=color, res=4)
+		lines = shapes.Spheres(coords, r=38, c=color, res=4)
 		regions = []
 		return lines, regions
 
@@ -564,8 +563,7 @@ class NeuronsParser(Paths):
 
 		# Create soma actor
 		neuron_actors, regions = {"soma":None, "axon":[], "dendrites":[]}, {'soma':soma_region, 'dendrites':[], 'axon':[]}
-		neuron_actors['soma'] = Sphere(pos=get_coords(morphology.soma)[::-1], 
-										c=soma_color, r=SOMA_RADIUS)
+		neuron_actors['soma'] = shapes.Sphere(pos=get_coords(morphology.soma)[::-1], c=soma_color, r=SOMA_RADIUS)
 
 		# loop over trees
 		if self.render_neurites:

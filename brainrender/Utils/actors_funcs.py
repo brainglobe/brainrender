@@ -2,9 +2,6 @@
     Collection of functions to edit actors looks and other features.
 """
 
-from vtkplotter import *
-
-
 def set_wireframe(actor):
     """
     set an actor's look to wireframe

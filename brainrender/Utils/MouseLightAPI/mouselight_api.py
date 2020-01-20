@@ -5,7 +5,7 @@ import json
 import os 
 from tqdm import tqdm
 
-from brainrender.Utils.webqueries import *
+from brainrender.Utils.webqueries import post_mouselight, mouselight_base_url
 from brainrender.Utils.paths_manager import Paths
 
 

@@ -4,7 +4,7 @@ sys.path.append('./')
 import pandas as pd
 from collections import namedtuple
 
-from brainrender.Utils.webqueries import *
+from brainrender.Utils.webqueries import post_mouselight, mouselight_base_url
 from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_manipulation import is_any_item_in_list
 
