@@ -1,6 +1,8 @@
 import sys
 import os
 
+from brainrender.Utils.data_io import save_json
+
 """
     Class to create and store paths to a number of folders uesed to save/load data
 """
@@ -78,3 +80,8 @@ class Paths:
                 os.makedirs(path)
             self.__setattr__(fld_name, path)
 
+
+        # Make a file for morphology cache metadata
+        self.morphology_cache_metadata = os.path.join(self.morphology_cache, 'metadata.json')
+        if not os.path.isfile(self.morphology_cache_metadata):
+            save_json(self.morphology_cache_metadata, {})
