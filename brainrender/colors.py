@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 import random
 import vtk 
 # The following code and colors list is from vtkplotter.color : https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/colors.py

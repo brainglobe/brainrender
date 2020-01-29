@@ -3,10 +3,9 @@ sys.path.append('./')
 
 import os
 import pandas as pd
-from vtkplotter import *
+from vtkplotter import load
 
-from brainrender.colors import *
-from brainrender import *
+from brainrender import DEFAULT_STRUCTURE_COLOR
 
 
 def get_drosophila_regions_metadata(metadata_fld):
@@ -45,7 +44,7 @@ def get_drosophila_mesh_from_region(region, paths,  **kwargs):
     meshes = []
     for reg in region:
         if reg.lower() == "root":
-            meshname = drosophila_root
+            meshname = drosophila_root  ## UNDEFINED!!??
             mesh = load(meshname, c=color, **kwargs) 
             mesh = mesh.smoothLaplacian().subdivide(2)
             meshes.append(mesh)

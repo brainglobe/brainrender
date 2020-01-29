@@ -1,15 +1,7 @@
 import os
 import json
-import pandas as pd
-from collections import namedtuple
 import requests
 import yaml
-
-
-from allensdk.core.swc import read_swc
-from vtkplotter import *
-from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
-import vtk
 
 def connected_to_internet(url='http://www.google.com/', timeout=5):
 	"""
@@ -127,6 +119,7 @@ def load_volume_file(filepath, **kwargs):
 	:param **kwargs: 
 
 	"""
+	from vtkplotter import Volume, load
 	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
 
 	if ".x3d" in filepath.lower(): raise ValueError("brainrender cannot use .x3d data as they are not supported by vtkplotter")

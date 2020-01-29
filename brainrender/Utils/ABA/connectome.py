@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-from collections import namedtuple
-from vtkplotter import Plotter, show, interactive, Video, settings, Sphere, shapes
-import warnings 
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -234,7 +231,7 @@ class ABA(Paths):
 												hemisphere_ids = hemisphere_ids))
 
 		for regionid in list(set(unionized.structure_id)):
-			region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1)
+			region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1) ## UNUSED!!??
 
 	####### ANALYSIS ON EXPERIMENTAL DATA
 	def analyze_efferents(self, ROI, projection_metric = None):
@@ -286,7 +283,7 @@ class ABA(Paths):
 		"""
 		if projection_metric is None: 
 			projection_metric = self.projection_metric
-		ROI_id = self.structure_tree.get_structures_by_acronym([ROI])[0]["id"]
+		ROI_id = self.structure_tree.get_structures_by_acronym([ROI])[0]["id"] ## UNUSED!!??
 
 		# Loop over all strctures and get projection towards SOI
 		results = {"left":[], "right":[], "both":[], "id":[], "acronym":[], "name":[]}
@@ -298,7 +295,7 @@ class ABA(Paths):
 			experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(origin_acronym)))
 			experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
 
-			exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id]
+			exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id] ## BUG! SOI_id is not defined
 			exp_target_hemi = self.hemispheres(exp_target.loc[exp_target.hemisphere_id == 1], exp_target.loc[exp_target.hemisphere_id == 2], exp_target.loc[exp_target.hemisphere_id == 3])
 			proj_energy = self.hemispheres(np.nanmean(exp_target_hemi.left[projection_metric].values),
 											np.nanmean(exp_target_hemi.right[projection_metric].values),

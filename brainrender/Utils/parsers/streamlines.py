@@ -2,19 +2,14 @@ import sys
 sys.path.append('./')
 
 import os
-import json
-from vtkplotter import *
-import gzip
+from vtkplotter import shapes, merge
 
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
-from tqdm import tqdm
 
 from brainrender.Utils.data_io import load_json
-from brainrender.Utils.data_manipulation import get_coords
-from brainrender.colors import *
-from brainrender import *
+from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
 from brainrender.Utils.ABA.connectome import ABA
 
