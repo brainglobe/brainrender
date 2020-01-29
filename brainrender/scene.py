@@ -288,9 +288,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         
         com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
-        cut = bilateralmesh.cutWithPlane(showcut=True, origin=com, normal=(0, 0, 1))
+        cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
 
-        right = bilateralmesh.cutWithPlane(showcut=False, origin=com, normal=(0, 0, 1))
+        right = bilateralmesh.cutWithPlane( origin=com, normal=(0, 0, 1))
         
         # left is the mirror right # WIP
         com = self.get_region_CenterOfMass('root', unilateral=False)[2]
@@ -1229,7 +1229,7 @@ class DualScene:
             actors.append(scene_actors)
             mv.add(scene_actors)
 
-        mv.show(actors[0], at=0, zoom=1.15, axes=4, roll=180,  interactive=False)    
+        mv.show(actors[0], at=0, zoom=1.15, axes=axes, roll=180,  interactive=False)    
         mv.show(actors[1], at=1,  interactive=False)
         interactive()
 
