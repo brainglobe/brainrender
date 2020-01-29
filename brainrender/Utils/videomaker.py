@@ -1,8 +1,7 @@
 import sys
 sys.path.append("./")
 
-from vtkplotter import *
-import inspect
+from vtkplotter import Video
 import os
 
 class VideoMaker:

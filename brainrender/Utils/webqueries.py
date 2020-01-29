@@ -4,9 +4,6 @@ sys.path.append("./")
 from brainrender.Utils.data_io import connected_to_internet
 
 import requests
-import json
-import urllib.request as urlreq
-import urllib.error as urlerr
 import time
 
 

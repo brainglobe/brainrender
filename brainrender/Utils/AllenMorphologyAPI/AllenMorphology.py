@@ -7,7 +7,6 @@ import numpy as np
 
 from allensdk.core.cell_types_cache import CellTypesCache
 from allensdk.api.queries.cell_types_api import CellTypesApi
-from allensdk.core.swc import Morphology
 
 from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.data_io import connected_to_internet
@@ -60,7 +59,7 @@ class AllenMorphology(Paths):
 
         for neuron_id in ids:
             neuron_file = os.path.join(self.morphology_allen, "{}.swc".format(neuron_id))
-            neuron = self.ctc.get_reconstruction(neuron_id, file_name=neuron_file)
+            neuron = self.ctc.get_reconstruction(neuron_id, file_name=neuron_file) ## UNUSED !!
 
 
 
