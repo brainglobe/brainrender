@@ -10,7 +10,7 @@ from collections import namedtuple
 
 import allensdk.core.swc as allen_swc
 
-from brainrender.Utils.data_io import load_json, listdir
+from brainrender.Utils.data_io import load_json, listdir, save_json
 from brainrender.Utils.data_manipulation import get_coords, mirror_actor_at_point
 from brainrender.colors import get_random_colors, colorMap, check_colors
 from brainrender import DEFAULT_NEURITE_RADIUS, USE_MORPHOLOGY_CACHE, SOMA_RADIUS, DECIMATE_NEURONS, SMOOTH_NEURONS
@@ -60,6 +60,9 @@ class NeuronsParser(Paths):
 		self.force_to_hemisphere = force_to_hemisphere
 
 		Paths.__init__(self, base_dir=base_dir, **kwargs)
+
+		# Load cache metadata
+		self.cache_metadata = load_json(self.morphology_cache_metadata)
 
 	def render_neurons(self, ml_file, **kwargs):
 		"""
@@ -253,14 +256,20 @@ class NeuronsParser(Paths):
 		# create soma actor
 		neuron_actors = None
 		if USE_MORPHOLOGY_CACHE:
-			neuron_actors = self._load_cached_neuron(neuron_name)
+			params = dict(
+					force_to_hemisphere = self.force_to_hemisphere,
+					neurite_radius = self.neurite_radius,
+				)
+			neuron_actors = self._load_cached_neuron(neuron_name, params)
 			if neuron_actors is not None:
+				# Color the loaded neuron
 				for component, color in zip(['soma', 'dendrites', 'axon'], [soma_color, dendrites_color, axon_color]):
 					if component in list(neuron_actors.keys()):
 						neuron_actors[component].color(color)
 				return neuron_actors, {'soma':soma_region, 'dendrites':None, 'axons':None}
 
 		if not USE_MORPHOLOGY_CACHE or neuron_actors is None:
+			print("Parsing neuron: " + neuron_name)
 			neuron_actors = {}
 
 			self.soma_coords = get_coords(neuron["soma"], mirror=self.mirror_coord, mirror_ax=self.mirror_ax)
@@ -286,11 +295,11 @@ class NeuronsParser(Paths):
 					neuron_actors = self.mirror_neuron(neuron_actors)
 
 			if USE_MORPHOLOGY_CACHE:
-				self._cache_neuron(neuron_actors, neuron_name)
+				self._cache_neuron(neuron_actors, neuron_name, params)
 
 			return neuron_actors, {'soma':soma_region, 'dendrites':dendrites_regions, 'axon':axon_regions}
 		
-	def _cache_neuron(self, neuron_actors, neuron_name):
+	def _cache_neuron(self, neuron_actors, neuron_name, params):
 		"""
 		Save a loaded neuron
 
@@ -299,6 +308,12 @@ class NeuronsParser(Paths):
 
 		"""
 		if not neuron_name or neuron_name is None: return
+
+		# Create/update entry in metadata
+		self.cache_metadata[neuron_name] = params
+		save_json(self.morphology_cache_metadata, self.cache_metadata, append=True)
+		self.cache_metadata = load_json(self.morphology_cache_metadata)
+
 		for neurite, actor in neuron_actors.items():
 			if actor is None: continue
 			fl = os.path.join(self.morphology_cache, neuron_name+"_"+neurite+".vtk")
@@ -308,7 +323,7 @@ class NeuronsParser(Paths):
 					raise ValueError("Something went wrong while saving the actor")
 			actor.write(fl)
 
-	def _load_cached_neuron(self, neuron_name):
+	def _load_cached_neuron(self, neuron_name, params):
 		"""
 		Load a cached neuron's VTK actors
 
@@ -318,6 +333,18 @@ class NeuronsParser(Paths):
 		if not neuron_name or neuron_name is None:
 			return None
 
+		# Load the yaml file with metadata about previously rendered neurons
+		if not neuron_name in self.cache_metadata.keys(): # the neuron was cached before the metadata was in place
+			return None
+
+		# Check if the params match those of the cached neuron
+		cached_params = self.cache_metadata[neuron_name]
+		diff_params = [v1 for v1,v2 in zip(cached_params.values(), params.values())\
+							if v1 != v2]
+		if diff_params: 
+			return None
+
+		# All is good with the params, load cached actors
 		if self.render_neurites:
 			allowed_components = ['soma', 'axon', 'dendrites']
 			skipped_components = []
@@ -366,7 +393,7 @@ class NeuronsParser(Paths):
 
 		if self.force_to_hemisphere.lower() == "left":
 			if self.soma_coords[2] > mirror_coor:
-				neuron_actors = self._mirror_neuron(neuron_actors, mirror_coor)
+				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
 		elif self.force_to_hemisphere.lower() == "right":
 			if self.soma_coords[2] < mirror_coor:
 				neuron_actors = self._mirror_neuron(neuron_actors, mirror_coor)

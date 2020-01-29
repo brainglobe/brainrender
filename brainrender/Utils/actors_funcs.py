@@ -44,7 +44,7 @@ def set_line(actor, lw=None, c=None):
     if c is not None:
         actor.lc(lineColor=c)
 
-def upsample(actor, fact=1):
+def upsample_actor(actor, fact=1):
     """
     Increase resolution of actor
 
@@ -54,7 +54,7 @@ def upsample(actor, fact=1):
     """
     actor.subdivide(N=fact)
 
-def downsample(actor, fact=0.5):
+def downsample_actor(actor, fact=0.5):
     """
     Reduce resolution of actor
 
@@ -64,7 +64,7 @@ def downsample(actor, fact=0.5):
     """
     actor.decimate(fraction=fact)
 
-def smooth(actor, factor=15):
+def smooth_actor(actor, factor=15):
     """
     Smooth an actor's mesh
 
@@ -102,8 +102,8 @@ def edit_actor(actor,
     if line:
         set_line(actor, **line_kwargs)
     if upsample:
-        upsample(actor)
+        upsample_actor(actor)
     if downsample:
-        downsample(actor)
+        downsample_actor(actor)
     if smooth:
-        smooth(actor)
+        smooth_actor(actor)

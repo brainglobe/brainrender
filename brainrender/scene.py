@@ -214,7 +214,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
-
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """
         Get the center of mass of the 3d mesh of one or multiple brain regions.
@@ -271,7 +270,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         ipts = region_mesh.insidePoints(pts)
         return random.choices(ipts, k=N)
-
 
     def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
         """
@@ -529,7 +527,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return neurons
 
 
+
     def edit_neurons(self, neurons=None, copy=False, **kwargs):
+
         """
         Edit neurons that have already been rendered. Change color, mirror them etc.
 
@@ -884,6 +884,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
         self.actors['others'].append(spheres)
+        print("Added {} cells to the scene".format(len(coords)))
 
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
@@ -1211,7 +1212,18 @@ class DualScene:
 
     def render(self):
         """ """
-        mv = Plotter(N=2, axes=4, size="auto", sharecam=True)
+        # Create camera and plotter
+        if WHOLE_SCREEN: 
+            sz = "full"
+        else: 
+            sz = "auto"
+        
+        if SHOW_AXES:
+            axes = 4
+        else:
+            axes = 0
+
+        mv = Plotter(N=2, axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, sharecam=True)
 
         actors = []
         for scene in self.scenes:
