@@ -43,6 +43,16 @@ Motor cortex piramidal neuron reconstruction from Mouse Light.
 ### 3D rendering in python
 To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)], a python package for 3D visualization.
 
+`brainrender` leverages the flexibility in specifying the look of rendered objects afforded by `vtkplotter` to let users create the look they need for high-quality scientific figures and illustrations. Examples of this are displayed throught the 
+[examples](Examples), but one easy way is to set `brainrender`'s rendering style to `cartoon` to get accurate schematics of brain region's anatomy to use for figures:
+
+Top view of the Zona Incerta
+<img src="Docs/Media/ZI_cartoon.png" width="750">
+
+Coronal view of the CA1 and CA2 fields in the Hippocampus
+<img src="Docs/Media/CA1_coronal.png" width="750">
+
+
 
 
 ## Referencing Brain Render
