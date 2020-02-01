@@ -1,52 +1,38 @@
 # UserGuide
-BrainRender allows users to easily interface with the Allen Reference Atlas and Mouse Connectivty APIs to render three dimensional anatomical data. 
-In addition, it supports the rendering of neuronal morphological reconstructions of datasets downloaded from Janelia's Mouse Light project. 
+`brainrender` allows users to easily interface with the Allen Reference Atlas and Mouse Connectivty APIs to render three dimensional anatomical data. 
+In addition, it supports the rendering of neuronal morphological reconstructions of datasets downloaded from Janelia's Mouse Light project and the rendering of user generated data (as long as it's registered to the Allen Atlas)
 
 
 ## Overview
-The aim of BrainRender is to make it easy to crate personalized renderings of mouse brain anatomy to let users get a better understanding of the brain regions they are working on and to crate high quality images and videos for scientific talks, posters and publications. 
+The aim of `brainrender` is to make it easy to crate personalized renderings of mouse brain anatomy to let users get a better understanding of the brain regions they are working on and to crate high quality images and videos for scientific talks, posters and publications. 
 
 In brief, the process of creating a rendering consists of creating a 'Scene' to which 'actors' can be added before rendering. 
 These 'actors' represent brain regions, neurons, tractography data etc. 
 The user can select what to show in the scene and what it should look like. 
 
 
-## Process
-### Installation
-To use BrainRender, the first thing to do is to clone this github repository on your machine, this gives you access to the code, the examples and the data stored in this repository.
+# Process
+This `userguide` will show you how to install `brainrender` and the process of creating, populating and rendering a `scene` in `brainrender`.
 
-You then need to set up a python environment to use BrainRender with. 
-If you are using anaconda you can simply crate an environment using the installation .yml file in the [Installation](../Installation) subdirectory, just use this command in you anaconda Prompt:
+## Installation
+To use `brainrender` you will need a python enviornment with `python < 3.8`. If you don't have one, please [create it now](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 
-```conda env create --name NAME --file path_to_your_repo/Installation/environment.yml```
-
-
-Alternatively, it should now be possible to install BrainRender as a package, thank's to [Adam Tyson](https://github.com/adamltyson)'s contribution:
-
-***
-Tested on Linux (Ubuntu 18.04) and Windows (10 Enterprise LTSC) with Python 3.6.9.
-
-Installation seems to work fine via:
-`conda create --name brainrender python=3.6`
-`conda activate brainrender`
-`pip install BrainRender`
-
-BrainRender should be installable with:
-`pip install git+https://github.com/BrancoLab/BrainRender`
-***
-
+Once you have an environment in place, simply install `brainrender` with:
+```
+pip install brainrender
+```
 
 
 ### Create your scene
-To create a rendering, BrainRender uses vtkplotter to create a "scene" which can then be populated with "actors" (e.g. 3D brain regions data). 
-The scene is then rendered for the user to see and interact with, or used to create a video. 
-
-Most of the process therefore relies on the `Scene` class. 
-This class let's users add brain regions to the rendering (see example: [regions](../Examples/Regions.ipynb)), but it also takes care of adding tractography and neuron morphology data to the scene before rendering it. 
+To create a rendering, BrainRender uses vtkplotter to create a "scene" which can then be populated with "actors" (e.g. 3D brain regions data). The scene is then rendered for the user to see and interact with, or used to create a video. 
 
 To see how to crate your first scene, check out the [examples](../Examples).
 
-### Add neuron morphology data
+### Adding brain regions
+The `Scene` class used to create scenes in `brainrender` can be used to visualize the 3D anatomy of brain regions. 
+check out the  [examples](../Examples) to learn how to do that.
+
+### Adding neuron morphology data
 BrainRender let's you visualize 3D neuronal morphology alongside other brain structures. Currently BrainRender can visualize any morpholy data presented as .swc file, but only supports direct interaction with the MouseLight API. In the future, .swc data from the Allen API will also be available. 
 
 You have two ways to get the morphology data:
@@ -95,4 +81,5 @@ For more details have a look at the example on [MultiScene](../Examples/MultiSce
 the example on [making videos](../Examples/Video.ipynb).
 
 In the future BrainRender will also allow users to export their scenes so that they can be embed into a web page. 
+
 
