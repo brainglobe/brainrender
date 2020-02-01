@@ -960,7 +960,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         """
         if not isinstance(actors, list):
-            actors = list(actors)
+            actors = [actors]
 
         for actor in actors:
             actors_funcs.edit_actor(actor, **kwargs)
@@ -1062,7 +1062,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         for actor in actors:
             if actor is not None:
-                actor.lighting(style=SHADER_STYLE)
+                if SHADER_STYLE != 'cartoon':
+                    actor.lighting(style=SHADER_STYLE)
+                else:
+                    actor.lighting(style='plastic', enabled=False)
 
     def get_actors(self):
         all_actors = []

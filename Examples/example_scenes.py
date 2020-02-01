@@ -2,8 +2,11 @@ import sys
 sys.path.append("./")
 import pandas as pd
 
-from brainrender.scene import Scene
 from brainrender import *
+import brainrender
+brainrender.SHADER_STYLE = 'cartoon'
+
+from brainrender.scene import Scene
 from brainrender.Utils.ABA.connectome import ABA
 
 from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
@@ -12,6 +15,7 @@ from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
 from brainrender.Utils.parsers.streamlines import StreamlinesAPI
 from brainrender.Utils.data_io import listdir
 from brainrender.colors import get_n_shades_of
+
 
 aba = ABA()
 streamlines_api = StreamlinesAPI()
@@ -49,6 +53,16 @@ def BrainRegionsScene():
 
     set_camera(scene)
     scene.render()
+
+def CartoonStyleScene():
+    if brainrender.SHADER_STYLE != 'cartoon':
+        raise ValueError('Set cartoon style at imports')
+    scene = Scene()
+    scene.add_brain_regions(['ZI'], use_original_color=True, alpha=1)
+
+    set_camera(scene)
+    scene.render()
+
 
 # ---------------------------------------------------------------------------- #
 
@@ -184,11 +198,12 @@ scenes = dict(
     ConnectivityScene = ConnectivityScene,
     NeuronsScene2 = NeuronsScene2,
     NeuronsScene3 = NeuronsScene3,
+    CartoonStyleScene=CartoonStyleScene,
 )
 
 
 if __name__ == "__main__":
-    scene = "NeuronsScene"
+    scene = "CartoonStyleScene"
     scenes[scene]()
 
 
