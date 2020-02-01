@@ -866,7 +866,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 f"File format: {filepath.suffix} is not currently supported. "
                 f"Please use one of: {supported_formats}")
 
-    def get_cells_in_region(cells, region):
+    def get_cells_in_region(self, cells, region):
         """
             Selects the cells that are in a list of user provided regions from a dataframe of cell locations
 
