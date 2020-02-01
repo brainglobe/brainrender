@@ -1,12 +1,18 @@
 # BrainRender
-Functions for the Allen Institute's Mouse Common Coordinate Framework (CCF) and Mouse Light (Janelia) neurons
-reconstructions in Python. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information
-on how to use BrainRender.
+`brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
 
 <img src="Docs/Media/streamlines2.png" width="1000">
 
+# Installation
+To install `brainrender`, use an existing python environment or create one [with `python < 3.8`] and install with:
+```
+pip install brainrender
+```
 
-## Resources
+# Resources
+`brainrender` can be used to download and visualize anatomical data from publicly available datasets. 
+These include the Allen Mouse Brain Atlas, the Allen Mouse Connectome project and neuronal morphological data from the MouseLight project from Janelia. 
+
 ### Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
 and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API](http://help.brain-map.org/display/api/Allen%2BBrain%2BAtlas%2BAPI)
@@ -14,42 +20,28 @@ and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API
 
 An interactive, in-browser 3D structure viewer, the Allen Brain Explorer, is available [here](http://connectivity.brain-map.org/3d-viewer?v=1). 
 
+`brainrender` can be used to visualize the 3D structure of brain regions:
+<img src="Docs/Media/brainregions.png" width="750">
+
+and afferent anatomical projections from the Mouse Connectome project:
+<img src="Docs/Media/tractography.png" width="750">
+
 ### Streamlines
-Streamlines refer to the visualization of efferent projection as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org)).
+Efferent anatomical projections [as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org))] can be rendered as 'streamlines'.
+
+<img src="Docs/Media/streamlines.png" width="750">
+
 Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details).
 
 ### Mouselight neurons morphology
 Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
 
-### 3D rendering in python
-To create the render BrainRender relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)].
-
-# Example screenshots. 
-## Brain Regions anatomy from the Allen Mouse Brain
-<img src="Docs/Media/brainregions.png" width="750">
-Location of the Ventral posterior complex of the thalamus within the thalamus.
-
-## Mouse Light neurons morphology rendering
 <img src="Docs/Media/morphology.png" width="750">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
-<img src="Docs/Media/neuronsandstreamlines2.png" width="750">
-Motor cortex piramidal neurons reconstruction from Mouse Light alongside streamlines
-tractography from the Allen Mouse Connectome data.
-
-## Allen mouse connectome projection data rendering
-<img src="Docs/Media/tractography.png" width="750">
-Projections to the Zona Incerta, colored by projection area.
-
-<img src="Docs/Media/streamlines.png" width="750">
-Efferent projections from the PAG.
-
-<img src="Docs/Media/streamlines2.png" width="750">
-Efferent projections from the secondary motor cortex.
-
-## Video
-<img src="Docs/Media/brainrender.gif" width="500">
+### 3D rendering in python
+To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)], a python package for 3D visualization.
 
 
 
