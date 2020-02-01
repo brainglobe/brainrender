@@ -47,10 +47,10 @@ To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.
 [examples](Examples), but one easy way is to set `brainrender`'s rendering style to `cartoon` to get accurate schematics of brain region's anatomy to use for figures:
 
 Top view of the Zona Incerta
-<img src="Docs/Media/ZI_cartoon.png" width="750">
+<img src="Docs/Media/ZI_cartoon.png" width="500">
 
 Coronal view of the CA1 and CA2 fields in the Hippocampus
-<img src="Docs/Media/CA1_coronal.png" width="750">
+<img src="Docs/Media/CA1_coronal.png" width="650">
 
 
 
