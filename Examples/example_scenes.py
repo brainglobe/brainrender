@@ -3,8 +3,8 @@ sys.path.append("./")
 import pandas as pd
 
 from brainrender import *
-import brainrender
-brainrender.SHADER_STYLE = 'cartoon'
+# import brainrender
+# brainrender.SHADER_STYLE = 'cartoon'
 
 from brainrender.scene import Scene
 from brainrender.Utils.ABA.connectome import ABA
@@ -58,7 +58,7 @@ def CartoonStyleScene():
     if brainrender.SHADER_STYLE != 'cartoon':
         raise ValueError('Set cartoon style at imports')
     scene = Scene()
-    scene.add_brain_regions(['ZI'], use_original_color=True, alpha=1)
+    scene.add_brain_regions(['SCm'], use_original_color=True, alpha=1)
 
     set_camera(scene)
     scene.render()
