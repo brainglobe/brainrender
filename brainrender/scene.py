@@ -968,7 +968,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         actor = self.add_from_file(obj_file_path, c=color, alpha=alpha)
 
         if smooth:
-            actors_funcs.smooth(actor)
+            actors_funcs.smooth_actor(actor)
 
         if not keep_obj_file:
             os.remove(obj_file_path)
