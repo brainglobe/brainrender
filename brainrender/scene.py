@@ -1086,7 +1086,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 if SHADER_STYLE != 'cartoon':
                     actor.lighting(style=SHADER_STYLE)
                 else:
-                    actor.lighting(style='plastic', enabled=False)
+                    actor.lighting(style='plastic', 
+                            enabled=False)
 
     def get_actors(self):
         all_actors = []
@@ -1236,6 +1237,9 @@ class DualScene:
 
     def render(self):
         """ """
+
+        self.apply_render_style()
+
         # Create camera and plotter
         if WHOLE_SCREEN: 
             sz = "full"
@@ -1273,6 +1277,9 @@ class MultiScene:
         :param **kwargs:
 
         """
+
+        self.apply_render_style()
+
         if self.N > 4:
             print("Rendering {} scenes. Might take a few minutes.".format(self.N))
         mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True, bg=BACKGROUND_COLOR)
