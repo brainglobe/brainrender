@@ -7,14 +7,14 @@ requirements = [
     "vtk",
     "allensdk",
     "tqdm",
-    "pyyaml=5.3",
+    "pyyaml>=5.3",
     "scikit-image",
     "brainio>=0.0.9",
 ]
 
 setup(
     name="brainrender",
-    version="0.3.3.1",
+    version="0.3.3.2",
     description="Python scripts to use Allen Brain Map data for analysis "
                 "and rendering",
     install_requires=requirements,
