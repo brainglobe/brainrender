@@ -4,7 +4,7 @@
 <img src="Docs/Media/streamlines2.png" width="1000">
 
 To quickly get an idea of how to use `brainrender`, have a look at the examples notebook on mybynder.org:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BrancoLab/BrainRender/master?urlpath=https%3A%2F%2Fgithub.com%2FBrancoLab%2FBrainRender%2Fblob%2Fmaster%2FExamples%2Fexample_scenes.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BrancoLab/BrainRender/master?filepath=https%3A%2F%2Fgithub.com%2FBrancoLab%2FBrainRender%2Fblob%2Fmaster%2FExamples%2Fexample_scenes.ipynb)
 
 # Installation
 To install `brainrender`, use an existing python environment or create one [with `python < 3.8`] and install with:
