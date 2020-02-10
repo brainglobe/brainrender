@@ -3,9 +3,6 @@
 
 <img src="Docs/Media/streamlines2.png" width="1000">
 
-To quickly get an idea of how to use `brainrender`, have a look at the examples notebook on mybynder.org:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BrancoLab/BrainRender/master?filepath=Examples%2Fexample_scenes.ipynb)
-
 # Installation
 To install `brainrender`, use an existing python environment or create one [with `python < 3.8`] and install with:
 ```
