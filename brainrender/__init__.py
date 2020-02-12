@@ -88,6 +88,8 @@ params = load_yaml(_config_path)
 # Check we have all the params
 defaults = brainrender.default_variables.__dict__
 for par in __all__:
+    if par in ['INTERACTIVE_MSG']:
+        continue
     if par not in params.keys():
         params[par] = defaults[par]
 
