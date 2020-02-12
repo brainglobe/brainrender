@@ -1117,12 +1117,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 all_actors.append(actors)
         return all_actors
 
-    def render(self, interactive=True, video=False):
+    def render(self, interactive=True, video=False, camera=None):
         """
         Takes care of rendering the scene
         """
         self.apply_render_style()
-        set_camera(self, self.camera)
+
+        if camera is None:
+            camera = self.camera
+        else:
+            camera = check_camera_param(camera)
+        set_camera(self, camera)
 
         if len(settings.plotter_instances) > 1:
             self._rotate_actors()
