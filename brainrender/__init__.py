@@ -49,15 +49,16 @@ settings.screeshotScale = 1  # Improves resolution of saved screenshots
 
 
 # ------------------------- reset default parameters file ------------------------- #
+params_file = os.path.join(os.path.expanduser("~"), ".brainrender", 'config.yaml')
+defaults = brainrender.default_variables.__dict__
+comment = '# Rendering options. An explanation for each parameter can be found ' +\
+            'in the documentation or in brainrender.default_variables.py\n'
+
 def reset_defaults():
-    pathtofile = os.path.join(os.path.expanduser("~"), ".brainrender", 'config.yaml')
-    
     # Get all variables from defaults
-    vs = {key: value for key, value in brainrender.default_variables.__dict__.items() 
+    vs = {key: value for key, value in defaults.items() 
                     if not (key.startswith('__') or key.startswith('_'))}
-    comment = '# Rendering options. An explanation for each parameter can be found ' +\
-                'in the documentation or in brainrender.default_variables.py\n'
-    save_yaml(pathtofile, vs, append=False, topcomment=comment)
+    save_yaml(params_file, vs, append=False, topcomment=comment)
 
 
 # ---------------------------------------------------------------------------- #
@@ -84,14 +85,13 @@ if not os.path.isfile(_config_path):
 # Rendering options. An explanation for each parameter can be found in the documentation or in brainrender.default_variables.py
 params = load_yaml(_config_path)
 
-
 # Check we have all the params
-defaults = brainrender.default_variables.__dict__
 for par in __all__:
     if par in ['INTERACTIVE_MSG']:
         continue
     if par not in params.keys():
         params[par] = defaults[par]
+save_yaml(params_file, params, append=False, topcomment=comment)
 
 
 # Set to make it easy to import
