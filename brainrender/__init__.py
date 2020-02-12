@@ -37,6 +37,7 @@ __all__ = [
     "WHOLE_SCREEN",
     "WINDOW_POS",
     "INTERACTIVE_MSG",
+    "CAMERA",
     ]
 
 
@@ -52,7 +53,7 @@ def reset_defaults():
     pathtofile = os.path.join(os.path.expanduser("~"), ".brainrender", 'config.yaml')
     
     # Get all variables from defaults
-    vs = {key: value for key, value in default_variables.__dict__.items() 
+    vs = {key: value for key, value in brainrender.default_variables.__dict__.items() 
                     if not (key.startswith('__') or key.startswith('_'))}
     comment = '# Rendering options. An explanation for each parameter can be found ' +\
                 'in the documentation or in brainrender.default_variables.py\n'
@@ -114,6 +115,7 @@ USE_MORPHOLOGY_CACHE = params['USE_MORPHOLOGY_CACHE']
 VERBOSE = params['VERBOSE']
 WHOLE_SCREEN = params['WHOLE_SCREEN']
 WINDOW_POS = params['WINDOW_POS']
+CAMERA = params['CAMERA']
 
 
 
