@@ -84,6 +84,15 @@ if not os.path.isfile(_config_path):
 # Rendering options. An explanation for each parameter can be found in the documentation or in brainrender.default_variables.py
 params = load_yaml(_config_path)
 
+
+# Check we have all the params
+defaults = brainrender.default_variables.__dict__
+for par in __all__:
+    if par not in params.keys():
+        params[par] = defaults[par]
+
+
+# Set to make it easy to import
 BACKGROUND_COLOR = params['BACKGROUND_COLOR']
 DECIMATE_NEURONS = params['DECIMATE_NEURONS']
 DEFAULT_HDF_KEY = params['DEFAULT_HDF_KEY']
