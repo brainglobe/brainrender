@@ -135,20 +135,6 @@ def ConnectivityScene():
 
     scene.render()
 
-# ---------------------------------------------------------------------------- #
-
-def CellsScene():
-    # Load and clean data
-    data = pd.read_csv('/Users/federicoclaudi/Downloads/41593_2019_354_MOESM3_ESM.csv')
-    data = data[['genotype', 'Xpos', 'Ypos', 'z.position']]
-    data.columns = ['genotype', 'x', 'y', 'z']
-
-    # Visualise data
-    scene = Scene()
-    scene.add_cells(data)
-
-    scene.render() 
-
 
 
 
@@ -166,7 +152,6 @@ scenes = dict(
     NeuronsScene = NeuronsScene,
     StreamlinesScene = StreamlinesScene,
     StreamlinesScene2 = StreamlinesScene2,
-    CellsScene = CellsScene,
     ConnectivityScene = ConnectivityScene,
     NeuronsScene2 = NeuronsScene2,
     NeuronsScene3 = NeuronsScene3,
@@ -175,7 +160,10 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "CartoonStyleScene"
+    scene = "BrainRegionsScene"
     scenes[scene]()
+    scene = "NeuronsScene"
+    scenes[scene]()
+#
 
 

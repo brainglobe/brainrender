@@ -1129,9 +1129,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             camera = check_camera_param(camera)
         set_camera(self, camera)
 
-        if len(settings.plotter_instances) > 1:
-            self._rotate_actors()
-
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
