@@ -2,7 +2,7 @@ import numpy as np
 import os
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
-from vtkplotter.shapes import Cylinder
+from vtkplotter.shapes import Cylinder, Line
 from tqdm import tqdm
 import pandas as pd
 from functools import partial
@@ -998,7 +998,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         """
         # Set some default kwargs
         hemisphere = kwargs.pop('hemisphere', 'right')
-        color = kwargs.get('color', 'powderblue')
+        color = kwargs.pop('color', 'powderblue')
         radius = kwargs.pop('radius', 350)
         alpha = kwargs.pop('alpha', .5)
         
