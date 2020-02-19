@@ -980,7 +980,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             os.remove(obj_file_path)
 
     def add_optic_cannula(self, target_region=None, pos=None, x_offset=0, y_offset=0,
-                z_offset=-500,  **kwargs):
+                z_offset=-500, use_line=False, **kwargs):
         """
             Adds a cylindrical vtk actor to scene to render optic cannulas. By default
             this is a semi-transparent blue cylinder centered on the center of mass of
@@ -1023,7 +1023,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         top = pos.copy()
         top[1] = bounds[2] - 500
 
-        cylinder = self.add_vtkactor(Cylinder(pos=[top, com], c=color, r=radius, alpha=alpha, **kwargs))
+        if not use_line:
+            cylinder = self.add_vtkactor(Cylinder(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs))
+        else:
+            cylinder = self.add_vtkactor(Line(top, pos, c=color, alpha=alpha, lw=radius))
         return cylinder
 
     def edit_actors(self, actors, **kwargs):
