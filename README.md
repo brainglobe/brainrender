@@ -40,7 +40,7 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 <img src="Docs/Media/morphology.png" width="750">
 Motor cortex piramidal neuron reconstruction from Mouse Light.
 
-### 3D rendering in python
+## 3D rendering in python
 To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)], a python package for 3D visualization.
 
 `brainrender` leverages the flexibility in specifying the look of rendered objects afforded by `vtkplotter` to let users create the look they need for high-quality scientific figures and illustrations. Examples of this are displayed throught the 
@@ -49,10 +49,11 @@ To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.
 Top view of the Zona Incerta
 <img src="Docs/Media/ZI_cartoon.png" width="500">
 
-Coronal view of the CA1 and CA2 fields in the Hippocampus
-<img src="Docs/Media/CA1_coronal.png" width="650">
+### Making figures
+`vtkplotter` can be used to render 3d objects loaded from `.obj` and `.stl` files, making it easy to add objects to a rendering for creating illustrations. Additionally, `brainrender` has some functions that can be used to render commonly used items such as optic cannullas (e.g. for optogenetics) and electrods arrays:
 
-
+<img src="Docs/Media/cannula.png" width="750">
+<img src="Docs/Media/electrodes.png" width="750">
 
 
 ## Referencing Brain Render
