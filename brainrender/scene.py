@@ -2,6 +2,7 @@ import numpy as np
 import os
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
+from vtkplotter.shapes import Cylinder
 from tqdm import tqdm
 import pandas as pd
 from functools import partial
@@ -535,8 +536,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
         return neurons
 
-
-
     def edit_neurons(self, neurons=None, copy=False, **kwargs):
 
         """
@@ -889,7 +888,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             region_list =  list(self.get_structure_descendants(region)['acronym'].values)
         return cells[cells.region.isin(region_list)]
 
-
     def add_cells(self, coords, color="red", radius=25, res=3, alpha=1, regions=None):
         """
         Renders cells given their coordinates as a collection of spheres.
@@ -914,7 +912,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
         self.actors['others'].append(spheres)
         print("Added {} cells to the scene".format(len(coords)))
-
 
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
@@ -981,6 +978,53 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         if not keep_obj_file:
             os.remove(obj_file_path)
+
+    def add_optic_cannula(self, target_region=None, pos=None, x_offset=0, y_offset=0,
+                z_offset=-500,  **kwargs):
+        """
+            Adds a cylindrical vtk actor to scene to render optic cannulas. By default
+            this is a semi-transparent blue cylinder centered on the center of mass of
+            a specified target region and oriented vertically.
+
+            :param target_region: str, acronym of target region to extract coordinates
+                of implanted fiber. By defualt the fiber will be centered on the center
+                of mass of the target region but the offset arguments can be used to
+                fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
+            :param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
+            :param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
+                the implanted cannula.
+            :param **kwargs: used to specify which hemisphere the cannula is and parameters
+                of the rendered cylinder: color, alpha, rotation axis...
+        """
+        # Set some default kwargs
+        hemisphere = kwargs.pop('hemisphere', 'right')
+        color = kwargs.get('color', 'powderblue')
+        radius = kwargs.pop('radius', 350)
+        alpha = kwargs.pop('alpha', .5)
+        
+        # Get coordinates of brain-side face of optic cannula
+        if target_region is not None:
+            pos = self.get_region_CenterOfMass(target_region, unilateral=True, hemisphere=hemisphere)
+        elif pos is None:
+            print("No 'pos' or 'target_region' arguments were \
+                            passed to 'add_optic_cannula', nothing to render")
+            return
+        else:
+            if not len(pos) == 3:
+                raise ValueError(f"Invalid target coordinates argument, pos: {pos}")
+
+        # Offset position
+        pos[0] += y_offset
+        pos[1] += z_offset
+        pos[2] += x_offset
+
+        # Get coordinates of upper face
+        bounds = self.root.bounds()
+        top = pos.copy()
+        top[1] = bounds[2] - 500
+
+        cylinder = self.add_vtkactor(Cylinder(pos=[top, com], c=color, r=radius, alpha=alpha, **kwargs))
+        return cylinder
 
     def edit_actors(self, actors, **kwargs):
         """
