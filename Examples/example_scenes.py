@@ -136,7 +136,18 @@ def ConnectivityScene():
     scene.render()
 
 
+# ---------------------------------------------------------------------------- #
+def ElectrodesArrayScene():
+    scene = Scene()
+    z_offset = -1500
+    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.5)
+    scene.add_optic_cannula('CA1')
 
+    for x_offset in [-200, -500, -800, -1100]:
+        scene.add_optic_cannula('CA1', z_offset=z_offset, x_offset=x_offset, alpha=1,
+                    radius=50, y_offset=-500, color='blackboard')
+
+    scene.render() 
 
 
 
@@ -156,6 +167,7 @@ scenes = dict(
     NeuronsScene2 = NeuronsScene2,
     NeuronsScene3 = NeuronsScene3,
     CartoonStyleScene=CartoonStyleScene,
+    ElectrodesArrayScene=ElectrodesArrayScene,
 )
 
 
