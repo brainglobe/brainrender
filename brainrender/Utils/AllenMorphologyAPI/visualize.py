@@ -1,13 +1,12 @@
 from brainrender.scene import Scene
 from brainrender.Utils.parsers.mouselight import NeuronsParser
-from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
 
 class AllenMorphologyVisualizer(Scene):
     def __init__(self):
-        Scene.__init__(self, add_root=False)
-        self.parser = AllenMorphology(Scene, neurite_radius=1.5)
+        AllenMorphology.__init__(self)
+        self.parser = NeuronsParser(Scene(), neurite_radius=1.5)
 
     def add_neurons(self, neurons, color=None):
         for neuron in neurons:
