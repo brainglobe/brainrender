@@ -38,18 +38,33 @@ cameras = dict(
     three_quarters = three_quarters_camera,
 )
 
-def set_camera(scene, camera):
-    """
-        
-    """
-    # Get camera params if it's a string
+def check_camera_param(camera):
     if isinstance(camera, str):
         if camera not in cameras.keys():
             raise ValueError(f"Camera name {camera} if not recognized.\nValid cameras: {cameras.keys()}")
-        camera = cameras[camera]
+        return cameras[camera]
     elif not isinstance(camera, dict):
         raise ValueError(f"Camera should be either a string with a camera name or a dictionary of camera params.")
+    else:
+        params = ['position', 'focal', 'viewup', 'distance', 'clipping']
+        for param in params:
+            if param not in list(camera.keys()):
+                raise ValueError(f"Camera parameters dict should include the following keys: {params}")
+        return camera
 
+def set_camera(scene, camera):
+    """
+        Sets the position of the camera of a brainrender scene.
+
+        :param scene: instance of Scene()
+        :param camera: either a string with the name of one of the available cameras, or
+                        a dictionary of camera parameters. 
+        
+    """
+    # Get camera params
+    camera = check_camera_param(camera)
+
+    # Apply camera parameters
     scene.plotter.camera.SetPosition(camera['position'])
     scene.plotter.camera.SetFocalPoint(camera['focal'])
     scene.plotter.camera.SetViewUp(camera['viewup'])

@@ -2,6 +2,7 @@ import numpy as np
 import os
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
+from vtkplotter.shapes import Cylinder, Line
 from tqdm import tqdm
 import pandas as pd
 from functools import partial
@@ -14,7 +15,7 @@ from brainrender import SHOW_AXES, WINDOW_POS, BACKGROUND_COLOR, ROOT_ALPHA, DEF
 from brainrender import DEFAULT_STRUCTURE_COLOR, TRACT_DEFAULT_COLOR, VERBOSE, TRACTO_ALPHA
 from brainrender import INJECTION_VOLUME_SIZE, TRACTO_RADIUS, TRACTO_RES, ROOT_COLOR
 from brainrender import INJECTION_DEFAULT_COLOR, HDF_SUFFIXES, DEFAULT_HDF_KEY, SHADER_STYLE
-from brainrender import INTERACTIVE_MSG
+from brainrender import INTERACTIVE_MSG, CAMERA
 
 from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_io import load_volume_file
@@ -25,6 +26,8 @@ from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from brainrender.Utils.parsers.streamlines import parse_streamline
 
 from brainrender.Utils.image import image_to_surface
+
+from brainrender.camera import check_camera_param, set_camera
 
 
 class Scene(ABA):  # subclass brain render to have acces to structure trees
@@ -40,12 +43,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
-    camera_params = {"viewup": [0.25, -1, 0]}
-    video_camera_params = {"viewup": [0, -1, 0]}
-
     def __init__(self, brain_regions=None, regions_aba_color=False,
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False,
-                    display_inset=None, base_dir=None, add_screenshot_button=False, **kwargs):
+                    display_inset=None, base_dir=None, add_screenshot_button=False, 
+                    camera=None, **kwargs):
         """
             Creates and manages a Plotter instance
 
@@ -59,10 +60,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
             :param base_dir: path to directory to use for saving data (default value None)
             :param add_screenshot_button: if True a button is added to the scene to take screenshots of rendered data (default value None)
+            :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
             :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
         """
         ABA.__init__(self, base_dir=base_dir, **kwargs)
 
+        # Setup a few rendering options
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
         self.jupyter = jupyter
@@ -75,7 +78,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if add_root is None:
             add_root = DISPLAY_ROOT
 
-        # Create camera and plotter
+        # Camera parameters
+        if camera is None:
+            self.camera = CAMERA
+        else:
+            self.camera = check_camera_param(camera)
+
+        # Set up vtkplotter plotter and actors records
         if WHOLE_SCREEN:
             sz = "full"
         else:
@@ -90,6 +99,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
 
+
+        # Add items to scene
         if brain_regions is not None:
             self.add_brain_regions(brain_regions)
 
@@ -104,9 +115,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             self.root = None
 
+        # Placeholder variables
         self.add_screenshot_button_arg = add_screenshot_button
-
-        self.rotated = False  # the first time the scene is rendered it must be rotated, the following times it must not be rotated
         self.inset = None  # the first time the scene is rendered create and store the inset here
         self.slider_actors = None # list to hold actors to be affected by opacity slider
         self.is_rendered = False # keep track of if the scene has already been rendered
@@ -972,6 +982,56 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if not keep_obj_file:
             os.remove(obj_file_path)
 
+    def add_optic_cannula(self, target_region=None, pos=None, x_offset=0, y_offset=0,
+                z_offset=-500, use_line=False, **kwargs):
+        """
+            Adds a cylindrical vtk actor to scene to render optic cannulas. By default
+            this is a semi-transparent blue cylinder centered on the center of mass of
+            a specified target region and oriented vertically.
+
+            :param target_region: str, acronym of target region to extract coordinates
+                of implanted fiber. By defualt the fiber will be centered on the center
+                of mass of the target region but the offset arguments can be used to
+                fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
+            :param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
+            :param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
+                the implanted cannula.
+            :param **kwargs: used to specify which hemisphere the cannula is and parameters
+                of the rendered cylinder: color, alpha, rotation axis...
+        """
+        # Set some default kwargs
+        hemisphere = kwargs.pop('hemisphere', 'right')
+        color = kwargs.pop('color', 'powderblue')
+        radius = kwargs.pop('radius', 350)
+        alpha = kwargs.pop('alpha', .5)
+        
+        # Get coordinates of brain-side face of optic cannula
+        if target_region is not None:
+            pos = self.get_region_CenterOfMass(target_region, unilateral=True, hemisphere=hemisphere)
+        elif pos is None:
+            print("No 'pos' or 'target_region' arguments were \
+                            passed to 'add_optic_cannula', nothing to render")
+            return
+        else:
+            if not len(pos) == 3:
+                raise ValueError(f"Invalid target coordinates argument, pos: {pos}")
+
+        # Offset position
+        pos[0] += y_offset
+        pos[1] += z_offset
+        pos[2] += x_offset
+
+        # Get coordinates of upper face
+        bounds = self.root.bounds()
+        top = pos.copy()
+        top[1] = bounds[2] - 500
+
+        if not use_line:
+            cylinder = self.add_vtkactor(Cylinder(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs))
+        else:
+            cylinder = self.add_vtkactor(Line(top, pos, c=color, alpha=alpha, lw=radius))
+        return cylinder
+
     def edit_actors(self, actors, **kwargs):
         """
         edits a list of actors (e.g. render as wireframe or solid)
@@ -1107,20 +1167,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 all_actors.append(actors)
         return all_actors
 
-    def render(self, interactive=True, video=False):
+    def render(self, interactive=True, video=False, camera=None):
         """
         Takes care of rendering the scene
         """
         self.apply_render_style()
 
-        if not self.rotated:
-            azimuth = -35
-            self.rotated = True
+        if camera is None:
+            camera = self.camera
         else:
-            azimuth = None
-
-        if len(settings.plotter_instances) > 1:
-            self._rotate_actors()
+            camera = check_camera_param(camera)
+        set_camera(self, camera)
 
         if VERBOSE and not self.jupyter:
             print(INTERACTIVE_MSG)
@@ -1139,17 +1196,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.is_rendered = True
 
         if interactive and not video:
-            show(*self.get_actors(), interactive=False, camera=self.camera_params, azimuth=azimuth, zoom=zoom)
+            show(*self.get_actors(), interactive=False, zoom=zoom)
         elif video:
-            show(*self.get_actors(), interactive=False, offscreen=True, camera=self.video_camera_params, zoom=2.5)
+            show(*self.get_actors(), interactive=False, offscreen=True, zoom=2.5)
         else:
-            show(*self.get_actors(), interactive=False,  offscreen=True, camera=self.camera_params, azimuth=azimuth, zoom=zoom)
+            show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
         if self.add_screenshot_button_arg:
             self.add_screenshot_button()
 
         if interactive and not video:
-            show(*self.get_actors(), interactive=True, camera=self.camera_params)
+            show(*self.get_actors(), interactive=True)
 
 
     def _add_actors(self):
