@@ -526,8 +526,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
         return neurons
 
-
-
     def edit_neurons(self, neurons=None, copy=False, **kwargs):
 
         """
@@ -880,8 +878,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             region_list =  list(self.get_structure_descendants(region)['acronym'].values)
         return cells[cells.region.isin(region_list)]
 
-
-    def add_cells(self, coords, color="red", radius=25, res=3, alpha=1, regions=None):
+    def add_cells(self, coords, color="red", color_by_region=False, radius=25, res=3, alpha=1, regions=None):
         """
         Renders cells given their coordinates as a collection of spheres.
 
@@ -890,6 +887,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         :param radius: int, radius of spheres used to render the cells (Default value = 25)
         :param res: int, resolution of spheres used to render the cells (Default value = 3)
         :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
+        :param color_by_region: bool. If true the cells are colored according to the color of the brain region they are in
         :param regions: if a list of brain regions acronym is passed, only cells in these regions will be added to the scene
 
         """
@@ -900,12 +898,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             raise ValueError("Unrecognized argument for cell coordinates")
 
-        
+        if color_by_region:
+            regions = [self.get_structure_from_coordinates(p0) for p0 in coords]
+            color = [list(np.float16(np.array(col)/255)) for col in self.get_region_color(regions)]
 
         spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
         self.actors['others'].append(spheres)
         print("Added {} cells to the scene".format(len(coords)))
-
 
     def add_image(self, image_file_path, color=None, alpha=None,
                   obj_file_path=None, voxel_size=1, orientation="saggital",
