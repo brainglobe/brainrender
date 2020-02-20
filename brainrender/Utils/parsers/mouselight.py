@@ -610,7 +610,7 @@ class NeuronsParser(Paths):
 					color = dendrites_color
 				
 				# Get all the points that make the branch
-				branch_points = [[x, y, z] for x, y, z in zip(tree.x.values, tree.y.values, tree.z.values)]
+				branch_points = [[x, y, z] for x, y, z in zip(tree.x.values, tree.y.values, tree.z.values)][10:]
 
 				# Create actor
 				neuron_actors[neurite].append(\

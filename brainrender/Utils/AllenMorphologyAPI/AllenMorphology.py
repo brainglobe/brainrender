@@ -57,9 +57,13 @@ class AllenMorphology(Paths):
             ids = list(ids)
         if not isinstance(ids, (list)): ids = [ids]
 
+        neurons = []
         for neuron_id in ids:
             neuron_file = os.path.join(self.morphology_allen, "{}.swc".format(neuron_id))
-            neuron = self.ctc.get_reconstruction(neuron_id, file_name=neuron_file) ## UNUSED !!
+            neurons.append(self.ctc.get_reconstruction(neuron_id, file_name=neuron_file))
+        
+        return neurons
+           
 
 
 
