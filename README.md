@@ -50,7 +50,7 @@ Top view of the Zona Incerta
 <img src="Docs/Media/ZI_cartoon.png" width="500">
 
 ### Making figures
-`vtkplotter` can be used to render 3d objects loaded from `.obj` and `.stl` files, making it easy to add objects to a rendering for creating illustrations. Additionally, `brainrender` has some functions that can be used to render commonly used items such as optic cannullas (e.g. for optogenetics) and electrods arrays:
+Thanks to `vtkplotter`, `brainrender` can be used to render 3d objects loaded from `.obj` and `.stl` files, making it easy to add objects to a rendering (e.g. implanted electrodes arrays) for creating illustrations. Additionally, `brainrender` has some functions that can be used to render commonly used items such as optic cannullas (e.g. for optogenetics) and electrods arrays:
 
 <img src="Docs/Media/cannula.png" width="750">
 <img src="Docs/Media/electrodes.png" width="750">
