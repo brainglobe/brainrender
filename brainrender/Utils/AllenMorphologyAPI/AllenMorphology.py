@@ -115,6 +115,7 @@ class AllenMorphology(Paths):
 		actor.color(color)
 		return actor
 
+	# Todo load/save neurons??
 	def load_save_neuron(self, neuron_file):
 		neuron_name = os.path.split(neuron_file)[-1].split('.swc')[0]
 
