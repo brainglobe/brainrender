@@ -37,8 +37,10 @@ def BrainRegionsScene():
 def CartoonStyleScene():
     if brainrender.SHADER_STYLE != 'cartoon':
         raise ValueError('Set cartoon style at imports')
-    scene = Scene()
-    scene.add_brain_regions(['SCm'], use_original_color=True, alpha=1)
+
+    scene = Scene(camera='coronal', add_root=False)
+    scene.add_brain_regions(['PAG', 'SCm', 'SCs'], use_original_color=True, alpha=1)
+    # scene.add_brain_regions(['VISl', 'VISpl', 'VISpm', 'VISam', 'VISal', 'VISa'], use_original_color=True, alpha=.4)
 
     scene.render()
 
@@ -138,14 +140,16 @@ def ConnectivityScene():
 
 # ---------------------------------------------------------------------------- #
 def ElectrodesArrayScene():
-    scene = Scene()
+    scene = Scene(add_root=False, camera='sagittal')
     z_offset = -1500
-    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.5)
-    scene.add_optic_cannula('CA1')
+    scene.add_brain_regions(['VAL'], use_original_color=True, alpha=.5)
+    scene.add_brain_regions(['TH'], use_original_color=True, alpha=.5, wireframe=True)
 
-    for x_offset in [-200, -500, -800, -1100]:
-        scene.add_optic_cannula('CA1', z_offset=z_offset, x_offset=x_offset, alpha=1,
-                    radius=50, y_offset=-500, color='blackboard')
+    # scene.add_optic_cannula('VAL')
+
+    # for x_offset in [-200, -500, -800, -1100]:
+    #     scene.add_optic_cannula('VAL', z_offset=z_offset, x_offset=x_offset, alpha=1,
+    #                 radius=50, y_offset=-500, color='blackboard')
 
     scene.render() 
 
@@ -172,10 +176,8 @@ scenes = dict(
 
 
 if __name__ == "__main__":
-    scene = "BrainRegionsScene"
+    scene = "ElectrodesArrayScene"
     scenes[scene]()
-    scene = "NeuronsScene"
-    scenes[scene]()
-#
+
 
 
