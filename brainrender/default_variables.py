@@ -39,8 +39,8 @@ STREAMLINES_RESOLUTION = 3     # resolution of actors used to render the neuron,
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 USE_MORPHOLOGY_CACHE = True     # If True once a neuron's data is parsed the resulting actor is saved to file and used for subsequent renderenings
-DEFAULT_NEURITE_RADIUS = 12     # radius of dendrites, axons...
-SOMA_RADIUS = 5                 # radius of the soma sphere
+DEFAULT_NEURITE_RADIUS = 8     # radius of dendrites, axons...
+SOMA_RADIUS = 4                 # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
 NEURON_ALPHA = 0.85             # transparency of the neurons actors
 
@@ -55,7 +55,6 @@ SMOOTH_NEURONS = True
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # DEBUG VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-NEURONS_FILE = "Examples/example_files/one_neuron.json"
 VERBOSE = True                  # if True print useful messages during use
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

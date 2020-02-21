@@ -227,12 +227,20 @@ class AllenMorphology(Paths):
 
 		actor = self.scene.add_vtkactor(neuron)
 
-		if shadow_axis == 'x':
-			neuron.addShadow(x = shadow_offset)
-		elif shadow_axis == 'y':
-			neuron.addShadow(y = shadow_offset)
-		elif shadow_axis == 'z':
-			neuron.addShadow(z = shadow_offset)
+		# if shadow_axis == 'x':
+		# 	neuron.addShadow(x = shadow_offset)
+		# elif shadow_axis == 'y':
+		# 	neuron.addShadow(y = shadow_offset)
+		# elif shadow_axis == 'z':
+		# 	neuron.addShadow(z = shadow_offset)
+
+		sx = neuron.clone().projectOnPlane('x').c('blackboard').x(-.1)
+		sy = neuron.clone().projectOnPlane('y').c('blackboard').y(-.1)
+		sz = neuron.clone().projectOnPlane('z').c('blackboard').z(-.1)
+
+		self.scene.add_vtkactor(sx)
+		self.scene.add_vtkactor(sy)
+		self.scene.add_vtkactor(sz)
 		
 
 	def render(self):

@@ -344,6 +344,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         """
         self.actors['others'].append(actor)
+        return actor
 
     def add_from_file(self, filepath, **kwargs):
         """
