@@ -6,7 +6,6 @@ from vtkplotter import shapes, load, merge
 
 import pandas as pd
 import numpy as np
-from collections import namedtuple
 
 import allensdk.core.swc as allen_swc
 
@@ -123,8 +122,7 @@ class NeuronsParser(Paths):
 			neurons_names = [os.path.split(ml_file)[-1].split(".")[0]]
 
 		if ".swc" in checkfile.lower():
-			self.is_json = False
-			data = self.handle_parsing_swc(ml_file, is_iter)
+			raise NotImplementedError('We are working on improving parsing of .swc files, not ready yet.')
 		else:
 			self.is_json = True
 			if not is_iter:
@@ -206,14 +204,14 @@ class NeuronsParser(Paths):
 		# get allen info: it containes the allenID of each brain region
 		# each sample has the corresponding allen ID so we can recontruct in which brain region it is
 		if neuron is not None:
-			if 'allenInformation' in list(neuron.keys()):
-				self.alleninfo = pd.DataFrame(neuron['allenInformation'])             # get brain structure in which is the soma
-				soma_region = self.scene.get_structure_parent(self.alleninfo.loc[self.alleninfo.allenId == neuron['soma']['allenId']].acronym.values[0])['acronym']
-			else:
+			if isinstance(neuron, dict):
 				self.alleninfo = None
 				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))
 				if soma_region is not None:
 					soma_region = soma_region['acronym']
+			else:
+				self.alleninfo = None
+				soma_region = None
 		elif soma_region is None:
 			self.alleninfo = None
 			if soma is not None:
@@ -572,94 +570,6 @@ class NeuronsParser(Paths):
 				continue
 
 		return keep
-
-	def parse_neuron_swc(self, filepath, neuron_number):
-		"""
-		Given an swc file, render the neuron
-
-		:param filepath: str with path to swc file
-		:param neuron_number: numnber of neuron being rendered
-
-		"""
-		# details on swc files: http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html
-		_sample = namedtuple("sample", "sampleN structureID x y z r parent") # sampleN structureID x y z r parent
-
-		# in json {'allenId': 1021, 'parentNumber': 5, 'radius': 0.5, 'sampleNumber': 6, 
-		# 'structureIdentifier': 2, 'x': 6848.52419500001, 'y': 2631.9816355, 'z': 3364.3552898125}
-		
-		if not os.path.isfile(filepath) or not ".swc" in filepath.lower(): raise ValueError("unrecognized file path: {}".format(filepath))
-
-		try:
-			morphology = allen_swc.read_swc(filepath)
-			return self.parse_neurons_swc_allen(morphology, neuron_number)
-		except:
-			pass #  the .swc file fas not generate with by allen
-
-		f = open(filepath)
-		content = f.readlines()
-		f.close()
-
-		# crate empty dicts for soma axon and dendrites
-		data = {'soma':     dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[]),
-				'axon':     dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[]),
-				'dendrite': dict(allenId=[], parentNumber=[], radius=[], sampleNumber=[], x=[], y=[], z=[])}
-
-		# start looping around samples
-		for sample in content:
-			if sample[0] == '#': 
-				continue # skip comments
-			s = _sample(*[float(samp.replace("\n", "")) for samp in sample.split("\t")])
-
-			# what structure is this
-			if s.structureID in [1., -1.]: key = "soma"
-			elif s.structureID in [2.]: key = 'axon'
-			elif s.structureID in [3., 4.]: key = 'dendrite'
-			else:
-				raise ValueError("unrecognised sample in SWC file: {}".format(s))
-
-			# append data to dictionary
-			data[key]['parentNumber'].append(int(s.parent))
-			data[key]['radius'].append(s.r)
-			data[key]['x'].append(s.x)
-			data[key]['y'].append(s.y)
-			data[key]['z'].append(s.z)
-			data[key]['sampleNumber'].append(int(s.sampleN))
-			data[key]['allenId'].append(-1) # TODO get allen ID from coords
-
-		return data
-
-	def handle_parsing_swc(self, swc_files, is_iter):
-		"""
-			Takes care of handling the case in which one or multiple SWC files are passed.
-			Which renderer and what is returned varies depending on the source of the SWC, so this
-			function hadles this variable outcomes.
-
-		:param swc_files: list of swc files
-		:param is_iter: 
-
-		"""
-		if not is_iter:
-			res = self.parse_neuron_swc(swc_files, 0)
-			if len(res) == 1:
-				return [res]
-			else:
-				self.actors, self.regions = [res[0]], res[1]
-				self.rendering_necessary = False
-				return None
-
-		else:
-			# ? Render multiple SWC files
-			self.n_neurons = len(swc_files)
-
-			# render
-			data = [self.parse_neuron_swc(f, i) for i, f in enumerate(swc_files)]
-
-			# Check outcome
-			if len(data[0]) == 1:
-				return data
-			else:
-				self.actors, self.regions = [d[0] for d in data], [d[1] for d in data]
-				self.rendering_necessary = False
 
 
 def edit_neurons(neurons, **kwargs):
