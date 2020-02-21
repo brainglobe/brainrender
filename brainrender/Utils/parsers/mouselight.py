@@ -394,7 +394,7 @@ class NeuronsParser(Paths):
 				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
 		elif self.force_to_hemisphere.lower() == "right":
 			if self.soma_coords[2] < mirror_coor:
-				neuron_actors = self._mirror_neuron(neuron_actors, mirror_coor)
+				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
 		else:
 			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
 		return neuron_actors
