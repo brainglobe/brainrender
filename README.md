@@ -1,3 +1,4 @@
+
 # BrainRender
 `brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
 
@@ -9,9 +10,22 @@ To install `brainrender`, use an existing python environment or create one [with
 pip install brainrender
 ```
 
+
+
 # Resources
 `brainrender` can be used to download and visualize anatomical data from publicly available datasets. 
 These include the Allen Mouse Brain Atlas, the Allen Mouse Connectome project and neuronal morphological data from the MouseLight project from Janelia. 
+
+
+
+Brain structures             |  Afferent projections
+:-------------------------:|:-------------------------:
+![](Docs/Media/brainregions.png)  |  ![](Docs/Media/tractography.png)
+
+Efferent projections             |  MouseLight neurons
+:-------------------------:|:-------------------------:
+![](Docs/Media/streamlines.png)  |  ![](Docs/Media/morphology.png)
+
 
 ### Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
@@ -20,25 +34,21 @@ and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API
 
 An interactive, in-browser 3D structure viewer, the Allen Brain Explorer, is available [here](http://connectivity.brain-map.org/3d-viewer?v=1). 
 
-`brainrender` can be used to visualize the 3D structure of brain regions:
-<img src="Docs/Media/brainregions.png" width="750">
-
-and afferent anatomical projections from the Mouse Connectome project:
-<img src="Docs/Media/tractography.png" width="750">
-
 ### Streamlines
 Efferent anatomical projections [as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org))] can be rendered as 'streamlines'.
 
-<img src="Docs/Media/streamlines.png" width="750">
-
 Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details).
 
-### Mouselight neurons morphology
+### Mouselight and neurons morphology
 Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
 
-<img src="Docs/Media/morphology.png" width="750">
-Motor cortex piramidal neuron reconstruction from Mouse Light.
+Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` files with the `AllenMorphology` class. This class is also used to download morphologies from the Allen Cell Types project. 
+A large number of neuronal morphologies can be found at [neuromorpho](https://www.neuromorpho.org).
+
+<img src="Docs/Media/neuron.png" width="750">
+A pyramidal neuron.
+
 
 ## 3D rendering in python
 To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)], a python package for 3D visualization.
