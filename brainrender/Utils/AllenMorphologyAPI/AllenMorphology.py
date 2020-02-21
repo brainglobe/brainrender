@@ -11,6 +11,8 @@ from vtkplotter import shapes, load, merge
 
 from allensdk.core.cell_types_cache import CellTypesCache
 from allensdk.api.queries.cell_types_api import CellTypesApi
+from allensdk.core.swc import Morphology
+
 
 from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.data_io import connected_to_internet
@@ -71,7 +73,7 @@ class AllenMorphology(Paths):
 		
 		return neurons
 		   
-	def parse_neurons_swc_allen(self, morphology, color=None):
+	def parse_neurons_swc_allen(self, morphology, color='blackboard', alpha=1):
 		"""
 		SWC parser for Allen neuron's morphology data, they're a bit different from the Mouse Light SWC
 
@@ -80,7 +82,8 @@ class AllenMorphology(Paths):
 
 		"""
 		# Create soma actor
-		neuron_actors = [shapes.Sphere(pos=get_coords(morphology.soma)[::-1], c=color, r=4)]
+		radius = 1
+		neuron_actors = [shapes.Sphere(pos=get_coords(morphology.soma)[::-1], c=color, r=radius*3)]
 
 		# loop over trees
 		for tree in morphology._tree_list:
@@ -110,11 +113,12 @@ class AllenMorphology(Paths):
 							break
 
 				# Create actor
-				neuron_actors.append(shapes.Tube(branch, r=2, 
+				neuron_actors.append(shapes.Tube(branch, r=radius, 
 									c='red', alpha=1, res=24))
 
 		actor = merge(*neuron_actors)
 		actor.color(color)
+		actor.alpha(alpha)
 		return actor
 
 	# # Todo load/save neurons??
@@ -130,7 +134,8 @@ class AllenMorphology(Paths):
 		elif neuron is not None:
 			neuron.write(savepath)
 	
-	def parse_neuron_swc(self, filepath, color='darkseagreen', radius_multiplier=.1, overwrite=False):
+	def parse_neuron_swc(self, filepath, color='blackboard', alpha=1,
+						radius_multiplier=.1, overwrite=False):
 		"""
 		Given an swc file, render the neuron
 
@@ -216,23 +221,37 @@ class AllenMorphology(Paths):
 		# Merge actors and save
 		actor = merge(*neuron_actors)
 		actor.color(color)
+		actor.alpha(alpha)
 
 		self.load_save_neuron(filepath, neuron=actor)
 		return actor
 
 
-	def add_neuron(self, neuron, shadow_axis='y', shadow_offset=-20,  **kwargs):
-		if isinstance(neuron, str):
-			neuron = self.parse_neuron_swc(neuron,  **kwargs)
+	def add_neuron(self, neuron, shadow_axis=None, shadow_offset=-20,  **kwargs):
+		if isinstance(neuron, list):
+			neurons = neuron
+		else:
+			neurons = [neuron]
+		
+		actors = []
+		for neuron in neurons:
+			if isinstance(neuron, str):
+				neuron = self.parse_neuron_swc(neuron,  **kwargs)
+			elif isinstance(neuron, Morphology):
+				neuron = self.parse_neurons_swc_allen(neuron, **kwargs)
 
-		actor = self.scene.add_vtkactor(neuron)
+			actor = self.scene.add_vtkactor(neuron)
 
-		if shadow_axis == 'x':
-			neuron.addShadow(x = shadow_offset)
-		elif shadow_axis == 'y':
-			neuron.addShadow(y = shadow_offset)
-		elif shadow_axis == 'z':
-			neuron.addShadow(z = shadow_offset)
+			if shadow_axis == 'x':
+				neuron.addShadow(x = shadow_offset)
+			elif shadow_axis == 'y':
+				neuron.addShadow(y = shadow_offset)
+			elif shadow_axis == 'z':
+				neuron.addShadow(z = shadow_offset)
+			
+			actors.append(neuron)
+		
+		return actors
 		
 
 	def render(self):
