@@ -4,70 +4,115 @@ sys.path.append('./')
 import os
 import pandas as pd
 import numpy as np
+from vtkplotter import shapes, load, merge
 
 from allensdk.core.cell_types_cache import CellTypesCache
 from allensdk.api.queries.cell_types_api import CellTypesApi
 
 from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.data_io import connected_to_internet
+from brainrender.Utils.data_manipulation import get_coords
 
 """
-    WORK IN PROGRESS
+	WORK IN PROGRESS
 
-    This class should handle the download and visualisation of neuronal morphology data from the Allen database.
+	This class should handle the download and visualisation of neuronal morphology data from the Allen database.
 """
 
 
 class AllenMorphology(Paths):
-    """ Handles the download and visualisation of neuronal morphology data from the Allen database. """
+	""" Handles the download and visualisation of neuronal morphology data from the Allen database. """
 
-    def __init__(self, *args, **kwargs):
-        """
-            Initialise API interaction and fetch metadata of neurons in the Allen Database. 
-        """
-        if not connected_to_internet():
-            raise ConnectionError("You will need to be connected to the internet to use the AllenMorphology class")
+	def __init__(self, *args, **kwargs):
+		"""
+			Initialise API interaction and fetch metadata of neurons in the Allen Database. 
+		"""
+		if not connected_to_internet():
+			raise ConnectionError("You will need to be connected to the internet to use the AllenMorphology class")
 
-        Paths.__init__(self, *args, **kwargs)
+		Paths.__init__(self, *args, **kwargs)
 
-        # Create a Cache for the Cell Types Cache API
-        self.ctc = CellTypesCache(manifest_file=os.path.join(self.morphology_allen, 'manifest.json'))
+		# Create a Cache for the Cell Types Cache API
+		self.ctc = CellTypesCache(manifest_file=os.path.join(self.morphology_allen, 'manifest.json'))
 
-        # Get a list of cell metadata for neurons with reconstructions, download if necessary
-        self.neurons = pd.DataFrame(self.ctc.get_cells(species=[CellTypesApi.MOUSE], require_reconstruction = True))
-        self.n_neurons = len(self.neurons)
-        if not self.n_neurons: raise ValueError("Something went wrong and couldn't get neurons metadata from Allen")
+		# Get a list of cell metadata for neurons with reconstructions, download if necessary
+		self.neurons = pd.DataFrame(self.ctc.get_cells(species=[CellTypesApi.MOUSE], require_reconstruction = True))
+		self.n_neurons = len(self.neurons)
+		if not self.n_neurons: raise ValueError("Something went wrong and couldn't get neurons metadata from Allen")
 
-        self.downloaded_neurons = self.get_downloaded_neurons()
+		self.downloaded_neurons = self.get_downloaded_neurons()
 
-    def get_downloaded_neurons(self):
-        """ 
-            Get's the path to files of downloaded neurons
-        """
-        return [os.path.join(self.morphology_allen, f) for f in os.listdir(self.morphology_allen) if ".swc" in f]    
+	def get_downloaded_neurons(self):
+		""" 
+			Get's the path to files of downloaded neurons
+		"""
+		return [os.path.join(self.morphology_allen, f) for f in os.listdir(self.morphology_allen) if ".swc" in f]    
 
-    def download_neurons(self, ids):
-        """
-            Download neurons
+	def download_neurons(self, ids):
+		"""
+			Download neurons
 
-        :param ids: list of integers with neurons IDs
+		:param ids: list of integers with neurons IDs
 
-        """
-        if isinstance(ids, np.ndarray):
-            ids = list(ids)
-        if not isinstance(ids, (list)): ids = [ids]
+		"""
+		if isinstance(ids, np.ndarray):
+			ids = list(ids)
+		if not isinstance(ids, (list)): ids = [ids]
 
-        neurons = []
-        for neuron_id in ids:
-            neuron_file = os.path.join(self.morphology_allen, "{}.swc".format(neuron_id))
-            neurons.append(self.ctc.get_reconstruction(neuron_id, file_name=neuron_file))
-        
-        return neurons
-           
+		neurons = []
+		for neuron_id in ids:
+			neuron_file = os.path.join(self.morphology_allen, "{}.swc".format(neuron_id))
+			neurons.append(self.ctc.get_reconstruction(neuron_id, file_name=neuron_file))
+		
+		return neurons
+		   
+	def parse_neurons_swc_allen(self, morphology, color=None):
+		"""
+		SWC parser for Allen neuron's morphology data, they're a bit different from the Mouse Light SWC
 
+		:param morphology: data with morphology
+		:param neuron_number: int, number of the neuron being rendered.
 
+		"""
+		# Create soma actor
+		neuron_actors = [shapes.Sphere(pos=get_coords(morphology.soma)[::-1], c=color, r=4)]
+
+		# loop over trees
+		for tree in morphology._tree_list:
+			
+			tree = pd.DataFrame(tree)
+			branching_points = [t.id for i,t in tree.iterrows() 
+						if len(t.children)>2 and t.id < len(tree)]
+
+			branch_starts = []
+			for bp in branching_points:
+				branch_starts.extend(tree.iloc[bp].children) 
+
+			for bp in branch_starts:
+				parent = tree.iloc[tree.iloc[bp].parent]
+				branch = [(parent.x, parent.y, parent.z)]
+				point = tree.iloc[bp]
+
+				while True:
+					branch.append((point.x, point.y, point.z))
+
+					if not point.children:
+						break
+					else:
+						try:
+							point = tree.iloc[point.children[0]]
+						except:
+							break
+
+				# Create actor
+				neuron_actors.append(shapes.Tube(branch, r=2, 
+									c='red', alpha=1, res=24))
+
+		actor = merge(*neuron_actors)
+		actor.color(color)
+		return actor
 
 
 if __name__ == '__main__':
-    AM = AllenMorphology()
-    AM.download_neurons(AM.neurons.id.values[:10])
+	AM = AllenMorphology()
+	AM.download_neurons(AM.neurons.id.values[:10])

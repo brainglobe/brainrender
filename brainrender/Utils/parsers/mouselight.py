@@ -401,8 +401,6 @@ class NeuronsParser(Paths):
 			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
 		return neuron_actors
 
-
-
 	@staticmethod
 	def decimate_neuron_actors(neuron_actors):
 		"""
@@ -574,67 +572,6 @@ class NeuronsParser(Paths):
 				continue
 
 		return keep
-
-	def parse_neurons_swc_allen(self, morphology, neuron_number):
-		"""
-		SWC parser for Allen neuron's morphology data, they're a bit different from the Mouse Light SWC
-
-		:param morphology: data with morphology
-		:param neuron_number: int, number of the neuron being rendered.
-
-		"""
-		# Get params
-		neurite_radius = self._get_neurites_radius()
-		soma_color, axon_color, dendrites_color, soma_region =  \
-			self._render_neuron_get_params(neuron_number, soma=morphology.soma)
-
-		# Create soma actor
-		neuron_actors, regions = {"soma":None, "axon":[], "dendrites":[]}, {'soma':soma_region, 'dendrites':[], 'axon':[]}
-		neuron_actors['soma'] = shapes.Sphere(pos=get_coords(morphology.soma)[::-1], c=soma_color, r=SOMA_RADIUS)
-
-		# loop over trees
-		if self.render_neurites:
-			for tree in morphology._tree_list:
-				tree = pd.DataFrame(tree)
-
-				# get node numbers in t
-				# get the first non soma node
-				first_node_type = tree.loc[tree.type != morphology.SOMA].type.values[0]
-
-				# get the branch type
-				if first_node_type == morphology.AXON:
-					neurite = "axon"
-					color = axon_color
-				else:
-					neurite = "dendrites"
-					color = dendrites_color
-				
-				# Get all the points that make the branch
-				branch_points = [[x, y, z] for x, y, z in zip(tree.x.values, tree.y.values, tree.z.values)][10:]
-
-				# Create actor
-				neuron_actors[neurite].append(\
-					shapes.Tube(branch_points, r=neurite_radius, 
-							c=color, alpha=1, res=NEURON_RESOLUTION))
-
-			# merge actors' meshes to make rendering faster
-			for neurite, color in zip(["axon", "dendrites"], [axon_color, dendrites_color]):
-				if neuron_actors[neurite]:
-					neuron_actors[neurite] = merge(*neuron_actors[neurite])
-					neuron_actors[neurite].color(color)
-
-		self.decimate_neuron_actors(neuron_actors)
-		self.smooth_neurons(neuron_actors)
-
-		# force to hemisphere
-		if self.force_to_hemisphere is not None:
-				neuron_actors = self.mirror_neuron(neuron_actors)
-
-		# Check output
-		if not neuron_actors["axon"]: neuron_actors["axon"] = None
-		if not neuron_actors["dendrites"]: neuron_actors["dendrites"] = None
-
-		return neuron_actors, regions
 
 	def parse_neuron_swc(self, filepath, neuron_number):
 		"""

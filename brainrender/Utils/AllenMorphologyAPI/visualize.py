@@ -5,7 +5,7 @@ from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
 class AllenMorphologyVisualizer(Scene):
     def __init__(self):
-        AllenMorphology.__init__(self)
+        self.morphology = AllenMorphology()
         self.parser = NeuronsParser(Scene(), neurite_radius=1.5)
 
     def add_neurons(self, neurons, color=None):
