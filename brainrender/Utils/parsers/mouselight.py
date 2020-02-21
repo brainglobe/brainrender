@@ -475,13 +475,18 @@ class NeuronsParser(Paths):
 			# get neurites after the branching point
 			bp = neurites.loc[neurites.sampleNumber == idx]
 			post_bp = neurites.loc[neurites.parentNumber == idx]
-			
+			parent = neurites.loc[neurites.sampleNumber == bp.parentNumber.values[0]]
+
 			# loop on each branch after the branching point
 			for bi, branch in post_bp.iterrows():
-				if bi == 0:
-					branch_points = [self.soma_coords, get_coords(bp, mirror=self.mirror_coord, mirror_ax=self.mirror_ax), get_coords(branch, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)] # this list stores all the samples that  are part of a branch
+
+				# Start coordinates in a list, including parent and branch point
+				if len(parent):
+					branch_points = [get_coords(parent, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)]
 				else:
-					branch_points = [get_coords(bp, mirror=self.mirror_coord, mirror_ax=self.mirror_ax), get_coords(branch, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)] 
+					branch_points = []
+				branch_points.extend([get_coords(bp, mirror=self.mirror_coord, mirror_ax=self.mirror_ax), 
+									get_coords(branch, mirror=self.mirror_coord, mirror_ax=self.mirror_ax)])
 
 				# loop over all following points along the branch, until you meet either a terminal or another branching point. store the points
 				idx = branch.sampleNumber
@@ -491,7 +496,7 @@ class NeuronsParser(Paths):
 						break
 					else:
 						branch_points.append(get_coords(nxt, mirror=self.mirror_coord, mirror_ax=self.mirror_ax))
-						idx += 1
+						idx = nxt.sampleNumber.values[0]
 
 				# if the branch is too short for a tube, create a sphere instead
 				if len(branch_points) < 2: # plot either a line between two branch_points or  a spheere
