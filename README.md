@@ -46,8 +46,9 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` files with the `AllenMorphology` class. This class is also used to download morphologies from the Allen Cell Types project. 
 A large number of neuronal morphologies can be found at [neuromorpho](https://www.neuromorpho.org).
 
-<img src="Docs/Media/neuron.png" width="750">
-A pyramidal neuron.
+
+![](Docs/Media/neuron.png)  |  ![](Docs/Media/neuron2.png) |  ![](Docs/Media/neuron3.png)
+:-------------------------:|:-------------------------:|:-------------------------:
 
 
 ## 3D rendering in python
@@ -62,11 +63,9 @@ Top view of the Zona Incerta
 ### Making figures
 Thanks to `vtkplotter`, `brainrender` can be used to render 3d objects loaded from `.obj` and `.stl` files, making it easy to add objects to a rendering (e.g. implanted electrodes arrays) for creating illustrations. Additionally, `brainrender` has some functions that can be used to render commonly used items such as optic cannullas (e.g. for optogenetics) and electrods arrays:
 
-<img src="Docs/Media/cannula.png" width="750">
-Example rendering of an implanted optic cannula over the central amygdala.
-
-<img src="Docs/Media/electrodes.png" width="750">
-Example of an electrodes array implanted over the CA1 field of the hippocampus. 
+Optic cannula            |  Electrodes array
+:-------------------------:|:-------------------------:
+![](Docs/Media/cannula.png)  |  ![](Docs/Media/electrodes.png)
 
 ## Referencing Brain Render
 If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution.
