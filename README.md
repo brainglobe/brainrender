@@ -78,10 +78,10 @@ This functionality is not supported in `brainrender`, however brainrender can be
 You can also use `brainrender` to visualise the position of devices implanted in the brain (e.g. optic cannula). 
 At the moment this can only be done by rendering colored cylinders at the location where the implant is, but we're happy to add more functionality, get in touch if you need anything specific!
 
-Injection site             |  Labelled neurons
+
+Optic fibre             |  Electrodes array
 :-------------------------:|:-------------------------:
 ![](Docs/Media/cannula.png)  |  ![](Docs/Media/electrodes.png)
-
 
 ## Making figures
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender, facilitating the creation of figure for scientific talks and publications. 
