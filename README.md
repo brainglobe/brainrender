@@ -1,6 +1,7 @@
 
 # BrainRender
-`brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. Check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
+`brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. 
+Please check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
 
 <img src="Docs/Media/streamlines2.png" width="1000">
 
@@ -11,22 +12,16 @@ pip install brainrender
 ```
 
 
+# Description
+`brainrender` can be used to download and visualize anatomical data from publicly available datasets as well as user generated content. Data from the Allen Mouse Brain Atlas and Allen Mouse Connectome projects can be used to visualise the three dimensional morphology of brain region and obtain a qualitative understanding of the I/O connective of a region of interest. 
+Brainrender can also be used to visualise reconstructed neuronal morphologies, either by downloading them directly from MouseLight project from Janelia Research campus, or by rendering reconstructions obtained from elsewhere (e.g. from [neuromorpho.org](http://neuromorpho.org).
 
-# Resources
-`brainrender` can be used to download and visualize anatomical data from publicly available datasets. 
-These include the Allen Mouse Brain Atlas, the Allen Mouse Connectome project and neuronal morphological data from the MouseLight project from Janelia. 
+In addition, `brainrender` can be used to visualise data generated within your lab. Brainrender can be used to visualise the results of tracing experiments (e.g. location of the injection site and labelled cells) and to visualise the location of chronically implanted device (such as electrodes arrays or optic fibres). 
 
-
-
-Brain structures             |  Afferent projections
-:-------------------------:|:-------------------------:
-![](Docs/Media/brainregions.png)  |  ![](Docs/Media/tractography.png)
-
-Efferent projections             |  MouseLight neurons
-:-------------------------:|:-------------------------:
-![](Docs/Media/streamlines.png)  |  ![](Docs/Media/morphology.png)
+![](Docs/Media/summary_figure.png)
 
 
+## Publicly available datasets
 ### Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
 and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API](http://help.brain-map.org/display/api/Allen%2BBrain%2BAtlas%2BAPI)
@@ -39,33 +34,62 @@ Efferent anatomical projections [as determined by local injections of an anterog
 
 Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details).
 
+Brain structures             |  Afferent projections
+:-------------------------:|:-------------------------:
+![](Docs/Media/brainregions.png)  |  ![](Docs/Media/tractography.png)
+
+Efferent projections             |  MouseLight neurons
+:-------------------------:|:-------------------------:
+![](Docs/Media/streamlines.png)  |  ![](Docs/Media/morphology.png)
+
 ### Mouselight and neurons morphology
 Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
 
-Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` files with the `AllenMorphology` class. This class is also used to download morphologies from the Allen Cell Types project. 
-A large number of neuronal morphologies can be found at [neuromorpho](https://www.neuromorpho.org).
+Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` directly. 
+Additionally, `brainrender` can also be used to download morphologies from the Allen Cell Types project. 
+A large number of neuronal morphologies can be found at [neuromorpho.org](https://www.neuromorpho.org).
 
 
 ![](Docs/Media/neuron.png)  |  ![](Docs/Media/neuron2.png) |  ![](Docs/Media/neuron3.png)
 :-------------------------:|:-------------------------:|:-------------------------:
 
 
-## 3D rendering in python
-To create 3D renderings `brainrender` relies on [vtkplotter](https://vtkplotter.embl.es) [see [github repo](https://github.com/marcomusy/vtkPlotter)], a python package for 3D visualization.
+## User generated content
+Brainrender can be used to visualise data generated within individual labs, such as the results of a tracing experiments. 
 
-`brainrender` leverages the flexibility in specifying the look of rendered objects afforded by `vtkplotter` to let users create the look they need for high-quality scientific figures and illustrations. Examples of this are displayed throught the 
-[examples](Examples), but one easy way is to set `brainrender`'s rendering style to `cartoon` to get accurate schematics of brain region's anatomy to use for figures:
+Injection site             |  Labelled neurons
+:-------------------------:|:-------------------------:
+![](Docs/Media/inj_site.png)  |  ![](Docs/Media/labelled_cells.png)
 
-Top view of the Zona Incerta
-<img src="Docs/Media/ZI_cartoon.png" width="500">
+This often requires that the raw data be registered to the Allen atlas, before being visualised in brainrender.
+This functionality is not supported in `brainrender`, however brainrender can be used to visualise data registered with other packages such as `amap` ([github repo](https://github.com/SainsburyWellcomeCentre/amap-python)) and `cellfinder` ([github repo](https://github.com/SainsburyWellcomeCentre/cellfinder)).
 
-### Making figures
-Thanks to `vtkplotter`, `brainrender` can be used to render 3d objects loaded from `.obj` and `.stl` files, making it easy to add objects to a rendering (e.g. implanted electrodes arrays) for creating illustrations. Additionally, `brainrender` has some functions that can be used to render commonly used items such as optic cannullas (e.g. for optogenetics) and electrods arrays:
 
-Optic cannula            |  Electrodes array
+You can also use `brainrender` to visualise the position of devices implanted in the brain (e.g. optic cannula). 
+At the moment this can only be done by rendering colored cylinders at the location where the implant is, but we're happy to add more functionality, get in touch if you need anything specific!
+
+Injection site             |  Labelled neurons
 :-------------------------:|:-------------------------:
 ![](Docs/Media/cannula.png)  |  ![](Docs/Media/electrodes.png)
+
+
+## Making figures
+Brainrender's high quality renderings can be exported as `.png` images directly within brainrender, facilitating the creation of figure for scientific talks and publications. 
+
+Brainrender can also be used to create videos and animations. At the moment this functionality is not well supported, if you need to do something that brainrender can't yet do, please get in touch!
+
+# Behind the scenes
+Brainrender was deisgned to be a powerful and flexible software for downloading and rendering neuroanatomical data while still being relatively easy to use (using brainrender requires minimal coding experience). 
+This was achieved by: 
+  1) handling the interaction with the API, SDK and databases services used to find and download the data behind the scenes, requiring minimal user input. 
+  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  (github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
+
+# Getting in touch
+If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
+
+For any bug report or feature request, please open an issue with a brief description of the matter. 
+Although brainrender can already to much, we are always happy to add more functionality that could be useful for users. If you spot some feature that is missing, we'd love to hear about is so please get in touch!
 
 ## Referencing Brain Render
 If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution.
