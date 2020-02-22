@@ -18,12 +18,7 @@ from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.data_io import connected_to_internet
 from brainrender.Utils.data_manipulation import get_coords
 from brainrender.scene import Scene
-
-"""
-	WORK IN PROGRESS
-
-	This class should handle the download and visualisation of neuronal morphology data from the Allen database.
-"""
+from brainrender.Utils.data_io import listdir
 
 
 class AllenMorphology(Paths):
@@ -227,11 +222,16 @@ class AllenMorphology(Paths):
 		return actor
 
 
-	def add_neuron(self, neuron, shadow_axis=None, shadow_offset=-20,  **kwargs):
+	def add_neuron(self, neuron, shadow_axis=None, shadow_offset=-20,   
+					**kwargs):
 		if isinstance(neuron, list):
 			neurons = neuron
 		else:
-			neurons = [neuron]
+			if isinstance(neuron, str):
+				if os.path.isdir(neuron):
+					neurons = listdir(neuron)
+			else:
+				neurons = [neuron]
 		
 		actors = []
 		for neuron in neurons:
@@ -242,14 +242,27 @@ class AllenMorphology(Paths):
 
 			actor = self.scene.add_vtkactor(neuron)
 
+
+			# scals = actor.points()[:, 1]
+			# alphas = np.linspace(0.82, .83, 250)
+			# actor.pointColors(scals, alpha=alphas, cmap="Greens_r")
+
+			# actor.points()[:, 0] += np.random.normal(0, 1000)
+			# actor.points()[:, 2] += np.random.normal(0, 100)
+			# actor.points()[:, 1] += np.random.normal(0, 100)
+
 			if shadow_axis == 'x':
-				neuron.addShadow(x = shadow_offset)
+				actor.addShadow(x = shadow_offset)
 			elif shadow_axis == 'y':
-				neuron.addShadow(y = shadow_offset)
+				actor.addShadow(y = shadow_offset)
 			elif shadow_axis == 'z':
-				neuron.addShadow(z = shadow_offset)
+				actor.addShadow(z = shadow_offset)
 			
 			actors.append(neuron)
+
+
+
+
 		
 		return actors
 		
