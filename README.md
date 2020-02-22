@@ -86,7 +86,12 @@ Injection site             |  Labelled neurons
 ## Making figures
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender, facilitating the creation of figure for scientific talks and publications. 
 
+MouseLight neuron             |  Labelled cells
+:-------------------------:|:-------------------------:
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron_gif.gif) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cells.gif)
+
 Brainrender can also be used to create videos and animations. At the moment this functionality is not well supported, if you need to do something that brainrender can't yet do, please get in touch!
+
 
 # Behind the scenes
 Brainrender was deisgned to be a powerful and flexible software for downloading and rendering neuroanatomical data while still being relatively easy to use (using brainrender requires minimal coding experience). 
@@ -109,6 +114,7 @@ If you found BrainRender useful and decided to include a rendering in your talks
 `cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://github.com/AllenInstitute/cocoframer).
 
 `mouselightr` package generates 3D CCF mouse brain plots, along with MouseLight neuron reconstructions [github repository](https://github.com/jefferis/nat.mouselight)
+
 
 ## References
 * [1] Lein, E.S. et al. (2007) Genome-wide atlas of gene expression in the adult mouse brain, Nature 445: 168-176. doi:10.1038/nature05453
