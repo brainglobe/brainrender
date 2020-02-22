@@ -79,7 +79,7 @@ You can also use `brainrender` to visualise the position of devices implanted in
 At the moment this can only be done by rendering colored cylinders at the location where the implant is, but we're happy to add more functionality, get in touch if you need anything specific!
 
 
-Injection site             |  Labelled neurons
+Optic fibre             |  Electrodes array
 :-------------------------:|:-------------------------:
 ![](Docs/Media/cannula.png)  |  ![](Docs/Media/electrodes.png)
 
