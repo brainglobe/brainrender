@@ -247,9 +247,8 @@ class AllenMorphology(Paths):
 			# alphas = np.linspace(0.82, .83, 250)
 			# actor.pointColors(scals, alpha=alphas, cmap="Greens_r")
 
-			# actor.points()[:, 0] += np.random.normal(0, 1000)
-			# actor.points()[:, 2] += np.random.normal(0, 100)
-			# actor.points()[:, 1] += np.random.normal(0, 100)
+			# actor.points()[:, 0] += np.random.normal(0, 2000)
+			# actor.points()[:, 2] += np.random.normal(0, 2000)
 
 			if shadow_axis == 'x':
 				actor.addShadow(x = shadow_offset)
