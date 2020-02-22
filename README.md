@@ -27,12 +27,15 @@ Anatomical and projection data is downloaded from the  Allen Brain Atlas [refere
 and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API](http://help.brain-map.org/display/api/Allen%2BBrain%2BAtlas%2BAPI)
 (© 2015 Allen Institute for Brain Science. Allen Brain Atlas API. Available from: [brain-map.org/api/index.html](brain-map.org/api/index.html)) ([1], [2]).
 
-An interactive, in-browser 3D structure viewer, the Allen Brain Explorer, is available [here](http://connectivity.brain-map.org/3d-viewer?v=1). 
+### Brain structures
+Brain structures are the most fundamental element of any `brainrender` scene. You can use brainrender to select which brain regions you'd like to visualise, and how they should look (color, transparency...). Brainrender then takes care of downloading and rendering the 3D mesh for the selected regions. 
 
 ### Streamlines
-Efferent anatomical projections [as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org))] can be rendered as 'streamlines'.
+Efferent anatomical projections  from a region of interest as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org)) can be rendered as 'streamlines'.
 
-Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details).
+Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details). 
+Brainrender automatically downloads and renders streamlines data for a brain region of interest. 
+
 
 Brain structures             |  Afferent projections
 :-------------------------:|:-------------------------:
@@ -42,14 +45,20 @@ Efferent projections             |  MouseLight neurons
 :-------------------------:|:-------------------------:
 ![](Docs/Media/streamlines.png)  |  ![](Docs/Media/morphology.png)
 
-### Mouselight and neurons morphology
-Neurons morphological data is from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
-(see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
+### Afferent projections
+The same data used to extract information about efferent projections, can be visualised in an alternative way to look at afferent projections to a region of interest. In `brainrender` this type of data visualisation is called tractography. 
+Brainrender can be used to select the subset of experiment (injection of an anterograde virus expressing a fluorescent marker) which resulted in fluorescence in the region of interest from the >1000 experiments in the Allen Mouse Connectome project. 
+The location of virus injection and the projection from that location to the region of itnerest is then displayed. 
 
-Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` directly. 
+### Mouselight and neurons morphology
+To look at the morphology of single neurons in the mouse brain, `brainrender` can be used to download and render single
+neurons morphological data from Janelia's [mouse light](https://www.janelia.org/project-team/mouselight) database
+(see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
+These reconstructions are aligned to the Allen brain atlas, so the neurons morphology can be visualised along other types of data (e.g. efferent/afferent projections) in `brainrender`.
+
+Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` files directly. 
 Additionally, `brainrender` can also be used to download morphologies from the Allen Cell Types project. 
 A large number of neuronal morphologies can be found at [neuromorpho.org](https://www.neuromorpho.org).
-
 
 ![](Docs/Media/neuron.png)  |  ![](Docs/Media/neuron2.png) |  ![](Docs/Media/neuron3.png)
 :-------------------------:|:-------------------------:|:-------------------------:
