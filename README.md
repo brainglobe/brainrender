@@ -46,8 +46,9 @@ Neurons morphological data is from Janelia's [mouse light](https://www.janelia.o
 Brainrender can be used to visualise neuronal morphologies from other sources by loading `.swc` files with the `AllenMorphology` class. This class is also used to download morphologies from the Allen Cell Types project. 
 A large number of neuronal morphologies can be found at [neuromorpho](https://www.neuromorpho.org).
 
-<img src="Docs/Media/neuron.png" width="750">
-A pyramidal neuron.
+
+![](Docs/Media/neuron.png)  |  ![](Docs/Media/neuron2.png) |  ![](Docs/Media/neuron3.png)
+:-------------------------:|:-------------------------:|:-------------------------:
 
 
 ## 3D rendering in python
