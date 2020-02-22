@@ -11,6 +11,14 @@ WINDOW_POS = (10, 10)           # Position of the window in pixels from bottom l
 CAMERA = 'three_quarters'       # Default camera settings (orientation etc. see brainrender.camera.py)
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
+        # SCREENSHOTS AND EXPORT OPTIONS
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
+DEFAULT_SCREENSHOT_FOLDER = ''          # where to save screenshot
+DEFAULT_SCREENSHOT_NAME = 'screenshot'  # screenshots will have this name and the time at which they were taken
+DEFAULT_SCREENSHOT_TYPE = '.png'        # png, svg or jpg supported
+DEFAULT_SCREENSHOT_SCALE = 1            # values >1 yield higher resolution screenshots
+
+""" ------------------------------------------------------------------------------------------------------------------------------------------- """
         # BRAIN REGIONS RENDERING OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 DEFAULT_VIP_REGIONS = []          # list of acronyms of regions that must have different colors by default

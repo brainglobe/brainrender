@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
 from vtkplotter.shapes import Cylinder, Line
@@ -10,12 +11,7 @@ from pathlib import Path
 import datetime
 
 from brainrender.colors import check_colors, get_n_shades_of, get_random_colors
-from brainrender import DEFAULT_VIP_REGIONS, DEFAULT_VIP_COLOR, DISPLAY_INSET, DISPLAY_ROOT, WHOLE_SCREEN
-from brainrender import SHOW_AXES, WINDOW_POS, BACKGROUND_COLOR, ROOT_ALPHA, DEFAULT_STRUCTURE_ALPHA
-from brainrender import DEFAULT_STRUCTURE_COLOR, TRACT_DEFAULT_COLOR, VERBOSE, TRACTO_ALPHA
-from brainrender import INJECTION_VOLUME_SIZE, TRACTO_RADIUS, TRACTO_RES, ROOT_COLOR
-from brainrender import INJECTION_DEFAULT_COLOR, HDF_SUFFIXES, DEFAULT_HDF_KEY, SHADER_STYLE
-from brainrender import INTERACTIVE_MSG, CAMERA
+from brainrender import * # Import default params 
 
 from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_io import load_volume_file
@@ -43,11 +39,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
-    def __init__(self, brain_regions=None, regions_aba_color=False,
-                    neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False,
-                    display_inset=None, base_dir=None,
-                    camera=None, **kwargs):
+    def __init__(self,  brain_regions=None, 
+                        regions_aba_color=False,
+                        neurons=None, 
+                        tracts=None, 
+                        add_root=None, 
+                        verbose=True, 
+                        jupyter=False,
+                        display_inset=None, 
+                        base_dir=None,
+                        camera=None, 
+                        screenshot_kwargs = {},
+                        **kwargs):
         """
+
             Creates and manages a Plotter instance
 
             :param brain_regions: list of brain regions acronyms to be added to the rendered scene (default value None)
@@ -61,6 +66,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param base_dir: path to directory to use for saving data (default value None)
             :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
             :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
+            :param screenshot_kwargs: pass a dictionary with keys:
+                        - 'folder' -> str, path to folder where to save screenshots
+                        - 'name' -> str, filename to prepend to screenshots files
+                        - 'format' -> str, 'png', 'svg' or 'jpg'
+                        - scale -> float, values > 1 yield higher resultion screenshots
         """
         ABA.__init__(self, base_dir=base_dir, **kwargs)
 
@@ -94,12 +104,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             axes = 0
 
+        # Create plott and add function to capture keypresses
         self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
 
+        self.screenshots_folder = screenshot_kwargs.pop('folder', DEFAULT_SCREENSHOT_FOLDER)
+        self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
+        self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
+        self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
+        self.plotter.keyPressFunction = self.keypress
 
+        # Prepare store for actors added to scene
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
-
 
         # Add items to scene
         if brain_regions is not None:
@@ -160,7 +176,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             return True
 
     # ------------------------------ ABA interaction ----------------------------- #
-
     def get_region_color(self, regions):
         """
         Gets the RGB color of a brain region from the Allen Brain Atlas.
@@ -230,7 +245,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
-    # ----------------------------- Mesh interactions ---------------------------- #
+    # ----------------------------- Mesh interaction ----------------------------- #
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """
         Get the center of mass of the 3d mesh of one or multiple brain regions.
@@ -342,7 +357,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.1))
 
-    # ---------------------------- Actor interactinos ---------------------------- #
+    # ---------------------------- Actor interaction ----------------------------- #
     def edit_actors(self, actors, **kwargs):
         """
         edits a list of actors (e.g. render as wireframe or solid)
@@ -355,6 +370,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         for actor in actors:
             actors_funcs.edit_actor(actor, **kwargs)
+
+
 
     # ---------------------------------------------------------------------------- #
     #                                POPULATE SCENE                                #
@@ -1057,10 +1074,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             cylinder = self.add_vtkactor(Line(top, pos, c=color, alpha=alpha, lw=radius))
         return cylinder
 
+
+
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #
     # ---------------------------------------------------------------------------- #
-
     # -------------------------------- Prep render ------------------------------- #
 
     def apply_render_style(self):
@@ -1094,7 +1112,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     # ---------------------------------- Render ---------------------------------- #
-
     def render(self, interactive=True, video=False, camera=None):
         """
         Takes care of rendering the scene
@@ -1134,7 +1151,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             show(*self.get_actors(), interactive=True)
 
 
+    # ---------------------------------------------------------------------------- #
+    #                               USER INTERACTION                               #
+    # ---------------------------------------------------------------------------- #
+    def keypress(self, key):
+        if key == 's':
+            if not os.path.isdir(self.screenshots_folder) and len(self.screenshots_folder):
+                try:
+                    os.mkdir(self.screenshots_folder)
+                except Exception as e:
+                    raise FileNotFoundError(f"Could not crate a folder to save screenshots.\n"+
+                                f"Attempted to create a folder at {self.screenshots_folder}"+
+                                f"But got exception: {e}")
 
+            savename = os.path.join(self.screenshots_folder, self.screenshots_name)
+            savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+
+            if '.' not in self.screenshots_extension:
+                savename += f'.{self.screenshots_extension}'
+            else:
+                savename += self.screenshots_extension
+
+            print(f'\nSaving screenshots at {savename}\n')
+            screenshot(filename=savename, scale=self.screenshots_scale)
 
 
 

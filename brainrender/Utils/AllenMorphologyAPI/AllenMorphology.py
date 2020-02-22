@@ -24,7 +24,7 @@ from brainrender.Utils.data_io import listdir
 class AllenMorphology(Paths):
 	""" Handles the download and visualisation of neuronal morphology data from the Allen database. """
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, *args, scene_kwargs={},  **kwargs):
 		"""
 			Initialise API interaction and fetch metadata of neurons in the Allen Database. 
 		"""
@@ -32,7 +32,7 @@ class AllenMorphology(Paths):
 			raise ConnectionError("You will need to be connected to the internet to use the AllenMorphology class")
 
 		Paths.__init__(self, *args, **kwargs)
-		self.scene = Scene(add_root=False, display_inset=False)
+		self.scene = Scene(add_root=False, display_inset=False, **scene_kwargs)
 
 		# Create a Cache for the Cell Types Cache API
 		self.ctc = CellTypesCache(manifest_file=os.path.join(self.morphology_allen, 'manifest.json'))
