@@ -1,8 +1,8 @@
 # Gallery
-
 ![](../Docs/Media/neurons3.png)
 
-
+## Types of data visualisation in brainrender
+![](../Docs/Media/summary_figure.png)
 
 ## Videos and animations
 MouseLight neuron             |  Labelled cells
