@@ -27,7 +27,7 @@ from brainrender.Utils.parsers.streamlines import parse_streamline
 
 from brainrender.Utils.image import image_to_surface
 
-from brainrender.camera import check_camera_param, set_camera
+from brainrender.Utils.camera import check_camera_param, set_camera
 
 
 class Scene(ABA):  # subclass brain render to have acces to structure trees
@@ -45,7 +45,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
     def __init__(self, brain_regions=None, regions_aba_color=False,
                     neurons=None, tracts=None, add_root=None, verbose=True, jupyter=False,
-                    display_inset=None, base_dir=None, add_screenshot_button=False, 
+                    display_inset=None, base_dir=None,
                     camera=None, **kwargs):
         """
             Creates and manages a Plotter instance
@@ -59,7 +59,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param jupyter: when using brainrender in Jupyter notebooks, this should be set to True (default value False)
             :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
             :param base_dir: path to directory to use for saving data (default value None)
-            :param add_screenshot_button: if True a button is added to the scene to take screenshots of rendered data (default value None)
             :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
             :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
         """
@@ -96,6 +95,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             axes = 0
 
         self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
+
+
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
 
@@ -116,12 +117,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.root = None
 
         # Placeholder variables
-        self.add_screenshot_button_arg = add_screenshot_button
         self.inset = None  # the first time the scene is rendered create and store the inset here
-        self.slider_actors = None # list to hold actors to be affected by opacity slider
         self.is_rendered = False # keep track of if the scene has already been rendered
 
-    ####### UTILS
+    # ---------------------------------------------------------------------------- #
+    #                                     Utils                                    #
+    # ---------------------------------------------------------------------------- #
+
+    # --------------------------- Check correct inputs --------------------------- #
+
     def check_obj_file(self, structure, obj_file):
         """
         If the .obj file for a brain region hasn't been downloaded already, this function downloads it and saves it.
@@ -154,6 +158,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             raise ValueError("region must be a list, integer or string, not: {}".format(type(region)))
         else:
             return True
+
+    # ------------------------------ ABA interaction ----------------------------- #
 
     def get_region_color(self, regions):
         """
@@ -224,6 +230,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             return None
 
+    # ----------------------------- Mesh interactions ---------------------------- #
     def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
         """
         Get the center of mass of the 3d mesh of one or multiple brain regions.
@@ -335,7 +342,24 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.inset.alpha(1)
             self.plotter.showInset(self.inset, pos=(0.9,0.1))
 
-    ###### ADD  and EDIT ACTORS TO SCENE
+    # ---------------------------- Actor interactinos ---------------------------- #
+    def edit_actors(self, actors, **kwargs):
+        """
+        edits a list of actors (e.g. render as wireframe or solid)
+        :param actors: list of actors
+        :param **kwargs:
+
+        """
+        if not isinstance(actors, list):
+            actors = [actors]
+
+        for actor in actors:
+            actors_funcs.edit_actor(actor, **kwargs)
+
+    # ---------------------------------------------------------------------------- #
+    #                                POPULATE SCENE                                #
+    # ---------------------------------------------------------------------------- #
+
     def add_vtkactor(self, actor):
         """
         Add a vtk actor to the scene
@@ -1033,111 +1057,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             cylinder = self.add_vtkactor(Line(top, pos, c=color, alpha=alpha, lw=radius))
         return cylinder
 
-    def edit_actors(self, actors, **kwargs):
-        """
-        edits a list of actors (e.g. render as wireframe or solid)
-        :param actors: list of actors
-        :param **kwargs:
+    # ---------------------------------------------------------------------------- #
+    #                                   RENDERING                                  #
+    # ---------------------------------------------------------------------------- #
 
-        """
-        if not isinstance(actors, list):
-            actors = [actors]
+    # -------------------------------- Prep render ------------------------------- #
 
-        for actor in actors:
-            actors_funcs.edit_actor(actor, **kwargs)
-
-    ####### MANIPULATE SCENE
-    def add_screenshot_button(self):
-        """
-        Adds a button that can be used to take a screenshot of the rendered scene.
-        """
-        button_func = partial(self._take_screenshot, self.output_screenshots)
-
-        self.plotter.addButton(
-            button_func,
-            pos=(0.125, 0.95),  # x,y fraction from bottom left corner
-            states=["Screenshot"],
-            c=["white"],
-            bc=["darkgray"],
-            font="courier",
-            size=18,
-            bold=True,
-            italic=False,
-        )
-
-    @staticmethod
-    def slider_func(scene, widget, event):
-        """
-        Function used to handle slider widget
-        """
-        # function used to change the transparency of meshes according to slider value (see self.add_slider())
-        value = widget.GetRepresentation().GetValue()
-        for actor in scene.slider_actors:
-            actor.alpha(value)
-
-    def add_slider(self, brain_regions=None, actors=None):
-        """
-        Creates a slider in the scene that can be used to adjust the transparency of select actors.
-        Actors can be passed directly to add_slider or added in a second moment using add_actors_to_slider.
-
-        :param brain_regions: List of strings with acronyms of brain regions to be added to the slider (Default value = None)
-        :param actors: list of vtk plotter actors to be added to the slider (Default value = None)
-
-        """
-        # Add actors to slider function
-        self.add_actors_to_slider(brain_regions=brain_regions, actors=actors)
-
-        # create slider function
-        sfunc = partial(self.slider_func, self)
-
-        # Create slider
-        self.plotter.addSlider2D(
-            sfunc,
-            xmin=0.01,
-            xmax=0.99,
-            value=0.5,
-            pos=4,
-            title="opacity")
-
-    def add_actors_to_slider(self,  brain_regions=None, actors=None):
-        """
-        Adds actors to the list of actors whose transparency is affected by the slider.
-
-        :param brain_regions:  (Default value = None)
-        :param actors:  (Default value = None)
-
-        """
-        if self.slider_actors is None:
-            # parse arguments
-            if actors is None:
-                self.slider_actors = [] # this list will store all actors that will be affected by the slider value
-            else:
-                self.slider_actors = list(actors)
-        else:
-            if actors is not None:
-                self.slider_actors.extend(list(actors))
-
-        # Get actors that will have to be changed by the slider
-        if brain_regions is not None:
-            if not isinstance(brain_regions,list): brain_regions = list(brain_regions)
-            if 'root' in brain_regions:
-                self.slider_actors.append(self.actors['root'])
-                brain_regions.pop(brain_regions.index('root'))
-
-            # Get other brain regions
-            regions_actors = [act for r,act in self.actors['regions'].items() if r in brain_regions]
-        self.slider_actors.extend(regions_actors)
-
-    def _rotate_actors(self):
-        """
-        Rotate actors to make sure they're not upside down during rendering
-        """
-        # Allen meshes are loaded upside down so we need to rotate actors by 180 degrees
-        for actor in self.get_actors():
-            if actor is None: continue
-            actor.rotateZ(180)
-
-    ####### RENDER SCENE
     def apply_render_style(self):
         actors = self.get_actors()
 
@@ -1167,6 +1092,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 all_actors.append(actors)
         return all_actors
+
+    # ---------------------------------- Render ---------------------------------- #
 
     def render(self, interactive=True, video=False, camera=None):
         """
@@ -1203,88 +1130,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         else:
             show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
-        if self.add_screenshot_button_arg:
-            self.add_screenshot_button()
-
         if interactive and not video:
             show(*self.get_actors(), interactive=True)
 
 
-    def _add_actors(self):
-        if self.plotter.renderer is None:
-            return
-        for actor in self.get_actors():
-            self.plotter.renderer.AddActor(actor)
-
-    ####### SCREENSHOT
-    @staticmethod
-    def _take_screenshot(default_fld, filename="screenshot.png", scale=1, large=True, savefld=None):
-        """
-        Takes a screenshot of the current scene's view and save to file
-
-        :param default_fld: default path to directory in which to save screenshot if savefld is None
-        :param filename:  filename, supported formats: png, jpg, svg (Default value = "screenshot.png")
-        :param scale: In theory values >1 should increase resolution, but it seems to be buggy  (Default value = 1)
-        :param large:  Should increase resolution (Default value = True)
-        :param savefld: alternative folder in which to save the screenshot. (Default value = None)
-        :raises ValueError: [description]
-
-        """
-        # Get file name
-        if ".png" not in filename and ".svg" not in filename and ".jpg" not in filename:
-            raise ValueError("Unrecognized image format. Should be either .png, .svg or .jpg.")
-        if savefld is None:
-            savefld = default_fld
-        filename = os.path.join(savefld, filename)
-
-        # Check if a file with this name exists, change name if it does
-        if os.path.isfile(filename):
-            f, ext = os.path.splitext(filename)
-            now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            filename = f + now + ext
-
-        # Get resolution settings
-        settings.screeshotLargeImage = large
-        settings.screeshotScale = scale
-
-        # take screenshot
-        screenshot(filename)
-        print("Saved screenshot at: {}".format(filename))
-
-    def take_screenshot(self, **kwargs):
-        """
-        :param **kwargs:
-        """
-        # for args definition check: self._take_screenshot
-        self._take_screenshot(self.output_screenshots, **kwargs)
 
 
-class LoadedScene:
-    """ """
-    def __init__(self, filepath=None):
-        if filepath is not None:
-            self.load_scene(filepath)
-        else:
-            self.plotter = None
 
-    def load_scene(self, filepath):
-        """
 
-        :param filepath:
 
-        """
-        if not os.path.isfile(filepath) or not ".npy" in filepath:
-            raise ValueError("Invalid file path: {}".format(filepath))
-
-        self.plotter = importWindow(filepath)
-
-    def render(self):
-        """ """
-        if self.plotter is None:
-            print("Nothing to render, need to load a scene first")
-        else:
-            self.plotter.show()
-
+# ---------------------------------------------------------------------------- #
+#                                 OTHER SCENES                                 #
+# ---------------------------------------------------------------------------- #
 
 class DualScene:
     """ """
