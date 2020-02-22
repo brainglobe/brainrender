@@ -97,7 +97,7 @@ Brainrender can also be used to create videos and animations. At the moment this
 Brainrender was deisgned to be a powerful and flexible software for downloading and rendering neuroanatomical data while still being relatively easy to use (using brainrender requires minimal coding experience). 
 This was achieved by: 
   1) handling the interaction with the API, SDK and databases services used to find and download the data behind the scenes, requiring minimal user input. 
-  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  (github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
+  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  ([github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
 
 # Getting in touch
 If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
