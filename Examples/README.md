@@ -1,6 +1,12 @@
-### A few examples of how brainrender can be used to visualise anatomical data
+# Gallery
 
-![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron_gif.gif)
+![](../Docs/Media/neurons3.png)
 
 
-![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cells.gif)
+
+## Videos and animations
+MouseLight neuron             |  Labelled cells
+:-------------------------:|:-------------------------:
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron_gif.gif) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cells.gif)
+
+
