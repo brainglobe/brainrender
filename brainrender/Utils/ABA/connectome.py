@@ -17,7 +17,6 @@ class ABA(Paths):
 	This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees,
 	experimental metadata and results, tractography data etc. 
 	"""
-	
 	# useful vars for analysis    
 	excluded_regions = ["fiber tracts"]
 	resolution = 25

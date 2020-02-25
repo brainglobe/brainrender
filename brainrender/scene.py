@@ -111,7 +111,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
         self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
         self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
-        self.plotter.keyPressFunction = self.keypress
+        # self.plotter.keyPressFunction = self.keypress
 
         # Prepare store for actors added to scene
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
@@ -453,7 +453,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # check the colors input is correct
         if colors is not None:
-            if isinstance(colors[0], list):
+            if isinstance(colors[0], (list, tuple)):
                 if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
                 for col in colors:
                     if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
@@ -473,7 +473,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             if self.verbose: print("Rendering: ({})".format(region))
 
             # get the structure and check if we need to download the object file
-            structure = self.structure_tree.get_structures_by_acronym([region])[0]
+            try:
+                structure = self.structure_tree.get_structures_by_acronym([region])[0]
+            except Exception as e:
+                raise ValueError(f'Could not find region with name {region}, got error: {e}')
+
             obj_file = os.path.join(self.mouse_meshes, "{}.obj".format(structure["acronym"]))
 
             if not self.check_obj_file(structure, obj_file):
