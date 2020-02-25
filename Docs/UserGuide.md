@@ -1,20 +1,4 @@
-# UserGuide
-`brainrender` allows users to easily interface with the Allen Reference Atlas and Mouse Connectivty APIs to render three dimensional anatomical data. 
-In addition, it supports the rendering of neuronal morphological reconstructions of datasets downloaded from Janelia's Mouse Light project and the rendering of user generated data (as long as it's registered to the Allen Atlas)
-
-
-## Overview
-The aim of `brainrender` is to make it easy to crate personalized renderings of mouse brain anatomy to let users get a better understanding of the brain regions they are working on and to crate high quality images and videos for scientific talks, posters and publications. 
-
-In brief, the process of creating a rendering consists of creating a 'Scene' to which 'actors' can be added before rendering. 
-These 'actors' represent brain regions, neurons, tractography data etc. 
-The user can select what to show in the scene and what it should look like. 
-
-
-# Process
-This `userguide` will show you how to install `brainrender` and the process of creating, populating and rendering a `scene` in `brainrender`.
-
-## Installation
+# Installation
 To use `brainrender` you will need a python enviornment with `python < 3.8`. If you don't have one, please [create it now](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 
 Once you have an environment in place, simply install `brainrender` with:
@@ -22,64 +6,109 @@ Once you have an environment in place, simply install `brainrender` with:
 pip install brainrender
 ```
 
+If you want to get the latest version of `brainrender` before it gets updated on pip, you get get it with:
+```
+https://github.com/BrancoLab/BrainRender.git
+```
 
-### Create your scene
-To create a rendering, BrainRender uses vtkplotter to create a "scene" which can then be populated with "actors" (e.g. 3D brain regions data). The scene is then rendered for the user to see and interact with, or used to create a video. 
+If you want to get the example files, or would like to edit the code, the easiest way is to clone/fork this repository on your machine and take it from there.
 
-To see how to crate your first scene, check out the [examples](../Examples).
 
-### Adding brain regions
-The `Scene` class used to create scenes in `brainrender` can be used to visualize the 3D anatomy of brain regions. 
-check out the  [examples](../Examples) to learn how to do that.
+# Usage
+Brainrender's core element is the `Scene` class, this takes care of downloading some of the data and rendering all of it. Other classes are needed to download some of the data, read below for details.
+A `brainrender` `scene` is populated with 'actors' representing items to be rendered. 
 
-### Adding neuron morphology data
-BrainRender let's you visualize 3D neuronal morphology alongside other brain structures. Currently BrainRender can visualize any morpholy data presented as .swc file, but only supports direct interaction with the MouseLight API. In the future, .swc data from the Allen API will also be available. 
+You can use `Scene` to:
+  1) Download/render the 3D anatomy of brain regions from the Allen atlas
+  2) Render mesoscale connectomics data (tractography and streamlines)
+  3) Render neuronal morphologies from Janelia's MouseLight project
+  4) Render the location of labelled cells
+  5) Render other objects such as implanted electrodes. 
 
-You have two ways to get the morphology data:
-* Using BrainRender download them from Mouse Light API. This functionality is currently limited: it only lets you select neurons whose soma is in a region of interest. The Neurons Browser on the other hand supports more extensive search criteria. 
-* Downloading .json or .swc files directly from  from Janelia's Mouse Light [neurons browser](http://ml-neuronbrowser.janelia.org). 
-From the neurons browser, select the neurons you are interested in and download the data as a JSON file. 
+Rendering of actors in `brainrender` is very flexible, you can specify how almost every aspect of any actor should look like. This can be done by passing the appropriate arguments to the functions used to add actors to a scene. You can also specify default values for these parameters. Have a look at `brainrender.default_variables` to see what the available parameters are. You can edit the default parameters by editing the `config.yaml` file in the `.brainrender` folder that hosts all data downloaded by brainrender (`.brainrender` is saved in your Home or Use folder).
 
-Users can combine morphological renderings with the display of brain regions of interested in the same scene to get a better understanding of the projection targets of the neurons that users are interested in. 
 
-To see how to add neurons to a scene, check out the tutorial on [neurons](../Examples/Neurons.ipynb).
+## Adding brain regions to a Scene.
+The `scene` class interacts with the API (Application Programming Interface) and SDK (Software Development Kit) from the Allen institute to download data from Allen's projects. To make the process of populating a scene as straightforward as possible, `brainrender` handles interaction with these services behind the scenes, all you have to do is to specify which brain regions you want to add your scene. **In `brainrender` regions from the Allen atlas are identified by their acronym**. If you are unsure about what the acronym of your region of interest is, have a look [here](../mouse_regions.txt). 
 
-### Add tractography data 
-The Allen Brain Atlas Mouse Connectivty project collected data from a large number of experiments in which viral tracers were injected into wild type and CRE driver lines to investigate anatomical projections between brain regions. 
-To get these data Allen provides an API, and BrainRender uses this API to fetch anatomical projection data and render these projections in 3D as part of a scene. 
+Adding a brain region to a scene is as simple as this:
+```
+  from brainrender.scene import Scene
+  scene = Scene()
+  scene.add_brain_regions(['MOs', 'VISp'])
+```
 
-The interaction with the API is mediated by the class `ABA` which let's users fetch tractography data to reconstruct projections to a brain region of interest. 
+## Adding mesoscale connectomics.
+### Afferent projections
+To download afferent projections, visualised as tractography, you'll need the `ABA` class. 
+`ABA` takes care of most interactions with the Allen Brain Atlas, including downloading tractography data.
+Once you've downloaded the data, use `Scene` to render it.
 
-Tractography data can be displayed in combination with brain region anatomical data and neurons reconstruction data. 
-To see how this works, have a look at the example on [tractography](../Examples/Tractography.ipynb).
 
-### Add streamline data
-Streamlines can be used to beautifully display projection data. To render streamliens you first need to download the data for the experiments you are interested in. 
+```
+from brainrender.scene import Scene
+from brainrender.Utils.ABA.connectome import ABA
 
-If you wish to download streamlines data for experiments targeted at a specific brain structure, BrainRender takes care of downloading the data for you. Simply use the `StreamlinesAPI`'s method: `StreamlinesAPI.download_streamlines_for_region(REGION_NAME)` and let BrainRender take care of the rest. For more details on how to download and render streamlines data, check the [streamlines example](../Examples/Streamlines.ipynb)
+scene = Scene()
+aba = ABA()
 
-To manually download the streamlines data, you can follow these steps:
-The first step towards being able to render streamlines data is to identify the set of experiments you are interested in 
-(i.e. injections in the primary visual cortex of wild type mice]. 
-To do so you can use the experiments explorer at [http://connectivity.brain-map.org](http://connectivity.brain-map.org).
+tract = aba.get_projection_tracts_to_target("CA1") 
+scene.add_tractography(tract, color_by="region")
+```
 
-Once you have selected the experiments, you can download metadata about them using the 'download data as csv' option at the bottom of the page. 
-This metadata .csv is what we can then use to get a link to the data to download. 
+### Efferent projections
+You can visualise efferent projections from a region of interest as *streamlines*. 
+To do this, first you need to download relevant streamlines data from [neuroinformatics.nl](https://neuroinformatics.nl) using the `StreamlinesAPI`. Downloaded data, can then be rendered with `Scene`.
 
-These data can then be simply rendered in BrainRender, as you can see in this [example](../Examples/Streamlines.ipynb).
+```
+from brainrender.scene import Scene
+from brainrender.Utils.ABA.connectome import ABA
 
-### Scenes with multiple views
-To get a better understanding of the anatomy and connectivity of a brain region it is often uesful to look at information from different sources at the same time: reconstruction of neurons in the brain region can be combined with rendering of neraby regions and tractography data for instance. 
-This can make the scene cluttered. 
-So it is convenient to be able to render similar variants of the same scene side by side so that differend datasets can be rendered in each variant. 
-This can be done using the `DualScene` and `MultiScene` classes in brainrender. 
-Their use is similar to that of `Scene`, except that they allow you to generate N scenes and specif what get's rendered in which. 
-For more details have a look at the example on [MultiScene](../Examples/MultiScene.ipynb).
+scene = Scene()
+streamlines_api = StreamlinesAPI()
 
-### Make video
-`Scene` let's users create and display interactive 3D renderings which can be used inspect anatomical data and grab screenshots. To create an animated video of your scene to embed in talks and website you can use the `VideoMaker` class, as shown in 
-the example on [making videos](../Examples/Video.ipynb).
+streamlines_files, data = streamlines_api.download_streamlines_for_region("RE") 
+scene.add_streamlines(data)
+```
 
-In the future BrainRender will also allow users to export their scenes so that they can be embed into a web page. 
 
+## Neuronal morphology
+Brainrender can be used to visualise neuronal morphologies downloaded from the MouseLight project and from any `.swc` file. 
+
+You could download the data for the neurons you are interested in from the MouseLight website, but you can also do so in brainrender, using the `MouseLightAPI` class.
+
+```
+from brainrender.scene import Scene
+from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
+from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
+
+mlapi = MouseLightAPI()
+scene = Scene()
+
+neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOp5'])
+neurons_files =  mlapi.download_neurons(neurons_metadata[0]) 
+scene.add_neurons(neurons_files)
+```
+
+You can visualise neuronal morphologies even if they are not registered to Allen atlas (e.g. data downloaded from [neuromorpho](www.neuromorpho.org)).
+Just make sure to disable the rendering of the 'root' brain actor when instantiating the scene:
+
+```
+  scene = Scene(add_root=False)
+```
+
+## Visualising labelled cells
+If you have the location of lablled cells saved as a `.h5` file or `pandas.DataFrame` you can use scene to render them. Just use the `Scene.add_cells()` function. 
+
+## Visualising other kinds of data
+You can use `brainrender` to visualise almost anything (thanks to the awesome `vtkplotter` that brainrender depends upon). You can load `.obj` and `.stl` files and render them directly in your `Scene`. 
+The `Scene` class can also be used to render simple shapes (e.g. a cylinder to represent an optic fibre) directly, with `Scene.add_optic_cannula()`.
+
+## Making videos, taking photos.
+You can take screenshows of a rendered scene simply by pressing `s` while interacting with the scene. 
+There's also a `VideoMaker` class to make simple animations, head over to the Examples to see how to use this.
+
+
+# Contributing
+Contributions are welcomed! Feel free to open an issue or send an email for bug reports, feature requests, questions or any kind of contribution.
 

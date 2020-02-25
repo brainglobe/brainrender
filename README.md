@@ -14,7 +14,7 @@ pip install brainrender
 
 # Description
 `brainrender` can be used to download and visualize anatomical data from publicly available datasets as well as user generated content. Data from the Allen Mouse Brain Atlas and Allen Mouse Connectome projects can be used to visualise the three dimensional morphology of brain region and obtain a qualitative understanding of the I/O connective of a region of interest. 
-Brainrender can also be used to visualise reconstructed neuronal morphologies, either by downloading them directly from MouseLight project from Janelia Research campus, or by rendering reconstructions obtained from elsewhere (e.g. from [neuromorpho.org](http://neuromorpho.org).
+Brainrender can also be used to visualise reconstructed neuronal morphologies, either by downloading them directly from MouseLight project from Janelia Research campus, or by rendering reconstructions obtained from elsewhere (e.g. from [neuromorpho.org](http://neuromorpho.org)).
 
 In addition, `brainrender` can be used to visualise data generated within your lab. Brainrender can be used to visualise the results of tracing experiments (e.g. location of the injection site and labelled cells) and to visualise the location of chronically implanted device (such as electrodes arrays or optic fibres). 
 
@@ -97,7 +97,7 @@ Brainrender can also be used to create videos and animations. At the moment this
 Brainrender was deisgned to be a powerful and flexible software for downloading and rendering neuroanatomical data while still being relatively easy to use (using brainrender requires minimal coding experience). 
 This was achieved by: 
   1) handling the interaction with the API, SDK and databases services used to find and download the data behind the scenes, requiring minimal user input. 
-  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  (github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
+  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  ([github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
 
 # Getting in touch
 If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
