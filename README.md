@@ -3,6 +3,8 @@
 `brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. 
 Please check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
 
+For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
+
 <img src="Docs/Media/streamlines2.png" width="1000">
 
 # Installation
@@ -106,7 +108,12 @@ For any bug report or feature request, please open an issue with a brief descrip
 Although brainrender can already to much, we are always happy to add more functionality that could be useful for users. If you spot some feature that is missing, we'd love to hear about is so please get in touch!
 
 ## Referencing Brain Render
-If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution.
+If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution by citing the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1) as:
+```
+Brainrender. A python based software for visualisation of neuroanatomical and morphological data.
+Federico Claudi, Adam L. Tyson, Tiago Branco
+bioRxiv 2020.02.23.961748; doi: https://doi.org/10.1101/2020.02.23.961748 
+```
 
 
 # Similar tools
