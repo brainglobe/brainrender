@@ -16,7 +16,15 @@ from brainrender.Utils.data_io import listdir
 from brainrender.Utils.MouseLightAPI.mouselight_info import *
 from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
 from brainrender.Utils.videomaker import VideoMaker
+from brainrender.Utils.parsers.streamlines import StreamlinesAPI
+from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
+from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
+
+def test_imports():
+    aba = ABA()
+    streamlines_api = StreamlinesAPI()
+    mlapi = MouseLightAPI()
 
 
 def test_regions():
@@ -25,9 +33,16 @@ def test_regions():
     scene.add_brain_regions(regions, colors="green")
 
 def test_streamlines():
+    streamlines_api = StreamlinesAPI()
+
+    streamlines_files, data = streamlines_api.download_streamlines_for_region("PAG") 
+
     scene = Scene()
-    streamlines_files = listdir("Examples/example_files/streamlines")[:2]
-    scene.add_streamlines(streamlines_files, color="green")
+    scene.add_streamlines(data[3], color="powderblue", show_injection_site=False, alpha=.3, radius=10)
+    scene.add_brain_regions(['PAG'], use_original_color=False, colors='powderblue', alpha=.9)
+    mos = scene.actors['regions']['PAG']
+    scene.edit_actors([mos], wireframe=True) 
+
 
 def test_neurons():
     scene = Scene()
@@ -42,6 +57,12 @@ def test_neurons():
 
     scene.add_neurons(neurons_files, color_neurites=False, random_color="jet", display_axon_regions=False)
 
+def test_neurons_swc():
+    am = AllenMorphology()
+    neuron = am.download_neurons(am.neurons.id.values[0:3])
+    am.add_neuron(neuron)
+
+
 def test_tractography():
     scene = Scene()
     analyzer = ABA()
@@ -52,5 +73,5 @@ def test_tractography():
 
 def test_rendering():
     scene = Scene()
-    scene.render()
+    scene.render(interactive=False)
 
