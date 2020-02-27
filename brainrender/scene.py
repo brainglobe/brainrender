@@ -1116,7 +1116,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     # ---------------------------------- Render ---------------------------------- #
-    def render(self, interactive=True, video=False, camera=None):
+    def render(self, interactive=True, video=False, camera=None, **kwargs):
         """
         Takes care of rendering the scene
         """
@@ -1178,6 +1178,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
             print(f'\nSaving screenshots at {savename}\n')
             screenshot(filename=savename, scale=self.screenshots_scale)
+
+    def take_screenshot(self):
+        self.keypress('s')
+
 
 
 

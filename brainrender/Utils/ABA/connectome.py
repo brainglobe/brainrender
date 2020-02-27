@@ -63,6 +63,13 @@ class ABA(Paths):
 		self.strains = sorted([x for x in set(self.all_experiments.strain) if x is not None])
 		self.transgenic_lines = sorted(set([x for x in set(self.all_experiments.transgenic_line) if x is not None]))
 
+
+		# Store all regions metadata
+		self.regions = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
+		self.region_acronyms = list(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values(
+											'acronym').acronym.values)
+
+
 	####### GET EXPERIMENTS DATA
 	def get_structures_sets(self):
 		""" 
