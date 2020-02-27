@@ -71,7 +71,4 @@ def test_tractography():
     scene.add_tractography(tract, display_injection_structure=False, color_by="target_region", 
                                 VIP_regions=['MOs'], VIP_color="red", others_color="ivory")
 
-def test_rendering():
-    scene = Scene()
-    scene.render(interactive=False)
 
