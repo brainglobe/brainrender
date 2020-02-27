@@ -1,4 +1,6 @@
 language: python
+services:
+  - xvfb
 matrix:
   include:
   - os: linux
