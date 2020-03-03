@@ -1,7 +1,7 @@
 
 # BrainRender
 `brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. 
-Please check the [user guide](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/UserGuide.md) and the [examples](https://github.com/BrancoLab/BrainREnder/raw/master/Examples) notebooks for more information on how to use BrainRender.
+Please check the [user guide](https://github.com/BrancoLab/BrainRender/blob/master/Docs/UserGuide.md) and the [examples](https://github.com/BrancoLab/BrainREnder/raw/master/Examples) notebooks for more information on how to use BrainRender.
 
 For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
 
@@ -102,7 +102,7 @@ This was achieved by:
   2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  ([github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
 
 # Getting in touch
-If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
+If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](https://github.com/BrancoLab/BrainRender/blob/master/Docs/UserGuide.md) and the [examples](https://github.com/BrancoLab/BrainRender/blob/master/Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
 
 For any bug report or feature request, please open an issue with a brief description of the matter. 
 Although brainrender can already to much, we are always happy to add more functionality that could be useful for users. If you spot some feature that is missing, we'd love to hear about is so please get in touch!
