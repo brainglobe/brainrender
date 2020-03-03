@@ -1,11 +1,11 @@
 
 # BrainRender
 `brainrender` is a python package for the visualization of three dimensional anatomical data from mice brains registered to the Common Coordinate Framework (CCF) from the Allen Institute. 
-Please check the [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks for more information on how to use BrainRender.
+Please check the [user guide](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/UserGuide.md) and the [examples](https://github.com/BrancoLab/BrainREnder/raw/master/Examples) notebooks for more information on how to use BrainRender.
 
 For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
 
-<img src="Docs/Media/streamlines2.png" width="1000">
+<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlines2.png" width="1000">
 
 # Installation
 To install `brainrender`, use an existing python environment or create one [with `python < 3.8`] and install with:
@@ -20,7 +20,7 @@ Brainrender can also be used to visualise reconstructed neuronal morphologies, e
 
 In addition, `brainrender` can be used to visualise data generated within your lab. Brainrender can be used to visualise the results of tracing experiments (e.g. location of the injection site and labelled cells) and to visualise the location of chronically implanted device (such as electrodes arrays or optic fibres). 
 
-![](Docs/Media/summary_figure.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/summary_figure.png)
 
 
 ## Publicly available datasets
@@ -41,11 +41,11 @@ Brainrender automatically downloads and renders streamlines data for a brain reg
 
 Brain structures             |  Afferent projections
 :-------------------------:|:-------------------------:
-![](Docs/Media/brainregions.png)  |  ![](Docs/Media/tractography.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/brainregions.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/tractography.png)
 
 Efferent projections             |  MouseLight neurons
 :-------------------------:|:-------------------------:
-![](Docs/Media/streamlines.png)  |  ![](Docs/Media/morphology.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlines.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/morphology.png)
 
 ### Afferent projections
 The same data used to extract information about efferent projections, can be visualised in an alternative way to look at afferent projections to a region of interest. In `brainrender` this type of data visualisation is called tractography. 
@@ -62,7 +62,7 @@ Brainrender can be used to visualise neuronal morphologies from other sources by
 Additionally, `brainrender` can also be used to download morphologies from the Allen Cell Types project. 
 A large number of neuronal morphologies can be found at [neuromorpho.org](https://www.neuromorpho.org).
 
-![](Docs/Media/neuron.png)  |  ![](Docs/Media/neuron2.png) |  ![](Docs/Media/neuron3.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron2.png) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron3.png)
 :-------------------------:|:-------------------------:|:-------------------------:
 
 
@@ -71,7 +71,7 @@ Brainrender can be used to visualise data generated within individual labs, such
 
 Injection site             |  Labelled neurons
 :-------------------------:|:-------------------------:
-![](Docs/Media/inj_site.png)  |  ![](Docs/Media/labelled_cells.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/inj_site.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/labelled_cells.png)
 
 This often requires that the raw data be registered to the Allen atlas, before being visualised in brainrender.
 This functionality is not supported in `brainrender`, however brainrender can be used to visualise data registered with other packages such as `amap` ([github repo](https://github.com/SainsburyWellcomeCentre/amap-python)) and `cellfinder` ([github repo](https://github.com/SainsburyWellcomeCentre/cellfinder)).
@@ -83,7 +83,7 @@ At the moment this can only be done by rendering colored cylinders at the locati
 
 Optic fibre             |  Electrodes array
 :-------------------------:|:-------------------------:
-![](Docs/Media/cannula.png)  |  ![](Docs/Media/electrodes.png)
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cannula.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/electrodes.png)
 
 ## Making figures
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender, facilitating the creation of figure for scientific talks and publications. 
@@ -102,7 +102,7 @@ This was achieved by:
   2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  ([github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
 
 # Getting in touch
-If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
+If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/UserGuide.md) and the [examples](Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
 
 For any bug report or feature request, please open an issue with a brief description of the matter. 
 Although brainrender can already to much, we are always happy to add more functionality that could be useful for users. If you spot some feature that is missing, we'd love to hear about is so please get in touch!
