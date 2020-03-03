@@ -1,4 +1,9 @@
 from setuptools import setup, find_namespace_packages
+from os import path
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 requirements = [
     "numpy",
@@ -17,6 +22,8 @@ setup(
     version="0.3.3.8",
     description="Python scripts to use Allen Brain Map data for analysis "
                 "and rendering",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=requirements,
     extras_require={
         "nb": ["jupyter", "k3d"],
