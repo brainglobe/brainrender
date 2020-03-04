@@ -111,7 +111,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
         self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
         self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
-        # self.plotter.keyPressFunction = self.keypress
+        self.plotter.keyPressFunction = self.keypress
 
         # Prepare store for actors added to scene
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
