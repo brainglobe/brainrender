@@ -36,6 +36,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     """
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
+    verbose = VERBOSE
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
@@ -50,6 +51,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         base_dir=None,
                         camera=None, 
                         screenshot_kwargs = {},
+                        use_default_key_bindings=False,
                         **kwargs):
         """
 
@@ -111,7 +113,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
         self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
         self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
-        self.plotter.keyPressFunction = self.keypress
+
+        if not use_default_key_bindings:
+            self.plotter.keyPressFunction = self.keypress
+            self.verbose = False
+        
 
         # Prepare store for actors added to scene
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
@@ -1116,7 +1122,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     # ---------------------------------- Render ---------------------------------- #
-    def render(self, interactive=True, video=False, camera=None, **kwargs):
+    def render(self, interactive=True, video=False, camera=None, zoom=None, **kwargs):
         """
         Takes care of rendering the scene
         """
@@ -1128,17 +1134,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             camera = check_camera_param(camera)
         set_camera(self, camera)
 
-        if VERBOSE and not self.jupyter:
+        if self.verbose and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
             print("\n\npress 'Esc' to Quit")
         else:
             print("\n\npress 'q' to Quit")
 
-        if WHOLE_SCREEN:
-            zoom = 1.85
-        else:
-            zoom = 1.5
+        if zoom is None:
+            if WHOLE_SCREEN:
+                zoom = 1.85
+            else:
+                zoom = 1.5
 
         self._get_inset()
 
