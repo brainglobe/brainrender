@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import gzip
 
 from vtkplotter import Volume
 
@@ -14,7 +15,6 @@ except ModuleNotFoundError:
 from brainrender.Utils.paths_manager import Paths
 from brainrender.scene import Scene
 
-# TODO document mcmodels source + reference
 
 class VolumetricAPI(Paths):
     """
@@ -91,7 +91,7 @@ class VolumetricAPI(Paths):
                             f'What was {what} but should be projection/source/target.')
 
         name = ''.join([str(i) for i in tgt])
-        path = os.path.join(fld, name+'.npy')
+        path = os.path.join(fld, name+'.npy.gz')
         return name, path, os.path.isfile(path)
 
     def _get_from_cache(self, tgt, what):
@@ -100,12 +100,14 @@ class VolumetricAPI(Paths):
         if not cache_exists:
             return None
         else:
-            return np.load(cache_path)
+            f = gzip.GzipFile(cache_path, "r")
+            return np.load(f)
 
     def save_to_cache(self, tgt, what, obj):
         """ Saves data to cache to avoid loading thema again in the future"""
         name, cache_path, cache_exists = self._get_cache_filename(tgt, what)
-        np.save(cache_path, obj)
+        f = gzip.GzipFile(cache_path, "w")
+        np.save(f, obj)
 
     def get_source(self, source, hemisphere='both'):
         """
@@ -202,7 +204,6 @@ class VolumetricAPI(Paths):
         self.projections[name] = proj
         return proj
 
-    
     def get_mapped_projection(self, source, target, name, **kwargs):
         """
             Gets the spatialised projection intensity from a source to a target, but as 
@@ -222,6 +223,9 @@ class VolumetricAPI(Paths):
     def render_mapped_projection(self, source, target, 
                         std_above_mean_threshold=5,
                         cmap='Greens', alpha=.5,
+                        render_source_region=False,
+                        render_target_region=False,
+                        regions_kwargs={},
                         **kwargs):
         """
             Gets the spatialised projection intensity from a source to a target
@@ -234,24 +238,50 @@ class VolumetricAPI(Paths):
             :param std_above_mean_threshold: the vmin used to threshold the data is the mean 
                     of the projection strength + this number of standard deviations. Higher values
                     means that more data are excluded from the visualization.
+            :param render_source_region: bool, if true a wireframe mesh of source regions is rendered
+            :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
+            :param regions_kwargs: pass options to specify how brain regions should look like
         """
+        # Parse kwargs
+        vmin = kwargs.pop('vmin', None)
+        line_width = kwargs.pop('line_width', 1)
+
+        # Get data
         if not isinstance(source, list): source = [source]
         if not isinstance(target, list): target = [target]
         name = ''.join(source)+'_'.join(target)
 
         mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
 
+        # Get vmin threshold for visualisation
+        if vmin is None:
+            vmin = np.mean(mapped_projection)
+        vmin += std_above_mean_threshold*np.std(mapped_projection)
+
+        # Get 'lego' actor
         vol = Volume(mapped_projection)
-        lego = vol.legosurface(vmin=np.mean(mapped_projection)+
-                                        std_above_mean_threshold*np.std(mapped_projection), 
+        lego = vol.legosurface(vmin=vmin, 
                                 vmax=np.max(mapped_projection), 
-                                cmap=cmap).alpha(alpha).lw(0).scale(self.voxel_size)
+                                cmap=cmap).alpha(alpha).lw(line_width).scale(self.voxel_size)
         actor = self.scene.add_vtkactor(lego)
+
+        # Render relevant regions meshes
+        if render_source_region or render_target_region:
+            wireframe = regions_kwargs.pop('wireframe', True)
+            use_original_color = regions_kwargs.pop('use_original_color', True)
+
+            if render_source_region:
+                self.scene.add_brain_regions(source, use_original_color=use_original_color, 
+                            wireframe=wireframe, **regions_kwargs)
+            if render_target_region:
+                self.scene.add_brain_regions(target, use_original_color=use_original_color, 
+                            wireframe=wireframe, **regions_kwargs)
         return actor
     
-    def render(self):
+
+    def render(self, **kwargs):
         """
             Renders the scene associated with the class
         """
-        self.scene.render()
+        self.scene.render(**kwargs)
 
