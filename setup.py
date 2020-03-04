@@ -15,6 +15,7 @@ requirements = [
     "pyyaml>=5.3",
     "scikit-image",
     "brainio>=0.0.9",
+    "sklearn",
 ]
 
 setup(
