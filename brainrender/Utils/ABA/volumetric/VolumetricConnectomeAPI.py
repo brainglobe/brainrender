@@ -17,12 +17,27 @@ from brainrender.scene import Scene
 # TODO document mcmodels source + reference
 
 class VolumetricAPI(Paths):
+    """
+        This class takes care of downloading, analysing and rendering data from:
+        "High-resolution data-driven model of the mouse connectome ", Knox et al 2018.
+        [https://www.mitpressjournals.org/doi/full/10.1162/netn_a_00066].
+
+        These data can be used to look at spatialised projection strength with sub-region (100um) resolution.
+        e.g. to look at where in region B are the projections from region A, you can use this class.
+
+        To download the data, this class uses code from: https://github.com/AllenInstitute/mouse_connectivity_models.
+    """
+    voxel_size = 100
+
     projections = {}
     mapped_projections = {}
 
     hemispheres = dict(left=1, right=2, both=3)
 
     def __init__(self, base_dir=None, add_root=True, scene_kwargs={}, **kwargs):
+        """
+            Initialise the class instance to get a few useful paths and variables. 
+        """
         Paths.__init__(self, base_dir=base_dir, **kwargs)
 
         # Get MCM cache
@@ -51,16 +66,20 @@ class VolumetricAPI(Paths):
         self.scene = Scene(add_root=add_root, **scene_kwargs)
 
     def _get_structure_id(self, struct):
+        " Get the ID of a structure (or list of structures) given it's acronym"
         if not isinstance(struct, (list, tuple)): 
             struct = [struct]
         return [self.structure_tree.get_structures_by_acronym([s])[0]["id"] for s in struct]
 
     def _load_voxel_data(self):
+        "Load the VoxelData array from Knox et al 2018"
         if self.voxel_array is None:
             print("Loading voxel data, might take a few minutes.")
             self.voxel_array, self.source_mask, self.target_mask = self.cache.get_voxel_connectivity_array()
 
     def _get_cache_filename(self, tgt, what):
+        """Data are cached according to a naming convention, this function gets the name for an object
+        according to the convention"""
         if what == 'projection':
             fld = self.data_cache_projections
         elif what == 'source':
@@ -76,6 +95,7 @@ class VolumetricAPI(Paths):
         return name, path, os.path.isfile(path)
 
     def _get_from_cache(self, tgt, what):
+        """ tries to load objects from cached data, if they exist"""
         name, cache_path, cache_exists = self._get_cache_filename(tgt, what)
         if not cache_exists:
             return None
@@ -83,6 +103,7 @@ class VolumetricAPI(Paths):
             return np.load(cache_path)
 
     def save_to_cache(self, tgt, what, obj):
+        """ Saves data to cache to avoid loading thema again in the future"""
         name, cache_path, cache_exists = self._get_cache_filename(tgt, what)
         np.save(cache_path, obj)
 
@@ -107,6 +128,9 @@ class VolumetricAPI(Paths):
         return self.source
 
     def get_target_mask(self, target, hemisphere):
+        """returns a 'key' array and a mask object
+            used to transform projection data from linear arrays to 3D volumes.
+        """
         target_ids = self._get_structure_id(target)
         self.tgt_mask = Mask.from_cache(self.cache, structure_ids=target_ids, 
                         hemisphere_id=self.hemispheres[hemisphere])
@@ -114,8 +138,7 @@ class VolumetricAPI(Paths):
 
     def get_target(self, target, hemisphere='both'):
         """
-            Loads the mask for a target structure. Also returs a 'key' array and a mask object
-            used to transform projection data from linear arrays to 3D volumes.
+            Loads the mask for a target structure.  
 
             :param target: str or list of str with acronym of target regions
             :param hemisphere: str, ['both', 'left', 'right']. Which hemisphere to consider.
@@ -132,16 +155,20 @@ class VolumetricAPI(Paths):
                                     hemisphere_id=self.hemispheres[hemisphere])
             self.save_to_cache(target, 'target', self.target)
 
-        self.get_target_mask(target, hemisphere)
         return self.target
 
-    def get_projection(self, source, target, name,  hemisphere='both', projection_mode='mean', ):
+    def get_projection(self, source, target, name,  hemisphere='both', projection_mode='mean', mode='target'):
         """
                 Gets the spatialised projection intensity from a source to a target. 
 
                 :param source: str or list of str with acronym of source regions
                 :param target: str or list of str with acronym of target regions
                 :param name: str, name of the projection
+                :param projection_mode: str, if 'mean' the data from different experiments are averaged, 
+                                    if 'max' the highest value is taken.
+                :param mode: str. If 'target' the spatialised projection strength in the target structures is returned, usefule
+                        to see where source projects to in target. Otherwise if 'source' the spatialised projection strength in
+                        the source structure is return. Useful to see which part of source projects to target.
 
                 :return: 1D numpy array with mean projection from source to target voxels
         """
@@ -155,16 +182,24 @@ class VolumetricAPI(Paths):
             projection = self.voxel_array[source_idx, target_idx]
             self.save_to_cache(cache_name, 'projection', projection)
 
+        if mode == 'target':
+            axis = 0
+            self.get_target_mask(target, hemisphere)
+        elif mode == 'source':
+            axis = 1
+            self.get_target_mask(source, 'right')
+        else:
+            raise ValueError(f'Invalide mode: {mode}. Should be either source or target.')
+
         if projection_mode == 'mean':
-            proj = np.mean(projection, axis=0)
+            proj = np.mean(projection, axis=axis)
         elif projection_mode == 'max':
-            proj = np.max(projection, axis=0)
+            proj = np.max(projection, axis=axis)
         else:
             raise ValueError(f'Projection mode {projection_mode} not recognized.\n'+
                             'Should be one of: ["mean", "max"].')
 
         self.projections[name] = proj
-        self.get_target_mask(target, hemisphere)
         return proj
 
     
@@ -196,6 +231,9 @@ class VolumetricAPI(Paths):
             :param target: str or list of str with acronym of target regions
             :param cmap: str with name of colormap to use
             :param alpha: float, transparency
+            :param std_above_mean_threshold: the vmin used to threshold the data is the mean 
+                    of the projection strength + this number of standard deviations. Higher values
+                    means that more data are excluded from the visualization.
         """
         if not isinstance(source, list): source = [source]
         if not isinstance(target, list): target = [target]
@@ -207,7 +245,7 @@ class VolumetricAPI(Paths):
         lego = vol.legosurface(vmin=np.mean(mapped_projection)+
                                         std_above_mean_threshold*np.std(mapped_projection), 
                                 vmax=np.max(mapped_projection), 
-                                cmap=cmap).alpha(alpha).lw(0).scale(100)
+                                cmap=cmap).alpha(alpha).lw(0).scale(self.voxel_size)
         actor = self.scene.add_vtkactor(lego)
         return actor
     
