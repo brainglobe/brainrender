@@ -244,6 +244,7 @@ class VolumetricAPI(Paths):
         """
         # Parse kwargs
         vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
 
         # Get data
@@ -253,16 +254,22 @@ class VolumetricAPI(Paths):
 
         mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
 
-        # Get vmin threshold for visualisation
+        # Get vmin and vmax threshold for visualisation
         if vmin is None:
             vmin = np.mean(mapped_projection)
         vmin += std_above_mean_threshold*np.std(mapped_projection)
+        if vmax is None:
+            vmax = np.max(mapped_projection)
 
         # Get 'lego' actor
         vol = Volume(mapped_projection)
-        lego = vol.legosurface(vmin=vmin, 
-                                vmax=np.max(mapped_projection), 
-                                cmap=cmap).alpha(alpha).lw(line_width).scale(self.voxel_size)
+        lego = vol.legosurface(vmin=vmin, vmax=vmax, 
+                                cmap=cmap)
+
+        # Scale and color actor
+        lego.alpha(alpha).lw(line_width).scale(self.voxel_size)
+
+        # Add to scene
         actor = self.scene.add_vtkactor(lego)
 
         # Render relevant regions meshes
