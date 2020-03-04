@@ -258,8 +258,14 @@ class VolumetricAPI(Paths):
         if vmin is None:
             vmin = np.mean(mapped_projection)
         vmin += std_above_mean_threshold*np.std(mapped_projection)
+
         if vmax is None:
             vmax = np.max(mapped_projection)
+        else:
+            if np.max(mapped_projection) > vmax:
+                print("While rendering mapped projection some of the values are above the vmax threshold."+
+                            "They will not be displayed."+
+                            f" vmax was {vmax} but found value {round(np.max(mapped_projection), 3)}.")
 
         # Get 'lego' actor
         vol = Volume(mapped_projection)

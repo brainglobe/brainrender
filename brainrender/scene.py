@@ -1164,9 +1164,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         if self.verbose and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
-            print("\n\npress 'Esc' to Quit")
+            print("\n\nRendering scene.\n   Press 'Esc' to Quit")
         else:
-            print("\n\npress 'q' to Quit")
+            print("\n\nRendering scene.\n   Press 'q' to Quit")
 
         if zoom is None:
             if WHOLE_SCREEN:
