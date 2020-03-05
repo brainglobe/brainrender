@@ -266,5 +266,5 @@ class AllenMorphology(Paths):
 		return actors
 		
 
-	def render(self):
-		self.scene.render()
+	def render(self, **kwargs):
+		self.scene.render(**kwargs)

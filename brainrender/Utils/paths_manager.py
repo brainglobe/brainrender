@@ -27,6 +27,9 @@ default_paths = dict(
         mouse_celltype_cache= "Data/ABA/MCTC",
         annotated_volume = "Data/ABA",
 
+        mouse_connectivity_volumetric="Data/ABA/Volumetric",
+        mouse_connectivity_volumetric_cache="Data/ABA/Volumetric/cache",
+        
         # Streamlines cache
         streamlines_cache= "Data/Streamlines",
 
@@ -45,7 +48,8 @@ class Paths:
     _folders = ["mouse_meshes", "other_meshes", "morphology_allen", "morphology_cache",
                 "morphology_mouselight", "mouse_connectivity_cache", "mouse_celltype_cache", 
                 "streamlines_cache", "output_screenshots", "output_videos", 
-                "output_scenes", "output_data", "user", "metadata", 'annotated_volume']
+                "output_scenes", "output_data", "user", "metadata", 'annotated_volume', 
+                'mouse_connectivity_volumetric', 'mouse_connectivity_volumetric_cache']
 
     def __init__(self, base_dir=None, **kwargs):
         """

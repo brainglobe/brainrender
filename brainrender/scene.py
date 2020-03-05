@@ -3,6 +3,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
+from vtkplotter import Text2D  
 from vtkplotter.shapes import Cylinder, Line
 from tqdm import tqdm
 import pandas as pd
@@ -17,12 +18,9 @@ from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_io import load_volume_file
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list, mirror_actor_at_point
 from brainrender.Utils import actors_funcs
-
 from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from brainrender.Utils.parsers.streamlines import parse_streamline
-
 from brainrender.Utils.image import image_to_surface
-
 from brainrender.Utils.camera import check_camera_param, set_camera
 
 
@@ -36,6 +34,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     """
     VIP_regions = DEFAULT_VIP_REGIONS
     VIP_color = DEFAULT_VIP_COLOR
+    verbose = VERBOSE
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
@@ -50,6 +49,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         base_dir=None,
                         camera=None, 
                         screenshot_kwargs = {},
+                        use_default_key_bindings=False,
+                        title=None,
                         **kwargs):
         """
 
@@ -71,6 +72,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                         - 'name' -> str, filename to prepend to screenshots files
                         - 'format' -> str, 'png', 'svg' or 'jpg'
                         - scale -> float, values > 1 yield higher resultion screenshots
+            :param use_default_key_bindings: if True the defualt keybindings from VtkPlotter are used, otherwise
+                            a custom function that can be used to take screenshots with the parameter above. 
+            :param title: str, if a string is passed a text is added to the top of the rendering window as a title
         """
         ABA.__init__(self, base_dir=base_dir, **kwargs)
 
@@ -111,8 +115,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
         self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
         self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
-        # self.plotter.keyPressFunction = self.keypress
 
+        if not use_default_key_bindings:
+            self.plotter.keyPressFunction = self.keypress
+            self.verbose = False
+        
         # Prepare store for actors added to scene
         self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
         self._actors = None # store a copy of the actors when manipulations like slicing are done
@@ -131,6 +138,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             self.add_root(render=True)
         else:
             self.root = None
+
+        if title is not None:
+            self.add_text(title)
 
         # Placeholder variables
         self.inset = None  # the first time the scene is rendered create and store the inset here
@@ -371,7 +381,40 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         for actor in actors:
             actors_funcs.edit_actor(actor, **kwargs)
 
+    def edit_neurons(self, neurons=None, copy=False, **kwargs):
 
+        """
+        Edit neurons that have already been rendered. Change color, mirror them etc.
+
+        :param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
+        :param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
+        :param **kwargs:
+
+        """
+        only_soma = False
+        if "mirror" in list(kwargs.keys()):
+            if kwargs["mirror"] == "soma":
+                only_soma = True
+            mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        else:
+            mirror_coord = None
+
+        if neurons is None:
+            neurons = self.actors["neurons"]
+            if not copy:
+                self.actors["neurons"] = []
+        elif not isinstance(neurons, list):
+            neurons = [neurons]
+
+        if copy:
+            copied_neurons = []
+            for n in neurons:
+                copied = {k:(a.clone() if not isinstance(a, (list, tuple)) and a is not None else []) for k,a in n.items()}
+                copied_neurons.append(copied)
+            neurons = copied_neurons
+
+        edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs)
+        self.actors["neurons"].extend(edited_neurons)
 
     # ---------------------------------------------------------------------------- #
     #                                POPULATE SCENE                                #
@@ -581,41 +624,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             else:
                 raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
         return neurons
-
-    def edit_neurons(self, neurons=None, copy=False, **kwargs):
-
-        """
-        Edit neurons that have already been rendered. Change color, mirror them etc.
-
-        :param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
-        :param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
-        :param **kwargs:
-
-        """
-        only_soma = False
-        if "mirror" in list(kwargs.keys()):
-            if kwargs["mirror"] == "soma":
-                only_soma = True
-            mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
-        else:
-            mirror_coord = None
-
-        if neurons is None:
-            neurons = self.actors["neurons"]
-            if not copy:
-                self.actors["neurons"] = []
-        elif not isinstance(neurons, list):
-            neurons = [neurons]
-
-        if copy:
-            copied_neurons = []
-            for n in neurons:
-                copied = {k:(a.clone() if not isinstance(a, (list, tuple)) and a is not None else []) for k,a in n.items()}
-                copied_neurons.append(copied)
-            neurons = copied_neurons
-
-        edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs)
-        self.actors["neurons"].extend(edited_neurons)
 
     def add_tractography(self, tractography, color=None, display_injection_structure=False,
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
@@ -1078,7 +1086,30 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             cylinder = self.add_vtkactor(Line(top, pos, c=color, alpha=alpha, lw=radius))
         return cylinder
 
+    def add_text(self, text, **kwargs):
+        """
+            Adds a 2D text to the scene. Default params are to crate a large black
+            text at the top of the rendering window.
 
+            :param text: str with text to write
+            :param kwargs: keyword arguments accepted by vtkplotter.shapes.Text2D
+        """
+        pos = kwargs.pop('pos', 8)
+        size = kwargs.pop('size', 1.75)
+        color = kwargs.pop('color', 'k')
+        alpha = kwargs.pop('alpha', 1)
+        font = kwargs.pop('font', 'Courier')
+
+        txt = self.add_vtkactor(Text2D(
+                text,
+                pos=pos,
+                s=size,
+                c=color,
+                alpha=alpha,
+            )
+        )
+        return txt
+        
 
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #
@@ -1090,11 +1121,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         for actor in actors:
             if actor is not None:
-                if SHADER_STYLE != 'cartoon':
-                    actor.lighting(style=SHADER_STYLE)
-                else:
-                    actor.lighting(style='plastic', 
-                            enabled=False)
+                try:
+                    if SHADER_STYLE != 'cartoon':
+                        actor.lighting(style=SHADER_STYLE)
+                    else:
+                        actor.lighting(style='plastic', 
+                                enabled=False)
+                except: pass # Some types of actors such as Text 2D don't have this attribute!
 
     def get_actors(self):
         all_actors = []
@@ -1116,7 +1149,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return all_actors
 
     # ---------------------------------- Render ---------------------------------- #
-    def render(self, interactive=True, video=False, camera=None, **kwargs):
+    def render(self, interactive=True, video=False, camera=None, zoom=None, **kwargs):
         """
         Takes care of rendering the scene
         """
@@ -1128,17 +1161,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             camera = check_camera_param(camera)
         set_camera(self, camera)
 
-        if VERBOSE and not self.jupyter:
+        if self.verbose and not self.jupyter:
             print(INTERACTIVE_MSG)
         elif self.jupyter:
-            print("\n\npress 'Esc' to Quit")
+            print("\n\nRendering scene.\n   Press 'Esc' to Quit")
         else:
-            print("\n\npress 'q' to Quit")
+            print("\n\nRendering scene.\n   Press 'q' to Quit")
 
-        if WHOLE_SCREEN:
-            zoom = 1.85
-        else:
-            zoom = 1.5
+        if zoom is None:
+            if WHOLE_SCREEN:
+                zoom = 1.85
+            else:
+                zoom = 1.5
 
         self._get_inset()
 

@@ -8,13 +8,14 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 requirements = [
     "numpy",
     "pandas",
-    "vtkplotter>=2020.0.1",
+    "vtkplotter>=2020.2.1",
     "vtk",
     "allensdk",
     "tqdm",
     "pyyaml>=5.3",
     "scikit-image",
     "brainio>=0.0.9",
+    "sklearn",
 ]
 
 setup(
