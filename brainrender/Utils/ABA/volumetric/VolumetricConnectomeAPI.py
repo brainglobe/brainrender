@@ -14,6 +14,7 @@ except ModuleNotFoundError:
 
 from brainrender.Utils.paths_manager import Paths
 from brainrender.scene import Scene
+from brainrender.Utils.data_io import connected_to_internet
 
 
 class VolumetricAPI(Paths):
@@ -49,6 +50,8 @@ class VolumetricAPI(Paths):
         cache_path = os.path.join(self.mouse_connectivity_volumetric, 'voxel_model_manifest.json')
 
         if not os.path.isfile(cache_path):
+            if not connected_to_internet():
+                raise ValueError("The first time you use this class it will need to download some data, but it seems that you're not connected to the internet.")
             print("Downloading volumetric data. This will take several minutes but it only needs to be done once.")
 
         self.cache = VoxelModelCache(manifest_file=cache_path)
