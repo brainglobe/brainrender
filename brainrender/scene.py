@@ -1095,7 +1095,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             :param kwargs: keyword arguments accepted by vtkplotter.shapes.Text2D
         """
         pos = kwargs.pop('pos', 8)
-        size = kwargs.pop('size', 2)
+        size = kwargs.pop('size', 1.75)
         color = kwargs.pop('color', 'k')
         alpha = kwargs.pop('alpha', 1)
         font = kwargs.pop('font', 'Courier')

@@ -155,18 +155,24 @@ class VolumetricAPI(Paths):
         if not isinstance(target, (list, tuple)): 
             target = [target]
 
-        self.target = self._get_from_cache(target, 'target')
+        if hemisphere != 'both':
+            cache_name = target + [hemisphere]
+        else:
+            cache_name = target
+
+        self.target = self._get_from_cache(cache_name, 'target')
         if self.target is None:
             self._load_voxel_data()
             target_ids = self._get_structure_id(target)
 
             self.target = self.target_mask.get_structure_indices(structure_ids=target_ids, 
                                     hemisphere_id=self.hemispheres[hemisphere])
-            self.save_to_cache(target, 'target', self.target)
+            self.save_to_cache(cache_name, 'target', self.target)
 
         return self.target
 
-    def get_projection(self, source, target, name,  hemisphere='both', projection_mode='mean', mode='target'):
+    def get_projection(self, source, target, name,  hemisphere='both',
+                             projection_mode='mean', mode='target'):
         """
                 Gets the spatialised projection intensity from a source to a target. 
 
@@ -189,6 +195,9 @@ class VolumetricAPI(Paths):
             raise ValueError(f'Invalide mode: {mode}. Should be either source or target.')
 
         cache_name = sorted(source)+['_']+sorted(target)+[f'_{projection_mode}_{mode}']
+        if hemisphere != 'both':
+            cache_name += [hemisphere]
+
         proj = self._get_from_cache(cache_name, 'projection')
         if proj is None:
             source_idx = self.get_source(source, hemisphere)
@@ -239,6 +248,7 @@ class VolumetricAPI(Paths):
                         render_source_region=False,
                         render_target_region=False,
                         regions_kwargs={},
+                        add_colorbar = True,
                         **kwargs):
         """
             Gets the spatialised projection intensity from a source to a target
@@ -254,16 +264,14 @@ class VolumetricAPI(Paths):
             :param render_source_region: bool, if true a wireframe mesh of source regions is rendered
             :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
             :param regions_kwargs: pass options to specify how brain regions should look like
+            :param add_colorbar: if True a colorbar is added to show the values of the colormap
         """
         # Parse kwargs
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
 
-        # Try to load a previously rendered actor
-        cache_name = sorted(source)+['_']+sorted(target)
-
-
+        # Get projection data
         if not isinstance(source, list): source = [source]
         if not isinstance(target, list): target = [target]
         name = ''.join(source)+'_'.join(target)
@@ -280,7 +288,7 @@ class VolumetricAPI(Paths):
             if np.max(mapped_projection) > vmax:
                 print("While rendering mapped projection some of the values are above the vmax threshold."+
                             "They will not be displayed."+
-                            f" vmax was {vmax} but found value {round(np.max(mapped_projection), 3)}.")
+                            f" vmax was {vmax} but found value {round(np.max(mapped_projection), 5)}.")
 
         # Get 'lego' actor
         vol = Volume(mapped_projection)
@@ -290,6 +298,11 @@ class VolumetricAPI(Paths):
         # Scale and color actor
         lego.alpha(alpha).lw(line_width).scale(self.voxel_size)
         lego.cmap = cmap
+
+        # Add colorbar
+        if add_colorbar:
+            lego.addScalarBar(vmin=vmin, vmax=vmax, horizontal=1, c='k', 
+                            pos=(0.05,0.05), titleFontSize=40)
 
         # Add to scene
         actor = self.scene.add_vtkactor(lego)
