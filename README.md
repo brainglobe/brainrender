@@ -32,7 +32,7 @@ and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API
 ### Brain structures
 Brain structures are the most fundamental element of any `brainrender` scene. You can use brainrender to select which brain regions you'd like to visualise, and how they should look (color, transparency...). Brainrender then takes care of downloading and rendering the 3D mesh for the selected regions. 
 
-### Streamlines
+### Efferent projections (Streamlines)
 Efferent anatomical projections  from a region of interest as determined by local injections of an anterogradely transported virus (see [Allen's connectivity atlas](http://connectivity.brain-map.org)) can be rendered as 'streamlines'.
 
 Streamlines reconstructions are made by [https://neuroinformatics.nl](https://neuroinformatics.nl) using the mouse connectome data from Allen (see [here](https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html) for more details). 
@@ -47,10 +47,19 @@ Efferent projections             |  MouseLight neurons
 :-------------------------:|:-------------------------:
 ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlines.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/morphology.png)
 
-### Afferent projections
+### Afferent projections (tractography)
 The same data used to extract information about efferent projections, can be visualised in an alternative way to look at afferent projections to a region of interest. In `brainrender` this type of data visualisation is called tractography. 
 Brainrender can be used to select the subset of experiment (injection of an anterograde virus expressing a fluorescent marker) which resulted in fluorescence in the region of interest from the >1000 experiments in the Allen Mouse Connectome project. 
 The location of virus injection and the projection from that location to the region of itnerest is then displayed. 
+
+### Volumetric projections
+Brainrender can now use the model from [4] to visualise projection spatialised projections from one (or more) source brain region to one (or more) target brain region. By that we mean that you can see where in the target brainregion you have the strongest projections from the source region, as shown in this example:
+
+MOs to STR             |  SSs to STR          |   SSp to STR
+:-------------------------:|:-------------------------:|:-------------------------:
+![](https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/MOs_to_STR_mean_20200305_165259.png)|  ![](https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/SSs_to_STR_mean_20200305_165302.png)| ![](https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/SSp_to_STR_mean_20200305_165304.png) 
+
+
 
 ### Mouselight and neurons morphology
 To look at the morphology of single neurons in the mouse brain, `brainrender` can be used to download and render single
@@ -64,6 +73,9 @@ A large number of neuronal morphologies can be found at [neuromorpho.org](https:
 
 ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron2.png) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron3.png)
 :-------------------------:|:-------------------------:|:-------------------------:
+
+
+The same approach can also be used to see which part of the source region projects to to the targetl
 
 
 ## User generated content
@@ -127,5 +139,4 @@ bioRxiv 2020.02.23.961748; doi: https://doi.org/10.1101/2020.02.23.961748
 * [1] Lein, E.S. et al. (2007) Genome-wide atlas of gene expression in the adult mouse brain, Nature 445: 168-176. doi:10.1038/nature05453
 * [2] Oh, S.W. et al. (2014) A mesoscale connectome of the mouse brain, Nature 508: 207-214. doi:10.1038/nature13186
 * [3]  Winnubst, J. et al. (2019) Reconstruction of 1,000 Projection Neurons Reveals New Cell Types and Organization of Long-Range Connectivity in the Mouse Brain, Cell 179: 268-281
-<!-- * [4] [Papp et al. 2014](https://www.sciencedirect.com/science/article/pii/S1053811914002419)
-* [5] [Kjonigsen et al. 2015](https://www.sciencedirect.com/science/article/pii/S105381191500004X) -->
+* [4] Knowx et al (2018). High-resolution data-driven model of the mouse connectome.
