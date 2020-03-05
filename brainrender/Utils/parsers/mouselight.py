@@ -27,12 +27,15 @@ class NeuronsParser(Paths):
 	def __init__(self, scene=None, 
 				render_neurites = True, mirror=False, 
 				neurite_radius=None, color_by_region=False, force_to_hemisphere=None, base_dir=None,
+				render_dendrites = True, render_axons = True,
 				color_neurites=True, axon_color=None, soma_color=None, dendrites_color=None, random_color=False, **kwargs):
 		"""
 		Set up variables used for rendering
 
 		:param scene: instance of class brainrender.Scene (Default value = None)
 		:param render_neurites: Bool, If true, axons and dendrites are rendered (Default value = True)
+		:param render_dendrites: Bool, if render neurites is true and this is false dendrites are not rendred
+		:param render_axons: Bool, if render neurites is true and this is false axons are not rendred
 		:param neurite_radius: float with radius of axons and dendrites. If None default is used. (Default value = None)
 		:param color_neurites: Bool, if True axons and neurites are colored differently from the soma (Default value = True)
 		:param mirror: Bool if True neurons are mirrored so that there is a version in each hemisphere (Default value = None)
@@ -48,6 +51,8 @@ class NeuronsParser(Paths):
 		"""
 		self.scene = scene # for the meaning of the arguments check self.render_neurons
 		self.render_neurites = render_neurites 
+		self.render_dendrites = render_dendrites
+		self.render_axons = render_axons
 		self.neurite_radius = neurite_radius 
 		self.color_neurites = color_neurites 
 		self.axon_color = axon_color 
@@ -274,16 +279,20 @@ class NeuronsParser(Paths):
 			neuron_actors['soma'] = shapes.Sphere(pos=self.soma_coords, c=soma_color, r=SOMA_RADIUS)
 
 			# Draw dendrites and axons
+			neuron_actors['dendrites'], dendrites_regions = [], None
+			neuron_actors['axon'], axon_regions = [], None
 			if self.render_neurites:
 				if self.is_json:
-					neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), dendrites_color)
-					neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), axon_color)
+					if self.render_dendrites:
+						neuron_actors['dendrites'], dendrites_regions = self.neurites_parser(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+					if self.render_axons:
+						neuron_actors['axon'], axon_regions = self.neurites_parser(pd.DataFrame(neuron["axon"]), axon_color)
 				else:
-					neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), dendrites_color)
-					neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), axon_color)
-			else:
-				neuron_actors['dendrites'], dendrites_regions = [], None
-				neuron_actors['axon'], axon_regions = [], None
+					if self.render_dendrites:
+						neuron_actors['dendrites'], dendrites_regions = self.neurites_parser_swc(pd.DataFrame(neuron["dendrite"]), dendrites_color)
+					if self.render_axons:
+						neuron_actors['axon'], axon_regions = self.neurites_parser_swc(pd.DataFrame(neuron["axon"]), axon_color)
+
 
 			self.decimate_neuron_actors(neuron_actors)
 			self.smooth_neurons(neuron_actors)
@@ -344,8 +353,18 @@ class NeuronsParser(Paths):
 
 		# All is good with the params, load cached actors
 		if self.render_neurites:
-			allowed_components = ['soma', 'axon', 'dendrites']
-			skipped_components = []
+			if self.render_dendrites and self.render_axons:
+				allowed_components = ['soma', 'axon', 'dendrites']
+				skipped_components = []
+			elif not self.render_dendrites and not self.render_axons:
+				allowed_components = ['soma']
+				skipped_components = ['axon', 'dendrites']
+			elif not self.render_dendrites:
+				allowed_components = ['soma', 'axon']
+				skipped_components = ['dendrites']
+			else:
+				allowed_components = ['soma', 'dendrites']
+				skipped_components = ['axon']
 		else:
 			allowed_components = ['soma']
 			skipped_components = ['axon', 'dendrites']
