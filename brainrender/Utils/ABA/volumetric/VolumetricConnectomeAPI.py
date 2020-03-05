@@ -34,7 +34,7 @@ class VolumetricAPI(Paths):
 
     hemispheres = dict(left=1, right=2, both=3)
 
-    def __init__(self, base_dir=None, add_root=True, scene_kwargs={}, cache_projections=False, **kwargs):
+    def __init__(self, base_dir=None, add_root=True, scene_kwargs={}, **kwargs):
         """
             Initialise the class instance to get a few useful paths and variables. 
 
@@ -42,8 +42,6 @@ class VolumetricAPI(Paths):
                     Pass only if you want to use a different one from what's default.
             :param add_root: bool, if True the root mesh is added to the rendered scene
             :param scene_kwargs: dict, params passed to the instance of Scene associated with this class
-            :param cache_projections: bool, if true the projection data will be cached to prevent 
-                                them from being computed again in the future. Note these might be relative large files (~1GB).
         """
         Paths.__init__(self, base_dir=base_dir, **kwargs)
 
@@ -57,15 +55,13 @@ class VolumetricAPI(Paths):
         self.voxel_array = None
 
         # Get projection cache paths
-        self.cache_projections = cache_projections
         self.data_cache = self.mouse_connectivity_volumetric_cache
         self.data_cache_projections = os.path.join(self.data_cache, "projections")
         self.data_cache_targets = os.path.join(self.data_cache, "targets")
         self.data_cache_sources = os.path.join(self.data_cache, "sources")
-        self.data_cache_actors = os.path.join(self.data_cache, "actors")
 
         for fold in [self.data_cache_projections, self.data_cache_targets, 
-                            self.data_cache_sources, self.data_cache_actors]:
+                            self.data_cache_sources]:
             if not os.path.isdir(fold):
                 os.mkdir(fold)
 
@@ -96,18 +92,12 @@ class VolumetricAPI(Paths):
             fld = self.data_cache_sources
         elif what == 'target':
             fld = self.data_cache_targets
-        elif what == 'actor':
-            fld = self.data_cache_actors
         else:
             raise ValueError(f'Error while getting cached data file name.\n'+
                             f'What was {what} but should be projection/source/target/actor.')
 
         name = ''.join([str(i) for i in tgt])
-
-        if what != 'actor':
-            path = os.path.join(fld, name+'.npy.gz')
-        else:
-            path = os.path.join(fld, name+'.vtk')
+        path = os.path.join(fld, name+'.npy.gz')
         return name, path, os.path.isfile(path)
 
     def _get_from_cache(self, tgt, what):
@@ -116,21 +106,15 @@ class VolumetricAPI(Paths):
         if not cache_exists:
             return None
         else:
-            if 'npy' in cache_path:
-                f = gzip.GzipFile(cache_path, "r")
-                return np.load(f)
-            else:
-                return load(cache_path)
+            f = gzip.GzipFile(cache_path, "r")
+            return np.load(f)
 
     def save_to_cache(self, tgt, what, obj):
         """ Saves data to cache to avoid loading thema again in the future"""
         name, cache_path, _ = self._get_cache_filename(tgt, what)
 
-        if 'npy' in cache_path:
-            f = gzip.GzipFile(cache_path, "w")
-            np.save(f, obj)
-        else:
-            obj.write(cache_path)
+        f = gzip.GzipFile(cache_path, "w")
+        np.save(f, obj)
 
     def get_source(self, source, hemisphere='both'):
         """
@@ -197,35 +181,39 @@ class VolumetricAPI(Paths):
 
                 :return: 1D numpy array with mean projection from source to target voxels
         """
-        cache_name = sorted(source)+['_']+sorted(target)
-        projection = self._get_from_cache(cache_name, 'projection')
-        if projection is None:
+        if mode == 'target':
+            self.get_target_mask(target, hemisphere)
+        elif mode == 'source':
+            self.get_target_mask(source, 'right')
+        else:
+            raise ValueError(f'Invalide mode: {mode}. Should be either source or target.')
+
+        cache_name = sorted(source)+['_']+sorted(target)+[f'_{projection_mode}_{mode}']
+        proj = self._get_from_cache(cache_name, 'projection')
+        if proj is None:
             source_idx = self.get_source(source, hemisphere)
             target_idx = self.get_target(target, hemisphere)
 
             self._load_voxel_data()
             projection = self.voxel_array[source_idx, target_idx]
             
-            if self.cache_projections:
-                self.save_to_cache(cache_name, 'projection', projection)
+            if mode == 'target':
+                axis = 0
+            elif mode == 'source':
+                axis = 1
+            else:
+                raise ValueError(f'Invalide mode: {mode}. Should be either source or target.')
 
-        if mode == 'target':
-            axis = 0
-            self.get_target_mask(target, hemisphere)
-        elif mode == 'source':
-            axis = 1
-            self.get_target_mask(source, 'right')
-        else:
-            raise ValueError(f'Invalide mode: {mode}. Should be either source or target.')
-
-        if projection_mode == 'mean':
-            proj = np.mean(projection, axis=axis)
-        elif projection_mode == 'max':
-            proj = np.max(projection, axis=axis)
-        else:
-            raise ValueError(f'Projection mode {projection_mode} not recognized.\n'+
-                            'Should be one of: ["mean", "max"].')
-
+            if projection_mode == 'mean':
+                proj = np.mean(projection, axis=axis)
+            elif projection_mode == 'max':
+                proj = np.max(projection, axis=axis)
+            else:
+                raise ValueError(f'Projection mode {projection_mode} not recognized.\n'+
+                                'Should be one of: ["mean", "max"].')
+            
+            # Save to cache
+            self.save_to_cache(cache_name, 'projection', proj)
         self.projections[name] = proj
         return proj
 
@@ -274,39 +262,34 @@ class VolumetricAPI(Paths):
 
         # Try to load a previously rendered actor
         cache_name = sorted(source)+['_']+sorted(target)
-        # lego = self._get_from_cache(cache_name, 'actor')
-        lego = None # TODO find a way to color and position lego when loaded from a saved actor
 
-        # If not actor is found, create one
-        if lego is None:
-            if not isinstance(source, list): source = [source]
-            if not isinstance(target, list): target = [target]
-            name = ''.join(source)+'_'.join(target)
 
-            mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
+        if not isinstance(source, list): source = [source]
+        if not isinstance(target, list): target = [target]
+        name = ''.join(source)+'_'.join(target)
+        mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
 
-            # Get vmin and vmax threshold for visualisation
-            if vmin is None:
-                vmin = np.mean(mapped_projection)
-            vmin += std_above_mean_threshold*np.std(mapped_projection)
+        # Get vmin and vmax threshold for visualisation
+        if vmin is None:
+            vmin = np.mean(mapped_projection)
+        vmin += std_above_mean_threshold*np.std(mapped_projection)
 
-            if vmax is None:
-                vmax = np.max(mapped_projection)
-            else:
-                if np.max(mapped_projection) > vmax:
-                    print("While rendering mapped projection some of the values are above the vmax threshold."+
-                                "They will not be displayed."+
-                                f" vmax was {vmax} but found value {round(np.max(mapped_projection), 3)}.")
+        if vmax is None:
+            vmax = np.max(mapped_projection)
+        else:
+            if np.max(mapped_projection) > vmax:
+                print("While rendering mapped projection some of the values are above the vmax threshold."+
+                            "They will not be displayed."+
+                            f" vmax was {vmax} but found value {round(np.max(mapped_projection), 3)}.")
 
-            # Get 'lego' actor
-            vol = Volume(mapped_projection)
-            lego = vol.legosurface(vmin=vmin, vmax=vmax, 
-                                    cmap=cmap)
+        # Get 'lego' actor
+        vol = Volume(mapped_projection)
+        lego = vol.legosurface(vmin=vmin, vmax=vmax, 
+                                cmap=cmap)
 
         # Scale and color actor
         lego.alpha(alpha).lw(line_width).scale(self.voxel_size)
         lego.cmap = cmap
-        self.save_to_cache(cache_name, 'actor', lego)
 
         # Add to scene
         actor = self.scene.add_vtkactor(lego)
@@ -324,7 +307,6 @@ class VolumetricAPI(Paths):
                             wireframe=wireframe, **regions_kwargs)
         return actor
     
-
     def render(self, **kwargs):
         """
             Renders the scene associated with the class
