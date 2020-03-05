@@ -13,7 +13,7 @@ from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import VolumetricA
 
 
 
-vapi = VolumetricAPI(add_root=True)
+vapi = VolumetricAPI(add_root=False, title='Motor cortex projections to ZI')
 
 # Get projections from the primary and secondary motor cortices to the zona incerta
 source = ['MOs', 'MOp']
@@ -28,7 +28,7 @@ vapi.render_mapped_projection(
                         'wireframe':False, 
                         'alpha':.3, 
                         'use_original_color':False},
-            mode='target',  # if this was 'source' you would be able to see which parts of the source regions project to the target
+            mode='target',
             )
 
 vapi.render(zoom=1.1)  

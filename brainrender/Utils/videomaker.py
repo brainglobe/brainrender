@@ -86,7 +86,6 @@ class VideoMaker:
             self.scene.plotter.camera.Roll(roll) 
             video.addFrame()
         video.close()  # merge all the recorded frames
-        os.chdir(curdir)
 
     def make_video_custom(self, videofunc):
         """

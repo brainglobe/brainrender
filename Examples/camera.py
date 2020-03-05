@@ -12,7 +12,7 @@ scene = Scene(camera='top') # specify that you want a view from the top
 scene.render()
 
 # Now render but with a different view
-scene.rander(camera='sagittal', zoom=1)
+scene.render(camera='sagittal', zoom=1)
 
 # Now render but with specific camera parameters
 bespoke_camera = dict(
@@ -23,4 +23,4 @@ bespoke_camera = dict(
     clipping = [5892.778, 14113.736],
 )
 
-scene.render(camera=camera)
+scene.render(camera=bespoke_camera)
