@@ -128,21 +128,22 @@ class VolumetricAPI(Paths):
             _mask = self.source_mask
         else:
             _mask = self.target_mask
-        mask = self.target_mask.get_structure_indices(structure_ids=region['id'], 
-                                hemisphere_id='both')
+        mask = self.target_mask.get_structure_indices(structure_ids=[region['id']], 
+                                hemisphere_id=3)
 
         # Get the coordinates for all point in the mask
         coordinates = self._get_coordinates_from_mask(mask, as_source) # will be a 3d array
 
-        # get the point in coordinates array that is closest to p0
-        # TODO get closest_point
+        # Get the position of p0 in the coordinates volumetric array
+        p0 = np.int64([round(p, -2) for p in p0])
 
-        # Get index it for closest_point
-        idx = self.
-
-
-
-
+        try:
+            p0_idx = np.where((coordinates[:, 0] == p0[0])&
+                                (coordinates[:, 1] == p0[1])&
+                                (coordinates[:, 2] == p0[2]))[0]
+        except:
+            raise ValueError(f"Could not find the voxe corresponding to the point given: {p0}")
+        return p0_idx[0]
 
     # ----------------------------------- Cache ---------------------------------- #
     def _get_cache_filename(self, tgt, what):
@@ -182,6 +183,9 @@ class VolumetricAPI(Paths):
     # ---------------------------------------------------------------------------- #
     #                                 PREPROCESSING                                #
     # ---------------------------------------------------------------------------- #
+
+    # ------------------------- Sources and targets masks ------------------------ #
+
     def get_source(self, source, hemisphere='both'):
         """
             Loads the mask for a source structure
@@ -209,7 +213,6 @@ class VolumetricAPI(Paths):
         target_ids = self._get_structure_id(target)
         self.tgt_mask = Mask.from_cache(self.cache, structure_ids=target_ids, 
                         hemisphere_id=self.hemispheres[hemisphere])
-        self.tgt_key = self.tgt_mask.get_key()
 
     def get_target(self, target, hemisphere='both'):
         """
@@ -236,6 +239,8 @@ class VolumetricAPI(Paths):
             self.save_to_cache(cache_name, 'target', self.target)
 
         return self.target
+
+    # -------------------------------- Projections ------------------------------- #
 
     def get_projection(self, source, target, name,  hemisphere='both',
                              projection_mode='mean', mode='target'):
@@ -309,6 +314,23 @@ class VolumetricAPI(Paths):
         return mapped_projection
 
 
+    def get_mapped_projection_to_point(self, p0):
+        """
+            Gets projection intensity from all voxels to the voxel corresponding to a point of interest
+        """
+        cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
+        proj = self._get_from_cache(cache_name, 'projection')
+
+        if proj is None:
+            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
+            proj = self.voxel_array[:, p0idx]
+
+            mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+
+            self.save_to_cache(cache_name, 'projection', mapped_projection)
+
+        return mapped_projection
+
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #
     # ---------------------------------------------------------------------------- #
@@ -347,7 +369,21 @@ class VolumetricAPI(Paths):
             if render_target_region:
                 self.scene.add_brain_regions(target, use_original_color=use_original_color, 
                             wireframe=wireframe, **regions_kwargs)
+        return lego_actor
 
+    def add_mapped_projection_to_point(self, p0, 
+                            show_point=True, 
+                            point_kwargs = {},
+                            **kwargs):
+        projection = self.get_mapped_projection_to_point(p0)
+
+        lego_actor = self.render_volume(projection, **kwargs)
+
+        if show_point:
+            color = kwargs.pop('color', 'salmon')
+            radius = kwargs.pop('radius', 25)
+            alpha= kwargs.pop('alpha', .5)
+            self.scene.add_sphere_at_point(p0, color=color, radius=radius, alpha=alpha, **kwargs)
 
     
     def add_volume(self, volume, 
