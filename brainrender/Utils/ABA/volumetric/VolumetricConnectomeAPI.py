@@ -74,6 +74,11 @@ class VolumetricAPI(Paths):
         # Get scene
         self.scene = Scene(add_root=add_root, **scene_kwargs)
 
+    # ---------------------------------------------------------------------------- #
+    #                                     UTILS                                    #
+    # ---------------------------------------------------------------------------- #
+    # ------------------------- Interaction with mcmodels ------------------------ #
+
     def _get_structure_id(self, struct):
         " Get the ID of a structure (or list of structures) given it's acronym"
         if not isinstance(struct, (list, tuple)): 
@@ -86,6 +91,60 @@ class VolumetricAPI(Paths):
             print("Loading voxel data, might take a few minutes.")
             self.voxel_array, self.source_mask, self.target_mask = self.cache.get_voxel_connectivity_array()
 
+    def _get_coordinates_from_mask(self, mask, as_source=True):
+        if self.voxel_array is None:
+            self._load_voxel_data()
+
+        if as_source:
+            return np.array([self.source_mask.coordinates[p]*self.voxel_size for p in mask])
+        else:
+            return np.array([self.target_mask.coordinates[p]*self.voxel_size for p in mask])
+
+    def _get_coordinates_from_voxel_id(self, p0, as_source=True):
+        """
+            Takes the index of a voxel and returns the 3D coordinates in reference space. 
+            The index number should be extracted with either a source_mask or a target_mask.
+            If target_mask wa used set as_source as False.
+
+            :param p0: int
+        """
+        if self.voxel_array is None:
+            self._load_voxel_data()
+
+        if as_source:
+            return self.source_mask.coordinates[p0]*self.voxel_size
+        else:
+            return self.target_mask.coordinates[p0]*self.voxel_size
+
+    def _get_voxel_id_from_coordinates(self, p0, as_source=True):
+        if self.voxel_array is None:
+            self._load_voxel_data()
+
+        # Get the brain region from the coordinates
+        region = self.scene.get_structure_from_coordinates(p0)
+
+        # Get the correct mask for the region
+        if as_source:
+            _mask = self.source_mask
+        else:
+            _mask = self.target_mask
+        mask = self.target_mask.get_structure_indices(structure_ids=region['id'], 
+                                hemisphere_id='both')
+
+        # Get the coordinates for all point in the mask
+        coordinates = self._get_coordinates_from_mask(mask, as_source) # will be a 3d array
+
+        # get the point in coordinates array that is closest to p0
+        # TODO get closest_point
+
+        # Get index it for closest_point
+        idx = self.
+
+
+
+
+
+    # ----------------------------------- Cache ---------------------------------- #
     def _get_cache_filename(self, tgt, what):
         """Data are cached according to a naming convention, this function gets the name for an object
         according to the convention"""
@@ -119,6 +178,10 @@ class VolumetricAPI(Paths):
         f = gzip.GzipFile(cache_path, "w")
         np.save(f, obj)
 
+
+    # ---------------------------------------------------------------------------- #
+    #                                 PREPROCESSING                                #
+    # ---------------------------------------------------------------------------- #
     def get_source(self, source, hemisphere='both'):
         """
             Loads the mask for a source structure
@@ -245,13 +308,14 @@ class VolumetricAPI(Paths):
         self.mapped_projections[name] = mapped_projection
         return mapped_projection
 
-    def render_mapped_projection(self, source, target, 
-                        std_above_mean_threshold=5,
-                        cmap='Greens', alpha=.5,
+
+    # ---------------------------------------------------------------------------- #
+    #                                   RENDERING                                  #
+    # ---------------------------------------------------------------------------- #
+    def add_mapped_projection(self, source, target, 
                         render_source_region=False,
                         render_target_region=False,
                         regions_kwargs={},
-                        add_colorbar = True,
                         **kwargs):
         """
             Gets the spatialised projection intensity from a source to a target
@@ -259,14 +323,48 @@ class VolumetricAPI(Paths):
 
             :param source: str or list of str with acronym of source regions
             :param target: str or list of str with acronym of target regions
+            :param render_source_region: bool, if true a wireframe mesh of source regions is rendered
+            :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
+            :param regions_kwargs: pass options to specify how brain regions should look like
+            :param kwargs: kwargs can be used to control how the rendered object looks like. 
+                    Look at the arguments of 'render_volume' to see what arguments are available. 
+        """
+        # Get projection data
+        if not isinstance(source, list): source = [source]
+        if not isinstance(target, list): target = [target]
+        name = ''.join(source)+'_'.join(target)
+        mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
+        lego_actor =  self.render_volume(mapped_projection, **kwargs)
+
+        # Render relevant regions meshes
+        if render_source_region or render_target_region:
+            wireframe = regions_kwargs.pop('wireframe', True)
+            use_original_color = regions_kwargs.pop('use_original_color', True)
+
+            if render_source_region:
+                self.scene.add_brain_regions(source, use_original_color=use_original_color, 
+                            wireframe=wireframe, **regions_kwargs)
+            if render_target_region:
+                self.scene.add_brain_regions(target, use_original_color=use_original_color, 
+                            wireframe=wireframe, **regions_kwargs)
+
+
+    
+    def add_volume(self, volume, 
+                        std_above_mean_threshold=5,
+                        cmap='Greens', alpha=.5,
+
+                        add_colorbar = True,
+                        **kwargs):
+        """
+            Renders intensitdata from a 3D numpy array as a lego volumetric actor. 
+
+            :param volume: np 3D array with number of dimensions = those of the 100um reference space. 
             :param cmap: str with name of colormap to use
             :param alpha: float, transparency
             :param std_above_mean_threshold: the vmin used to threshold the data is the mean 
                     of the projection strength + this number of standard deviations. Higher values
                     means that more data are excluded from the visualization.
-            :param render_source_region: bool, if true a wireframe mesh of source regions is rendered
-            :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
-            :param regions_kwargs: pass options to specify how brain regions should look like
             :param add_colorbar: if True a colorbar is added to show the values of the colormap
         """
         # Parse kwargs
@@ -274,27 +372,21 @@ class VolumetricAPI(Paths):
         vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
 
-        # Get projection data
-        if not isinstance(source, list): source = [source]
-        if not isinstance(target, list): target = [target]
-        name = ''.join(source)+'_'.join(target)
-        mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
-
         # Get vmin and vmax threshold for visualisation
         if vmin is None:
-            vmin = np.mean(mapped_projection)
-        vmin += std_above_mean_threshold*np.std(mapped_projection)
+            vmin = np.mean(volume)
+        vmin += std_above_mean_threshold*np.std(volume)
 
         if vmax is None:
-            vmax = np.max(mapped_projection)
+            vmax = np.max(volume)
         else:
-            if np.max(mapped_projection) > vmax:
+            if np.max(volume) > vmax:
                 print("While rendering mapped projection some of the values are above the vmax threshold."+
                             "They will not be displayed."+
-                            f" vmax was {vmax} but found value {round(np.max(mapped_projection), 5)}.")
+                            f" vmax was {vmax} but found value {round(np.max(volume), 5)}.")
 
         # Get 'lego' actor
-        vol = Volume(mapped_projection)
+        vol = Volume(volume)
         lego = vol.legosurface(vmin=vmin, vmax=vmax, 
                                 cmap=cmap)
 
@@ -309,20 +401,8 @@ class VolumetricAPI(Paths):
 
         # Add to scene
         actor = self.scene.add_vtkactor(lego)
-
-        # Render relevant regions meshes
-        if render_source_region or render_target_region:
-            wireframe = regions_kwargs.pop('wireframe', True)
-            use_original_color = regions_kwargs.pop('use_original_color', True)
-
-            if render_source_region:
-                self.scene.add_brain_regions(source, use_original_color=use_original_color, 
-                            wireframe=wireframe, **regions_kwargs)
-            if render_target_region:
-                self.scene.add_brain_regions(target, use_original_color=use_original_color, 
-                            wireframe=wireframe, **regions_kwargs)
         return actor
-    
+
     def render(self, **kwargs):
         """
             Renders the scene associated with the class

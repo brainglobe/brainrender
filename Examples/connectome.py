@@ -18,7 +18,7 @@ vapi = VolumetricAPI(add_root=False, title='Motor cortex projections to ZI')
 # Get projections from the primary and secondary motor cortices to the zona incerta
 source = ['MOs', 'MOp']
 target = 'ZI'
-vapi.render_mapped_projection(
+vapi.add_mapped_projection(
             source, 
             target,
             cmap='gist_heat', # specify which heatmap to show
