@@ -29,7 +29,7 @@ Rendering of actors in `brainrender` is very flexible, you can specify how almos
 
 
 ## Adding brain regions to a Scene.
-The `scene` class interacts with the API (Application Programming Interface) and SDK (Software Development Kit) from the Allen institute to download data from Allen's projects. To make the process of populating a scene as straightforward as possible, `brainrender` handles interaction with these services behind the scenes, all you have to do is to specify which brain regions you want to add your scene. **In `brainrender` regions from the Allen atlas are identified by their acronym**. If you are unsure about what the acronym of your region of interest is, have a look [here](../mouse_regions.txt). 
+The `scene` class interacts with the API (Application Programming Interface) and SDK (Software Development Kit) from the Allen institute to download data from Allen's projects. To make the process of populating a scene as straightforward as possible, `brainrender` handles interaction with these services behind the scenes, all you have to do is to specify which brain regions you want to add your scene. **In `brainrender` regions from the Allen atlas are identified by their acronym**. If you are unsure about what the acronym of your region of interest is, have a look [here](mouse_regions.txt). 
 
 Adding a brain region to a scene is as simple as this:
 ```
