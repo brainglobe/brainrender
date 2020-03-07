@@ -9,7 +9,6 @@ from tqdm import tqdm
 import pandas as pd
 from functools import partial
 from pathlib import Path
-import datetime
 
 from brainrender.colors import check_colors, get_n_shades_of, get_random_colors
 from brainrender import * # Import default params 

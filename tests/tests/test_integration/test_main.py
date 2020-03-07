@@ -90,26 +90,26 @@ def test_camera():
         clipping = [5892.778, 14113.736],
     )
 
-def test_connectome():
-    from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import VolumetricAPI
+# def test_connectome():
+#     from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import VolumetricAPI
 
-    vapi = VolumetricAPI(add_root=False, title='Motor cortex projections to ZI')
+#     vapi = VolumetricAPI(add_root=False, title='Motor cortex projections to ZI')
 
-    # Get projections from the primary and secondary motor cortices to the zona incerta
-    source = ['MOs', 'MOp']
-    target = 'ZI'
-    vapi.add_mapped_projection(
-                source, 
-                target,
-                cmap='gist_heat', # specify which heatmap to show
-                alpha=1,
-                render_target_region=True, # render the targer region
-                regions_kwargs={
-                            'wireframe':False, 
-                            'alpha':.3, 
-                            'use_original_color':False},
-                mode='target',
-                )
+#     # Get projections from the primary and secondary motor cortices to the zona incerta
+#     source = ['MOs', 'MOp']
+#     target = 'ZI'
+#     vapi.add_mapped_projection(
+#                 source, 
+#                 target,
+#                 cmap='gist_heat', # specify which heatmap to show
+#                 alpha=1,
+#                 render_target_region=True, # render the targer region
+#                 regions_kwargs={
+#                             'wireframe':False, 
+#                             'alpha':.3, 
+#                             'use_original_color':False},
+#                 mode='target',
+#                 )
 
 def test_labelled_cells():
     # Create a scene
