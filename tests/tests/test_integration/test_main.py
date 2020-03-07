@@ -15,7 +15,6 @@ from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
 from brainrender.Utils.MouseLightAPI.mouselight_info import *
 from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-from brainrender.Utils.videomaker import VideoMaker
 from brainrender.Utils.parsers.streamlines import StreamlinesAPI
 from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
 from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
@@ -207,12 +206,12 @@ def test_tractography():
     scene.render(interactive=False, )
 
 def test_video():
-    from brainrender.Utils.videomaker import VideoMaker
+    from brainrender.animation.video import BasicVideoMaker as VideoMaker
 
     scene = Scene()
 
     # Create an instance of VideoMaker with our scene
-    vm = VideoMaker(scene, savefile="Output/Videos/video.mp4", niters=10)
+    vm = VideoMaker(scene, niters=10)
 
     # Make a video!
     vm.make_video(elevation=1, roll=5) # specify how the scene rotates at each frame
