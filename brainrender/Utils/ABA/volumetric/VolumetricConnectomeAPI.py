@@ -346,37 +346,56 @@ class VolumetricAPI(Paths):
         self.mapped_projections[name] = mapped_projection
         return mapped_projection
 
-
-    def get_mapped_projection_to_point(self, p0):
+    def get_mapped_projection_to_point(self, p0, restrict_to=None, restrict_to_hemisphere='both'):
         """
             Gets projection intensity from all voxels to the voxel corresponding to a point of interest
         """
         cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
+        if restrict_to is not None:
+            cache_name += f'_{restrict_to}'
+
         proj = self._get_from_cache(cache_name, 'projection')
 
         if proj is None:
             p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
-            proj = self.voxel_array[:, p0idx]
 
-            mapped_projection = self.source_mask.map_masked_to_annotation(proj)
+            if restrict_to is not None:
+                source_idx = self.get_source(restrict_to, restrict_to_hemisphere)
+                proj = self.voxel_array[source_idx, p0idx]
+
+                self.get_target_mask(restrict_to, restrict_to_hemisphere)
+                mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+            else:
+                proj = self.voxel_array[:, p0idx]
+                mapped_projection = self.source_mask.map_masked_to_annotation(proj)
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
             return mapped_projection
         else:
             return proj
 
-    def get_mapped_projection_from_point(self, p0):
+    def get_mapped_projection_from_point(self, p0, restrict_to=None, restrict_to_hemisphere='both'):
         """
             Gets projection intensity from all voxels to the voxel corresponding to a point of interest
         """
-        cache_name = f'proj_from_{p0[0]}_{p0[1]}_{p0[1]}'
+        cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
+        if restrict_to is not None:
+            cache_name += f'_{restrict_to}'
+        
         proj = self._get_from_cache(cache_name, 'projection')
 
         if proj is None:
             p0idx = self._get_voxel_id_from_coordinates(p0, as_source=True)
-            proj = self.voxel_array[p0idx, :]
 
-            mapped_projection = self.target_mask.map_masked_to_annotation(proj)
+            if restrict_to is not None:
+                target_idx = self.get_target(restrict_to, restrict_to_hemisphere)
+                proj = self.voxel_array[p0idx, target_idx]
+
+                self.get_target_mask(restrict_to, restrict_to_hemisphere)
+                mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+            else:
+                proj = self.voxel_array[p0idx, :]
+                mapped_projection = self.target_mask.map_masked_to_annotation(proj)
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
             return mapped_projection
@@ -435,10 +454,16 @@ class VolumetricAPI(Paths):
         if not isinstance(p0, (list, tuple, np.ndarray)):
             raise ValueError("point passed should be a list or a 1d array, not: {p0}")
 
+        restrict_to = kwargs.pop('restrict_to', None)
+        restrict_to_hemisphere = kwargs.pop('restrict_to_hemisphere', 'both')
         if not from_point:
-            projection = self.get_mapped_projection_to_point(p0)
+            projection = self.get_mapped_projection_to_point(p0, 
+                                        restrict_to=restrict_to,
+                                        restrict_to_hemisphere=restrict_to_hemisphere)
         else:
-            projection = self.get_mapped_projection_from_point(p0)
+            projection = self.get_mapped_projection_from_point(p0, 
+                                        restrict_to=restrict_to,
+                                        restrict_to_hemisphere=restrict_to_hemisphere)
 
         lego_actor = self.add_volume(projection, **kwargs)
 
