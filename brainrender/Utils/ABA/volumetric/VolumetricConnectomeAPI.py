@@ -1,20 +1,19 @@
 import numpy as np
 import os
-import gzip
 
 from vtkplotter import Volume, load
 
 # TODO see if this can be added to setup.py
 try:
-    from mcmodels.core import VoxelModelCache
-    from mcmodels.core import Mask
+    from mcmodels.core import VoxelModelCache, Mask
+    from mcmodels.models.voxel.voxel_connectivity_array import VoxelConnectivityArray
 except ModuleNotFoundError:
     raise ModuleNotFoundError("To use this functionality you need to install mcmodels "+
                             "with: 'pip install git+https://github.com/AllenInstitute/mouse_connectivity_models.git'")
 
 from brainrender.Utils.paths_manager import Paths
 from brainrender.scene import Scene
-from brainrender.Utils.data_io import connected_to_internet
+from brainrender.Utils.data_io import connected_to_internet, load_npy_from_gz, save_npy_to_gz
 
 
 class VolumetricAPI(Paths):
@@ -89,7 +88,26 @@ class VolumetricAPI(Paths):
         "Load the VoxelData array from Knox et al 2018"
         if self.voxel_array is None:
             print("Loading voxel data, might take a few minutes.")
-            self.voxel_array, self.source_mask, self.target_mask = self.cache.get_voxel_connectivity_array()
+            # Get VoxelArray
+            weights_file = os.path.join(self.mouse_connectivity_volumetric, 'voxel_model', 'weights')
+            nodes_file = os.path.join(self.mouse_connectivity_volumetric, 'voxel_model', 'nodes')
+
+            # Try to load from numpy
+            if os.path.isfile(weights_file+'.npy.gz'):
+                weights = load_npy_from_gz(weights_file+'.npy.gz')
+                nodes = load_npy_from_gz(nodes_file+'.npy.gz')
+
+                # Create array
+                self.voxel_array = VoxelConnectivityArray(weights, nodes), 
+
+                # Get target and source masks 
+                self.source_mask = self.cache.get_source_mask()
+                self.target_mask = self.cache.get_target_mask()
+            else: # load from standard cache
+                self.voxel_array, self.source_mask, self.target_mask = self.cache.get_voxel_connectivity_array()
+                # save to npy
+                save_npy_to_gz(weights_file+'.npy.gz', self.voxel_array.weights)
+                save_npy_to_gz(nodes_file+'.npy.gz', self.voxel_array.nodes)
 
     def _get_coordinates_from_mask(self, mask, as_source=True):
         if self.voxel_array is None:
@@ -169,15 +187,12 @@ class VolumetricAPI(Paths):
         if not cache_exists:
             return None
         else:
-            f = gzip.GzipFile(cache_path, "r")
-            return np.load(f)
+            return load_npy_from_gz(cache_path)
 
     def save_to_cache(self, tgt, what, obj):
         """ Saves data to cache to avoid loading thema again in the future"""
         name, cache_path, _ = self._get_cache_filename(tgt, what)
-
-        f = gzip.GzipFile(cache_path, "w")
-        np.save(f, obj)
+        save_npy_to_gz(cache_path, obj)
 
 
     # ---------------------------------------------------------------------------- #
@@ -325,7 +340,7 @@ class VolumetricAPI(Paths):
             p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
             proj = self.voxel_array[:, p0idx]
 
-            mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+            mapped_projection = self.source_mask.map_masked_to_annotation(proj)
 
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
