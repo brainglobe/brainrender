@@ -126,7 +126,7 @@ def test_labelled_cells():
     # Get fake cell coordinates
     cells = [] # to store x,y,z coordinates
     for region in regions:
-        region_cells = scene.get_n_rando_points_in_region(region=region, N=N)
+        region_cells = scene.get_n_random_points_in_region(region=region, N=N)
         cells.extend(region_cells)
     x,y,z = [c[0] for c in cells], [c[1] for c in cells], [c[2] for c in cells]
     cells = pd.DataFrame(dict(x=x, y=y, z=z)) 

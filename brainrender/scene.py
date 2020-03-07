@@ -115,7 +115,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         # Create plott and add function to capture keypresses
         self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
 
-        self.screenshots_folder = screenshot_kwargs.pop('folder', DEFAULT_SCREENSHOT_FOLDER)
+        self.screenshots_folder = screenshot_kwargs.pop('folder', self.output_screenshots)
         self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
         self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
         self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
@@ -295,7 +295,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
                 coms[region] = [np.int(x) for x in mesh.centerOfMass()]
             return coms
 
-    def get_n_rando_points_in_region(self, region, N):
+    def get_n_random_points_in_region(self, region, N):
         """
         Gets N random points inside (or on the surface) of the mesh defining a brain region.
 
@@ -303,10 +303,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         :param N: int, number of points to return.
 
         """
-        if region not in self.actors['regions']:
-            raise ValueError("Region {} needs to be rendered first.".format(region))
+        
+        region_mesh = self._get_structure_mesh(region)
+        if region_mesh is None:
+            return None
 
-        region_mesh = self.actors['regions'][region]
         region_bounds = region_mesh.bounds()
 
         X = np.random.randint(region_bounds[0], region_bounds[1], size=10000)
