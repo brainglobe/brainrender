@@ -73,6 +73,15 @@ class VolumetricAPI(Paths):
         # Get scene
         self.scene = Scene(add_root=add_root, **scene_kwargs)
 
+
+    def __getattr__(self, attr):
+        __dict__ = super(VolumetricAPI, self).__getattribute__('__dict__')
+        try:
+            return __dict__['scene'].__getattribute__(attr)
+        except AttributeError as e:
+            raise AttributeError(f"Could not attribute {attr} for class VolumetricAPI:\n{e}")
+
+
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
     # ---------------------------------------------------------------------------- #
@@ -415,6 +424,8 @@ class VolumetricAPI(Paths):
                             point_kwargs = {},
                             from_point = False,
                             **kwargs):
+        if not isinstance(p0, (list, tuple, np.ndarray)):
+            raise ValueError(f}")
 
         if not from_point:
             projection = self.get_mapped_projection_to_point(p0)
