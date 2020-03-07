@@ -512,9 +512,4 @@ class VolumetricAPI(Paths):
         actor = self.scene.add_vtkactor(lego)
         return actor
 
-    def render(self, **kwargs):
-        """
-            Renders the scene associated with the class
-        """
-        self.scene.render(**kwargs)
 

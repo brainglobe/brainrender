@@ -4,7 +4,7 @@ import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
 from vtkplotter import Text2D  
-from vtkplotter.shapes import Cylinder, Line
+from vtkplotter.shapes import Cylinder, Line, DashedLine
 from tqdm import tqdm
 import pandas as pd
 from functools import partial
@@ -37,6 +37,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
     verbose = VERBOSE
 
     ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
+
+    _root_bounds = [[-17, 13193], 
+                   [ 134, 7564], 
+                    [486, 10891]]
 
     def __init__(self,  brain_regions=None, 
                         regions_aba_color=False,
@@ -1112,6 +1116,86 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         )
         return txt
         
+    def add_line_at_point(self, point, replace_coord, bounds,  **kwargs):
+        """
+            Adds a line oriented on a given axis at a point
+
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param replace_coord: index of the coordinate to replace (i.e. along which axis is the line oriented)
+            :param bounds: list of two floats with lower and upper bound for line, determins the extent of the line
+            :param kwargs: dictionary with arguments to specify how lines should look like
+        """
+        # Get line coords
+        p0, p1 = point.copy(), point.copy()
+        p0[replace_coord] = bounds[0]
+        p1[replace_coord] = bounds[1]
+
+        # Get some default params
+        color = kwargs.pop('c', 'blackboard')
+        lw = kwargs.pop('lw', 3)
+
+        # Create line actor
+        self.add_vtkactor(Line(p0, p1, c=color, lw=lw, **kwargs))
+
+    def add_rostrocaudal_line_at_point(self, point, **kwargs):
+        """
+            Add a line at a point oriented along the trostrocaudal axis
+
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
+        bounds = self._root_bounds[0]
+        self.add_line_at_point(point, 0, bounds, **kwargs)
+
+    def add_dorsoventral_line_at_point(self, point, **kwargs):
+        """
+            Add a line at a point oriented along the mdorsoventralediolateral axis
+
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
+        bounds = self._root_bounds[1]
+        self.add_line_at_point(point, 1, bounds, **kwargs)
+
+    def add_mediolateral_line_at_point(self, point, **kwargs):
+        """
+            Add a line at a point oriented along the mediolateral axis
+
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
+        bounds = self._root_bounds[2]
+        self.add_line_at_point(point, 2, bounds, **kwargs)
+
+    def add_crosshair_at_point(self, point, 
+                    ml=True, dv=True, ap=True, 
+                    show_point=True,
+                    line_kwargs={},
+                    point_kwargs={}):
+        """
+            Add a crosshair (set of orthogonal lines meeting at a point)
+            centered on a given point.
+
+            :param point: list or 1d np array with coordinates of point where crosshair is centered
+            :param ml: bool, if True a line oriented on the mediolateral axis is added
+            :param dv: bool, if True a line oriented on the dorsoventral axis is added
+            :param ap: bool, if True a line oriented on the anteriorposterior or rostsrocaudal axis is added
+            :param show_point: bool, if True a sphere at the loation of the point is shown
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+            :param point_kwargs: dictionary with arguments to specify how the point should look
+        """
+
+        if ml:
+            self.add_mediolateral_line_at_point(point, **line_kwargs)
+
+        if dv:
+            self.add_dorsoventral_line_at_point(point, **line_kwargs)
+
+        if ap:
+            self.add_rostrocaudal_line_at_point(point, **line_kwargs)
+
+        if show_point:
+            self.add_sphere_at_point(point, **point_kwargs)
 
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #
