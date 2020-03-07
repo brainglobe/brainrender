@@ -426,6 +426,8 @@ class VolumetricAPI(Paths):
     def add_mapped_projection_to_point(self, p0, 
                             show_point=True, 
                             show_point_region=True,
+                            show_crosshair=True,
+                            crosshair_kwargs = {},
                             point_region_kwargs = {},
                             point_kwargs = {},
                             from_point = False,
@@ -442,10 +444,20 @@ class VolumetricAPI(Paths):
 
         if show_point:
             color = point_kwargs.pop('color', 'salmon')
-            radius = point_kwargs.pop('radius', 100)
-            alpha= point_kwargs.pop('alpha', .5)
-            self.scene.add_sphere_at_point(p0, color=color, radius=radius, 
-                                            alpha=alpha, **point_kwargs)
+            radius = point_kwargs.pop('radius', 50)
+            alpha= point_kwargs.pop('alpha', 1)
+            if not show_crosshair:
+                self.scene.add_sphere_at_point(p0, color=color, radius=radius, 
+                                                alpha=alpha, **point_kwargs)
+            else:
+                ml = crosshair_kwargs.pop('ml', True)
+                dv = crosshair_kwargs.pop('dv', True)
+                ap = crosshair_kwargs.pop('ap', True)
+                self.scene.add_crosshair_at_point(p0, ml=ml, dv=dv, ap=ap,
+                                    line_kwargs = crosshair_kwargs,
+                                    point_kwargs = {'color':color,
+                                                    'radius':radius,
+                                                    'alpha':alpha})
 
         if show_point_region:
             use_original_color = point_region_kwargs.pop('use_original_color', False)

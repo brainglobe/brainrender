@@ -469,7 +469,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
         return self.root
 
     def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
-                        colors=None, use_original_color=False, alpha=None, hemisphere=None, **kwargs):
+                        colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
         """
         Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered.
         To treat a subset of the rendered regions, specify which regions are VIP. Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
@@ -1132,6 +1132,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
         # Get some default params
         color = kwargs.pop('c', 'blackboard')
+        color = kwargs.pop('color', color)
         lw = kwargs.pop('lw', 3)
 
         # Create line actor
