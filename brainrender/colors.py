@@ -266,7 +266,9 @@ colors2 = [
     (0.1, 0.3, 0.2),
 ]
 
-
+def get_random_colormap():
+    return random.choice(_mapscales_cmaps)
+    
 def get_n_shades_of(shade, n):
     """
 

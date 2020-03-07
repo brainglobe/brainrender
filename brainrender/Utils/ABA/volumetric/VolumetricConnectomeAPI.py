@@ -14,7 +14,7 @@ except ModuleNotFoundError:
 from brainrender.Utils.paths_manager import Paths
 from brainrender.scene import Scene
 from brainrender.Utils.data_io import connected_to_internet, load_npy_from_gz, save_npy_to_gz
-
+from brainrender.colors import get_random_colormap
 
 class VolumetricAPI(Paths):
     """
@@ -87,7 +87,6 @@ class VolumetricAPI(Paths):
     def _load_voxel_data(self):
         "Load the VoxelData array from Knox et al 2018"
         if self.voxel_array is None:
-            print("Loading voxel data, might take a few minutes.")
             # Get VoxelArray
             weights_file = os.path.join(self.mouse_connectivity_volumetric, 'voxel_model', 'weights')
             nodes_file = os.path.join(self.mouse_connectivity_volumetric, 'voxel_model', 'nodes')
@@ -98,13 +97,16 @@ class VolumetricAPI(Paths):
                 nodes = load_npy_from_gz(nodes_file+'.npy.gz')
 
                 # Create array
-                self.voxel_array = VoxelConnectivityArray(weights, nodes), 
+                self.voxel_array = VoxelConnectivityArray(weights, nodes)
 
                 # Get target and source masks 
                 self.source_mask = self.cache.get_source_mask()
                 self.target_mask = self.cache.get_target_mask()
-            else: # load from standard cache
+            else: 
+                print("Loading voxel data, might take a few minutes.")
+                # load from standard cache
                 self.voxel_array, self.source_mask, self.target_mask = self.cache.get_voxel_connectivity_array()
+                
                 # save to npy
                 save_npy_to_gz(weights_file+'.npy.gz', self.voxel_array.weights)
                 save_npy_to_gz(nodes_file+'.npy.gz', self.voxel_array.nodes)
@@ -139,7 +141,7 @@ class VolumetricAPI(Paths):
             self._load_voxel_data()
 
         # Get the brain region from the coordinates
-        region = self.scene.get_structure_from_coordinates(p0)
+        region = self.scene.get_structure_from_coordinates(p0, just_acronym=False)
 
         # Get the correct mask for the region
         if as_source:
@@ -156,11 +158,12 @@ class VolumetricAPI(Paths):
         p0 = np.int64([round(p, -2) for p in p0])
 
         try:
-            p0_idx = np.where((coordinates[:, 0] == p0[0])&
-                                (coordinates[:, 1] == p0[1])&
-                                (coordinates[:, 2] == p0[2]))[0]
+            x_idx = (np.abs(coordinates[:, 0] - p0[0])).argmin()
+            y_idx = (np.abs(coordinates[:, 1] - p0[1])).argmin()
+            z_idx = (np.abs(coordinates[:, 2] - p0[2])).argmin()
+            p0_idx = [x_idx, y_idx, z_idx]
         except:
-            raise ValueError(f"Could not find the voxe corresponding to the point given: {p0}")
+             raise ValueError(f"Could not find the voxe corresponding to the point given: {p0}")
         return p0_idx[0]
 
     # ----------------------------------- Cache ---------------------------------- #
@@ -341,10 +344,29 @@ class VolumetricAPI(Paths):
             proj = self.voxel_array[:, p0idx]
 
             mapped_projection = self.source_mask.map_masked_to_annotation(proj)
-
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
-        return mapped_projection
+            return mapped_projection
+        else:
+            return proj
+
+    def get_mapped_projection_from_point(self, p0):
+        """
+            Gets projection intensity from all voxels to the voxel corresponding to a point of interest
+        """
+        cache_name = f'proj_from_{p0[0]}_{p0[1]}_{p0[1]}'
+        proj = self._get_from_cache(cache_name, 'projection')
+
+        if proj is None:
+            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
+            proj = self.voxel_array[p0idx, :]
+
+            mapped_projection = self.target_mask.map_masked_to_annotation(proj)
+            self.save_to_cache(cache_name, 'projection', mapped_projection)
+
+            return mapped_projection
+        else:
+            return proj
 
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #
@@ -388,23 +410,39 @@ class VolumetricAPI(Paths):
 
     def add_mapped_projection_to_point(self, p0, 
                             show_point=True, 
+                            show_point_region=True,
+                            point_region_kwargs = {},
                             point_kwargs = {},
+                            from_point = False,
                             **kwargs):
-        projection = self.get_mapped_projection_to_point(p0)
 
-        lego_actor = self.render_volume(projection, **kwargs)
+        if not from_point:
+            projection = self.get_mapped_projection_to_point(p0)
+        else:
+            projection = self.get_mapped_projection_from_point(p0)
+
+        lego_actor = self.add_volume(projection, **kwargs)
 
         if show_point:
-            color = kwargs.pop('color', 'salmon')
-            radius = kwargs.pop('radius', 25)
-            alpha= kwargs.pop('alpha', .5)
-            self.scene.add_sphere_at_point(p0, color=color, radius=radius, alpha=alpha, **kwargs)
+            color = point_kwargs.pop('color', 'salmon')
+            radius = point_kwargs.pop('radius', 100)
+            alpha= point_kwargs.pop('alpha', .5)
+            self.scene.add_sphere_at_point(p0, color=color, radius=radius, 
+                                            alpha=alpha, **point_kwargs)
 
+        if show_point_region:
+            use_original_color = point_region_kwargs.pop('use_original_color', False)
+            alpha = point_region_kwargs.pop('alpha', 0.3)
+            region = self.scene.get_structure_from_coordinates(p0)
+            self.scene.add_brain_regions([region], use_original_color=use_original_color,
+                                            alpha=alpha, **point_region_kwargs)
+
+    def add_mapped_projection_from_point(self, *args, **kwargs):
+        self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
     
     def add_volume(self, volume, 
                         std_above_mean_threshold=5,
-                        cmap='Greens', alpha=.5,
-
+                        cmap='afmhot_r', alpha=1,
                         add_colorbar = True,
                         **kwargs):
         """
@@ -422,6 +460,9 @@ class VolumetricAPI(Paths):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
+
+        if cmap=='random' or not cmap or cmap is None:
+            cmap = get_random_colormap()
 
         # Get vmin and vmax threshold for visualisation
         if vmin is None:
