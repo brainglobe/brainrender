@@ -212,8 +212,6 @@ class NeuronsParser(Paths):
 			if isinstance(neuron, dict):
 				self.alleninfo = None
 				soma_region = self.scene.get_structure_from_coordinates(get_coords(neuron['soma']))
-				if soma_region is not None:
-					soma_region = soma_region['acronym']
 			else:
 				self.alleninfo = None
 				soma_region = None
@@ -221,8 +219,6 @@ class NeuronsParser(Paths):
 			self.alleninfo = None
 			if soma is not None:
 				soma_region = self.scene.get_structure_from_coordinates(get_coords(soma))
-				if soma_region is not None:
-					soma_region = soma_region['acronym']
 			else:
 				raise ValueError("You need to pass either a neuron, or a soma region or a soma")
 		else:

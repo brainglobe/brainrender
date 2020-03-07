@@ -379,7 +379,7 @@ class ABA(Paths):
 
 		# Each voxel in the annotation volume is annotated as specifically as possible
 		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
-		if just_acronym:
-			return structure['acronym']
-		else:
-			return structure
+		if structure is not None:
+			if just_acronym:
+				return structure['acronym']
+		return structure

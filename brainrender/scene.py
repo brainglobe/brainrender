@@ -739,11 +739,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             # check if we need to manually check injection coords
             if extract_region_from_inj_coords:
                 try:
-                    region = self.get_structure_from_coordinates(t['injection-coordinates'])
+                    region = self.get_structure_from_coordinates(t['injection-coordinates'], 
+                                                            just_acronym=False)
                     if region is None: continue
                     inj_structures = [self.get_structure_parent(region['acronym'])['acronym']]
                 except:
-                    raise ValueError(self.get_structure_from_coordinates(t['injection-coordinates']))
+                    raise ValueError(self.get_structure_from_coordinates(t['injection-coordinates'], 
+                                                            just_acronym=False))
                 if inj_structures is None: continue
                 elif isinstance(extract_region_from_inj_coords, list):
                     # check if injection coord are in one of the brain regions in list, otherwise skip
@@ -963,7 +965,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
             raise ValueError("Unrecognized argument for cell coordinates")
 
         if color_by_region:
-            regions = [self.get_structure_from_coordinates(p0) for p0 in coords]
+            regions = [self.get_structure_from_coordinates(p0, just_acronym=False) for p0 in coords]
             color = [list(np.float16(np.array(col)/255)) for col in self.get_region_color(regions)]
 
         spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
