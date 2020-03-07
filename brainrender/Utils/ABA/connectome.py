@@ -364,7 +364,7 @@ class ABA(Paths):
 	def get_structure_descendants(self, regions):
 		return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
 
-	def get_structure_from_coordinates(self, p0):
+	def get_structure_from_coordinates(self, p0, just_acronym=True):
 		"""
 		Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
 
@@ -379,4 +379,7 @@ class ABA(Paths):
 
 		# Each voxel in the annotation volume is annotated as specifically as possible
 		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
+		if structure is not None:
+			if just_acronym:
+				return structure['acronym']
 		return structure

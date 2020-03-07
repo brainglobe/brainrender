@@ -2,6 +2,17 @@ import os
 import json
 import requests
 import yaml
+import gzip
+import numpy as np
+
+def load_npy_from_gz(filepath):
+	f = gzip.GzipFile(filepath, "r")
+	return np.load(f)
+
+def save_npy_to_gz(filepath, data):
+	f = gzip.GzipFile(filepath, "w")
+	np.save(f, data)
+	f.close()
 
 def connected_to_internet(url='http://www.google.com/', timeout=5):
 	"""
