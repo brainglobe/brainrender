@@ -34,13 +34,17 @@ class VolumetricAPI(Paths):
 
     hemispheres = dict(left=1, right=2, both=3)
 
-    def __init__(self, base_dir=None, add_root=True, scene_kwargs={}, **kwargs):
+    def __init__(self, base_dir=None, add_root=True, 
+                            use_cache=True,
+                            scene_kwargs={}, **kwargs):
         """
             Initialise the class instance to get a few useful paths and variables. 
 
             :param base_dir: str, path to base directory in which all of brainrender data are stored. 
                     Pass only if you want to use a different one from what's default.
             :param add_root: bool, if True the root mesh is added to the rendered scene
+            :param use_cache: if true data are loaded from a cache to speed things up.
+                    Useful to set it to false to help debugging.
             :param scene_kwargs: dict, params passed to the instance of Scene associated with this class
         """
         Paths.__init__(self, base_dir=base_dir, **kwargs)
@@ -55,6 +59,7 @@ class VolumetricAPI(Paths):
 
         self.cache = VoxelModelCache(manifest_file=cache_path)
         self.voxel_array = None
+        self.target_coords, self.source_coords = None, None
 
         # Get projection cache paths
         self.data_cache = self.mouse_connectivity_volumetric_cache
@@ -72,6 +77,9 @@ class VolumetricAPI(Paths):
 
         # Get scene
         self.scene = Scene(add_root=add_root, **scene_kwargs)
+
+        # Other vars
+        self.use_cache = use_cache
 
 
     def __getattr__(self, attr):
@@ -120,15 +128,6 @@ class VolumetricAPI(Paths):
                 save_npy_to_gz(weights_file+'.npy.gz', self.voxel_array.weights)
                 save_npy_to_gz(nodes_file+'.npy.gz', self.voxel_array.nodes)
 
-    def _get_coordinates_from_mask(self, mask, as_source=True):
-        if self.voxel_array is None:
-            self._load_voxel_data()
-
-        if as_source:
-            return np.array([self.source_mask.coordinates[p]*self.voxel_size for p in mask])
-        else:
-            return np.array([self.target_mask.coordinates[p]*self.voxel_size for p in mask])
-
     def _get_coordinates_from_voxel_id(self, p0, as_source=True):
         """
             Takes the index of a voxel and returns the 3D coordinates in reference space. 
@@ -145,23 +144,27 @@ class VolumetricAPI(Paths):
         else:
             return self.target_mask.coordinates[p0]*self.voxel_size
 
+    def _get_mask_coords(self, as_source):
+        if as_source:
+            if self.source_coords is None:
+                coordinates = self.source_mask.coordinates * self.voxel_size
+                self.source_coords = coordinates
+            else:
+                coordinates = self.source_coords
+        else:
+            if self.target_coords is None:
+                coordinates = self.target_mask.coordinates * self.voxel_size
+                self.target_coords = coordinates
+            else:
+                coordinates = self.target_coords
+        return coordinates
+
     def _get_voxel_id_from_coordinates(self, p0, as_source=True):
         if self.voxel_array is None:
             self._load_voxel_data()
 
         # Get the brain region from the coordinates
-        region = self.scene.get_structure_from_coordinates(p0, just_acronym=False)
-
-        # Get the correct mask for the region
-        if as_source:
-            _mask = self.source_mask
-        else:
-            _mask = self.target_mask
-        mask = self.target_mask.get_structure_indices(structure_ids=[region['id']], 
-                                hemisphere_id=3)
-
-        # Get the coordinates for all point in the mask
-        coordinates = self._get_coordinates_from_mask(mask, as_source) # will be a 3d array
+        coordinates = self._get_mask_coords(as_source)
 
         # Get the position of p0 in the coordinates volumetric array
         p0 = np.int64([round(p, -2) for p in p0])
@@ -195,6 +198,9 @@ class VolumetricAPI(Paths):
 
     def _get_from_cache(self, tgt, what):
         """ tries to load objects from cached data, if they exist"""
+        if not self.use_cache:
+            return None
+        
         name, cache_path, cache_exists = self._get_cache_filename(tgt, what)
         if not cache_exists:
             return None
@@ -367,7 +373,7 @@ class VolumetricAPI(Paths):
         proj = self._get_from_cache(cache_name, 'projection')
 
         if proj is None:
-            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
+            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=True)
             proj = self.voxel_array[p0idx, :]
 
             mapped_projection = self.target_mask.map_masked_to_annotation(proj)
@@ -425,7 +431,7 @@ class VolumetricAPI(Paths):
                             from_point = False,
                             **kwargs):
         if not isinstance(p0, (list, tuple, np.ndarray)):
-            raise ValueError(f}")
+            raise ValueError("point passed should be a list or a 1d array, not: {p0}")
 
         if not from_point:
             projection = self.get_mapped_projection_to_point(p0)
