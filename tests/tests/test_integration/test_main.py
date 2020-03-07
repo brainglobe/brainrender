@@ -76,10 +76,10 @@ def test_camera():
     scene = Scene(camera='top') # specify that you want a view from the top
 
     # render
-    scene.render(interactive=False)
+    scene.render(interactive=False, )
 
     # Now render but with a different view
-    scene.render(interactive=Falsecamera='sagittal', zoom=1)
+    scene.render(interactive=False, camera='sagittal', zoom=1)
 
     # Now render but with specific camera parameters
     bespoke_camera = dict(
@@ -164,7 +164,7 @@ def test_mouselight():
     # make sure to check the source code to see all available optionsq
 
     scene.add_brain_regions(['MOs'], alpha=0.15) 
-    scene.render(interactive=Falsecamera='coronal') 
+    scene.render(interactive=False, camera='coronal') 
 
 
 def test_scene_title():
@@ -186,7 +186,7 @@ def test_streamlines():
     # you can pass either the filepaths or the data
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
 
-    scene.render(interactive=Falsecamera='sagittal', zoom=1)
+    scene.render(interactive=False, camera='sagittal', zoom=1)
 
 def test_tractography():
     from brainrender.Utils.ABA.connectome import ABA
@@ -204,7 +204,7 @@ def test_tractography():
     scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
     scene.add_tractography(tract, display_injection_structure=False, color_by="region")
 
-    scene.render(interactive=False)
+    scene.render(interactive=False, )
 
 def test_video():
     from brainrender.Utils.videomaker import VideoMaker
