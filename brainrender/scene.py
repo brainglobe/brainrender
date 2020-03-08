@@ -38,9 +38,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 	ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
-	_root_bounds = [[-17, 13193], 
-				   [ 134, 7564], 
-					[486, 10891]]
+
 
 	def __init__(self,  brain_regions=None, 
 						regions_aba_color=False,

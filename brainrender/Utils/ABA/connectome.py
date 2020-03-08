@@ -21,6 +21,14 @@ class ABA(Paths):
 	excluded_regions = ["fiber tracts"]
 	resolution = 25
 
+	_root_bounds = [[-17, 13193], 
+				   [ 134, 7564], 
+					[486, 10891]]
+
+	_root_midpoint = [np.mean([-17, 13193]), 
+						np.mean([134, 7564]),
+						np.mean([486, 10891])]
+
 	def __init__(self, projection_metric = "projection_energy", base_dir=None, **kwargs):
 		""" 
 		Set up file paths and Allen SDKs
@@ -167,28 +175,6 @@ class ABA(Paths):
 				parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1])
 			return parents
 
-
-	def get_structure_from_coordinates(self, p0, just_acronym=True):
-		"""
-		Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
-
-		:param p0: list of floats with XYZ coordinates. 
-
-		"""
-		voxel = np.round(np.array(p0) / self.resolution).astype(int)
-		try:
-			structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
-		except:
-			return None
-
-		# Each voxel in the annotation volume is annotated as specifically as possible
-		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
-		if structure is not None:
-			if just_acronym:
-				return structure['acronym']
-		return structure
-
-
 	# ----------------------------------- Utils ---------------------------------- #
 	def get_region_color(self, regions):
 		"""
@@ -215,7 +201,31 @@ class ABA(Paths):
 		else:
 			return True
 
+	def get_hemispere_from_point(self, p0):
+		if p0[2] > self._root_midpoint[2]:
+			return 'right'
+		else:
+			return 'left'
 
+	def get_structure_from_coordinates(self, p0, just_acronym=True):
+		"""
+		Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
+
+		:param p0: list of floats with XYZ coordinates. 
+
+		"""
+		voxel = np.round(np.array(p0) / self.resolution).astype(int)
+		try:
+			structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
+		except:
+			return None
+
+		# Each voxel in the annotation volume is annotated as specifically as possible
+		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
+		if structure is not None:
+			if just_acronym:
+				return structure['acronym']
+		return structure
 	# ---------------------------------------------------------------------------- #
 	#                       CONNECTOME EXPERIMENT INTERACTION                      #
 	# ---------------------------------------------------------------------------- #

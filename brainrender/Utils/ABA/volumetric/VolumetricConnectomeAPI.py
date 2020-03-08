@@ -81,14 +81,12 @@ class VolumetricAPI(Paths):
         # Other vars
         self.use_cache = use_cache
 
-
     def __getattr__(self, attr):
         __dict__ = super(VolumetricAPI, self).__getattribute__('__dict__')
         try:
             return __dict__['scene'].__getattribute__(attr)
         except AttributeError as e:
             raise AttributeError(f"Could not attribute {attr} for class VolumetricAPI:\n{e}")
-
 
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
@@ -378,6 +376,10 @@ class VolumetricAPI(Paths):
         """
             Gets projection intensity from all voxels to the voxel corresponding to a point of interest
         """
+        if self.get_hemispere_from_point(p0) == 'left':
+            raise ValueError(f'The point passed [{p0}] is in the left hemisphere,'+
+                    ' but "projection from point" only works from the right hemisphere.')
+
         cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
         if restrict_to is not None:
             cache_name += f'_{restrict_to}'
