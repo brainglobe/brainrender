@@ -380,7 +380,7 @@ class VolumetricAPI(Paths):
             raise ValueError(f'The point passed [{p0}] is in the left hemisphere,'+
                     ' but "projection from point" only works from the right hemisphere.')
 
-        cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
+        cache_name = f'proj_from_{p0[0]}_{p0[1]}_{p0[1]}'
         if restrict_to is not None:
             cache_name += f'_{restrict_to}'
         
@@ -446,7 +446,7 @@ class VolumetricAPI(Paths):
 
     def add_mapped_projection_to_point(self, p0, 
                             show_point=True, 
-                            show_point_region=True,
+                            show_point_region=False,
                             show_crosshair=True,
                             crosshair_kwargs = {},
                             point_region_kwargs = {},
@@ -492,9 +492,11 @@ class VolumetricAPI(Paths):
             region = self.scene.get_structure_from_coordinates(p0)
             self.scene.add_brain_regions([region], use_original_color=use_original_color,
                                             alpha=alpha, **point_region_kwargs)
+        
+        return lego_actor
 
     def add_mapped_projection_from_point(self, *args, **kwargs):
-        self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
+        return self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
     
     def add_volume(self, volume, 
                         std_above_mean_threshold=5,

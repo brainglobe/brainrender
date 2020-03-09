@@ -10,7 +10,8 @@ import numpy as np
 import allensdk.core.swc as allen_swc
 
 from brainrender.Utils.data_io import load_json, listdir, save_json
-from brainrender.Utils.data_manipulation import get_coords, mirror_actor_at_point
+from brainrender.Utils.data_manipulation import get_coords
+from brainrender.Utils.actors_funcs import mirror_actor_at_point
 from brainrender.colors import get_random_colors, colorMap, check_colors
 from brainrender import DEFAULT_NEURITE_RADIUS, USE_MORPHOLOGY_CACHE, SOMA_RADIUS, DECIMATE_NEURONS, SMOOTH_NEURONS
 from brainrender import NEURON_RESOLUTION

@@ -11,12 +11,12 @@ from functools import partial
 from pathlib import Path
 import datetime
 
-from brainrender.colors import check_colors, get_n_shades_of, get_random_colors
+from brainrender.colors import check_colors, get_n_shades_of, get_random_colors, getColor
 from brainrender import * # Import default params 
 
 from brainrender.Utils.ABA.connectome import ABA
 from brainrender.Utils.data_io import load_volume_file
-from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list, mirror_actor_at_point
+from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
 from brainrender.Utils.parsers.streamlines import parse_streamline
@@ -110,9 +110,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		else:
 			axes = 0
 
-		# Create plott and add function to capture keypresses
+		# Create plotter
 		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
 
+		self.plotter.legendBC = getColor('blackboard')
+
+		# SCreenshots and keypresses variables
 		self.screenshots_folder = screenshot_kwargs.pop('folder', self.output_screenshots)
 		self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
 		self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
@@ -151,7 +154,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	# ---------------------------------------------------------------------------- #
 	#                                     Utils                                    #
 	# ---------------------------------------------------------------------------- #
-
 	# --------------------------- Check correct inputs --------------------------- #
 	def _check_obj_file(self, structure, obj_file):
 		"""
@@ -218,7 +220,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		
 		# left is the mirror right # WIP
 		com = self.get_region_CenterOfMass('root', unilateral=False)[2]
-		left = mirror_actor_at_point(right.clone(), com, axis='x')
+		left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis='x')
 
 		if hemisphere == "both":
 			return left, right
@@ -357,6 +359,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		edited_neurons = edit_neurons(neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs)
 		self.actors["neurons"].extend(edited_neurons)
+
+	def mirror_actor_hemisphere(self, actors):
+		"""
+			Mirrors actors from one hemisphere to the next
+		"""
+		if not isinstance(actors, list):
+			actors = [actors]
+
+		for actor in actors:
+			mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
+			actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis='x')
 
 	# ---------------------------------------------------------------------------- #
 	#                                POPULATE SCENE                                #
