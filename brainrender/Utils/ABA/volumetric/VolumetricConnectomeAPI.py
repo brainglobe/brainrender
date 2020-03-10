@@ -499,41 +499,36 @@ class VolumetricAPI(Paths):
         return self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
     
     def add_volume(self, volume, 
-                        std_above_mean_threshold=5,
-                        cmap='afmhot_r', alpha=1,
-                        add_colorbar = True,
-                        **kwargs):
+                    cmap='afmhot_r', alpha=1,
+                    add_colorbar = True,
+                    **kwargs):
         """
             Renders intensitdata from a 3D numpy array as a lego volumetric actor. 
 
             :param volume: np 3D array with number of dimensions = those of the 100um reference space. 
             :param cmap: str with name of colormap to use
             :param alpha: float, transparency
-            :param std_above_mean_threshold: the vmin used to threshold the data is the mean 
-                    of the projection strength + this number of standard deviations. Higher values
-                    means that more data are excluded from the visualization.
+          
             :param add_colorbar: if True a colorbar is added to show the values of the colormap
         """
         # Parse kwargs
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
-
         if cmap=='random' or not cmap or cmap is None:
             cmap = get_random_colormap()
 
         # Get vmin and vmax threshold for visualisation
-        if vmin is None:
-            vmin = np.mean(volume)
-        vmin += std_above_mean_threshold*np.std(volume)
+        vmin = kwargs.pop('vmin', 0.0)
+        vmax = kwargs.pop('vmax', np.nanmax(volume))
 
-        if vmax is None:
-            vmax = np.max(volume)
-        else:
-            if np.max(volume) > vmax:
-                print("While rendering mapped projection some of the values are above the vmax threshold."+
-                            "They will not be displayed."+
-                            f" vmax was {vmax} but found value {round(np.max(volume), 5)}.")
+        # Check values
+        if np.max(volume) > vmax:
+            print("While rendering mapped projection some of the values are above the vmax threshold."+
+                        "They will not be displayed."+
+                        f" vmax was {vmax} but found value {round(np.max(volume), 5)}.")
+
+        if vmin > vmax:
+            raise ValueError(f'The vmin threhsold [{vmin}] cannot be larger than the vmax threshold [{vmax}')
+        if vmin < 0: vmin = 0
 
         # Get 'lego' actor
         vol = Volume(volume)
