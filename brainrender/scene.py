@@ -175,6 +175,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				return False
 		else: return True
 
+	def _check_point_in_region(self, point, region_actor):
+		if not region_actor.insidePoints([point]):
+			return False
+		else:
+			return True
+
 	# ------------------------------ ABA interaction ----------------------------- #
 	def _get_structure_mesh(self, acronym, plotter=None,  **kwargs):
 		"""
@@ -1087,7 +1093,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		lw = kwargs.pop('lw', 3)
 
 		# Create line actor
-		self.add_vtkactor(Line(p0, p1, c=color, lw=lw, **kwargs))
+		act = self.add_vtkactor(Line(p0, p1, c=color, lw=lw, **kwargs))
+		return act
 
 	def add_rostrocaudal_line_at_point(self, point, **kwargs):
 		"""
@@ -1097,7 +1104,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param line_kwargs: dictionary with arguments to specify how lines should look like
 		"""
 		bounds = self._root_bounds[0]
-		self.add_line_at_point(point, 0, bounds, **kwargs)
+		return self.add_line_at_point(point, 0, bounds, **kwargs)
 
 	def add_dorsoventral_line_at_point(self, point, **kwargs):
 		"""
@@ -1107,7 +1114,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param line_kwargs: dictionary with arguments to specify how lines should look like
 		"""
 		bounds = self._root_bounds[1]
-		self.add_line_at_point(point, 1, bounds, **kwargs)
+		return self.add_line_at_point(point, 1, bounds, **kwargs)
 
 	def add_mediolateral_line_at_point(self, point, **kwargs):
 		"""
@@ -1117,7 +1124,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param line_kwargs: dictionary with arguments to specify how lines should look like
 		"""
 		bounds = self._root_bounds[2]
-		self.add_line_at_point(point, 2, bounds, **kwargs)
+		return self.add_line_at_point(point, 2, bounds, **kwargs)
 
 	def add_crosshair_at_point(self, point, 
 					ml=True, dv=True, ap=True, 
@@ -1136,18 +1143,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param line_kwargs: dictionary with arguments to specify how lines should look like
 			:param point_kwargs: dictionary with arguments to specify how the point should look
 		"""
-
+		actors = []
 		if ml:
-			self.add_mediolateral_line_at_point(point, **line_kwargs)
+			actors.append(self.add_mediolateral_line_at_point(point, **line_kwargs))
 
 		if dv:
-			self.add_dorsoventral_line_at_point(point, **line_kwargs)
+			actors.append(self.add_dorsoventral_line_at_point(point, **line_kwargs))
 
 		if ap:
-			self.add_rostrocaudal_line_at_point(point, **line_kwargs)
+			actors.append(self.add_rostrocaudal_line_at_point(point, **line_kwargs))
 
 		if show_point:
-			self.add_sphere_at_point(point, **point_kwargs)
+			actors.append(self.add_sphere_at_point(point, **point_kwargs))
+
+		return actors 
 
 	# ---------------------------------------------------------------------------- #
 	#                                   RENDERING                                  #
