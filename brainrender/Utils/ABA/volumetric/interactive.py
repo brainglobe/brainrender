@@ -5,11 +5,15 @@ from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import VolumetricA
 
 class InteractiveVolumetric(VolumetricAPI):
 
-    def __init__(self, target_region, *args, projection_type='afferent', **kwargs):
-        VolumetricAPI.__init__(self, *args, **kwargs)
+    def __init__(self, target_region, *args, projection_type='afferent', cmap=None, **kwargs):
+        if projection_type == 'afferent':
+            title = f'Projections to {target_region}'
+        else:
+            title = f'Projections from {target_region}'
+        VolumetricAPI.__init__(self, *args, scene_kwargs=dict(title=title), **kwargs)
+        self.cmap = cmap
 
-        self.projection_type = projection_type
-        
+        # Add brain region
         self.target_region = target_region
         self.scene.add_brain_regions([target_region], alpha=.4)
 
@@ -22,6 +26,11 @@ class InteractiveVolumetric(VolumetricAPI):
         self.target_in_region = True
         self.crosshair = []
         self._move_crosshair()
+
+        # Projection 
+        self.projection_type = projection_type
+        self.lego = None
+        self._update_projection()
 
         # Add sliders
         self.scene.plotter.addSlider2D(self.slider_ap, self.target_region_bounds[0], self.target_region_bounds[1],
@@ -52,6 +61,27 @@ class InteractiveVolumetric(VolumetricAPI):
         for act in old_cross:
             self.scene.plotter.remove(act)
 
+    def _update_projection(self):
+        if self.lego is not None:
+            self.scene.plotter.remove(self.lego)
+
+        if self.target_in_region:
+            if self.projection_type == 'afferent':
+                func = self.add_mapped_projection_to_point
+            else:
+                func = self.add_mapped_projection_from_point
+
+            self.lego = func(self.target, 
+                        vmin = 0.000001,
+                        show_point=False,
+                        show_poin_region=False,
+                        show_crosshair=False,
+                        cmap=self.cmap)
+            self.scene.plotter.add(self.lego)
+        else:
+            self.lego = None
+
+
     def _update(self):
         if self.scene._check_point_in_region(self.target, self.target_region_mesh):
             self.target_in_region = True
@@ -60,6 +90,7 @@ class InteractiveVolumetric(VolumetricAPI):
 
         self._reset_actors()
         self._move_crosshair()
+        self._update_projection()
         
     def slider_ap(self, widget, event):
         self.target[0] = widget.GetRepresentation().GetValue()

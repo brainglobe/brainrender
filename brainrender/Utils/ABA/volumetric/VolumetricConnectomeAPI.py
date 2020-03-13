@@ -408,6 +408,7 @@ class VolumetricAPI(Paths):
     #                                   RENDERING                                  #
     # ---------------------------------------------------------------------------- #
     def add_mapped_projection(self, source, target, 
+                        actor_kwargs = {},
                         render_source_region=False,
                         render_target_region=False,
                         regions_kwargs={},
@@ -422,14 +423,14 @@ class VolumetricAPI(Paths):
             :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
             :param regions_kwargs: pass options to specify how brain regions should look like
             :param kwargs: kwargs can be used to control how the rendered object looks like. 
-                    Look at the arguments of 'render_volume' to see what arguments are available. 
+                    Look at the arguments of 'add_volume' to see what arguments are available. 
         """
         # Get projection data
         if not isinstance(source, list): source = [source]
         if not isinstance(target, list): target = [target]
         name = ''.join(source)+'_'.join(target)
         mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
-        lego_actor =  self.render_volume(mapped_projection, **kwargs)
+        lego_actor =  self.add_volume(mapped_projection, **actor_kwargs)
 
         # Render relevant regions meshes
         if render_source_region or render_target_region:
@@ -517,7 +518,7 @@ class VolumetricAPI(Paths):
             cmap = get_random_colormap()
 
         # Get vmin and vmax threshold for visualisation
-        vmin = kwargs.pop('vmin', 0.0)
+        vmin = kwargs.pop('vmin', 0.000001)
         vmax = kwargs.pop('vmax', np.nanmax(volume))
 
         # Check values
