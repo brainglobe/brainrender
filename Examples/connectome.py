@@ -21,8 +21,6 @@ target = 'ZI'
 vapi.add_mapped_projection(
             source, 
             target,
-            cmap='gist_heat', # specify which heatmap to show
-            alpha=1,
             render_target_region=True, # render the targer region
             regions_kwargs={
                         'wireframe':False, 

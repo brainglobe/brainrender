@@ -34,13 +34,17 @@ class VolumetricAPI(Paths):
 
     hemispheres = dict(left=1, right=2, both=3)
 
-    def __init__(self, base_dir=None, add_root=True, scene_kwargs={}, **kwargs):
+    def __init__(self, base_dir=None, add_root=True, 
+                            use_cache=True,
+                            scene_kwargs={}, **kwargs):
         """
             Initialise the class instance to get a few useful paths and variables. 
 
             :param base_dir: str, path to base directory in which all of brainrender data are stored. 
                     Pass only if you want to use a different one from what's default.
             :param add_root: bool, if True the root mesh is added to the rendered scene
+            :param use_cache: if true data are loaded from a cache to speed things up.
+                    Useful to set it to false to help debugging.
             :param scene_kwargs: dict, params passed to the instance of Scene associated with this class
         """
         Paths.__init__(self, base_dir=base_dir, **kwargs)
@@ -55,6 +59,7 @@ class VolumetricAPI(Paths):
 
         self.cache = VoxelModelCache(manifest_file=cache_path)
         self.voxel_array = None
+        self.target_coords, self.source_coords = None, None
 
         # Get projection cache paths
         self.data_cache = self.mouse_connectivity_volumetric_cache
@@ -72,6 +77,16 @@ class VolumetricAPI(Paths):
 
         # Get scene
         self.scene = Scene(add_root=add_root, **scene_kwargs)
+
+        # Other vars
+        self.use_cache = use_cache
+
+    def __getattr__(self, attr):
+        __dict__ = super(VolumetricAPI, self).__getattribute__('__dict__')
+        try:
+            return __dict__['scene'].__getattribute__(attr)
+        except AttributeError as e:
+            raise AttributeError(f"Could not attribute {attr} for class VolumetricAPI:\n{e}")
 
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
@@ -111,15 +126,6 @@ class VolumetricAPI(Paths):
                 save_npy_to_gz(weights_file+'.npy.gz', self.voxel_array.weights)
                 save_npy_to_gz(nodes_file+'.npy.gz', self.voxel_array.nodes)
 
-    def _get_coordinates_from_mask(self, mask, as_source=True):
-        if self.voxel_array is None:
-            self._load_voxel_data()
-
-        if as_source:
-            return np.array([self.source_mask.coordinates[p]*self.voxel_size for p in mask])
-        else:
-            return np.array([self.target_mask.coordinates[p]*self.voxel_size for p in mask])
-
     def _get_coordinates_from_voxel_id(self, p0, as_source=True):
         """
             Takes the index of a voxel and returns the 3D coordinates in reference space. 
@@ -136,23 +142,27 @@ class VolumetricAPI(Paths):
         else:
             return self.target_mask.coordinates[p0]*self.voxel_size
 
+    def _get_mask_coords(self, as_source):
+        if as_source:
+            if self.source_coords is None:
+                coordinates = self.source_mask.coordinates * self.voxel_size
+                self.source_coords = coordinates
+            else:
+                coordinates = self.source_coords
+        else:
+            if self.target_coords is None:
+                coordinates = self.target_mask.coordinates * self.voxel_size
+                self.target_coords = coordinates
+            else:
+                coordinates = self.target_coords
+        return coordinates
+
     def _get_voxel_id_from_coordinates(self, p0, as_source=True):
         if self.voxel_array is None:
             self._load_voxel_data()
 
         # Get the brain region from the coordinates
-        region = self.scene.get_structure_from_coordinates(p0, just_acronym=False)
-
-        # Get the correct mask for the region
-        if as_source:
-            _mask = self.source_mask
-        else:
-            _mask = self.target_mask
-        mask = self.target_mask.get_structure_indices(structure_ids=[region['id']], 
-                                hemisphere_id=3)
-
-        # Get the coordinates for all point in the mask
-        coordinates = self._get_coordinates_from_mask(mask, as_source) # will be a 3d array
+        coordinates = self._get_mask_coords(as_source)
 
         # Get the position of p0 in the coordinates volumetric array
         p0 = np.int64([round(p, -2) for p in p0])
@@ -186,6 +196,9 @@ class VolumetricAPI(Paths):
 
     def _get_from_cache(self, tgt, what):
         """ tries to load objects from cached data, if they exist"""
+        if not self.use_cache:
+            return None
+        
         name, cache_path, cache_exists = self._get_cache_filename(tgt, what)
         if not cache_exists:
             return None
@@ -331,37 +344,60 @@ class VolumetricAPI(Paths):
         self.mapped_projections[name] = mapped_projection
         return mapped_projection
 
-
-    def get_mapped_projection_to_point(self, p0):
+    def get_mapped_projection_to_point(self, p0, restrict_to=None, restrict_to_hemisphere='both'):
         """
             Gets projection intensity from all voxels to the voxel corresponding to a point of interest
         """
         cache_name = f'proj_to_{p0[0]}_{p0[1]}_{p0[1]}'
+        if restrict_to is not None:
+            cache_name += f'_{restrict_to}'
+
         proj = self._get_from_cache(cache_name, 'projection')
 
         if proj is None:
             p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
-            proj = self.voxel_array[:, p0idx]
 
-            mapped_projection = self.source_mask.map_masked_to_annotation(proj)
+            if restrict_to is not None:
+                source_idx = self.get_source(restrict_to, restrict_to_hemisphere)
+                proj = self.voxel_array[source_idx, p0idx]
+
+                self.get_target_mask(restrict_to, restrict_to_hemisphere)
+                mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+            else:
+                proj = self.voxel_array[:, p0idx]
+                mapped_projection = self.source_mask.map_masked_to_annotation(proj)
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
             return mapped_projection
         else:
             return proj
 
-    def get_mapped_projection_from_point(self, p0):
+    def get_mapped_projection_from_point(self, p0, restrict_to=None, restrict_to_hemisphere='both'):
         """
             Gets projection intensity from all voxels to the voxel corresponding to a point of interest
         """
+        if self.get_hemispere_from_point(p0) == 'left':
+            raise ValueError(f'The point passed [{p0}] is in the left hemisphere,'+
+                    ' but "projection from point" only works from the right hemisphere.')
+
         cache_name = f'proj_from_{p0[0]}_{p0[1]}_{p0[1]}'
+        if restrict_to is not None:
+            cache_name += f'_{restrict_to}'
+        
         proj = self._get_from_cache(cache_name, 'projection')
 
         if proj is None:
-            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=False)
-            proj = self.voxel_array[p0idx, :]
+            p0idx = self._get_voxel_id_from_coordinates(p0, as_source=True)
 
-            mapped_projection = self.target_mask.map_masked_to_annotation(proj)
+            if restrict_to is not None:
+                target_idx = self.get_target(restrict_to, restrict_to_hemisphere)
+                proj = self.voxel_array[p0idx, target_idx]
+
+                self.get_target_mask(restrict_to, restrict_to_hemisphere)
+                mapped_projection = self.tgt_mask.map_masked_to_annotation(proj)
+            else:
+                proj = self.voxel_array[p0idx, :]
+                mapped_projection = self.target_mask.map_masked_to_annotation(proj)
             self.save_to_cache(cache_name, 'projection', mapped_projection)
 
             return mapped_projection
@@ -372,6 +408,7 @@ class VolumetricAPI(Paths):
     #                                   RENDERING                                  #
     # ---------------------------------------------------------------------------- #
     def add_mapped_projection(self, source, target, 
+                        actor_kwargs = {},
                         render_source_region=False,
                         render_target_region=False,
                         regions_kwargs={},
@@ -386,14 +423,14 @@ class VolumetricAPI(Paths):
             :param render_target_region: bool, if true a wireframe mesh of target regions is rendered
             :param regions_kwargs: pass options to specify how brain regions should look like
             :param kwargs: kwargs can be used to control how the rendered object looks like. 
-                    Look at the arguments of 'render_volume' to see what arguments are available. 
+                    Look at the arguments of 'add_volume' to see what arguments are available. 
         """
         # Get projection data
         if not isinstance(source, list): source = [source]
         if not isinstance(target, list): target = [target]
         name = ''.join(source)+'_'.join(target)
         mapped_projection = self.get_mapped_projection(source, target, name, **kwargs)
-        lego_actor =  self.render_volume(mapped_projection, **kwargs)
+        lego_actor =  self.add_volume(mapped_projection, **actor_kwargs)
 
         # Render relevant regions meshes
         if render_source_region or render_target_region:
@@ -410,25 +447,45 @@ class VolumetricAPI(Paths):
 
     def add_mapped_projection_to_point(self, p0, 
                             show_point=True, 
-                            show_point_region=True,
+                            show_point_region=False,
+                            show_crosshair=True,
+                            crosshair_kwargs = {},
                             point_region_kwargs = {},
                             point_kwargs = {},
                             from_point = False,
                             **kwargs):
+        if not isinstance(p0, (list, tuple, np.ndarray)):
+            raise ValueError("point passed should be a list or a 1d array, not: {p0}")
 
+        restrict_to = kwargs.pop('restrict_to', None)
+        restrict_to_hemisphere = kwargs.pop('restrict_to_hemisphere', 'both')
         if not from_point:
-            projection = self.get_mapped_projection_to_point(p0)
+            projection = self.get_mapped_projection_to_point(p0, 
+                                        restrict_to=restrict_to,
+                                        restrict_to_hemisphere=restrict_to_hemisphere)
         else:
-            projection = self.get_mapped_projection_from_point(p0)
+            projection = self.get_mapped_projection_from_point(p0, 
+                                        restrict_to=restrict_to,
+                                        restrict_to_hemisphere=restrict_to_hemisphere)
 
         lego_actor = self.add_volume(projection, **kwargs)
 
         if show_point:
             color = point_kwargs.pop('color', 'salmon')
-            radius = point_kwargs.pop('radius', 100)
-            alpha= point_kwargs.pop('alpha', .5)
-            self.scene.add_sphere_at_point(p0, color=color, radius=radius, 
-                                            alpha=alpha, **point_kwargs)
+            radius = point_kwargs.pop('radius', 50)
+            alpha= point_kwargs.pop('alpha', 1)
+            if not show_crosshair:
+                self.scene.add_sphere_at_point(p0, color=color, radius=radius, 
+                                                alpha=alpha, **point_kwargs)
+            else:
+                ml = crosshair_kwargs.pop('ml', True)
+                dv = crosshair_kwargs.pop('dv', True)
+                ap = crosshair_kwargs.pop('ap', True)
+                self.scene.add_crosshair_at_point(p0, ml=ml, dv=dv, ap=ap,
+                                    line_kwargs = crosshair_kwargs,
+                                    point_kwargs = {'color':color,
+                                                    'radius':radius,
+                                                    'alpha':alpha})
 
         if show_point_region:
             use_original_color = point_region_kwargs.pop('use_original_color', False)
@@ -436,46 +493,43 @@ class VolumetricAPI(Paths):
             region = self.scene.get_structure_from_coordinates(p0)
             self.scene.add_brain_regions([region], use_original_color=use_original_color,
                                             alpha=alpha, **point_region_kwargs)
+        
+        return lego_actor
 
     def add_mapped_projection_from_point(self, *args, **kwargs):
-        self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
+        return self.add_mapped_projection_to_point(*args, **kwargs, from_point=True)
     
     def add_volume(self, volume, 
-                        std_above_mean_threshold=5,
-                        cmap='afmhot_r', alpha=1,
-                        add_colorbar = True,
-                        **kwargs):
+                    cmap='afmhot_r', alpha=1,
+                    add_colorbar = True,
+                    **kwargs):
         """
             Renders intensitdata from a 3D numpy array as a lego volumetric actor. 
 
             :param volume: np 3D array with number of dimensions = those of the 100um reference space. 
             :param cmap: str with name of colormap to use
             :param alpha: float, transparency
-            :param std_above_mean_threshold: the vmin used to threshold the data is the mean 
-                    of the projection strength + this number of standard deviations. Higher values
-                    means that more data are excluded from the visualization.
+          
             :param add_colorbar: if True a colorbar is added to show the values of the colormap
         """
         # Parse kwargs
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
         line_width = kwargs.pop('line_width', 1)
-
         if cmap=='random' or not cmap or cmap is None:
             cmap = get_random_colormap()
 
         # Get vmin and vmax threshold for visualisation
-        if vmin is None:
-            vmin = np.mean(volume)
-        vmin += std_above_mean_threshold*np.std(volume)
+        vmin = kwargs.pop('vmin', 0.000001)
+        vmax = kwargs.pop('vmax', np.nanmax(volume))
 
-        if vmax is None:
-            vmax = np.max(volume)
-        else:
-            if np.max(volume) > vmax:
-                print("While rendering mapped projection some of the values are above the vmax threshold."+
-                            "They will not be displayed."+
-                            f" vmax was {vmax} but found value {round(np.max(volume), 5)}.")
+        # Check values
+        if np.max(volume) > vmax:
+            print("While rendering mapped projection some of the values are above the vmax threshold."+
+                        "They will not be displayed."+
+                        f" vmax was {vmax} but found value {round(np.max(volume), 5)}.")
+
+        if vmin > vmax:
+            raise ValueError(f'The vmin threhsold [{vmin}] cannot be larger than the vmax threshold [{vmax}')
+        if vmin < 0: vmin = 0
 
         # Get 'lego' actor
         vol = Volume(volume)
@@ -495,9 +549,4 @@ class VolumetricAPI(Paths):
         actor = self.scene.add_vtkactor(lego)
         return actor
 
-    def render(self, **kwargs):
-        """
-            Renders the scene associated with the class
-        """
-        self.scene.render(**kwargs)
 

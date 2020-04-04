@@ -21,6 +21,14 @@ class ABA(Paths):
 	excluded_regions = ["fiber tracts"]
 	resolution = 25
 
+	_root_bounds = [[-17, 13193], 
+				   [ 134, 7564], 
+					[486, 10891]]
+
+	_root_midpoint = [np.mean([-17, 13193]), 
+						np.mean([134, 7564]),
+						np.mean([486, 10891])]
+
 	def __init__(self, projection_metric = "projection_energy", base_dir=None, **kwargs):
 		""" 
 		Set up file paths and Allen SDKs
@@ -69,8 +77,12 @@ class ABA(Paths):
 		self.region_acronyms = list(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values(
 											'acronym').acronym.values)
 
+	# ---------------------------------------------------------------------------- #
+	#                          STRUCTURE TREE INTERACTION                          #
+	# ---------------------------------------------------------------------------- #
 
-	####### GET EXPERIMENTS DATA
+	# ------------------------- Get/Print structures sets ------------------------ #
+
 	def get_structures_sets(self):
 		""" 
 		Get the Allen's structure sets.
@@ -104,6 +116,139 @@ class ABA(Paths):
 			for acr, name in zip(s.acronym.values, s['name'].values):
 				o.write("({}) -- {}\n".format(acr, name))
 
+	def print_structures(self):
+		""" 
+		Prints the name of every structure in the structure tree to the console.
+		"""
+		acronyms, names = self.structures.acronym.values, self.structures['name'].values
+		sort_idx = np.argsort(acronyms)
+		acronyms, names = acronyms[sort_idx], names[sort_idx]
+		[print("({}) - {}".format(a, n)) for a,n in zip(acronyms, names)]
+
+	# -------------------------- Parents and descendants ------------------------- #
+	def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
+		"""
+		Get's the ancestors of the region(s) passed as arguments
+
+		:param regions: str, list of str with acronums of regions of interest
+		:param ancestors: if True, returns the ancestors of the region  (Default value = True)
+		:param descendants: if True, returns the descendants of the region (Default value = False)
+
+		"""
+
+		if not isinstance(regions, list):
+			struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
+			return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants))
+		else:
+			ancestors = []
+			for region in regions:
+				struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
+				ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants)))
+			return ancestors
+
+	def get_structure_descendants(self, regions):
+		return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
+
+	def get_structure_parent(self, acronyms):
+		"""
+		Gets the parent of a brain region (or list of regions) from the hierarchical structure of the
+		Allen Brain Atals.
+
+		:param acronyms: list of acronyms of brain regions.
+
+		"""
+		if not isinstance(acronyms, list):
+			self._check_valid_region_arg(acronyms)
+			s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
+			if s['id'] in self.structures.id.values:
+				return s
+			else:
+				return self.get_structure_ancestors(s['acronym']).iloc[-1]
+		else:
+			parents = []
+			for region in acronyms:
+				self._check_valid_region_arg(region)
+				s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
+
+				if s['id'] in self.structures.id.values:
+					parents.append(s)
+				parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1])
+			return parents
+
+	# ----------------------------------- Utils ---------------------------------- #
+	def get_region_color(self, regions):
+		"""
+		Gets the RGB color of a brain region from the Allen Brain Atlas.
+
+		:param regions:  list of regions acronyms.
+
+		"""
+		if not isinstance(regions, list):
+			return self.structure_tree.get_structures_by_acronym([regions])[0]['rgb_triplet']
+		else:
+			return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
+
+	@staticmethod
+	def _check_valid_region_arg(region):
+		"""
+		Check that the string passed is a valid brain region name.
+
+		:param region: string, acronym of a brain region according to the Allen Brain Atlas.
+
+		"""
+		if not isinstance(region, int) and not isinstance(region, str):
+			raise ValueError("region must be a list, integer or string, not: {}".format(type(region)))
+		else:
+			return True
+
+	def get_hemispere_from_point(self, p0):
+		if p0[2] > self._root_midpoint[2]:
+			return 'right'
+		else:
+			return 'left'
+
+	def get_structure_from_coordinates(self, p0, just_acronym=True):
+		"""
+		Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
+
+		:param p0: list of floats with XYZ coordinates. 
+
+		"""
+		voxel = np.round(np.array(p0) / self.resolution).astype(int)
+		try:
+			structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
+		except:
+			return None
+
+		# Each voxel in the annotation volume is annotated as specifically as possible
+		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
+		if structure is not None:
+			if just_acronym:
+				return structure['acronym']
+		return structure
+	
+	def get_colors_from_coordinates(self, p0):
+		"""
+			Given a point or a list of points returns a list of colors where 
+			each item is the color of the brain region each point is in
+		"""
+		if isinstance(p0[0], (float, int)):
+			struct = self.get_structure_from_coordinates(p0, just_acronym=False)
+			if struct is not None:
+				return struct['rgb_triplet']
+			else:
+				return None
+		else:
+			structures = [self.get_structure_from_coordinates(p, just_acronym=False) for p in p0]
+			colors = [struct['rgb_triplet'] if struct is not None else None 
+							for struct in structures]
+			return colors 
+
+
+	# ---------------------------------------------------------------------------- #
+	#                       CONNECTOME EXPERIMENT INTERACTION                      #
+	# ---------------------------------------------------------------------------- #
+
 	def load_all_experiments(self, cre=False):
 		"""
 		This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results
@@ -132,15 +277,6 @@ class ABA(Paths):
 			except: pass
 			structure_unionizes.to_pickle(os.path.join(self.output_data, "{}.pkl".format(acronym)))
 	
-	def print_structures(self):
-		""" 
-		Prints the name of every structure in the structure tree to the console.
-		"""
-		acronyms, names = self.structures.acronym.values, self.structures['name'].values
-		sort_idx = np.argsort(acronyms)
-		acronyms, names = acronyms[sort_idx], names[sort_idx]
-		[print("({}) - {}".format(a, n)) for a,n in zip(acronyms, names)]
-
 	def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
 		"""
 		Returns data about experiments whose injection was in the SOI, structure of interest
@@ -339,47 +475,3 @@ class ABA(Paths):
 			raise ValueError('Something went wrong with query, query error message:\n{}'.format(tract))
 		else:
 			return tract
-
-	### OPERATIONS ON STRUCTURE TREES
-	def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
-		"""
-		Get's the ancestors of the region(s) passed as arguments
-
-		:param regions: str, list of str with acronums of regions of interest
-		:param ancestors: if True, returns the ancestors of the region  (Default value = True)
-		:param descendants: if True, returns the descendants of the region (Default value = False)
-
-		"""
-
-		if not isinstance(regions, list):
-			struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
-			return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants))
-		else:
-			ancestors = []
-			for region in regions:
-				struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
-				ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants)))
-			return ancestors
-
-	def get_structure_descendants(self, regions):
-		return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
-
-	def get_structure_from_coordinates(self, p0, just_acronym=True):
-		"""
-		Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
-
-		:param p0: list of floats with XYZ coordinates. 
-
-		"""
-		voxel = np.round(np.array(p0) / self.resolution).astype(int)
-		try:
-			structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
-		except:
-			return None
-
-		# Each voxel in the annotation volume is annotated as specifically as possible
-		structure = self.structure_tree.get_structures_by_id([structure_id])[0]
-		if structure is not None:
-			if just_acronym:
-				return structure['acronym']
-		return structure

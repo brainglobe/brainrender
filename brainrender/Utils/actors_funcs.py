@@ -1,6 +1,43 @@
 """ 
     Collection of functions to edit actors looks and other features.
 """
+def mirror_actor_at_point(actor, point, axis='x'):
+    """
+    Mirror an actor around a point
+
+    :param actor: 
+    :param point: 
+    :param axis:  (Default value = 'x')
+
+    """
+    if not isinstance(actor, dict):
+        coords = actor.points()
+        if axis == 'x':
+            shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
+        elif axis == 'y':
+            shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
+        elif axis == 'z':
+            shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
+        
+        actor.points(shifted_coords)
+        actor = actor.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+        return actor
+    else:
+        mirrored_actor = {}
+        for n, a in actor.items():
+            coords = a.points()
+            if axis == 'x':
+                shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
+            elif axis == 'y':
+                shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
+            elif axis == 'z':
+                shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
+            
+            a.points(shifted_coords)
+            a = a.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+            mirrored_actor[n] = actor
+        return mirrored_actor
+        
 
 def set_wireframe(actor):
     """
