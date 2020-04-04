@@ -93,9 +93,12 @@ You can also use `brainrender` to visualise the position of devices implanted in
 At the moment this can only be done by rendering colored cylinders at the location where the implant is, but we're happy to add more functionality, get in touch if you need anything specific!
 
 
-Optic fibre             |  Electrodes array
-:-------------------------:|:-------------------------:
-![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cannula.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/electrodes.png)
+Optic fibre             |  Electrodes array         |  Neuropixel Probe
+:-------------------------:|:-------------------------:|:-------------------------:
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cannula.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/electrodes.png) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/sharp_track_probe.png)
+
+Thanks to @tbslv's contribution brainrender can be integrate with SharpTrack from the Cortex Lab [https://github.com/cortex-lab/allenCCF] to visualise the location of implanted neuropixel probes. 
+
 
 ## Making figures
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender, facilitating the creation of figure for scientific talks and publications. 
