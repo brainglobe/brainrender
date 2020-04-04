@@ -4,6 +4,30 @@ import requests
 import yaml
 import gzip
 import numpy as np
+import scipy.io as sio
+import pandas as pd
+
+
+def get_probe_points_from_sharptrack(points_filepath, scale_factor=10):
+	"""
+		Loads the location of the of probe points as extracted by SharpTrack
+		[https://github.com/cortex-lab/allenCCF].
+
+		:param points_filepath: str, path to a .mat file with probe points
+		:param scale_factor: 10, sharptrack uses a 10um reference atlas so the 
+				coordinates need to be scaled to match brainrender's
+	"""
+	if not os.path.isfile(points_filepath) or not points_filepath.endswith(".mat"):
+		raise ValueError(f"The path to the probe points .mat file is invalid: {points_filepath}")
+
+	probe_points= sio.loadmat(points_filepath)
+	probe_points =probe_points['pointList'][0][0][0][0][0]
+	probe_points_df = pd.DataFrame(dict(
+						x=probe_points[:,2]*scale_factor,
+						y=probe_points[:,1]*scale_factor,
+						z=probe_points[:,0]*scale_factor))
+	return probe_points_df
+
 
 def load_npy_from_gz(filepath):
 	f = gzip.GzipFile(filepath, "r")

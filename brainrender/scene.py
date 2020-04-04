@@ -15,7 +15,7 @@ from brainrender.colors import check_colors, get_n_shades_of, get_random_colors,
 from brainrender import * # Import default params 
 
 from brainrender.Utils.ABA.connectome import ABA
-from brainrender.Utils.data_io import load_volume_file
+from brainrender.Utils.data_io import load_volume_file, get_probe_points_from_sharptrack
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
@@ -40,20 +40,21 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
 
-	def __init__(self,  brain_regions=None, 
-						regions_aba_color=False,
-						neurons=None, 
-						tracts=None, 
-						add_root=None, 
-						verbose=True, 
-						jupyter=False,
-						display_inset=None, 
-						base_dir=None,
-						camera=None, 
-						screenshot_kwargs = {},
-						use_default_key_bindings=False,
-						title=None,
-						**kwargs):
+	def __init__(self,  
+				brain_regions=None, 
+				regions_aba_color=False,
+				neurons=None, 
+				tracts=None, 
+				add_root=None, 
+				verbose=True, 
+				jupyter=False,
+				display_inset=None, 
+				base_dir=None,
+				camera=None, 
+				screenshot_kwargs = {},
+				use_default_key_bindings=False,
+				title=None,
+				**kwargs):
 		"""
 
 			Creates and manages a Plotter instance
@@ -184,7 +185,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	# ------------------------------ ABA interaction ----------------------------- #
 	def _get_structure_mesh(self, acronym, plotter=None,  **kwargs):
 		"""
-		Fetches the mesh for a brain region from the ALlen Brain Atlas SDK.
+		Fetches the mesh for a brain region from the Allen Brain Atlas SDK.
 
 		:param acronym: string, acronym of brain region
 		:param plotter:  Optional. Use a vtk plotter different from the scene's default one (Default value = None)
@@ -926,8 +927,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			raise ValueError("Unrecognized argument for cell coordinates")
 
 		if color_by_region:
-			regions = [self.get_structure_from_coordinates(p0, just_acronym=False) for p0 in coords]
-			color = [list(np.float16(np.array(col)/255)) for col in self.get_region_color(regions)]
+			color = self.get_colors_from_coordinates(coords)
 
 		spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
 		self.actors['others'].append(spheres)
@@ -1158,6 +1158,56 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		return actors 
 
+	def add_probe_from_sharptrack(self, probe_points_file, 
+					points_kwargs={}, **kwargs):
+		"""
+			Visualises the position of an implanted probe in the brain. 
+			Uses the location of points along the probe extracted with SharpTrack
+			[https://github.com/cortex-lab/allenCCF].
+			It renders the position of points along the probe and a line fit through them.
+			Code contributed by @tbslv on github. 
+
+			:param probe_points_file: str, path to a .mat file with probe points coordinates
+			:param points_kwargs: dict, used to specify how probe points should look like (e.g color, alpha...)
+			:param kwargs: keyword arguments used to specify how the probe should look like (e.g. color, alpha...)
+		"""
+		# Get the position of probe points and render
+		probe_points_df = get_probe_points_from_sharptrack(probe_points_file)
+
+		col_by_region = points_kwargs.pop("color_by_region", True)
+		color = points_kwargs.pop("color", "salmon")
+		radius = points_kwargs.pop("radius", 30)
+		self.add_cells(probe_points_df, color=color, color_by_region=col_by_region, 
+							res=12, radius=radius, **points_kwargs)
+
+		# Fit a line through the poitns [adapted from SharpTrack by @tbslv]
+		r0 = np.mean(probe_points_df.values,axis=0)
+		xyz = probe_points_df.values-r0
+		U,S,V =np.linalg.svd(xyz)
+		direction = V.T[:,0]
+
+		# Find intersection with brain surface
+		root_mesh = self._get_structure_mesh('root')
+		p0 = direction*np.array([-1])+r0
+		p1 = direction*np.array([-15000])+r0 # end point way outside of brain, on probe trajectory though
+		pts = root_mesh.intersectWithLine(p0,p1)
+
+		# Define top/bottom coordinates to render as a cylinder
+		top_coord = pts[0] 
+		length = np.sqrt(np.sum((probe_points_df.values[-1] - top_coord)**2))
+		bottom_coord = top_coord+direction*length
+
+		# Render probe as a cylinder
+		probe_color = kwargs.pop("color", "blackboard")
+		probe_radius = kwargs.pop("radius", 15)
+		probe_alpha = kwargs.pop("alpha", 1)
+
+		probe = Cylinder([top_coord,bottom_coord], r=probe_radius,
+						alpha=probe_alpha, c=probe_color)
+
+		# Add to scene
+		self.add_vtkactor(probe)
+
 	# ---------------------------------------------------------------------------- #
 	#                                   RENDERING                                  #
 	# ---------------------------------------------------------------------------- #
@@ -1237,6 +1287,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 	def close(self):
 		closePlotter()
+	
 	# ---------------------------------------------------------------------------- #
 	#                               USER INTERACTION                               #
 	# ---------------------------------------------------------------------------- #

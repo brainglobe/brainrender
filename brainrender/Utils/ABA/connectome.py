@@ -226,6 +226,25 @@ class ABA(Paths):
 			if just_acronym:
 				return structure['acronym']
 		return structure
+	
+	def get_colors_from_coordinates(self, p0):
+		"""
+			Given a point or a list of points returns a list of colors where 
+			each item is the color of the brain region each point is in
+		"""
+		if isinstance(p0[0], (float, int)):
+			struct = self.get_structure_from_coordinates(p0, just_acronym=False)
+			if struct is not None:
+				return struct['rgb_triplet']
+			else:
+				return None
+		else:
+			structures = [self.get_structure_from_coordinates(p, just_acronym=False) for p in p0]
+			colors = [struct['rgb_triplet'] if struct is not None else None 
+							for struct in structures]
+			return colors 
+
+
 	# ---------------------------------------------------------------------------- #
 	#                       CONNECTOME EXPERIMENT INTERACTION                      #
 	# ---------------------------------------------------------------------------- #
