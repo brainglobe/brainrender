@@ -1251,18 +1251,21 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		"""
 		self.apply_render_style()
 
-		if camera is None:
-			camera = self.camera
-		else:
-			camera = check_camera_param(camera)
-		set_camera(self, camera)
+		if not video:
+			if camera is None:
+				camera = self.camera
+			else:
+				camera = check_camera_param(camera)
+			set_camera(self, camera)
 
-		if self.verbose and not self.jupyter:
-			print(INTERACTIVE_MSG)
-		elif self.jupyter:
-			print("\n\nRendering scene.\n   Press 'Esc' to Quit")
-		else:
-			print("\n\nRendering scene.\n   Press 'q' to Quit")
+			if self.verbose and not self.jupyter:
+				print(INTERACTIVE_MSG)
+			elif self.jupyter:
+				print("\n\nRendering scene.\n   Press 'Esc' to Quit")
+			else:
+				print("\n\nRendering scene.\n   Press 'q' to Quit")
+
+			self._get_inset()
 
 		if zoom is None:
 			if WHOLE_SCREEN:
@@ -1270,14 +1273,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			else:
 				zoom = 1.5
 
-		self._get_inset()
 
 		self.is_rendered = True
-
 		if interactive and not video:
 			show(*self.get_actors(), interactive=False, zoom=zoom)
 		elif video:
-			show(*self.get_actors(), interactive=False, offscreen=True, zoom=2.5)
+			self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
 		else:
 			show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 

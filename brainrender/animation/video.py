@@ -45,7 +45,7 @@ class BasicVideoMaker:
         self.save_fld = kwargs.pop('save_fld', self.save_fld)
         self.save_name = kwargs.pop('save_name', self.save_name)
         self.video_format = kwargs.pop('video_format', self.video_format)
-        self.duration = kwargs.pop('duration', self.duration)
+        self.duration = kwargs.pop('duration', None)
         self.niters = kwargs.pop('niters', self.niters)
         self.fps = kwargs.pop("fps", self.fps)
 
@@ -62,13 +62,18 @@ class BasicVideoMaker:
 
         curdir = os.getcwd() # we need to cd to the folder where the video is saved and then back here
         os.chdir(self.save_fld)
+        print(f"Saving video in {self.save_fld}")
 
         # Create video
-        video = Video(name=self.save_name+self.video_format, 
+        video = Video(name=self.save_name, 
                     duration=self.duration, fps=self.fps)
 
+        # Render the scene first
+        self.scene.render(interactive=False)
+
+        # Make frames
         for i in range(self.niters):
-            self.scene.plotter.show(interactive=False)  # render the scene first
+            self.scene.plotter.show() # render(interactive=False, video=True)  # render the scene first
             self.scene.plotter.camera.Elevation(elevation)
             self.scene.plotter.camera.Azimuth(azimuth)
             self.scene.plotter.camera.Roll(roll) 
@@ -85,7 +90,7 @@ class CustomVideoMaker(BasicVideoMaker):
     def __init__(self, scene, **kwargs):
         BasicVIdeoMaker.__init__(self, scene, **kwargs)
 
-    def make_video(self, video_function):
+    def make_video(self, video_function, **kwargs):
         """
         Let's users use a custom function to create the video.
         The custom function must:
@@ -99,7 +104,7 @@ class CustomVideoMaker(BasicVideoMaker):
         so that the video can be closed and saved.     
 
         """
-        self._setup_videos()
+        self.parse_kwargs(**kwargs)
 
         curdir = os.getcwd() # we need to cd to the folder where the video is saved and then back here
         os.chdir(self.save_fld)
