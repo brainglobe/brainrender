@@ -88,7 +88,7 @@ class CustomVideoMaker(BasicVideoMaker):
         Subclasses BasicVideoMaker and replaces make_video method.
     """
     def __init__(self, scene, **kwargs):
-        BasicVIdeoMaker.__init__(self, scene, **kwargs)
+        BasicVideoMaker.__init__(self, scene, **kwargs)
 
     def make_video(self, video_function, **kwargs):
         """
