@@ -1213,6 +1213,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	# -------------------------------- Prep render ------------------------------- #
 
 	def apply_render_style(self):
+		if SHADER_STYLE is None: # No style to apply
+			return 
+
+		# Get all actors in the scene
 		actors = self.get_actors()
 
 		for actor in actors:
