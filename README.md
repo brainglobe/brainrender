@@ -97,7 +97,7 @@ Optic fibre             |  Electrodes array         |  Neuropixel Probe
 :-------------------------:|:-------------------------:|:-------------------------:
 ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cannula.png)  |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/electrodes.png) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/sharp_track_probe.png)
 
-Thanks to @tbslv's contribution brainrender can be integrate with SharpTrack from the Cortex Lab [https://github.com/cortex-lab/allenCCF] to visualise the location of implanted neuropixel probes. 
+Thanks to @tbslv's contribution brainrender can be integrated with SharpTrack from the Cortex Lab [https://github.com/cortex-lab/allenCCF] to visualise the location of implanted neuropixel probes. 
 
 
 ## Making figures
@@ -107,7 +107,7 @@ MouseLight neuron             |  Labelled cells
 :-------------------------:|:-------------------------:
 ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neuron_gif.gif) |  ![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/cells.gif)
 
-Brainrender can also be used to create videos and animations. At the moment this functionality is not well supported, if you need to do something that brainrender can't yet do, please get in touch!
+Brainrender can also be used to create videos and animations, check out the examples to see how you can create videos from within brainrender.
 
 
 # Behind the scenes
