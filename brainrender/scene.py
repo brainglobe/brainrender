@@ -395,33 +395,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			region_list =  list(self.get_structure_descendants(region)['acronym'].values)
 		return cells[cells.region.isin(region_list)]
 
+
+
 	# ---------------------------------------------------------------------------- #
 	#                                POPULATE SCENE                                #
 	# ---------------------------------------------------------------------------- #
 
-# ------------------------ Allen brain atlas specific ------------------------ #
-	def add_root(self, render=True, **kwargs):
-		"""
-		adds the root the scene (i.e. the whole brain outline)
-
-		:param render:  (Default value = True)
-		:param **kwargs:
-
-		"""
-		if not render:
-			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
-		else:
-			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
-
-		# get the center of the root and the bounding box
-		self.root_center = self.root.centerOfMass()
-		self.root_bounds = {"x":self.root.xbounds(), "y":self.root.ybounds(), "z":self.root.zbounds()}
-
-		if render:
-			self.actors['root'] = self.root
-
-		return self.root
-
+	# ------------------------ Allen brain atlas specific ------------------------ #
 	def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None,
 					display_axon_regions=False,
 					display_dendrites_regions=False, **kwargs):
@@ -729,8 +709,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.actors['injection_sites'].extend(injection_sites)
 
 
-# ------------------------ ABA/other atlases specific ------------------------ #
+	# ------------------------ ABA/other atlases specific ------------------------ #
+	def add_root(self, render=True, **kwargs):
+		"""
+		adds the root the scene (i.e. the whole brain outline)
 
+		:param render:  (Default value = True)
+		:param **kwargs:
+
+		"""
+		if not render:
+			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
+		else:
+			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
+
+		# get the center of the root and the bounding box
+		self.root_center = self.root.centerOfMass()
+		self.root_bounds = {"x":self.root.xbounds(), "y":self.root.ybounds(), "z":self.root.zbounds()}
+
+		if render:
+			self.actors['root'] = self.root
+
+		return self.root
+	
 	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
 						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
 		"""
@@ -823,8 +824,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			self.actors["regions"][region] = obj
 
-# -------------------------- General actors/elements ------------------------- #
-
+	# -------------------------- General actors/elements ------------------------- #
 	def add_vtkactor(self, actor):
 		"""
 		Add a vtk actor to the scene
