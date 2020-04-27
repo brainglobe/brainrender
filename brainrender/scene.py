@@ -314,7 +314,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
 		pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
 
-		ipts = region_mesh.insidePoints(pts)
+		try:
+			ipts = region_mesh.insidePoints(pts).points()
+		except:
+			ipts = region_mesh.insidePoints(pts) # to deal with older instances of vtkplotter
 		return random.choices(ipts, k=N)
 
 	# ---------------------------- Actor interaction ----------------------------- #
@@ -1219,7 +1222,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	#                                   RENDERING                                  #
 	# ---------------------------------------------------------------------------- #
 	# -------------------------------- Prep render ------------------------------- #
-
 	def apply_render_style(self):
 		if SHADER_STYLE is None: # No style to apply
 			return 
