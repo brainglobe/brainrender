@@ -47,7 +47,7 @@ Once you've downloaded the data, use `Scene` to render it.
 
 ```
 from brainrender.scene import Scene
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 
 scene = Scene()
 aba = ABA()
@@ -62,7 +62,7 @@ To do this, first you need to download relevant streamlines data from [neuroinfo
 
 ```
 from brainrender.scene import Scene
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 
 scene = Scene()
 streamlines_api = StreamlinesAPI()

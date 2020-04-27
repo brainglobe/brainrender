@@ -121,7 +121,7 @@ def test_streamlines():
     scene.render(camera='sagittal', zoom=1)
 
 def test_tractography():
-    from brainrender.Utils.ABA.connectome import ABA
+    from brainrender.atlases.aba import ABA
     # Create a scene
     scene = Scene()
 

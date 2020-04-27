@@ -13,7 +13,7 @@ from pathlib import Path
 from brainrender.colors import check_colors, get_n_shades_of, get_random_colors, getColor
 from brainrender import * # Import default params 
 
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 from brainrender.Utils.data_io import load_volume_file, get_probe_points_from_sharptrack
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.Utils import actors_funcs

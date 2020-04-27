@@ -11,7 +11,7 @@ import numpy as np
 from brainrender.Utils.data_io import load_json
 from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 
 
 class StreamlinesAPI(ABA):

@@ -9,7 +9,7 @@ import json
 from brainrender.scene import Scene, MultiScene
 from brainrender import *
 from brainrender.colors import get_n_shades_of
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 from brainrender.Utils.parsers.streamlines import *
 from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
@@ -192,7 +192,7 @@ def test_streamlines():
     scene.close()
 
 def test_tractography():
-    from brainrender.Utils.ABA.connectome import ABA
+    from brainrender.atlases.aba import ABA
     # Create a scene
     scene = Scene()
 
