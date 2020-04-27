@@ -230,8 +230,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		if hemisphere == "both":
 			return left, right
-		elif hemisphere == "left":
-			return left
+		elif hemisphere == "left": 
+			return left 
 		else:
 			return right
 
@@ -255,7 +255,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				self.inset = self.root.clone().scale(.5)
 
 			self.inset.alpha(1)
-			self.plotter.showInset(self.inset, pos=(0.95,0.1))
+			self.plotter.showInset(self.inset, pos=(0.95,0.1), draggable=False)
 
 	# ----------------------------- Mesh interaction ----------------------------- #
 	def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
@@ -377,35 +377,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
 			actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis='x')
 
+	# ------------------------------ Cells functions ----------------------------- #
+	def get_cells_in_region(self, cells, region):
+		"""
+			Selects the cells that are in a list of user provided regions from a dataframe of cell locations
+
+			:param cells: pd.DataFrame of cells x,y,z coordinates
+		"""
+		if isinstance(region, list):
+			region_list = []
+			for reg in region:
+				region_list.extend(list(self.get_structure_descendants(reg)['acronym'].values))
+		else:
+			region_list =  list(self.get_structure_descendants(region)['acronym'].values)
+		return cells[cells.region.isin(region_list)]
+
 	# ---------------------------------------------------------------------------- #
 	#                                POPULATE SCENE                                #
 	# ---------------------------------------------------------------------------- #
 
-	def add_vtkactor(self, actor):
-		"""
-		Add a vtk actor to the scene
-
-		:param actor:
-
-		"""
-		self.actors['others'].append(actor)
-		return actor
-
-	def add_from_file(self, filepath, **kwargs):
-		"""
-		Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.
-
-		:param filepath: path to the file.
-		:param **kwargs:
-
-		"""
-		actor = load_volume_file(filepath, **kwargs)
-		self.actors['others'].append(actor)
-		return actor
-
+# ------------------------ Allen brain atlas specific ------------------------ #
 	def add_root(self, render=True, **kwargs):
 		"""
-		adds the root the scene
+		adds the root the scene (i.e. the whole brain outline)
 
 		:param render:  (Default value = True)
 		:param **kwargs:
@@ -424,98 +418,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self.actors['root'] = self.root
 
 		return self.root
-
-	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
-						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
-		"""
-		Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered.
-		To treat a subset of the rendered regions, specify which regions are VIP. Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
-
-		:param brain_regions: str list of acronyms of brain regions
-		:param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
-		:param VIP_color: if passed, this color is used for the VIP regions (Default value = None)
-		:param colors: str, color of rendered brian regions (Default value = None)
-		:param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
-		:param alpha: float, transparency of the rendered brain regions (Default value = None)
-		:param hemisphere: str (Default value = None)
-		:param **kwargs:
-
-		"""
-
-		if VIP_regions is None:
-			VIP_regions = self.VIP_regions
-		if VIP_color is None:
-			VIP_color = self.VIP_color
-		if alpha is None:
-			_alpha = DEFAULT_STRUCTURE_ALPHA
-		else: _alpha = alpha
-
-		# check that we have a list
-		if not isinstance(brain_regions, list):
-			self._check_valid_region_arg(brain_regions)
-			brain_regions = [brain_regions]
-
-		# check the colors input is correct
-		if colors is not None:
-			if isinstance(colors[0], (list, tuple)):
-				if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
-				for col in colors:
-					if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
-			else:
-				if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
-				colors = [colors for i in range(len(brain_regions))]
-
-		# loop over all brain regions
-		for i, region in enumerate(brain_regions):
-			self._check_valid_region_arg(region)
-
-			# if it's an ID get the acronym
-			if isinstance(region, int):
-				region = self.structure_tree.get_region_by_id([region])[0]['acronym']
-
-			if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
-			if self.verbose: print("Rendering: ({})".format(region))
-
-			# get the structure and check if we need to download the object file
-			try:
-				structure = self.structure_tree.get_structures_by_acronym([region])[0]
-			except Exception as e:
-				raise ValueError(f'Could not find region with name {region}, got error: {e}')
-
-			obj_file = os.path.join(self.mouse_meshes, "{}.obj".format(structure["acronym"]))
-
-			if not self._check_obj_file(structure, obj_file):
-				print("Could not render {}, maybe we couldn't get the mesh?".format(structure["acronym"]))
-				continue
-
-			# check which color to assign to the brain region
-			if self.regions_aba_color or use_original_color:
-				color = [x/255 for x in structure["rgb_triplet"]]
-			else:
-				if region in VIP_regions:
-					color = VIP_color
-				else:
-					if colors is None:
-						color = DEFAULT_STRUCTURE_COLOR
-					elif isinstance(colors, list):
-						color = colors[i]
-					else: color = colors
-
-			if region in VIP_regions:
-				alpha = 1
-			else:
-				alpha = _alpha
-
-			# Load the object file as a mesh and store the actor
-			if hemisphere is not None:
-				if hemisphere.lower() == "left" or hemisphere.lower() == "right":
-					obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
-			else:
-				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
-
-			actors_funcs.edit_actor(obj, **kwargs)
-
-			self.actors["regions"][region] = obj
 
 	def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None,
 					display_axon_regions=False,
@@ -823,6 +725,125 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		self.actors['injection_sites'].extend(injection_sites)
 
+
+# ------------------------ ABA/other atlases specific ------------------------ #
+
+	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
+		"""
+		Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered.
+		To treat a subset of the rendered regions, specify which regions are VIP. Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
+
+		:param brain_regions: str list of acronyms of brain regions
+		:param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
+		:param VIP_color: if passed, this color is used for the VIP regions (Default value = None)
+		:param colors: str, color of rendered brian regions (Default value = None)
+		:param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
+		:param alpha: float, transparency of the rendered brain regions (Default value = None)
+		:param hemisphere: str (Default value = None)
+		:param **kwargs:
+
+		"""
+
+		if VIP_regions is None:
+			VIP_regions = self.VIP_regions
+		if VIP_color is None:
+			VIP_color = self.VIP_color
+		if alpha is None:
+			_alpha = DEFAULT_STRUCTURE_ALPHA
+		else: _alpha = alpha
+
+		# check that we have a list
+		if not isinstance(brain_regions, list):
+			self._check_valid_region_arg(brain_regions)
+			brain_regions = [brain_regions]
+
+		# check the colors input is correct
+		if colors is not None:
+			if isinstance(colors[0], (list, tuple)):
+				if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
+				for col in colors:
+					if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
+			else:
+				if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
+				colors = [colors for i in range(len(brain_regions))]
+
+		# loop over all brain regions
+		for i, region in enumerate(brain_regions):
+			self._check_valid_region_arg(region)
+
+			# if it's an ID get the acronym
+			if isinstance(region, int):
+				region = self.structure_tree.get_region_by_id([region])[0]['acronym']
+
+			if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
+			if self.verbose: print("Rendering: ({})".format(region))
+
+			# get the structure and check if we need to download the object file
+			try:
+				structure = self.structure_tree.get_structures_by_acronym([region])[0]
+			except Exception as e:
+				raise ValueError(f'Could not find region with name {region}, got error: {e}')
+
+			obj_file = os.path.join(self.mouse_meshes, "{}.obj".format(structure["acronym"]))
+
+			if not self._check_obj_file(structure, obj_file):
+				print("Could not render {}, maybe we couldn't get the mesh?".format(structure["acronym"]))
+				continue
+
+			# check which color to assign to the brain region
+			if self.regions_aba_color or use_original_color:
+				color = [x/255 for x in structure["rgb_triplet"]]
+			else:
+				if region in VIP_regions:
+					color = VIP_color
+				else:
+					if colors is None:
+						color = DEFAULT_STRUCTURE_COLOR
+					elif isinstance(colors, list):
+						color = colors[i]
+					else: color = colors
+
+			if region in VIP_regions:
+				alpha = 1
+			else:
+				alpha = _alpha
+
+			# Load the object file as a mesh and store the actor
+			if hemisphere is not None:
+				if hemisphere.lower() == "left" or hemisphere.lower() == "right":
+					obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
+			else:
+				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
+
+			actors_funcs.edit_actor(obj, **kwargs)
+
+			self.actors["regions"][region] = obj
+
+# -------------------------- General actors/elements ------------------------- #
+
+	def add_vtkactor(self, actor):
+		"""
+		Add a vtk actor to the scene
+
+		:param actor:
+
+		"""
+		self.actors['others'].append(actor)
+		return actor
+
+	def add_from_file(self, filepath, **kwargs):
+		"""
+		Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.
+
+		:param filepath: path to the file.
+		:param **kwargs:
+
+		"""
+		actor = load_volume_file(filepath, **kwargs)
+		self.actors['others'].append(actor)
+		return actor
+
 	def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs):
 		"""
 		Adds a shere at a location specified by the user
@@ -890,20 +911,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			raise NotImplementedError(
 				f"File format: {filepath.suffix} is not currently supported. "
 				f"Please use one of: {supported_formats}")
-
-	def get_cells_in_region(self, cells, region):
-		"""
-			Selects the cells that are in a list of user provided regions from a dataframe of cell locations
-
-			:param cells: pd.DataFrame of cells x,y,z coordinates
-		"""
-		if isinstance(region, list):
-			region_list = []
-			for reg in region:
-				region_list.extend(list(self.get_structure_descendants(reg)['acronym'].values))
-		else:
-			region_list =  list(self.get_structure_descendants(region)['acronym'].values)
-		return cells[cells.region.isin(region_list)]
 
 	def add_cells(self, coords, color="red", color_by_region=False, radius=25, res=3, alpha=1, regions=None):
 		"""
@@ -1157,6 +1164,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		return actors 
 
+	# ----------------------- Application specific methods ----------------------- #
 	def add_probe_from_sharptrack(self, probe_points_file, 
 					points_kwargs={}, **kwargs):
 		"""
