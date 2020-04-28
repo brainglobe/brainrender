@@ -17,6 +17,19 @@ default_paths = dict(
         other_meshes= "Data/Meshes/Other",  # any other mesh the user might want to store
         metadata= "Data/Metadata",
 
+        # OUTPUT Folders
+        output_screenshots= "Output/Screenshots",
+        output_videos= "Output/Videos",
+        output_scenes= "Output/Scenes",
+        output_data= "Output/Data",
+
+        # User folder
+        user= "User",
+
+        # ---------------------------------------------------------------------------- #
+        #                                MESHES FOLDERS                                #
+        # ---------------------------------------------------------------------------- #
+        # ----------------------- Folder for allen brain atlas ----------------------- #
         # NEURONS MORPHOLOGY
         morphology_allen=  "Data/Morphology/Allen", # .swc files with neurons morphology downloaded through allen API
         morphology_cache= "Data/Morphology/cache",
@@ -33,23 +46,29 @@ default_paths = dict(
         # Streamlines cache
         streamlines_cache= "Data/Streamlines",
 
-        # OUTPUT Folders
-        output_screenshots= "Output/Screenshots",
-        output_videos= "Output/Videos",
-        output_scenes= "Output/Scenes",
-        output_data= "Output/Data",
 
-        # User folder
-        user= "User",
+
 )
 
 
 class Paths:
-    _folders = ["mouse_meshes", "other_meshes", "morphology_allen", "morphology_cache",
-                "morphology_mouselight", "mouse_connectivity_cache", "mouse_celltype_cache", 
-                "streamlines_cache", "output_screenshots", "output_videos", 
-                "output_scenes", "output_data", "user", "metadata", 'annotated_volume_fld', 
-                'mouse_connectivity_volumetric', 'mouse_connectivity_volumetric_cache']
+    _folders = ["mouse_meshes", 
+                "other_meshes", 
+                "morphology_allen", 
+                "morphology_cache",
+                "morphology_mouselight", 
+                "mouse_connectivity_cache", 
+                "mouse_celltype_cache", 
+                "streamlines_cache", 
+                "output_screenshots", 
+                "output_videos", 
+                "output_scenes", 
+                "output_data", 
+                "user", 
+                "metadata", 
+                'annotated_volume_fld', 
+                'mouse_connectivity_volumetric', 
+                'mouse_connectivity_volumetric_cache']
 
     def __init__(self, base_dir=None, **kwargs):
         """

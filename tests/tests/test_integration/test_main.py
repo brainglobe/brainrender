@@ -15,7 +15,6 @@ from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
 from brainrender.Utils.MouseLightAPI.mouselight_info import *
 from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-from brainrender.Utils.parsers.streamlines import StreamlinesAPI
 from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
 from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
@@ -178,20 +177,18 @@ def test_scene_title():
     scene.add_brain_regions(['TH'], alpha=.4)
 
 def test_streamlines():
-    from brainrender.Utils.parsers.streamlines import StreamlinesAPI
+    # Start by creating a scene with the allen brain atlas atlas
+    scene = Scene()
+
 
     # Download streamlines data for injections in the CA1 field of the hippocampus
-    streamlines_api = StreamlinesAPI()
-    filepaths, data = streamlines_api.download_streamlines_for_region("CA1")
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
 
-    # Start by creating a scene
-    scene = Scene()
 
     scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
 
     # you can pass either the filepaths or the data
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
-
     scene.render(interactive=False, camera='sagittal', zoom=1)
     scene.close()
 

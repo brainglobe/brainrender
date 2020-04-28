@@ -20,7 +20,7 @@ class BasicVideoMaker:
         self.scene = scene
         
         # Parss keyword argumets
-        self.save_fld = kwargs.pop('save_fld', self.scene.output_videos)
+        self.save_fld = kwargs.pop('save_fld', self.scene.atlas.output_videos)
         self.save_name = kwargs.pop('save_name', 'brainrender_video_'+
                             f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}')
         self.video_format = kwargs.pop('video_format', 'mp4')
