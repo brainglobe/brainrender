@@ -1,4 +1,4 @@
-# https://insectbraindb.org/app/
+
 
 import pandas as pd
 import numpy as np
@@ -10,6 +10,20 @@ from vtkplotter import load
 
 from brainrender.atlases.base import Atlas
 from brainrender.Utils.webqueries import request
+from brainrender.Utils.data_io import load_mesh_from_file
+
+"""
+    Class to download and render a number of insect brains from:
+    https://insectbraindb.org/app/
+
+    The InsectBrainDB.org is primarily curated by Stanley Heinze
+
+    The insectbraindb.org has a terms of use, which provides guidance on how best to credit data from these repositories. 
+
+    The insectbraindb.org is primarily curated by Dr. Stanley Heinze, and 
+    was buily by Kevin Tedore, and has several significant supporters, including the ERC.
+"""
+
 
 
 class IBDB(Atlas):

@@ -119,7 +119,8 @@ def load_mesh_from_file(filepath, *args, **kwargs):
 	:param **kwargs: 
 
 	"""
-	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
+	if not os.path.isfile(filepath): 
+		raise FileNotFoundError(filepath)
 
 	try:
 		actor = load(filepath, *args, **kwargs)

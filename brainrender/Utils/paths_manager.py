@@ -46,7 +46,10 @@ default_paths = dict(
         streamlines_cache= "Data/Streamlines",
 
         # ------------------- Folders for the insect brain db atlas ------------------ #
-        ibdb_meshes_folder = "Data/InsectsDBs"
+        ibdb_meshes_folder = "Data/InsectsDBs",
+
+        # -------------------------- Folders for zfish atlas ------------------------- #
+        zfish_meshes_folder = "Data/Zfish",
 
 
 )
@@ -70,7 +73,8 @@ class Paths:
                 'annotated_volume_fld', 
                 'mouse_connectivity_volumetric', 
                 'mouse_connectivity_volumetric_cache', 
-                'ibdb_meshes_folder']
+                'ibdb_meshes_folder',
+                'zfish_meshes_folder']
 
     def __init__(self, base_dir=None, **kwargs):
         """
