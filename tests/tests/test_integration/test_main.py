@@ -22,7 +22,6 @@ from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
 def test_imports():
     aba = ABA()
-    streamlines_api = StreamlinesAPI()
     mlapi = MouseLightAPI()
 
 
@@ -32,15 +31,20 @@ def test_regions():
     scene.add_brain_regions(regions, colors="green")
 
 def test_streamlines():
-    streamlines_api = StreamlinesAPI()
-
-    streamlines_files, data = streamlines_api.download_streamlines_for_region("PAG") 
-
+    # Start by creating a scene with the allen brain atlas atlas
     scene = Scene()
-    scene.add_streamlines(data[3], color="powderblue", show_injection_site=False, alpha=.3, radius=10)
-    scene.add_brain_regions(['PAG'], use_original_color=False, colors='powderblue', alpha=.9)
-    mos = scene.actors['regions']['PAG']
-    scene.edit_actors([mos], wireframe=True) 
+
+
+    # Download streamlines data for injections in the CA1 field of the hippocampus
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
+
+
+    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
+
+    # you can pass either the filepaths or the data
+    scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
+
+    scene.render(camera='sagittal', zoom=1)
 
 
 def test_neurons():

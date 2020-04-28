@@ -5,6 +5,7 @@ import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
 from vtkplotter import Text2D, closePlotter  
 from vtkplotter.shapes import Cylinder, Line, DashedLine
+from vtkplotter.mesh import Mesh as Actor
 from tqdm import tqdm
 import pandas as pd
 from functools import partial
@@ -14,11 +15,10 @@ from brainrender.colors import check_colors, get_n_shades_of, get_random_colors,
 from brainrender import * # Import default params 
 
 from brainrender.atlases.aba import ABA
-from brainrender.Utils.data_io import load_volume_file, get_probe_points_from_sharptrack
+from brainrender.Utils.data_io import load_volume_file, load_mesh_from_file, get_probe_points_from_sharptrack
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.Utils import actors_funcs
-from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
-from brainrender.Utils.parsers.streamlines import parse_streamline
+
 from brainrender.Utils.image import image_to_surface
 from brainrender.Utils.camera import check_camera_param, set_camera
 
@@ -53,6 +53,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				screenshot_kwargs = {},
 				use_default_key_bindings=False,
 				title=None,
+				atlas=None,
 				**kwargs):
 		"""
 
@@ -77,8 +78,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param use_default_key_bindings: if True the defualt keybindings from VtkPlotter are used, otherwise
 							a custom function that can be used to take screenshots with the parameter above. 
 			:param title: str, if a string is passed a text is added to the top of the rendering window as a title
+			:param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
+				if not atlas is passed the allen brain atlas for the adult mouse brain is used.
 		"""
-		ABA.__init__(self, base_dir=base_dir, **kwargs)
+		if atlas is None:
+			self.atlas = ABA(base_dir=base_dir, **kwargs)
+		else:
+			raise NotImplementedError("Need to work on this still")
+
 
 		# Setup a few rendering options
 		self.verbose = verbose
@@ -116,7 +123,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.plotter.legendBC = getColor('blackboard')
 
 		# SCreenshots and keypresses variables
-		self.screenshots_folder = screenshot_kwargs.pop('folder', self.output_screenshots)
+		self.screenshots_folder = screenshot_kwargs.pop('folder', self.atlas.output_screenshots)
 		self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
 		self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
 		self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
@@ -150,6 +157,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		# Placeholder variables
 		self.inset = None  # the first time the scene is rendered create and store the inset here
 		self.is_rendered = False # keep track of if the scene has already been rendered
+
+
 
 	# ---------------------------------------------------------------------------- #
 	#                                     Utils                                    #
@@ -189,7 +198,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self.plotter.showInset(self.inset, pos=(0.95,0.1), draggable=False)
 
 	# ----------------------------- Mesh interaction ----------------------------- #
-	# TODO make these two methods accept rendered regions and file paths as arguments
 	def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
 		"""
 		Get the center of mass of the 3d mesh of one or multiple brain regions.
@@ -202,25 +210,34 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		"""
 
 		if not isinstance(regions, list):
-			# load mesh corresponding to brain region
-			if unilateral:
-				mesh = self.get_region_unilateral(regions, hemisphere="left")
+			# Check if input is an actor or if we need to load one
+			if isinstance(regions, Actor):
+				mesh = regions
 			else:
-				mesh = self._get_structure_mesh(regions)
+				# load mesh corresponding to brain region
+				if unilateral:
+					mesh = self.atlas.get_region_unilateral(regions, hemisphere="left")
+				else:
+					mesh = self.atlas._get_structure_mesh(regions)
 
+			#  Check if we are considering only one hemisphere
 			if unilateral and hemisphere.lower() == 'right':
 				if self.root is None:
 					self.add_root(render=False)
-				return list(np.array(get_coords([np.int(x) for x in mesh.centerOfMass()], mirror=self.root_center[2])).astype(np.int32))
+				return list(np.array(get_coords([np.int(x) for x in mesh.centerOfMass()], 
+										mirror=self.root_center[2])).astype(np.int32))
 			else:
 				return [np.int(x) for x in mesh.centerOfMass()]
 		else:
 			coms = {}
 			for region in regions:
-				if unilateral:
-					mesh = self.get_region_unilateral(region, hemisphere="left")
+				if isinstance(region, Actor):
+					mesh = region
 				else:
-					mesh = self._get_structure_mesh(region)
+					if unilateral:
+						mesh = self.atlas.get_region_unilateral(region, hemisphere="left")
+					else:
+						mesh = self.atlas._get_structure_mesh(region)
 				coms[region] = [np.int(x) for x in mesh.centerOfMass()]
 			return coms
 
@@ -231,13 +248,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param region: str, acronym of the brain region.
 		:param N: int, number of points to return.
 		"""
-		
-		if hemisphere is None:
-			region_mesh = self._get_structure_mesh(region)
+		if isinstance(region, Actor):
+			region_mesh = region
 		else:
-			region_mesh = self.get_region_unilateral(region, hemisphere=hemisphere)
-		if region_mesh is None:
-			return None
+			if hemisphere is None:
+				region_mesh = self.atlas._get_structure_mesh(region)
+			else:
+				region_mesh = self.atlas.get_region_unilateral(region, hemisphere=hemisphere)
+			if region_mesh is None:
+				return None
 
 		region_bounds = region_mesh.bounds()
 
@@ -266,7 +285,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		for actor in actors:
 			actors_funcs.edit_actor(actor, **kwargs)
 
-	# TODO does this need to check which atlas is being used ?
 	def edit_neurons(self, neurons=None, copy=False, **kwargs):
 
 		"""
@@ -313,7 +331,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
 			actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis='x')
 
-	# TODO make this work with more atlases
 	# ------------------------------ Cells functions ----------------------------- #
 	def get_cells_in_region(self, cells, region):
 		"""
@@ -330,12 +347,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		return cells[cells.region.isin(region_list)]
 
 
-
 	# ---------------------------------------------------------------------------- #
 	#                                POPULATE SCENE                                #
-	# ---------------------------------------------------------------------------- #
-	
-	# ------------------------ ABA/other atlases specific ------------------------ #
+	# ---------------------------------------------------------------------------- #	
+	# ------------------------------ Atlas specific ------------------------------ #
+
 	def add_root(self, render=True, **kwargs):
 		"""
 		adds the root the scene (i.e. the whole brain outline)
@@ -345,9 +361,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		"""
 		if not render:
-			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
+			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
 		else:
-			self.root = self._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
+			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
 
 		# get the center of the root and the bounding box
 		self.root_center = self.root.centerOfMass()
@@ -361,8 +377,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
 						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
 		"""
-		Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered.
-		To treat a subset of the rendered regions, specify which regions are VIP. Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
+		Adds rendered brain regions with data from theatlas. 
+		Many parameters can be passed to specify how the regions should be rendered.
+		To treat a subset of the rendered regions, specify which regions are VIP. 
+		Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
 
 		:param brain_regions: str list of acronyms of brain regions
 		:param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
@@ -385,13 +403,14 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# check that we have a list
 		if not isinstance(brain_regions, list):
-			self._check_valid_region_arg(brain_regions)
+			self.atlas._check_valid_region_arg(brain_regions)
 			brain_regions = [brain_regions]
 
 		# check the colors input is correct
 		if colors is not None:
 			if isinstance(colors[0], (list, tuple)):
-				if not len(colors) == len(brain_regions): raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
+				if not len(colors) == len(brain_regions): 
+					raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
 				for col in colors:
 					if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
 			else:
@@ -400,30 +419,23 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# loop over all brain regions
 		for i, region in enumerate(brain_regions):
-			self._check_valid_region_arg(region)
-
-			# if it's an ID get the acronym
-			if isinstance(region, int):
-				region = self.structure_tree.get_region_by_id([region])[0]['acronym']
+			self.atlas._check_valid_region_arg(region)
 
 			if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
 			if self.verbose: print("Rendering: ({})".format(region))
 
 			# get the structure and check if we need to download the object file
-			try:
-				structure = self.structure_tree.get_structures_by_acronym([region])[0]
-			except Exception as e:
-				raise ValueError(f'Could not find region with name {region}, got error: {e}')
+			if region not in self.atlas.region_acronyms:
+				raise ValueError(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}")
 
-			obj_file = os.path.join(self.mouse_meshes, "{}.obj".format(structure["acronym"]))
-
-			if not self._check_obj_file(structure, obj_file):
-				print("Could not render {}, maybe we couldn't get the mesh?".format(structure["acronym"]))
+			obj_file = os.path.join(self.atlas.meshes_folder, "{}.obj".format(region))
+			if not self.atlas._check_obj_file(region, obj_file):
+				print("Could not render {}, maybe we couldn't get the mesh?".format(region))
 				continue
 
 			# check which color to assign to the brain region
 			if self.regions_aba_color or use_original_color:
-				color = [x/255 for x in structure["rgb_triplet"]]
+				color = [x/255 for x in self.atlas.get_region_color(region)]
 			else:
 				if region in VIP_regions:
 					color = VIP_color
@@ -432,7 +444,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						color = DEFAULT_STRUCTURE_COLOR
 					elif isinstance(colors, list):
 						color = colors[i]
-					else: color = colors
+					else: 
+						color = colors
 
 			if region in VIP_regions:
 				alpha = 1
@@ -442,7 +455,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			# Load the object file as a mesh and store the actor
 			if hemisphere is not None:
 				if hemisphere.lower() == "left" or hemisphere.lower() == "right":
-					obj = self.get_region_unilateral(structure["acronym"], hemisphere=hemisphere, color=color, alpha=alpha)
+					obj = self.atlas.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
 			else:
 				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
 
@@ -450,38 +463,34 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			self.actors["regions"][region] = obj
 
-		# TODO fix these
-	
+	# ------------------- Methods supported by the atlas class ------------------- #
 	def add_neurons(self, *args, **kwargs):
 		"""
 		Adds rendered morphological data of neurons reconstructions.
 		Check the atlas' method to know which arguments are used 
 		"""
-		self.atlas.add_neurons(*args, **kwargs)
-	
-
-	# ------------------------------- ABA specific ------------------------------- #
+		self.atlas.add_neurons(self, *args, **kwargs)
 
 	def add_tractography(self, *args, **kwargs):
 		"""
 		Renders tractography data and adds it to the scene. 
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_tractography(*agrs, **kwargs)
+		self.atlas.add_tractography(self, *args, **kwargs)
 		
 	def add_streamlines(self, *args,  **kwargs):
 		"""
 		Render streamline data.
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_streamlines(*args,  **kwargs):
+		self.atlas.add_streamlines(self, *args,  **kwargs)
 
 	def add_injection_sites(self, *args, **kwargs):
 		"""
 		Creates Spherse at the location of injections with a volume proportional to the injected volume.
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_injection_sites(*args, **kwargs)
+		self.atlas.add_injection_sites(self, *args, **kwargs)
 
 	# -------------------------- General actors/elements ------------------------- #
 	def add_vtkactor(self, actor):
@@ -502,7 +511,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param **kwargs:
 
 		"""
-		actor = load_volume_file(filepath, **kwargs)
+		actor = load_mesh_from_file(filepath, **kwargs)
 		self.actors['others'].append(actor)
 		return actor
 
@@ -856,7 +865,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		direction = V.T[:,0]
 
 		# Find intersection with brain surface
-		root_mesh = self._get_structure_mesh('root')
+		root_mesh = self.atlas._get_structure_mesh('root')
 		p0 = direction*np.array([-1])+r0
 		p1 = direction*np.array([-15000])+r0 # end point way outside of brain, on probe trajectory though
 		pts = root_mesh.intersectWithLine(p0,p1)

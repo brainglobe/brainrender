@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io as sio
 import pandas as pd
 from brainio import brainio
-
+from vtkplotter import load, Volume
 
 # ------------------------------------ OS ------------------------------------ #
 def listdir(fld):
@@ -107,10 +107,26 @@ def load_volume_file(filepath):
 	try:
 		volume = brainio.load_any(filepath)
 	except:
-		raise ValueError(g"Could not load volume data: {filepath}")
+		raise ValueError(f"Could not load volume data: {filepath}")
 	else:
 		return volume
 
+def load_mesh_from_file(filepath, *args, **kwargs):
+	"""	
+	Load a a mesh or volume from files like .obj, .stl, ...
+
+	:param filepath: path to file
+	:param **kwargs: 
+
+	"""
+	if not os.path.isfile(filepath): raise FileNotFoundError(filepath)
+
+	try:
+		actor = load(filepath, *args, **kwargs)
+	except:
+		actor = Volume(load_volume_file(filepath, *args, **kwargs))
+	
+	return actor
 
 
 # ----------------------------- Internet queries ----------------------------- #
