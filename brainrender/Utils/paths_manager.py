@@ -15,6 +15,7 @@ default_paths = dict(
         rat_meshes= "Data/Meshes/Rat",    # meshes with rat brain data, to be downloaded
         drosophila_meshes= "Data/Meshes/Drosophila",  # meshes with drosophila brain data, to be downloaded
         other_meshes= "Data/Meshes/Other",  # any other mesh the user might want to store
+        
         metadata= "Data/Metadata",
 
         # OUTPUT Folders
@@ -26,9 +27,7 @@ default_paths = dict(
         # User folder
         user= "User",
 
-        # ---------------------------------------------------------------------------- #
-        #                                MESHES FOLDERS                                #
-        # ---------------------------------------------------------------------------- #
+
         # ----------------------- Folder for allen brain atlas ----------------------- #
         # NEURONS MORPHOLOGY
         morphology_allen=  "Data/Morphology/Allen", # .swc files with neurons morphology downloaded through allen API
@@ -46,6 +45,8 @@ default_paths = dict(
         # Streamlines cache
         streamlines_cache= "Data/Streamlines",
 
+        # ------------------- Folders for the insect brain db atlas ------------------ #
+        ibdb_meshes_folder = "Data/InsectsDBs"
 
 
 )
@@ -68,7 +69,8 @@ class Paths:
                 "metadata", 
                 'annotated_volume_fld', 
                 'mouse_connectivity_volumetric', 
-                'mouse_connectivity_volumetric_cache']
+                'mouse_connectivity_volumetric_cache', 
+                'ibdb_meshes_folder']
 
     def __init__(self, base_dir=None, **kwargs):
         """

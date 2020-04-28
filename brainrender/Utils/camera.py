@@ -61,6 +61,8 @@ def set_camera(scene, camera):
                         a dictionary of camera parameters. 
         
     """
+    if camera is None: return
+    
     # Get camera params
     camera = check_camera_param(camera)
 

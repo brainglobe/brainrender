@@ -54,6 +54,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				use_default_key_bindings=False,
 				title=None,
 				atlas=None,
+				atlas_kwargs=dict(),
 				**kwargs):
 		"""
 
@@ -84,7 +85,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if atlas is None:
 			self.atlas = ABA(base_dir=base_dir, **kwargs)
 		else:
-			raise NotImplementedError("Need to work on this still")
+			self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
 
 
 		# Setup a few rendering options
@@ -188,6 +189,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if self.display_inset and self.inset is None:
 			if self.root is None:
 				self.add_root(render=False, **kwargs)
+				if self.root is None:
+					print("Could not find root object")
+					return
+
 				self.inset = self.root.clone().scale(.5)
 				self.root = None
 				self.actors['root'] = None
@@ -364,6 +369,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
 		else:
 			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
+
+		if self.root is None:
+			print("Could not find a root mesh")
+			return None
 
 		# get the center of the root and the bounding box
 		self.root_center = self.root.centerOfMass()
@@ -936,9 +945,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.apply_render_style()
 
 		if not video:
-			if camera is None:
-				camera = self.camera
-			else:
+			if camera is not None:
 				camera = check_camera_param(camera)
 			set_camera(self, camera)
 

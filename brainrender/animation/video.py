@@ -28,7 +28,7 @@ class BasicVideoMaker:
         self.duration = kwargs.pop('duration', 3)
         self.niters = kwargs.pop('niters', 60)
         self.fps = kwargs.pop("fps", 30)
-
+ 
     def parse_kwargs(self, **kwargs):
         """
             Parses arguments for video creation
