@@ -30,17 +30,14 @@ def test_regions():
     scene.add_brain_regions(regions, colors="green")
 
 def test_streamlines():
-    # Start by creating a scene with the allen brain atlas atlas
     scene = Scene()
 
 
-    # Download streamlines data for injections in the CA1 field of the hippocampus
     filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
 
 
     scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
 
-    # you can pass either the filepaths or the data
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
 
     scene.render(camera='sagittal', zoom=1)
@@ -221,3 +218,17 @@ def test_video():
 
     # Make a video!
     vm.make_video(elevation=1, roll=5) # specify how the scene rotates at each frame
+
+
+def test_ibdb():
+    from brainrender.atlases.insects_brains_db import IBDB 
+    
+    scene = Scene(atlas=IBDB
+                atlas_kwargs=dict(species='Schistocerca gregaria'
+                ))
+
+    central_complex = ['CBU-S2']
+    scene.add_brain_regions(central_complex, alpha=1)
+
+    scene.render() 
+    scene.close()
