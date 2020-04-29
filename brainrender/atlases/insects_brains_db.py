@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 from PIL import ImageColor
 
-from vtkplotter import load
+from vtkplotter import load, merge, save
 
 from brainrender.atlases.base import Atlas
 from brainrender.Utils.webqueries import request
@@ -36,11 +36,25 @@ class IBDB(Atlas):
         brain_info = "archive/species/most_current_permitted/?species_id=",
         species_info = "api/species/min/",
         data = "https://s3.eu-central-1.amazonaws.com/ibdb-file-storage",
+        structures_tree = "https://insectbraindb.org/api/structures/list_hierarchy",
+    )
+
+    default_camera = dict(
+        position = [1035.862, 420.237, -3058.244] ,
+        focal = [1253.28, 759.97, 428.418],
+        viewup = [0.03, -0.995, 0.095],
+        distance = 3509.914,
+        clipping = [2616.137, 4643.461] ,
     )
     
     def __init__(self, 
-                species = None, sex=None,
-                base_dir=None, **kwargs):
+                species = None, 
+                sex=None,
+                base_dir=None, 
+                make_root = True,
+                **kwargs):
+        self.make_root = make_root
+
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
 
         # Get a list of available species
@@ -48,9 +62,10 @@ class IBDB(Atlas):
         self.species = list(self.species_info.scientific_name.values)
 
         # Get selected species
+        self.structures, self.region_names, self.region_acronyms = None, None, None
         self.sel_species = species
         self.sex = sex
-        self.structures = self.get_brain(species=species, sex=sex)
+        self.get_brain(species=species, sex=sex)
 
     
     def get_brain_id_from_species_name(self, sel_species):
@@ -60,18 +75,31 @@ class IBDB(Atlas):
         brain_id = self.species_info.loc[self.species_info.scientific_name == sel_species]['id'].values[0]
         return brain_id
 
-    def get_brain(self, species=None, sex=None):
-        # Get metadata about the brain from database
-        if species is None:
-            species = self.sel_species
+    def get_structures_hierarchy(self):
+        structures_hierarchy = request(self._url_paths['structures_tree']).json()
 
-        if species is None:
-            print("No species name passed")
-            return None
+        data = dict(
+            ids = [],
+            name = [],
+            parent = [],
+            children = []
+        )
 
-        self.species = species
-        self.sex = sex
+        for structure in structures_hierarchy:
+            data['ids'].append(structure['id'])
+            data['name'].append(structure['name'])
+            data['parent'].append(None)
+            data['children'].append([(c['id'], c['name']) for c in structure['children']])
 
+            for child in structure['children']:
+                data['ids'].append(child['id'])
+                data['name'].append(child['name'])
+                data['parent'].append(structure)
+                data['children'].append([(c['id'], c['name']) for c in child['children']] if child['children'] else None)
+        
+        self.structures_hierarchy = pd.DataFrame(data)
+
+    def get_structures_reconstructions(self, species, sex):
         iid = self.get_brain_id_from_species_name(species)
 
         data = request(f"{self._base_url}/{self._url_paths['brain_info']}{iid}").json()
@@ -79,12 +107,18 @@ class IBDB(Atlas):
             print("Could not get any data for this brain")
             return None
 
-        # Get reconstructions
         reconstructions = [r['viewer_files'] for r in data['reconstructions']]
+        if not reconstructions:
+            print(f"No data was found for {species}")
+            return
+
         n_elems = [len(rec) for rec in reconstructions]
 
         if sex is None:
-            sex = np.argmax(n_elems)
+            try:
+                sex = np.argmax(n_elems)
+            except:
+                raise ValueError("No data retrieved")
         
         if not n_elems[sex]:
             raise ValueError(f"No reconstructions found for {sex} {species}")
@@ -98,31 +132,64 @@ class IBDB(Atlas):
             color=[],
             obj_path = [],
             hemisphere = [],
+            parent=[],
+            children=[]
         )
 
         for d in reconstruction:
-            structures['obj_path'].append(d['p_file']['path'])
+            if 'structures' not in d.keys():
+                continue
+            if not d['structures']:
+                continue
+            
 
             hemi = d['structures'][0]['hemisphere']
             if hemi is None:
                 hemi = "both"
-            structures['hemisphere'].append(hemi.lower())
 
             if hemi == 'right':
                 name = d['structures'][0]['structure']['name'] + "_R"
-                acro = d['structures'][0]['structure']['abbreviation'] + "_R"
             elif hemi == 'left':
                 name = d['structures'][0]['structure']['name'] + "_L"
-                acro = d['structures'][0]['structure']['abbreviation'] + "_L"
             else:
                 name = d['structures'][0]['structure']['name'] 
-                acro = d['structures'][0]['structure']['abbreviation'] 
+
+            abbr = d['structures'][0]['structure']['abbreviation'] 
+            acro = abbr + d['p_file']['file_name'].split(abbr)[-1].split(".")[0]
+
+            if '_left' in acro:
+                acro = acro.split('_left')[0]+'_left'
+            elif '_right' in acro:
+                acro = acro.split('_right')[0]+'_right'
+
+
+            structures['obj_path'].append(d['p_file']['path'])
+            structures['hemisphere'].append(hemi.lower())
 
             structures['name'].append(name)
             structures['acronym'].append(acro)
             structures['color'].append(d['structures'][0]['structure']['color'])
+
+            structures['parent'].append(d['structures'][0]['structure']['parent'])
+            structures['children'].append(d['structures'][0]['structure']['children'])
         self.structures = pd.DataFrame(structures)
 
+    def get_brain(self, species=None, sex=None):
+        # Get metadata about the brain from database
+        if species is None:
+            species = self.sel_species
+
+        if species is None:
+            print("No species name passed")
+            return None
+
+        self.species = species
+        self.sex = sex
+
+        # Get reconstructions and metadata
+        self.get_structures_hierarchy()
+        self.get_structures_reconstructions(species, sex)
+        
         # Prep some vars
         self.region_acronyms = list(self.structures['acronym'])
         self.regions = list(self.structures['name'])
@@ -132,6 +199,11 @@ class IBDB(Atlas):
             print("Creating folder at: {}".format(meshes_fld))
             os.makedirs(meshes_fld)
         self.meshes_folder = meshes_fld
+
+        if self.make_root:
+            self.make_root_mesh()
+
+
 
     def download_and_save_mesh(self, acronym, obj_path):
         print(f"Downloading mesh data for {acronym}")
@@ -147,6 +219,19 @@ class IBDB(Atlas):
 
         # return the vtk actor
         return load(obj_path)
+
+    def make_root_mesh(self):
+        if self.structures is None: return
+
+        obj_path = os.path.join(self.meshes_folder, "root.vtk")
+        if os.path.isfile(obj_path):
+            return
+
+        # Get the mesh for each brain region to create root
+        meshes = [self._get_structure_mesh(reg) for reg in self.region_acronyms]
+        root = merge(meshes)
+        save(root, obj_path)
+
 
 
 
@@ -166,16 +251,18 @@ class IBDB(Atlas):
             print("No atlas was loaded, use self.get_brain first")
             return None
 
-        if acronym not in self.structures['acronym'] and acronym != 'root':
+        if acronym not in self.region_acronyms and acronym != 'root':
             raise ValueError(f"Acronym {acronym} not in available regions: {self.structures}")
-        if acronym not in self.structures['acronym'] and acronym == 'root':
-            return None
 
         # Get obj file path
-        obj_path = os.path.join(self.meshes_folder, "{}.obj".format(acronym))
+        if acronym != 'root':
+            mesh_format = self.mesh_format
+        else:
+            mesh_format = 'vtk'
+        obj_path = os.path.join(self.meshes_folder, "{}.{}".format(acronym, mesh_format))
 
         # Load
-        if self._check_obj_file(structure, obj_path):
+        if self._check_obj_file(acronym, obj_path):
             mesh = load_mesh_from_file(obj_path, **kwargs)
             return mesh
         else:

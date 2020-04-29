@@ -104,7 +104,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# Camera parameters
 		if camera is None:
-			self.camera = CAMERA
+			if self.atlas.default_camera is not None:
+				self.camera = check_camera_param(self.atlas.default_camera)
+			else:
+				self.camera = CAMERA
 		else:
 			self.camera = check_camera_param(camera)
 
@@ -402,7 +405,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param **kwargs:
 
 		"""
+		# Check that the atlas has brain regions data
+		if self.atlas.region_acronyms is None:
+			print(f"The atlas {self.atlas.atlas_name} has no brain regions data")
+			return
 
+		# Parse arguments
 		if VIP_regions is None:
 			VIP_regions = self.VIP_regions
 		if VIP_color is None:
@@ -436,7 +444,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			# get the structure and check if we need to download the object file
 			if region not in self.atlas.region_acronyms:
-				raise ValueError(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}")
+				print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}. Skipping")
+				continue
 
 			obj_file = os.path.join(self.atlas.meshes_folder, "{}.{}".format(region, self.atlas.mesh_format))
 			if not self.atlas._check_obj_file(region, obj_file):
@@ -950,6 +959,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if not video:
 			if camera is not None:
 				camera = check_camera_param(camera)
+			else:
+				camera = self.camera
 			set_camera(self, camera)
 
 			if self.verbose and not self.jupyter:
@@ -1056,8 +1067,15 @@ class DualScene:
 
 class MultiScene:
 	""" """
-	def __init__(self, N,  *args, **kwargs):
-		self.scenes = [Scene( *args, **kwargs) for i in range(N)]
+	def __init__(self, N, scenes=None,  *args, **kwargs):
+		if scenes is None:
+			self.scenes = [Scene( *args, **kwargs) for i in range(N)]
+		else:
+			if not isinstance(scenes, (list, tuple)):
+				raise ValueError("scenes must be a list or a tuple")
+			if len(scenes) != N:
+				raise ValueError("Wrong number of scenes passed, it should match N")
+			self.scenes = scenes
 		self.N = N
 
 	def render(self, _interactive=True,  **kwargs):
@@ -1067,8 +1085,23 @@ class MultiScene:
 		:param **kwargs:
 
 		"""
+		camera = kwargs.pop("camera", None)
 
-		self.apply_render_style()
+		for scene in self.scenes:
+			scene.apply_render_style()
+		
+			if camera is None: 
+				if scene.atlas.default_camera is None:
+					scene_camera = CAMERA
+				else:
+					scene_camera = scene.atlas.default_camera
+			else:
+				if camera:
+					scene_camera = camera
+				else:
+					scene_camera = None
+			if scene_camera is not None:
+				set_camera(scene, scene_camera)
 
 		if self.N > 4:
 			print("Rendering {} scenes. Might take a few minutes.".format(self.N))

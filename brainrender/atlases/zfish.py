@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 from PIL import ImageColor
 
-from vtkplotter import load, delaunay3D, Mesh
+from vtkplotter import load, delaunay3D, Mesh, Volume
 from vtkplotter.vtkio import save
 from vtkplotter.utils import geometry
 from vtkplotter.analysis import recoSurface
@@ -26,7 +26,7 @@ from brainrender.Utils.data_io import load_mesh_from_file
 class ZFISH(Atlas):
 
     atlas_name = "ZebraFish"
-    mesh_format = 'obj'
+    mesh_format = 'vtk'
 
     _base_url = "https://fishatlas.neuro.mpg.de"
     _url_paths = dict(
@@ -34,6 +34,8 @@ class ZFISH(Atlas):
         brain_regions = "neurons/get_brain_regions",
     )
     
+    atlas_dims = [554, 963, 359]
+
     def __init__(self, 
                 base_dir=None, **kwargs):
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
@@ -80,11 +82,19 @@ class ZFISH(Atlas):
                     metadata['file'].append(subsubreg['files']['file_3D'])
 
         # Get root
+        complete_url = f"{self._base_url}/{self._url_paths['brain']}"
+        brain = request(complete_url).json()['brain']['outline']
         metadata['name'].append('root')
         metadata['parent'].append(None)
         metadata['children'].append([c['name'] for c in regions['brain_regions']])
-        metadata['color'].append('#d3d3d3')
-        metadata['file'].append(None)
+        metadata['color'].append(brain['color'])
+        metadata['file'].append(brain['file'])
+
+        # get root size
+        # dims = np.ceil([brain['width'], brain['height'], brain['depth']]).astype(np.int32)
+        self.volume = np.zeros((self.atlas_dims))
+        self._root_midpoint = [brain['center']['x'], brain['center']['y'], brain['center']['z']]
+
         return pd.DataFrame(metadata)
         
 
@@ -116,11 +126,15 @@ class ZFISH(Atlas):
             y = data[:, 1],
             z = data[:, 2]
         ))
-        # data = data.drop_duplicates()
+        data = np.floor(data.values).astype(np.int32) # drop_duplicates()
 
-        mesh = recoSurface(data.values, dims=data.max().values.astype(np.int32),
-                            radius=7.5) #.decimate(0.5) # 8.99
+        # mesh = recoSurface(data.values, dims=data.max().values.astype(np.int32),
+                            # radius=7.5) #.decimate(0.5) # 8.99
         # mesh.smoothMLS2D(f=0.8)
+
+        mesh_volume = np.zeros_like(self.volume)
+        mesh_volume[data[:, 0], data[:, 1], data[:, 2]] = 10
+        mesh = Volume(mesh_volume).isosurface(threshold=1) # .smoothLaplacian(edgeAngle=30, featureAngle=90)
 
         save(mesh, obj_path)
         

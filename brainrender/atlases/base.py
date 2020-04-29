@@ -18,6 +18,8 @@ class Atlas(Paths):
 
 	_root_midpoint = [None, None, None] # 3d coordinates of the CoM of root mesh
 
+	default_camera = None # Replace this with a camera params dict to specify a default camera for your atlas
+
 	def __init__(self, base_dir=None, **kwargs):
 		""" 
 		Set up file paths
@@ -40,8 +42,6 @@ class Atlas(Paths):
 		self.regions = None
 				# list of all regions in the atlas
 		self.region_acronyms = None   
-
-
 
 	def print_structures(self):
 		""" 
