@@ -81,9 +81,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param title: str, if a string is passed a text is added to the top of the rendering window as a title
 			:param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
 				if not atlas is passed the allen brain atlas for the adult mouse brain is used.
+			:param atlas_kwargs: dictionary used to pass extra arguments to atlas class
 		"""
 		if atlas is None:
-			self.atlas = ABA(base_dir=base_dir, **kwargs)
+			self.atlas = ABA(base_dir=base_dir,  **atlas_kwargs, **kwargs)
 		else:
 			self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
 
@@ -437,7 +438,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			if region not in self.atlas.region_acronyms:
 				raise ValueError(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}")
 
-			obj_file = os.path.join(self.atlas.meshes_folder, "{}.obj".format(region))
+			obj_file = os.path.join(self.atlas.meshes_folder, "{}.{}".format(region, self.atlas.mesh_format))
 			if not self.atlas._check_obj_file(region, obj_file):
 				print("Could not render {}, maybe we couldn't get the mesh?".format(region))
 				continue
@@ -468,9 +469,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			else:
 				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
 
-			actors_funcs.edit_actor(obj, **kwargs)
-
-			self.actors["regions"][region] = obj
+			if obj is not None:
+				actors_funcs.edit_actor(obj, **kwargs)
+				self.actors["regions"][region] = obj
+			else:
+				print(f"Something went wrong while loading mesh data for {region}")
 
 	# ------------------- Methods supported by the atlas class ------------------- #
 	def add_neurons(self, *args, **kwargs):

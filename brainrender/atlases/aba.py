@@ -44,6 +44,7 @@ class ABA(Atlas):
                         np.mean([486, 10891])]
 
     atlas_name = "ABA"
+    mesh_format = 'obj'
 
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
     # Used for streamlines

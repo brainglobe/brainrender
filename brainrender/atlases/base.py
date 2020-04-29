@@ -14,6 +14,7 @@ class Atlas(Paths):
 	"""
 
 	atlas_name = "BASE"
+	mesh_format = 'vtk' # or obj, stl etc..
 
 	_root_midpoint = [None, None, None] # 3d coordinates of the CoM of root mesh
 

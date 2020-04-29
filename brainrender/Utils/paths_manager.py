@@ -51,7 +51,7 @@ default_paths = dict(
         # -------------------------- Folders for zfish atlas ------------------------- #
         zfish_meshes_folder = "Data/Zfish",
 
-
+        
 )
 
 

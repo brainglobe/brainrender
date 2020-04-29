@@ -28,6 +28,9 @@ from brainrender.Utils.data_io import load_mesh_from_file
 
 class IBDB(Atlas):
 
+    atlas_name = "InsectBrains"
+    mesh_format = 'obj'
+
     _base_url = "https://insectbraindb.org"
     _url_paths = dict(
         brain_info = "archive/species/most_current_permitted/?species_id=",

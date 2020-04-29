@@ -9,6 +9,7 @@ from PIL import ImageColor
 from vtkplotter import load, delaunay3D, Mesh
 from vtkplotter.vtkio import save
 from vtkplotter.utils import geometry
+from vtkplotter.analysis import recoSurface
 
 from brainrender.atlases.base import Atlas
 from brainrender.Utils.webqueries import request
@@ -23,6 +24,9 @@ from brainrender.Utils.data_io import load_mesh_from_file
 
 
 class ZFISH(Atlas):
+
+    atlas_name = "ZebraFish"
+    mesh_format = 'obj'
 
     _base_url = "https://fishatlas.neuro.mpg.de"
     _url_paths = dict(
@@ -112,11 +116,10 @@ class ZFISH(Atlas):
             y = data[:, 1],
             z = data[:, 2]
         ))
-        data = data.drop_duplicates()
+        # data = data.drop_duplicates()
 
-        from vtkplotter.analysis import recoSurface
         mesh = recoSurface(data.values, dims=data.max().values.astype(np.int32),
-                            radius=100)
+                            radius=7.5) #.decimate(0.5) # 8.99
         # mesh.smoothMLS2D(f=0.8)
 
         save(mesh, obj_path)
