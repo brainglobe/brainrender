@@ -43,6 +43,7 @@ Users/
 
 # Test scripts and hidden files
 workspace.py
+workspace.ipynb
 secrets
 
 # Custom config files
