@@ -3,7 +3,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter  
+from vtkplotter import Text2D, closePlotter, embedWindow
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from tqdm import tqdm
 import pandas as pd
@@ -90,6 +90,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		else:
 			self.display_inset = display_inset
 
+		if self.display_inset and jupyter:
+			print("Setting 'display_inset' to False as this feature is not available in juputer notebooks")
+			self.display_inset = False
+
+
 		if add_root is None:
 			add_root = DISPLAY_ROOT
 
@@ -100,8 +105,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self.camera = check_camera_param(camera)
 
 		# Set up vtkplotter plotter and actors records
-		if WHOLE_SCREEN:
+		if WHOLE_SCREEN and not self.jupyter:
 			sz = "full"
+		elif WHOLE_SCREEN and self.jupyter:
+			print("Setting window size to 'auto' as whole screen is not available in jupyter")
+			sz='auto'
 		else:
 			sz = "auto"
 
@@ -1266,16 +1274,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.apply_render_style()
 
 		if not video:
-			if camera is None:
-				camera = self.camera
-			else:
-				camera = check_camera_param(camera)
-			set_camera(self, camera)
+			if not self.jupyter: # cameras work differently in jupyter notebooks?
+				if camera is None:
+					camera = self.camera
+				else:
+					camera = check_camera_param(camera)
+				set_camera(self, camera)
 
 			if self.verbose and not self.jupyter:
 				print(INTERACTIVE_MSG)
 			elif self.jupyter:
-				print("\n\nRendering scene.\n   Press 'Esc' to Quit")
+				print("The scene is ready to render in your jupyter notebook")
 			else:
 				print("\n\nRendering scene.\n   Press 'q' to Quit")
 
@@ -1289,15 +1298,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
 		self.is_rendered = True
-		if interactive and not video:
-			show(*self.get_actors(), interactive=False, zoom=zoom)
-		elif video:
-			self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
-		else:
-			show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
+		if not self.jupyter:
+			if interactive and not video:
+				show(*self.get_actors(), interactive=False, zoom=zoom)
+			elif video:
+				self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
+			else:
+				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
-		if interactive and not video:
-			show(*self.get_actors(), interactive=True)
+			if interactive and not video:
+				show(*self.get_actors(), interactive=True)
 
 	def close(self):
 		closePlotter()
