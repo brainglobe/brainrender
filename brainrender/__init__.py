@@ -102,6 +102,9 @@ settings.screeshotScale = params['DEFAULT_SCREENSHOT_SCALE']  # Improves resolut
 if params['SCREENSHOT_TRANSPARENT_BACKGROUND']:
     settings.screenshotTransparentBackground = True # vtkplotter for transparent bg
     settings.useFXAA = False # This needs to be false for transparent bg
+    print('settings: screenshots are set to have transparent background'+
+            'set the parameter "SCREENSHOT_TRANSPARENT_BACKGROUND" to false '+
+            'if you would prefer a not transparent background')
 
 
 # Set to make it easy to import
