@@ -3,7 +3,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter, embedWindow
+from vtkplotter import Text2D, closePlotter, embedWindow, settings
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from tqdm import tqdm
 import pandas as pd
@@ -119,7 +119,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			axes = 0
 
 		# Create plotter
-		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
+		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, title='brainrender')
 
 		self.plotter.legendBC = getColor('blackboard')
 
@@ -1312,6 +1312,39 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	def close(self):
 		closePlotter()
 	
+	def export_for_web(self, filepath='brexport.html'):
+		"""
+			This function is used to export a brainrender scene
+			for hosting it online. It saves an html file that can
+			be opened in a web browser to show an interactive brainrender scene
+		"""
+		if not filepath.endswith('.html'):
+			raise ValueError("Filepath should point to a .html file")
+
+		# prepare settings
+		settings.notebookBackend = 'k3d'
+		self.jupyter=True
+		self.render()
+
+		# Create new plotter and save to file
+		plt = show(*self.get_actors(), newPlotter=True)
+
+		try:
+			with open(filepath,'w') as fp:
+				fp.write(plt.get_snapshot())
+		except:
+			raise ValueError("Failed to export scene for web.\n"+
+						"Try updating k3d and msgpack: \ "+
+						"pip install -U k3d\n"+
+						"pip install -U msgpack")
+
+		print(f"The brainrender scene has been exported for web. The results are saved at {filepath}")
+		
+		# Reset settings
+		settings.notebookBackend = None
+		self.jupyter = False
+		
+
 	# ---------------------------------------------------------------------------- #
 	#                               USER INTERACTION                               #
 	# ---------------------------------------------------------------------------- #
