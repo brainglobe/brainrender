@@ -40,6 +40,7 @@ __all__ = [
     "DEFAULT_SCREENSHOT_NAME",
     "DEFAULT_SCREENSHOT_TYPE",
     "DEFAULT_SCREENSHOT_SCALE",
+    "SCREENSHOT_TRANSPARENT_BACKGROUND",
     ]
 
 
@@ -47,7 +48,7 @@ __all__ = [
 from vtkplotter import settings
 settings.useDepthPeeling = True # necessary for rendering of semitransparent actors
 settings.useFXAA = True # necessary for rendering of semitransparent actors
-settings.screeshotScale = 1  # Improves resolution of saved screenshots
+
 
 
 # ------------------------- reset default parameters file ------------------------- #
@@ -95,6 +96,16 @@ for par in __all__:
         params[par] = defaults[par]
 save_yaml(params_file, params, append=False, topcomment=comment)
 
+# ------------------------- Other vtkplotter settings ------------------------ #
+settings.screeshotScale = params['DEFAULT_SCREENSHOT_SCALE']  # Improves resolution of saved screenshots
+
+if params['SCREENSHOT_TRANSPARENT_BACKGROUND']:
+    settings.screenshotTransparentBackground = True # vtkplotter for transparent bg
+    settings.useFXAA = False # This needs to be false for transparent bg
+    print('settings: screenshots are set to have transparent background'+
+            'set the parameter "SCREENSHOT_TRANSPARENT_BACKGROUND" to false '+
+            'if you would prefer a not transparent background')
+
 
 # Set to make it easy to import
 BACKGROUND_COLOR = params['BACKGROUND_COLOR']
@@ -131,6 +142,7 @@ CAMERA = params['CAMERA']
 DEFAULT_SCREENSHOT_NAME = params['DEFAULT_SCREENSHOT_NAME']
 DEFAULT_SCREENSHOT_TYPE = params['DEFAULT_SCREENSHOT_TYPE']
 DEFAULT_SCREENSHOT_SCALE = params['DEFAULT_SCREENSHOT_SCALE']
+SCREENSHOT_TRANSPARENT_BACKGROUND = params['SCREENSHOT_TRANSPARENT_BACKGROUND']
 
 INTERACTIVE_MSG = \
 """

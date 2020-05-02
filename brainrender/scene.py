@@ -3,7 +3,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter  
+from vtkplotter import Text2D, closePlotter, embedWindow, settings
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
 from tqdm import tqdm
@@ -99,6 +99,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		else:
 			self.display_inset = display_inset
 
+		if self.display_inset and jupyter:
+			print("Setting 'display_inset' to False as this feature is not available in juputer notebooks")
+			self.display_inset = False
+
+
 		if add_root is None:
 			add_root = DISPLAY_ROOT
 
@@ -112,8 +117,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self.camera = check_camera_param(camera)
 
 		# Set up vtkplotter plotter and actors records
-		if WHOLE_SCREEN:
+		if WHOLE_SCREEN and not self.jupyter:
 			sz = "full"
+		elif WHOLE_SCREEN and self.jupyter:
+			print("Setting window size to 'auto' as whole screen is not available in jupyter")
+			sz='auto'
 		else:
 			sz = "auto"
 
@@ -123,7 +131,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			axes = 0
 
 		# Create plotter
-		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
+		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, title='brainrender')
 
 		self.plotter.legendBC = getColor('blackboard')
 
@@ -388,6 +396,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		return self.root
 	
 	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+						add_labels=False,
 						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
 		"""
 		Adds rendered brain regions with data from theatlas. 
@@ -402,6 +411,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
 		:param alpha: float, transparency of the rendered brain regions (Default value = None)
 		:param hemisphere: str (Default value = None)
+		:param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
 		:param **kwargs:
 
 		"""
@@ -480,6 +490,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			if obj is not None:
 				actors_funcs.edit_actor(obj, **kwargs)
+
+				if add_labels:
+					obj.flag(region)
+
 				self.actors["regions"][region] = obj
 			else:
 				print(f"Something went wrong while loading mesh data for {region}")
@@ -505,6 +519,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		Check the function definition in ABA for more details
 		"""
 		self.atlas.add_streamlines(self, *args,  **kwargs)
+			self.actors["regions"][region] = obj
 
 	def add_injection_sites(self, *args, **kwargs):
 		"""
@@ -957,16 +972,17 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.apply_render_style()
 
 		if not video:
-			if camera is not None:
-				camera = check_camera_param(camera)
-			else:
-				camera = self.camera
-			set_camera(self, camera)
+			if not self.jupyter: # cameras work differently in jupyter notebooks?
+				if camera is None:
+					camera = self.camera
+				else:
+					camera = check_camera_param(camera)
+				set_camera(self, camera)
 
 			if self.verbose and not self.jupyter:
 				print(INTERACTIVE_MSG)
 			elif self.jupyter:
-				print("\n\nRendering scene.\n   Press 'Esc' to Quit")
+				print("The scene is ready to render in your jupyter notebook")
 			else:
 				print("\n\nRendering scene.\n   Press 'q' to Quit")
 
@@ -980,21 +996,53 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
 		self.is_rendered = True
-		if interactive and not video:
-			show(*self.get_actors(), interactive=False, zoom=zoom)
-		elif video:
-			self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
-		else:
-			show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
+		if not self.jupyter:
+			if interactive and not video:
+				show(*self.get_actors(), interactive=False, zoom=zoom)
+			elif video:
+				self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
+			else:
+				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
-		if interactive and not video:
-			show(*self.get_actors(), interactive=True)
+			if interactive and not video:
+				show(*self.get_actors(), interactive=True)
 
 	def close(self):
 		closePlotter()
 	
-	
-	
+	def export_for_web(self, filepath='brexport.html'):
+		"""
+			This function is used to export a brainrender scene
+			for hosting it online. It saves an html file that can
+			be opened in a web browser to show an interactive brainrender scene
+		"""
+		if not filepath.endswith('.html'):
+			raise ValueError("Filepath should point to a .html file")
+
+		# prepare settings
+		settings.notebookBackend = 'k3d'
+		self.jupyter=True
+		self.render()
+
+		# Create new plotter and save to file
+		plt = show(*self.get_actors(), newPlotter=True)
+		print('Ready for exporting. Exporting scenes with many actors might require a few minutes')
+		try:
+			with open(filepath,'w') as fp:
+				fp.write(plt.get_snapshot())
+		except:
+			raise ValueError("Failed to export scene for web.\n"+
+						"Try updating k3d and msgpack: \ "+
+						"pip install -U k3d\n"+
+						"pip install -U msgpack")
+
+		print(f"The brainrender scene has been exported for web. The results are saved at {filepath}")
+		
+		# Reset settings
+		settings.notebookBackend = None
+		self.jupyter = False
+		
+
 	# ---------------------------------------------------------------------------- #
 	#                               USER INTERACTION                               #
 	# ---------------------------------------------------------------------------- #
