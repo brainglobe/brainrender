@@ -5,7 +5,7 @@ Please check the [user guide](https://github.com/BrancoLab/BrainRender/blob/mast
 
 For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
 
-You can find an interactive example of a brainrender scene [here](https://fedeclaudi.github.io/brainrender.html)
+You can find an interactive example of a brainrender scene [here](https://fedeclaudi.github.io/br-info.html)
 
 <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlines2.png" width="1000">
 
