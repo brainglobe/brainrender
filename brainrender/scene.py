@@ -119,7 +119,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			axes = 0
 
 		# Create plotter
-		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR)
+		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, title='brainrender')
 
 		self.plotter.legendBC = getColor('blackboard')
 
@@ -128,9 +128,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
 		self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
 		self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
-
-		if brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
-			settings.screenshotTransparentBackground = True # vtkplotter for transparent bg
 
 		if not use_default_key_bindings:
 			self.plotter.keyPressFunction = self.keypress
@@ -1332,8 +1329,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		# Create new plotter and save to file
 		plt = show(*self.get_actors(), newPlotter=True)
 
-		with open(filepath,'w') as fp:
-			fp.write(plt.get_snapshot())
+		try:
+			with open(filepath,'w') as fp:
+				fp.write(plt.get_snapshot())
+		except:
+			raise ValueError("Failed to export scene for web.\n"+
+						"Try updating k3d and msgpack: \ "+
+						"pip install -U k3d\n"+
+						"pip install -U msgpack")
+
 		print(f"The brainrender scene has been exported for web. The results are saved at {filepath}")
 		
 		# Reset settings
