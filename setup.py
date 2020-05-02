@@ -8,7 +8,9 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 requirements = [
     "numpy",
     "pandas",
-    "vtkplotter>=2020.2.1",
+    "vtkplotter>=2020.2.4",
+    "k3d",
+    "msgpack",
     "vtk",
     "allensdk",
     "tqdm",

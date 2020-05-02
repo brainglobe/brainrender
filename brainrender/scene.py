@@ -740,6 +740,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 # ------------------------ ABA/other atlases specific ------------------------ #
 
 	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+						add_labels=False,
 						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
 		"""
 		Adds rendered brain regions with data from the Allen brain atlas. Many parameters can be passed to specify how the regions should be rendered.
@@ -752,6 +753,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
 		:param alpha: float, transparency of the rendered brain regions (Default value = None)
 		:param hemisphere: str (Default value = None)
+		:param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
 		:param **kwargs:
 
 		"""
@@ -828,6 +830,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
 
 			actors_funcs.edit_actor(obj, **kwargs)
+
+			if add_labels:
+				obj.flag(region)
 
 			self.actors["regions"][region] = obj
 
@@ -1328,7 +1333,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# Create new plotter and save to file
 		plt = show(*self.get_actors(), newPlotter=True)
-
+		print('Ready for exporting. Exporting scenes with many actors might require a few minutes')
 		try:
 			with open(filepath,'w') as fp:
 				fp.write(plt.get_snapshot())
