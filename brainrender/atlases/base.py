@@ -98,23 +98,24 @@ class Atlas(Paths):
 		raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_region_unilateral' method!")
 
-	def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None,
-					display_axon_regions=False,
-					display_dendrites_regions=False, **kwargs):
+	@staticmethod # static because it inherits from scene
+	def add_neurons(self, neurons,  **kwargs):
 		"""
-		Adds rendered morphological data of neurons reconstructions downloaded from the Mouse Light project at Janelia (or other sources). Can accept rendered neurons
-		or a list of files to be parsed for rendering. Several arguments can be passed to specify how the neurons are rendered.
-
-		:param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
-		:param display_soma_region: if True, the region in which the neuron's soma is located is rendered (Default value = False)
-		:param soma_regions_kwargs: dict, specifies how the soma regions should be rendered (Default value = None)
-		:param display_axon_regions: if True, the regions through which the axons go through are rendered (Default value = False)
-		:param display_dendrites_regions: if True, the regions through which the dendrites go through are rendered  (Default value = False)
-		:param **kwargs:
+		Adds rendered morphological data of neurons reconstructions 
+		For more details about argument look at each atlases' method
 		"""
 		raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'add_neurons' method!")
 		
+	@staticmethod # static method because it inherits from scene
+	def add_neurons_synapses(self, neurons,  **kwargs):
+		"""
+		Adds the location of synapses.
+		For more details about argument look at each atlases' method
+		"""
+		raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
+                    "'add_neurons_synapses' method!")
+
 	# -------------------------- Parents and descendants ------------------------- #
 	def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
 		"""

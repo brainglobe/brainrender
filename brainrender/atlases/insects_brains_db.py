@@ -72,7 +72,11 @@ class IBDB(Atlas):
         if sel_species not in self.species:
             raise ValueError(f"The species {sel_species} is not among the available species {self.species}")
         
-        brain_id = self.species_info.loc[self.species_info.scientific_name == sel_species]['id'].values[0]
+        try:
+            brain_id = self.species_info.loc[self.species_info.scientific_name == sel_species]['id'].values[0]
+        except:
+            raise ValueError(f"Could not find brain data for species {sel_species}\n"+
+                            f"available species:\n{self.species_info}")
         return brain_id
 
     def get_structures_hierarchy(self):
@@ -203,8 +207,6 @@ class IBDB(Atlas):
         if self.make_root:
             self.make_root_mesh()
 
-
-
     def download_and_save_mesh(self, acronym, obj_path):
         print(f"Downloading mesh data for {acronym}")
         path = self.structures.loc[self.structures.acronym == acronym].obj_path.values[0]
@@ -231,8 +233,6 @@ class IBDB(Atlas):
         meshes = [self._get_structure_mesh(reg) for reg in self.region_acronyms]
         root = merge(meshes)
         save(root, obj_path)
-
-
 
 
     # ---------------------------------------------------------------------------- #

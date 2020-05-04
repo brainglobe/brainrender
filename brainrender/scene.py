@@ -6,7 +6,7 @@ from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot,
 from vtkplotter import Text2D, closePlotter, embedWindow, settings
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
-from tqdm import tqdm
+from tqdm import tqdm 	
 import pandas as pd
 from functools import partial
 from pathlib import Path
@@ -502,9 +502,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	def add_neurons(self, *args, **kwargs):
 		"""
 		Adds rendered morphological data of neurons reconstructions.
-		Check the atlas' method to know which arguments are used 
+		Check the atlas' method to know how it works
 		"""
 		self.atlas.add_neurons(self, *args, **kwargs)
+
+	def add_neurons_synapses(self, *args, **kwargs):
+		"""
+		Adds the location of pre or post synapses for a neuron (or list of neurons).
+		Check the atlas' method to know how it works 
+		"""
+		self.atlas.add_neurons_synapses(self, *args, **kwargs)
 
 	def add_tractography(self, *args, **kwargs):
 		"""
@@ -519,7 +526,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		Check the function definition in ABA for more details
 		"""
 		self.atlas.add_streamlines(self, *args,  **kwargs)
-			self.actors["regions"][region] = obj
 
 	def add_injection_sites(self, *args, **kwargs):
 		"""
@@ -619,7 +625,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				f"File format: {filepath.suffix} is not currently supported. "
 				f"Please use one of: {supported_formats}")
 
-	def add_cells(self, coords, color="red", color_by_region=False, radius=25, res=3, alpha=1, regions=None):
+	def add_cells(self, coords, color="red", color_by_region=False, radius=25, res=3, 
+							alpha=1, col_names=None, regions=None, verbose=True):
 		"""
 		Renders cells given their coordinates as a collection of spheres.
 
@@ -630,12 +637,22 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param alpha: float, transparency of spheres used to render the cells (Default value = 1)
 		:param color_by_region: bool. If true the cells are colored according to the color of the brain region they are in
 		:param regions: if a list of brain regions acronym is passed, only cells in these regions will be added to the scene
-
+		:param col_names: list of strings with names of pandas dataframe columns. If passed it should be a list of 3 columns
+				which have the x, y, z coordinates. If not passed, it is assumed that the columns are ['x', 'y', 'z']
 		"""
 		if isinstance(coords, pd.DataFrame):
+			if col_names is None:
+				col_names = ['x', 'y', 'z']
+			else:
+				if not isinstance(col_names, (list, tuple)):
+					raise ValueError(f'Column names should be a list of 3 columns')
+				if not len(col_names) == 3:
+					raise ValueError(f'Column names should be a list of 3 columns')
+
 			if regions is not None:
 				coords = self.get_cells_in_region(coords, regions)
-			coords = [[x, y, z] for x,y,z in zip(coords['x'].values, coords['y'].values, coords['z'].values)]
+			coords = [[x, y, z] for x,y,z in zip(coords[col_names[0]].values, 
+												coords[col_names[1]].values, coords[col_names[2]].values)]
 		else:
 			raise ValueError("Unrecognized argument for cell coordinates")
 
@@ -644,7 +661,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
 		self.actors['others'].append(spheres)
-		print("Added {} cells to the scene".format(len(coords)))
+
+		if verbose:
+			print("Added {} cells to the scene".format(len(coords)))
 
 	def add_image(self, image_file_path, color=None, alpha=None,
 				  obj_file_path=None, voxel_size=1, orientation="saggital",

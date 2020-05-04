@@ -22,6 +22,28 @@ def listdir(fld):
 
 	return [os.path.join(fld, f) for f in os.listdir(fld)]
 
+
+
+def get_subdirs(folderpath):
+    """
+		Returns the subfolders in a given folder
+	"""
+    return [f.path for f in os.scandir(folderpath) if f.is_dir()]
+
+
+def check_file_exists(filepath, raise_error=False):
+	# Check if a file with the given path exists already
+	if os.path.isfile(filepath):
+		return True
+	elif raise_error:
+		raise FileExistsError("File {} doesn't exist".format(filepath))
+	else:
+		return False
+
+def get_file_name(filepath):
+    # Returns just the name, no complete path or extension
+    return os.path.splitext(os.path.basename(filepath))[0]
+
 # ------------------------------ Load/Save data ------------------------------ #
 def load_npy_from_gz(filepath):
 	f = gzip.GzipFile(filepath, "r")

@@ -223,7 +223,7 @@ class ABA(Atlas):
         else:
             return right
 
-    @staticmethod
+    @staticmethod # static method because this should inherit from scene
     def add_neurons(self, neurons, display_soma_region=False, soma_regions_kwargs=None,
                     display_axon_regions=False,
                     display_dendrites_regions=False, 
@@ -291,7 +291,7 @@ class ABA(Atlas):
                 self.actors["neurons"].extend(neurons)
             else:
                 raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
-        return neurons
+        return  
 
     # -------------------------- Methods specific to ABA ------------------------- #
 
