@@ -223,7 +223,7 @@ def test_video():
 def test_ibdb():
     from brainrender.atlases.insects_brains_db import IBDB 
     
-    scene = Scene(atlas=IBDB
+    scene = Scene(atlas=IBDB,
                 atlas_kwargs=dict(species='Schistocerca gregaria'
                 ))
 
