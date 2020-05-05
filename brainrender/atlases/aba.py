@@ -992,7 +992,6 @@ class ABA(Atlas):
         """
         return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(expid)
 
-
     def extract_ids_from_csv(self, csv_file, download=False, **kwargs):
         """
             Parse CSV file to extract experiments IDs and link to downloadable streamline data
