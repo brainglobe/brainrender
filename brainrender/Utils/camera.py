@@ -1,3 +1,5 @@
+import vtk
+
 sagittal_camera = dict(
     position = [5532.562, 8057.256, 66760.941] ,
     focal = [6587.835, 3849.085, 5688.164],
@@ -42,15 +44,58 @@ def check_camera_param(camera):
     if isinstance(camera, str):
         if camera not in cameras.keys():
             raise ValueError(f"Camera name {camera} if not recognized.\nValid cameras: {cameras.keys()}")
-        return cameras[camera]
+        cam =  cameras[camera]
+        if not len(cam): 
+            raise ValueError(f"Camera name {camera} is an empty dictionary!")
+        return cam
+
     elif not isinstance(camera, dict):
         raise ValueError(f"Camera should be either a string with a camera name or a dictionary of camera params.")
+
     else:
         params = ['position', 'focal', 'viewup', 'distance', 'clipping']
         for param in params:
             if param not in list(camera.keys()):
                 raise ValueError(f"Camera parameters dict should include the following keys: {params}")
         return camera
+
+def buildcam(cm):
+    """
+        Builds a camera from a dictionary of parameters, from vtkplotter
+    """
+
+    cm = cm.copy()
+    
+    cm_pos = cm.pop("position", None)
+    cm_focalPoint = cm.pop("focal", None)
+    cm_viewup = cm.pop("viewup", None)
+    cm_distance = cm.pop("distance", None)
+    cm_clippingRange = cm.pop("clipping", None)
+    cm_parallelScale = cm.pop("parallelScale", None)
+    cm_thickness = cm.pop("thickness", None)
+    cm_viewAngle = cm.pop("viewAngle", None)
+
+    cm = vtk.vtkCamera()
+
+    if cm_pos is not None: cm.SetPosition(cm_pos)
+    if cm_focalPoint is not None: cm.SetFocalPoint(cm_focalPoint)
+    if cm_viewup is not None: cm.SetViewUp(cm_viewup)
+    if cm_distance is not None: cm.SetDistance(cm_distance)
+    if cm_clippingRange is not None: cm.SetClippingRange(cm_clippingRange)
+    if cm_parallelScale is not None: cm.SetParallelScale(cm_parallelScale)
+    if cm_thickness is not None: cm.SetThickness(cm_thickness)
+    if cm_viewAngle is not None: cm.SetViewAngle(cm_viewAngle)
+    
+    return cm
+
+def set_camera_params(camera, params):
+    # Apply camera parameters
+    camera.SetPosition(params['position'])
+    camera.SetFocalPoint(params['focal'])
+    camera.SetViewUp(params['viewup'])
+    camera.SetDistance(params['distance'])
+    camera.SetClippingRange(params['clipping'])
+
 
 def set_camera(scene, camera):
     """
@@ -61,12 +106,14 @@ def set_camera(scene, camera):
                         a dictionary of camera parameters. 
         
     """
-    # Get camera params
-    camera = check_camera_param(camera)
+    if camera is None: return
 
-    # Apply camera parameters
-    scene.plotter.camera.SetPosition(camera['position'])
-    scene.plotter.camera.SetFocalPoint(camera['focal'])
-    scene.plotter.camera.SetViewUp(camera['viewup'])
-    scene.plotter.camera.SetDistance(camera['distance'])
-    scene.plotter.camera.SetClippingRange(camera['clipping'])
+    if not isinstance(camera, vtk.vtkCamera):
+        # Get camera params
+        camera = check_camera_param(camera)
+
+        # set params
+        set_camera_params(scene.plotter.camera, camera)
+    else:
+        scene.plotter.camera = camera
+

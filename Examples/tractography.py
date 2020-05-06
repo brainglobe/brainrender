@@ -5,7 +5,7 @@
 import brainrender
 brainrender.SHADER_STYLE = 'cartoon'
 from brainrender.scene import Scene
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 
 
 # Create a scene

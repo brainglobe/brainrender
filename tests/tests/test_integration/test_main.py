@@ -9,20 +9,18 @@ import json
 from brainrender.scene import Scene, MultiScene
 from brainrender import *
 from brainrender.colors import get_n_shades_of
-from brainrender.Utils.ABA.connectome import ABA
+from brainrender.atlases.aba import ABA
 from brainrender.Utils.parsers.streamlines import *
 from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
 from brainrender.Utils.MouseLightAPI.mouselight_info import *
 from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-from brainrender.Utils.parsers.streamlines import StreamlinesAPI
 from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
 from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
 
 def test_imports():
     aba = ABA()
-    streamlines_api = StreamlinesAPI()
     mlapi = MouseLightAPI()
 
 
@@ -30,17 +28,21 @@ def test_regions():
     scene = Scene()
     regions = ["MOs", "VISp", "ZI"]
     scene.add_brain_regions(regions, colors="green")
+    scene.close()
 
 def test_streamlines():
-    streamlines_api = StreamlinesAPI()
-
-    streamlines_files, data = streamlines_api.download_streamlines_for_region("PAG") 
-
     scene = Scene()
-    scene.add_streamlines(data[3], color="powderblue", show_injection_site=False, alpha=.3, radius=10)
-    scene.add_brain_regions(['PAG'], use_original_color=False, colors='powderblue', alpha=.9)
-    mos = scene.actors['regions']['PAG']
-    scene.edit_actors([mos], wireframe=True) 
+
+
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
+
+
+    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
+
+    scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
+
+    scene.render(camera='sagittal', zoom=1)
+    scene.close()
 
 
 def test_neurons():
@@ -171,28 +173,26 @@ def test_mouselight():
 
 def test_scene_title():
     scene = Scene(title='The thalamus.')
-    scene.add_brain_regions(['TH'], alpha=.4)
+
 
 def test_streamlines():
-    from brainrender.Utils.parsers.streamlines import StreamlinesAPI
+    # Start by creating a scene with the allen brain atlas atlas
+    scene = Scene()
+
 
     # Download streamlines data for injections in the CA1 field of the hippocampus
-    streamlines_api = StreamlinesAPI()
-    filepaths, data = streamlines_api.download_streamlines_for_region("CA1")
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
 
-    # Start by creating a scene
-    scene = Scene()
 
     scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
 
     # you can pass either the filepaths or the data
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
-
     scene.render(interactive=False, camera='sagittal', zoom=1)
     scene.close()
 
 def test_tractography():
-    from brainrender.Utils.ABA.connectome import ABA
+    from brainrender.atlases.aba import ABA
     # Create a scene
     scene = Scene()
 
@@ -220,3 +220,17 @@ def test_video():
 
     # Make a video!
     vm.make_video(elevation=1, roll=5) # specify how the scene rotates at each frame
+
+
+def test_ibdb():
+    from brainrender.atlases.insects_brains_db import IBDB 
+    
+    scene = Scene(atlas=IBDB,
+                atlas_kwargs=dict(species='Schistocerca gregaria'
+                ))
+
+    central_complex = ['CBU-S2']
+    scene.add_brain_regions(central_complex, alpha=1)
+
+    scene.render() 
+    scene.close()
