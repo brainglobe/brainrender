@@ -7,7 +7,7 @@ For more information about `brainrender` and how to use it, checkout the [brainr
 
 You can find an interactive example of a brainrender scene [here](https://fedeclaudi.github.io/br-info.html)
 
-<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/TH_white_bg.png" width="1000">
+<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/TH_white_bg.png" width="700">
 
 # Installation
 To install `brainrender`, use an existing python environment or create one [with `python < 3.8`] and install with:
