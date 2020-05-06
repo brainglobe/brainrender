@@ -83,6 +83,8 @@ class BasicVideoMaker:
         # Cd bake to original dir
         os.chdir(curdir)
 
+
+
 class CustomVideoMaker(BasicVideoMaker):
     """
         Subclasses BasicVideoMaker and replaces make_video method.
@@ -95,13 +97,18 @@ class CustomVideoMaker(BasicVideoMaker):
         Let's users use a custom function to create the video.
         The custom function must:
             - have a 'scene' keyword argument to accept a Scene() instance
-            - have a 'video' keyword argument to accept a Video() instance
+            - have a 'videomaker' keyword argument to accept the CustomVideoMaker (self) instance
+            - have a 'video' keyword that takes the Video argument
             - return the instance of Video
 
         The custom function can manipulate actors and camera in the scene and 
         add frames to the video with 'video.addFrame()'. 
         Once all frames are ready it has to return the video object 
         so that the video can be closed and saved.     
+
+        :param video_function: custom function used to generate the video's frames
+
+        see: examples/advanced/custom_videomaker.py
 
         """
         self.parse_kwargs(**kwargs)
@@ -110,15 +117,17 @@ class CustomVideoMaker(BasicVideoMaker):
         os.chdir(self.save_fld)
 
         # Create video
-        video = Video(name=self.save_name+self.video_format, 
-                    duration=self.duration, fps=self.fps)
+        video = Video(name=self.save_name, 
+                    duration=self.duration, 
+                    fps=self.fps)
 
         # run custom function
-        video = videofunc(scene=self.scene, video=video)
+        video = video_function(scene=self.scene, video=video, videomaker=self)
 
         # Check output
-        if video is None: 
-            raise ValueError("The custom video function didn't return anything."+
+        if video is None or not isinstance(video, Video): 
+            raise ValueError("The custom video function didn't return anything "+
+                                    "or it returned something other than the instance of Video "+
                                     "It must return the video object so that it can be closed properly.")
         if not isinstance(video, Video):
             raise ValueError(f"The custom video function returned invalid objects: {video} instead of video object")
