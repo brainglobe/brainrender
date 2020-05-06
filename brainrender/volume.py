@@ -81,5 +81,5 @@ def extract_label_mesh(vol, lbl):
     if not isinstance(vol, Volume): 
         raise TypeError(f"vol argument should be an instance of Volume not {vol.__type__}")
 
-    mask = vol.threshold(vmin=lbl-.1, vmax=lbl+.1)
+    mask = vol.threshold(above=lbl-.1, below=lbl+.1)
     return extract_volume_surface(mask, threshold=lbl-.1)

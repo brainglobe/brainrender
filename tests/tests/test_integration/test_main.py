@@ -28,6 +28,7 @@ def test_regions():
     scene = Scene()
     regions = ["MOs", "VISp", "ZI"]
     scene.add_brain_regions(regions, colors="green")
+    scene.close()
 
 def test_streamlines():
     scene = Scene()
@@ -41,6 +42,7 @@ def test_streamlines():
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
 
     scene.render(camera='sagittal', zoom=1)
+    scene.close()
 
 
 def test_neurons():
@@ -171,7 +173,7 @@ def test_mouselight():
 
 def test_scene_title():
     scene = Scene(title='The thalamus.')
-    scene.add_brain_regions(['TH'], alpha=.4)
+
 
 def test_streamlines():
     # Start by creating a scene with the allen brain atlas atlas

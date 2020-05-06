@@ -446,6 +446,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				colors = [colors for i in range(len(brain_regions))]
 
 		# loop over all brain regions
+		actors = []
 		for i, region in enumerate(brain_regions):
 			self.atlas._check_valid_region_arg(region)
 
@@ -495,8 +496,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 					obj.flag(region)
 
 				self.actors["regions"][region] = obj
+				actors.append(obj)
 			else:
 				print(f"Something went wrong while loading mesh data for {region}")
+		return actors
 
 	# ------------------- Methods supported by the atlas class ------------------- #
 	def add_neurons(self, *args, **kwargs):
@@ -994,8 +997,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			if not self.jupyter: # cameras work differently in jupyter notebooks?
 				if camera is None:
 					camera = self.camera
-				else:
+				
+				if isinstance(camera, (str, dict)): # otherwise assume that it's vtk.camera
 					camera = check_camera_param(camera)
+					
 				set_camera(self, camera)
 
 			if self.verbose and not self.jupyter:
@@ -1007,7 +1012,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			self._get_inset()
 
-		if zoom is None:
+		if zoom is None and not video:
 			if WHOLE_SCREEN:
 				zoom = 1.85
 			else:
@@ -1019,12 +1024,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			if interactive and not video:
 				show(*self.get_actors(), interactive=False, zoom=zoom)
 			elif video:
-				self.plotter.show(*self.get_actors(), interactive=False, offscreen=True, zoom=1)
+				self.plotter.show(*self.get_actors(), interactive=False, 
+						offscreen=True, zoom=zoom)
 			else:
 				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
 			if interactive and not video:
-				show(*self.get_actors(), interactive=True)
+				show(*self.get_actors(), interactive=True, zoom=zoom)
 
 	def close(self):
 		closePlotter()
