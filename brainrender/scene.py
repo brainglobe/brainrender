@@ -1,8 +1,10 @@
+import brainrender
+
 import numpy as np
 import os
 import datetime
 import random
-from vtkplotter import Plotter, shapes, ProgressBar, show, settings, screenshot, importWindow, interactive
+from vtkplotter import Plotter, shapes, ProgressBar, show, screenshot, importWindow, interactive
 from vtkplotter import Text2D, closePlotter, embedWindow, settings
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
@@ -144,6 +146,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if not use_default_key_bindings:
 			self.plotter.keyPressFunction = self.keypress
 			self.verbose = False
+
+		if not brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
+			settings.screenshotTransparentBackground = False
+			settings.useFXAA = True
+
 		
 		# Prepare store for actors added to scene
 		self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
@@ -499,7 +506,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				actors.append(obj)
 			else:
 				print(f"Something went wrong while loading mesh data for {region}")
-		return actors
+
+		if len(actors)>1:
+			return actors
+		else:
+			return actors[0]
 
 	# ------------------- Methods supported by the atlas class ------------------- #
 	def add_neurons(self, *args, **kwargs):
@@ -538,14 +549,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.atlas.add_injection_sites(self, *args, **kwargs)
 
 	# -------------------------- General actors/elements ------------------------- #
-	def add_vtkactor(self, actor):
+	def add_vtkactor(self, *actors):
 		"""
 		Add a vtk actor to the scene
 
 		:param actor:
 
 		"""
-		self.actors['others'].append(actor)
+		# TODO add a check that the arguments passed are indeed vtk actors?
+		for actor in actors:
+			self.actors['others'].append(actor)
 		return actor
 
 	def add_from_file(self, filepath, **kwargs):
@@ -1030,7 +1043,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
 
 			if interactive and not video:
-				show(*self.get_actors(), interactive=True, zoom=zoom)
+				show(*self.get_actors(), interactive=True)
 
 	def close(self):
 		closePlotter()

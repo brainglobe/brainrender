@@ -107,6 +107,6 @@ def frame_maker(scene=None, video=None, videomaker=None):
 # ---------------------------------------------------------------------------- #
 #                                  Video maker                                 #
 # ---------------------------------------------------------------------------- #
-vm = CustomVideoMaker(scene, save_fld='Docs/Media', save_name='streamlines_animation')
+vm = CustomVideoMaker(scene, save_name='streamlines_animation')
 vm.make_video(frame_maker)
 
