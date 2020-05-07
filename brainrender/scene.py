@@ -5,7 +5,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter, embedWindow, settings
+from vtkplotter import Text2D, closePlotter, embedWindow, settings, Plane
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
 from tqdm import tqdm 	
@@ -355,6 +355,51 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			mirror_coord = self.get_region_CenterOfMass('root', unilateral=False)[2]
 			actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis='x')
 
+	def cut_actors_with_plane(self, plane, actors=None, showplane=False, 
+			close_actors=False, 
+			**kwargs):
+		# Check arguments
+		if isinstance(plane, (list, tuple)):
+			planes = plane.copy()
+		else:
+			planes = [plane]
+		
+		if actors is None:
+			actors = self.get_actors()
+		else:
+			if not isinstance(actors, (list, tuple)):
+				actors = [actors]
+
+		# Loop over each plane
+		for plane in planes:
+			# Get the plane actor
+			if isinstance(plane, str):
+				if plane == 'sagittal':
+					plane = self.atlas.get_sagittal_plane(**kwargs)
+				elif plane == 'coronal':
+					plane = self.atlas.get_coronal_plane(**kwargs)
+				elif plane == 'horizontal':
+					plane = get_horizontal_plane(**kwargs)
+				else:
+					raise ValueError(f'Unrecognized plane name: {plane}')
+			else:
+				if not isinstance(plane,Plane):
+					raise ValueError(f'The plane arguments should either be a Plane actor or'
+							+ 'a string with the name of predefined planes.' +
+							f' Not: {plane.__type__}')
+
+			# Show plane
+			if showplane:
+				self.add_vtkactor(plane)
+
+			# Cut actors
+			for actor in actors:
+				actor = actor.cutWithPlane(origin=plane.center, normal=plane.normal)
+				
+				if close_actors:
+					actor.cap()
+
+
 	# ------------------------------ Cells functions ----------------------------- #
 	def get_cells_in_region(self, cells, region):
 		"""
@@ -374,7 +419,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	# ---------------------------------------------------------------------------- #
 	#                                POPULATE SCENE                                #
 	# ---------------------------------------------------------------------------- #	
-	# ------------------------------ Atlas specific ------------------------------ #
+
+	# ------------------------------- Atlas methods ------------------------------ #
+	# Each Atlas class overwrites some of these methods with atlas-specific methods. 
+	# Different atlses will overwrite different sets of methods, therefore supporting
+	# different functionality.
 
 	def add_root(self, render=True, **kwargs):
 		"""
@@ -393,9 +442,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			print("Could not find a root mesh")
 			return None
 
-		# get the center of the root and the bounding box
+		# get the center of the root and the bounding box + update for atlas
 		self.root_center = self.root.centerOfMass()
 		self.root_bounds = {"x":self.root.xbounds(), "y":self.root.ybounds(), "z":self.root.zbounds()}
+
+		self.atlas._root_midpoint = self.root_center
+		self.atlas._root_bounds = [self.root.xbounds(), self.root.ybounds(), self.root.zbounds()]
 
 		if render:
 			self.actors['root'] = self.root
@@ -512,7 +564,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		else:
 			return actors[0]
 
-	# ------------------- Methods supported by the atlas class ------------------- #
 	def add_neurons(self, *args, **kwargs):
 		"""
 		Adds rendered morphological data of neurons reconstructions.
@@ -557,9 +608,16 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		"""
 		# TODO add a check that the arguments passed are indeed vtk actors?
+
+		to_return = []
 		for actor in actors:
 			self.actors['others'].append(actor)
-		return actor
+			to_return.append(actor)
+
+		if len(to_return) == 0:
+			return to_return[0]
+		else:
+			return to_return
 
 	def add_from_file(self, filepath, **kwargs):
 		"""
@@ -906,6 +964,41 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		return actors 
 
+	def add_plane(self, plane, **kwargs):
+		"""
+			Adds one or more planes to the scene.
+			For more details on how to build custom planes, check:
+			brainrender/atlases/base.py -> Base.get_plane_at_point 
+			method.
+
+			:param plane: either a string with the name of one of 
+				the predifined planes ['sagittal', 'coronal', 'horizontal'] 
+				or an instance of the Plane class from vtkplotter.shapes
+		"""
+		if isinstance(plane, (list, tuple)):
+			planes = plane.copy()
+		else:
+			planes = [plane]
+
+		actors = []
+		for plane in planes:
+			if isinstance(plane, str):
+				if plane == 'sagittal':
+					plane = self.atlas.get_sagittal_plane(**kwargs)
+				elif plane == 'coronal':
+					plane = self.atlas.get_coronal_plane(**kwargs)
+				elif plane == 'horizontal':
+					plane = get_horizontal_plane(**kwargs)
+				else:
+					raise ValueError(f'Unrecognized plane name: {plane}')
+			else:
+				if not isinstance(plane,Plane):
+					raise ValueError(f'The plane arguments should either be a Plane actor or'
+							+ 'a string with the name of predefined planes.' +
+							f' Not: {plane.__type__}')
+			actors.append(plane)
+		self.add_vtkactor(*actors)
+	
 	# ----------------------- Application specific methods ----------------------- #
 	def add_probe_from_sharptrack(self, probe_points_file, 
 					points_kwargs={}, **kwargs):
