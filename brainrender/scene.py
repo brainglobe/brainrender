@@ -1156,7 +1156,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.render()
 
 		# Create new plotter and save to file
-		plt = show(*self.get_actors(), newPlotter=True)
+		plt = Plotter()
+		plt.add(self.get_actors())
+		plt = plt.show(interactive=False)
 
 		plt.camera[-2] = -1
 
