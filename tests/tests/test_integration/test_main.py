@@ -221,16 +221,3 @@ def test_video():
     # Make a video!
     vm.make_video(elevation=1, roll=5) # specify how the scene rotates at each frame
 
-
-def test_ibdb():
-    from brainrender.atlases.insects_brains_db import IBDB 
-    
-    scene = Scene(atlas=IBDB,
-                atlas_kwargs=dict(species='Schistocerca gregaria'
-                ))
-
-    central_complex = ['CBU-S2']
-    scene.add_brain_regions(central_complex, alpha=1)
-
-    scene.render() 
-    scene.close()
