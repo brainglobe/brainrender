@@ -1157,6 +1157,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# Create new plotter and save to file
 		plt = show(*self.get_actors(), newPlotter=True)
+
+		plt.camera[-2] = -1
+
 		print('Ready for exporting. Exporting scenes with many actors might require a few minutes')
 		try:
 			with open(filepath,'w') as fp:
