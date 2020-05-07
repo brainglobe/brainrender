@@ -262,7 +262,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						mesh = self.atlas.get_region_unilateral(region, hemisphere="left")
 					else:
 						mesh = self.atlas._get_structure_mesh(region)
-				coms[region] = [np.int(x) for x in mesh.centerOfMass()]
+
+				if mesh is None:
+					coms[region] = None
+				else:
+					coms[region] = [np.int(x) for x in mesh.centerOfMass()]
 			return coms
 
 	def get_n_random_points_in_region(self, region, N, hemisphere=None):
@@ -559,10 +563,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			else:
 				print(f"Something went wrong while loading mesh data for {region}")
 
-		if len(actors)>1:
-			return actors
-		else:
+		if len(actors)==1:
 			return actors[0]
+		else:
+			return actors
 
 	def add_neurons(self, *args, **kwargs):
 		"""
@@ -667,7 +671,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			raise FileNotFoundError(filepath)
 
 		# check that the file is of the supported types
-		if filepath.suffix in supported_formats:
+		if filepath.suffix == csv_suffix:
+			cells = pd.read_csv(filepath)
+			self.add_cells(cells, color=color, radius=radius, res=res,
+						   alpha=alpha)
+						   
+		elif filepath.suffix in supported_formats:
 			# parse file and load cell locations
 			if filepath.suffix in HDF_SUFFIXES:
 				if hdf_key is None:
@@ -685,8 +694,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						raise ValueError(
 							f"The key: {hdf_key} cannot be found in the hdf "
 							f"file. Please check the correct identifer.")
-			elif filepath.suffix == csv_suffix:
-				cells = pd.read_csv(filepath)
 			self.add_cells(cells, color=color, radius=radius, res=res,
 						   alpha=alpha)
 

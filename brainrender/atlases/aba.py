@@ -118,6 +118,8 @@ class ABA(Atlas):
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
             try:
+                if isinstance(region, dict):
+                    region = region['acronym']
                 structure = self.structure_tree.get_structures_by_acronym([region])[0]
             except Exception as e:
                 raise ValueError(f'Could not find region with name {region}, got error: {e}')
@@ -206,6 +208,10 @@ class ABA(Atlas):
         if color is None: color = ROOT_COLOR
         if alpha is None: alpha = ROOT_ALPHA
         bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
+
+        if bilateralmesh is None:
+            print(f'Failed to get mesh for {region}, returning None')
+            return None
 
         com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
         cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))

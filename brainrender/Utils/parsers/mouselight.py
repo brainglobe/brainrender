@@ -265,6 +265,8 @@ class NeuronsParser(Paths):
 				# Color the loaded neuron
 				for component, color in zip(['soma', 'dendrites', 'axon'], [soma_color, dendrites_color, axon_color]):
 					if component in list(neuron_actors.keys()):
+						if len(color) != 1 and len(color) != 3: 
+							color = color[neuron_number]
 						neuron_actors[component].color(color)
 				return neuron_actors, {'soma':soma_region, 'dendrites':None, 'axons':None}
 
