@@ -100,8 +100,8 @@ class Atlas(Paths):
             raise ValueError(f"Invalid pos argument: {pos}")
 
         norm = self._planes_norms['sagittal']
-        sx = np.diff(self._root_bounds[0])
-        sy = np.diff(self._root_bounds[1])
+        sx = float(np.diff(self._root_bounds[0]))
+        sy = float(np.diff(self._root_bounds[1]))
 
         sx += sx/5
         sy += sy/5
@@ -125,8 +125,8 @@ class Atlas(Paths):
             raise ValueError(f"Invalid pos argument: {pos}")
 
         norm = self._planes_norms['horizontal']
-        sx = np.diff(self._root_bounds[2])
-        sy = np.diff(self._root_bounds[0])
+        sx = float(np.diff(self._root_bounds[2]))
+        sy = float(np.diff(self._root_bounds[0]))
 
         sx += sx/5
         sy += sy/5
@@ -150,8 +150,8 @@ class Atlas(Paths):
             raise ValueError(f"Invalid pos argument: {pos}")
 
         norm = self._planes_norms['coronal']
-        sx = np.diff(self._root_bounds[2])
-        sy = np.diff(self._root_bounds[1])
+        sx = float(np.diff(self._root_bounds[2]))
+        sy = float(np.diff(self._root_bounds[1]))
 
         sx += sx/5
         sy += sy/5

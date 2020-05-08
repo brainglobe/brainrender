@@ -512,6 +512,7 @@ class ABA(Atlas):
                 else:
                     streamlines = parse_streamline(data=sl_file, color=col, *args, **kwargs)
             self.actors['tracts'].extend(streamlines)
+        return streamlines
 
     @staticmethod
     def add_injection_sites(self, experiments, color=None):
