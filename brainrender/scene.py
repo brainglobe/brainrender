@@ -134,7 +134,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		# Create plotter
 		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, title='brainrender')
-
 		self.plotter.legendBC = getColor('blackboard')
 
 		# SCreenshots and keypresses variables
@@ -262,7 +261,11 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						mesh = self.atlas.get_region_unilateral(region, hemisphere="left")
 					else:
 						mesh = self.atlas._get_structure_mesh(region)
-				coms[region] = [np.int(x) for x in mesh.centerOfMass()]
+
+				if mesh is None:
+					coms[region] = None
+				else:
+					coms[region] = [np.int(x) for x in mesh.centerOfMass()]
 			return coms
 
 	def get_n_random_points_in_region(self, region, N, hemisphere=None):
@@ -356,6 +359,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis='x')
 
 	def cut_actors_with_plane(self, plane, actors=None, showplane=False, 
+			returncut=False,
 			close_actors=False, 
 			**kwargs):
 		# Check arguments
@@ -371,6 +375,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				actors = [actors]
 
 		# Loop over each plane
+		to_return = []
 		for plane in planes:
 			# Get the plane actor
 			if isinstance(plane, str):
@@ -394,10 +399,18 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			# Cut actors
 			for actor in actors:
-				actor = actor.cutWithPlane(origin=plane.center, normal=plane.normal)
+				if actor is None: continue
+				actor = actor.cutWithPlane(origin=plane.center, normal=plane.normal, returnCut=returncut)
+				if returncut:
+					to_return.append(actor)
 				
 				if close_actors:
 					actor.cap()
+
+		if len(to_return) == 1:
+			return to_return[0]
+		else:
+			return to_return
 
 
 	# ------------------------------ Cells functions ----------------------------- #
@@ -559,10 +572,10 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			else:
 				print(f"Something went wrong while loading mesh data for {region}")
 
-		if len(actors)>1:
-			return actors
-		else:
+		if len(actors)==1:
 			return actors[0]
+		else:
+			return actors
 
 	def add_neurons(self, *args, **kwargs):
 		"""
@@ -590,7 +603,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		Render streamline data.
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_streamlines(self, *args,  **kwargs)
+		return self.atlas.add_streamlines(self, *args,  **kwargs)
 
 	def add_injection_sites(self, *args, **kwargs):
 		"""
@@ -667,7 +680,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			raise FileNotFoundError(filepath)
 
 		# check that the file is of the supported types
-		if filepath.suffix in supported_formats:
+		if filepath.suffix == csv_suffix:
+			cells = pd.read_csv(filepath)
+			self.add_cells(cells, color=color, radius=radius, res=res,
+						   alpha=alpha)
+						   
+		elif filepath.suffix in supported_formats:
 			# parse file and load cell locations
 			if filepath.suffix in HDF_SUFFIXES:
 				if hdf_key is None:
@@ -685,8 +703,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						raise ValueError(
 							f"The key: {hdf_key} cannot be found in the hdf "
 							f"file. Please check the correct identifer.")
-			elif filepath.suffix == csv_suffix:
-				cells = pd.read_csv(filepath)
 			self.add_cells(cells, color=color, radius=radius, res=res,
 						   alpha=alpha)
 
@@ -1069,8 +1085,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 					if SHADER_STYLE != 'cartoon':
 						actor.lighting(style=SHADER_STYLE)
 					else:
-						actor.lighting(style='plastic', 
-								enabled=False)
+						# actor.lighting(style='plastic', 
+						# 		enabled=False)
+						actor.lighting('off')
 				except: pass # Some types of actors such as Text 2D don't have this attribute!
 
 	def get_actors(self):
@@ -1156,7 +1173,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.render()
 
 		# Create new plotter and save to file
-		plt = show(*self.get_actors(), newPlotter=True)
+		plt = Plotter()
+		plt.add(self.get_actors())
+		plt = plt.show(interactive=False)
 
 		plt.camera[-2] = -1
 
