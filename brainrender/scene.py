@@ -154,6 +154,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		# Prepare store for actors added to scene
 		self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
 		self._actors = None # store a copy of the actors when manipulations like slicing are done
+		self.store = {} # in case we need to store some data
 
 		# Add items to scene
 		if brain_regions is not None:
@@ -754,6 +755,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		if verbose:
 			print("Added {} cells to the scene".format(len(coords)))
+		
+		return spheres
 
 	def add_image(self, image_file_path, color=None, alpha=None,
 				  obj_file_path=None, voxel_size=1, orientation="saggital",
@@ -1126,12 +1129,13 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 					
 				set_camera(self, camera)
 
-			if self.verbose and not self.jupyter:
-				print(INTERACTIVE_MSG)
-			elif self.jupyter:
-				print("The scene is ready to render in your jupyter notebook")
-			else:
-				print("\n\nRendering scene.\n   Press 'q' to Quit")
+			if interactive:
+				if self.verbose and not self.jupyter:
+					print(INTERACTIVE_MSG)
+				elif self.jupyter:
+					print("The scene is ready to render in your jupyter notebook")
+				else:
+					print("\n\nRendering scene.\n   Press 'q' to Quit")
 
 			self._get_inset()
 
