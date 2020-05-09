@@ -230,6 +230,10 @@ class AllenMorphology(Paths):
 			if isinstance(neuron, str):
 				if os.path.isdir(neuron):
 					neurons = listdir(neuron)
+				elif os.path.isfile(neuron):
+					neurons = [neuron]
+				else: 
+					raise ValueError(neuron)
 			else:
 				neurons = [neuron]
 		
