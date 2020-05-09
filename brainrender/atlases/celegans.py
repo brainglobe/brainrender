@@ -20,7 +20,7 @@ from brainrender.Utils.data_io import load_mesh_from_file, listdir, get_subdirs,
 from brainrender.colors import get_random_colors, makePalette, getColor
 from brainrender import NEURON_RESOLUTION, ROOT_ALPHA, ROOT_COLOR, VERBOSE
 
-
+# TODO add method to select pre/post synapses based on synaptic partner
 
 
 class Celegans(Atlas):
