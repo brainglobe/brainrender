@@ -24,8 +24,8 @@ SCREENSHOT_TRANSPARENT_BACKGROUND = True # If true the screenshots are saved wit
 DEFAULT_VIP_REGIONS = []          # list of acronyms of regions that must have different colors by default
 DEFAULT_VIP_COLOR = [.8, .2, .2]  # default color of VIP regions
 
-ROOT_COLOR = [.8, .8, .8]         # color of the overall brain model's actor
-ROOT_ALPHA = .1                   # transparency of the overall brain model's actor'
+ROOT_COLOR = [.4, .4, .4]         # color of the overall brain model's actor
+ROOT_ALPHA = .2                   # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
 DEFAULT_STRUCTURE_ALPHA = 0.5

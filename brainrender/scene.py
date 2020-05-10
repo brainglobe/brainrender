@@ -748,7 +748,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			raise ValueError("Unrecognized argument for cell coordinates")
 
 		if color_by_region:
-			color = self.get_colors_from_coordinates(coords)
+			color = self.atlas.get_colors_from_coordinates(coords)
 
 		spheres = shapes.Spheres(coords, c=color, r=radius, res=res, alpha=alpha)
 		self.actors['others'].append(spheres)

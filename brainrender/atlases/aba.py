@@ -16,7 +16,7 @@ from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
 from brainrender import * 
 from brainrender.Utils import actors_funcs
-from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors
+from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap
 
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
@@ -234,7 +234,8 @@ class ABA(Atlas):
 
 
     @staticmethod # static method because this should inherit from scene
-    def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True):
+    def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
+                alpha=1, neurite_radius=None):
         """
         Adds rendered morphological data of neurons reconstructions downloaded from the
         Mouse Light project at Janelia (or other sources). 
@@ -253,6 +254,8 @@ class ABA(Atlas):
                 - dict: a dictionary specifying a color for soma, dendrites and axon actors, will be the same for all neurons
                 - list: a list of length = number of neurons with either a single color for each neuron
                         or a dictionary of colors for each neuron
+        :param alpha: float in range 0,1. Neurons transparency
+        :param neurite_radius: float > 0 , radius of tube actor representing neurites
         """
 
         if not isinstance(neurons, (list, tuple)):
@@ -356,7 +359,7 @@ class ABA(Atlas):
             if isinstance(neuron, str):
                 if os.path.isfile(neuron):
                     if neuron.endswith('.swc'):
-                        neuron_actors, _ = get_neuron_actors_with_morphapi(swcfile=neuron)
+                        neuron_actors, _ = get_neuron_actors_with_morphapi(swcfile=neuron, neurite_radius=neurite_radius)
                     else:
                         raise NotImplementedError('Currently we can only parse morphological reconstructions from swc files')
                 else:

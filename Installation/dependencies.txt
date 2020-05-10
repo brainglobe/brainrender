@@ -1,8 +1,0 @@
-numpy
-pandas
-vtkplotter
-vtk
-allensdk
-tqdm
-pyyaml
-brainio
