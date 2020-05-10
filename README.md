@@ -123,9 +123,9 @@ Thanks to @tbslv's contribution brainrender can be integrated with SharpTrack fr
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender.
 Brainrender's flexibility when it comes to specify the appearance of rendered objects means that it can easily be used to display data as well as create schematics for scientific publications. 
 
-Optic fibre             |  Electrodes array         |  Neuropixel Probe
+Creating schematics         | .          |  .
 :-------------------------:|:-------------------------:|:-------------------------:
-<img src="https://github.com/BrancoLab/BrainREnder/raw/masterDocs/Media/skull.png" width="1900">  |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlinespretty.png" width="1900"> |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/aba.png" width="1900">
+<img src="https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/skull.png" width="1900">  |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlinespretty.png" width="1900"> |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/aba.png" width="1900">
 
 
 
