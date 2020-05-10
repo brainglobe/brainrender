@@ -1,6 +1,9 @@
 
 # BrainRender
-<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png" width="700">
+<p align="center" style="margin-bottom: 3002px">
+  <img width="600" src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png">
+</p>
+
 
 
 `brainrender` is a python package for the visualization of three dimensional neuroanatomical from publicly available dataset (e.g. Allen Brain atlas) and from user generated experimental data. 
@@ -9,9 +12,13 @@ platform to create 3D renderings.
 
 
 For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
-You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html)
+You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html).
 
-<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neurons_transparent.png" width="700">
+
+<p style="background-color: rgb(20, 20, 20)" align="center">
+<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neurons_transparent.png" width="700" >
+</p>
+
 
 # Installation
 To install `brainrender`, use an existing python environment or [create](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) one [with `python < 3.8`] and install with:
@@ -116,9 +123,9 @@ Thanks to @tbslv's contribution brainrender can be integrated with SharpTrack fr
 Brainrender's high quality renderings can be exported as `.png` images directly within brainrender.
 Brainrender's flexibility when it comes to specify the appearance of rendered objects means that it can easily be used to display data as well as create schematics for scientific publications. 
 
-Optic fibre             |  Electrodes array         |  Neuropixel Probe
+Creating schematics         | .          |  .
 :-------------------------:|:-------------------------:|:-------------------------:
-<img src="https://github.com/BrancoLab/BrainREnder/raw/masterDocs/Media/skull.png" width="1900">  |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlinespretty.png" width="1900"> |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/aba.png" width="1900">
+<img src="https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/skull.png" width="1900">  |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlinespretty.png" width="1900"> |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/aba.png" width="1900">
 
 
 
