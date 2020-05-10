@@ -128,7 +128,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			sz = "auto"
 
 		if SHOW_AXES:
-			axes = 4
+			axes = 1 # 4
 		else:
 			axes = 0
 

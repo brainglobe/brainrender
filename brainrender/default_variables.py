@@ -47,7 +47,7 @@ STREAMLINES_RESOLUTION = 3     # resolution of actors used to render the neuron,
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 USE_MORPHOLOGY_CACHE = True     # If True once a neuron's data is parsed the resulting actor is saved to file and used for subsequent renderenings
-DEFAULT_NEURITE_RADIUS = 8     # radius of dendrites, axons...
+DEFAULT_NEURITE_RADIUS = 8     # rneurites (axon/dendrites) radius as a fraction of soma radius
 SOMA_RADIUS = 4                 # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
 NEURON_ALPHA = 0.85             # transparency of the neurons actors

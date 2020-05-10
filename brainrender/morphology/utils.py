@@ -1,3 +1,28 @@
+from brainrender import DEFAULT_NEURITE_RADIUS
+
+from morphapi.morphology.morphology import Neuron
+
+from vtkplotter import merge
+
+
+def get_neuron_actors_with_morphapi(swcfile=None, neuron=None):
+	if swcfile is None and neuron is None:
+		raise ValueError('No input passed')
+
+	if swcfile is not None:
+		neuron = Neuron(swc_file=neuron)
+	
+	neurites, whole_neuron = neuron.create_mesh(neurite_radius=DEFAULT_NEURITE_RADIUS)
+
+	actors = dict(
+		soma=neurites['soma'],
+		axon = neurites['axon'],
+		dendrites = merge(neurites['basal_dendrites'], neurites['apical_dendrites'])
+	)
+
+	return actors, whole_neuron
+
+
 
 def edit_neurons(neurons, **kwargs):
 	"""
@@ -6,6 +31,9 @@ def edit_neurons(neurons, **kwargs):
 	:param neurons: list of dictionaries with vtk actors for each neuron
 	:param **kwargs: 
 	"""
+	if not isinstance(neurons, (list, tuple)):
+		neurons = [neurons]
+
 	soma_color, axon_color, dendrites_color = None, None, None
 	for neuron in neurons:
 		if "random_color" in kwargs:

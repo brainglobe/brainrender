@@ -6,13 +6,15 @@ from tqdm import tqdm
 from vtkplotter import ProgressBar, shapes, merge
 from vtkplotter.mesh import Mesh as Actor
 
+from morphapi.morphology.morphology import Neuron
+
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
-from brainrender.Utils.parsers.mouselight import NeuronsParser, edit_neurons
+from brainrender.morphology.utils import edit_neurons, get_neuron_actors_with_morphapi
 from brainrender.Utils.parsers.streamlines import parse_streamline
 from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
-from brainrender import * # Import default params 
+from brainrender import * 
 from brainrender.Utils import actors_funcs
 
 
@@ -235,69 +237,79 @@ class ABA(Atlas):
                     display_dendrites_regions=False, 
                     **kwargs):
         """
-        Adds rendered morphological data of neurons reconstructions downloaded from the Mouse Light project at Janelia (or other sources). Can accept rendered neurons
-        or a list of files to be parsed for rendering. Several arguments can be passed to specify how the neurons are rendered.
+        Adds rendered morphological data of neurons reconstructions downloaded from the
+        Mouse Light project at Janelia (or other sources). 
+        Accepts neurons argument as:
+            - file(s) with morphological data
+            - vtkplotter mesh actor(s) of entire neurons reconstructions
+            - dictionary or list of dictionary with actors for different neuron parts
 
-        :param scene: instance of brainrender Scene to use to render neurons
+        :param self: instance of brainrender Scene to use to render neurons
         :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
-        :param display_soma_region: if True, the region in which the neuron's soma is located is rendered (Default value = False)
-        :param soma_regions_kwargs: dict, specifies how the soma regions should be rendered (Default value = None)
-        :param display_axon_regions: if True, the regions through which the axons go through are rendered (Default value = False)
-        :param display_dendrites_regions: if True, the regions through which the dendrites go through are rendered  (Default value = False)
         :param **kwargs:
         """
-        def runfile(parser, neuron_file, soma_regions_kwargs):
-            """
-            :param parser:
-            :param neuron_file:
-            :param soma_regions_kwargs:
-            """
-            neurons, regions = parser.render_neurons(neuron_file)
-            self.actors["neurons"].extend(neurons)
 
-            # add soma's brain reigons
-            if soma_regions_kwargs is None:
-                soma_regions_kwargs = {
-                    "use_original_color":False,
-                    "alpha":0.5
-                }
-            if display_soma_region:
-                scene.add_brain_regions(flatten_list([r['soma'] for r in regions]), **soma_regions_kwargs)
-            if display_axon_regions:
-                scene.add_brain_regions(flatten_list([r['axon'] for r in regions]), **soma_regions_kwargs)
-            if display_dendrites_regions:
-                scene.add_brain_regions(flatten_list([r['dendrites'] for r in regions]), **soma_regions_kwargs)
+        if not isinstance(neurons, (list, tuple)):
+            neurons = [neurons]
 
-        if isinstance(neurons, str):
-            if os.path.isfile(neurons):
-                parser = NeuronsParser(scene=self, **kwargs)
-                runfile(parser, neurons, soma_regions_kwargs)
-            else:
-                raise FileNotFoundError("The neuron file provided cannot be found: {}".format(neurons))
-        elif isinstance(neurons, list):
-            if not neurons:
-                print("Didn't find any neuron to render.")
-                return
-            if not isinstance(neurons[0], str):
-                neurons = edit_neurons(neurons, **kwargs)
-                self.actors["neurons"].extend(neurons)
-            else:
-                # list of file paths
-                if not os.path.isfile(neurons[0]): raise ValueError("Expected a list of file paths, got {} instead".format(neurons))
-                parser = NeuronsParser(scene=self, **kwargs)
+        _neurons_actors = []
+        for neuron in neurons:
+            neuron_actors = {'soma':None, 'dendrites':None, 'axon': None}
+            
+            # Deal with neuron as filepath
+            if isinstance(neuron, str):
+                if os.path.isfile(neuron):
+                    if neuron.endswith('.swc'):
+                        neuron_actors, _ = get_neuron_actors_with_morphapi(swcfile=neuron)
+                    else:
+                        raise NotImplementedError('Currently we can only parse morphological reconstructions from swc files')
+                else:
+                    raise ValueError(f"Passed neruon {neuron} is not a valid input. Maybe the file doesn't exist?")
+            
+            # Deal with neuron as single actor
+            elif isinstance(neuron, Actor):
+                # A single actor was passed, maybe it's the entire neuron
+                neuron_actors['soma'] = neuron # store it as soma anyway
+                pass
 
-                print('\n')
-                pb = ProgressBar(0, len(neurons), c="blue", ETA=1)
-                for i in pb.range():
-                    pb.print("Neuron {} of {}".format(i+1, len(neurons)))
-                    runfile(parser, neurons[i], soma_regions_kwargs)
-        else:
-            if isinstance(neurons, dict):
-                neurons = edit_neurons([neurons], **kwargs)
-                self.actors["neurons"].extend(neurons)
+            # Deal with neuron as dictionary of actor
+            elif isinstance(neuron, dict):
+                neuron_actors['soma'] = neuron.pop('soma', None)
+                neuron_actors['axon'] = neuron.pop('axon', None)
+
+                # Get dendrites actors
+                if 'apical_dendrites' in neuron.keys() or 'basal_dendrites' in neuron.keys():
+                    if 'apical_dendrites' not in neuron.keys():
+                        neuron_actors['dendrites'] = neuron['basal_dendrites']
+                    elif 'basal_dendrites' not in neuron.keys():
+                        neuron_actors['dendrites'] = neuron['apical_dendrites']
+                    else:
+                        neuron_ctors['dendrites'] = merge(neuron['apical_dendrites'], neuron['basal_dendrites'])
+                else:
+                    neuron_actors['dendrites'] = neuron.pop('dendrites', None)
+            
+            # Deal with neuron as instance of Neuron from morphapi
+            elif isinstance(neuron, Neuron):
+                neuron_actors, _ = get_neuron_actors_with_morphapi(neuron=neuron)
+                a = 2
+                
+            # Deal with other inputs
             else:
-                raise ValueError("the 'neurons' variable passed is neither a filepath nor a list of actors: {}".format(neurons))
-        return  
+                raise ValueError(f"Passed neuron {neuron} is not a valid input")
+
+            # Check that we don't have anything weird in neuron_actors
+            for key, act in neuron_actors.items():
+                if act is not None:
+                    if not isinstance(act, Actor):
+                        raise ValueError(f"Neuron actor {key} is {act.__type__} but should be a vtkplotter Mesh. Not: {act}")
+
+            _neurons_actors.append(neuron_actors)
+
+        # Add to actors storage
+        self.actors["neurons"].extend(_neurons_actors)
+        return
+
+
 
     # -------------------------- Methods specific to ABA ------------------------- #
 
