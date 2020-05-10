@@ -1,0 +1,6 @@
+`brainrender` can be used to download and visualize anatomical data from publicly available datasets as well as user generated content. Data from the Allen Mouse Brain Atlas and Allen Mouse Connectome projects can be used to visualise the three dimensional morphology of brain region and obtain a qualitative understanding of the I/O connective of a region of interest. 
+Brainrender can also be used to visualise reconstructed neuronal morphologies, either by downloading them directly from MouseLight project from Janelia Research campus, or by rendering reconstructions obtained from elsewhere (e.g. from [neuromorpho.org](http://neuromorpho.org)).
+
+In addition, `brainrender` can be used to visualise data generated within your lab. Brainrender can be used to visualise the results of tracing experiments (e.g. location of the injection site and labelled cells) and to visualise the location of chronically implanted device (such as electrodes arrays or optic fibres). 
+
+![](https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/summary_figure.png)
