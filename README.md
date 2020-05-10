@@ -125,7 +125,7 @@ Brainrender's flexibility when it comes to specify the appearance of rendered ob
 
 Creating schematics         | .          |  .
 :-------------------------:|:-------------------------:|:-------------------------:
-<img src="Docs/Media/skull.png" width="600">  |  <img src="Docs/Media/streamlinespretty.png" width="1900"> |  <img src="Docs/Media/aba.png" width="1900">
+<img src="Docs/Media/skull.png" width="1900">  |  <img src="Docs/Media/streamlinespretty.png" width="1900"> |  <img src="Docs/Media/aba.png" width="1900">
 
 
 
