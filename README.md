@@ -125,7 +125,7 @@ Brainrender's flexibility when it comes to specify the appearance of rendered ob
 
 Creating schematics         | .          |  .
 :-------------------------:|:-------------------------:|:-------------------------:
-<img src="https://raw.githubusercontent.com/BrancoLab/BrainREnder/master/Docs/Media/skull.png" width="1900">  |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/streamlinespretty.png" width="1900"> |  <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/aba.png" width="1900">
+<img src="Docs/Media/skull.png" width="600">  |  <img src="Docs/Media/streamlinespretty.png" width="1900"> |  <img src="Docs/Media/aba.png" width="1900">
 
 
 
