@@ -12,9 +12,13 @@ platform to create 3D renderings.
 
 
 For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1).
-You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html)
+You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html).
 
-<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neurons_transparent.png" width="700">
+
+<p style="background-color: rgb(20, 20, 20)" align="center">
+<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neurons_transparent.png" width="700" >
+</p>
+
 
 # Installation
 To install `brainrender`, use an existing python environment or [create](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) one [with `python < 3.8`] and install with:
