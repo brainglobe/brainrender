@@ -13,11 +13,10 @@ from brainrender.atlases.aba import ABA
 from brainrender.Utils.parsers.streamlines import *
 from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
-from brainrender.Utils.MouseLightAPI.mouselight_info import *
-from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
 from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
+from morphapi.morphology.morphology import Neuron
+from morphapi.api.mouselight import MouseLightAPI, mouselight_structures_identifiers
 
 def test_imports():
     aba = ABA()
@@ -30,6 +29,9 @@ def test_regions():
     scene.add_brain_regions(regions, colors="green")
     scene.close()
 
+
+
+
 def test_streamlines():
     scene = Scene()
 
@@ -41,27 +43,28 @@ def test_streamlines():
 
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
 
-    scene.render(camera='sagittal', zoom=1)
+    scene.render(camera='sagittal', zoom=1, interactive=Fa;se)
     scene.close()
+
+
 
 
 def test_neurons():
     scene = Scene()
+    
     mlapi = MouseLightAPI()
-    neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
-    neurons_files =  mlapi.download_neurons(neurons_metadata[:2])
 
-    parser = NeuronsParser(scene=scene, 
-                        color_neurites=True, axon_color="antiquewhite", 
-                        soma_color="darkgoldenrod", dendrites_color="firebrick")
-    neurons, regions = parser.render_neurons(neurons_files)
+    # Fetch metadata for neurons with some in the secondary motor cortex
+    neurons_metadata = mlapi.fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
 
-    scene.add_neurons(neurons_files, color_neurites=False, random_color="jet", display_axon_regions=False)
+    # Then we can download the files and save them as a .json file
+    neurons =  mlapi.download_neurons(neurons_metadata[:5])
 
-def test_neurons_swc():
-    am = AllenMorphology()
-    neuron = am.download_neurons(am.neurons.id.values[0:3])
-    am.add_neuron(neuron)
+    scene = Scene(title='One color')
+    scene.add_neurons(neurons, color='salmon', display_axon=False, neurite_radius=6)
+    scene.render(interactive=False)
+    scene.close()
+
 
 
 def test_tractography():
@@ -92,6 +95,9 @@ def test_camera():
         distance = 9522.144,
         clipping = [5892.778, 14113.736],
     )
+
+    scene.render(interactive=False, camera=bespoke_camera, zoom=1)
+    scene.close()
 
 # def test_connectome():
 #     from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import VolumetricAPI
@@ -137,78 +143,11 @@ def test_labelled_cells():
     # Add cells
     scene.add_cells(cells, color='darkseagreen', res=12, radius=25)
 
-def test_morphology():
-    from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
-
-    am = AllenMorphology(scene_kwargs={'title':'A single neuron.'})
-
-    print(am.neurons.head()) # this dataframe has metadata for all available neurons
-
-    neurons = am.download_neurons(am.neurons.id.values[0]) # download one neruons
-
-    # Render 
-    am.add_neuron(neurons, color='salmon')
-
-def test_mouselight():
-    from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-    from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
-
-    # Fetch metadata for neurons with some in the secondary motor cortex
-    neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
-
-    # Then we can download the files and save them as a .json file
-    ml_api = MouseLightAPI() 
-    neurons_files =  ml_api.download_neurons(neurons_metadata[:2]) # just saving the first couple neurons to speed things up
-
-    # Show neurons and ZI in the same scene:
-    scene = Scene()
-    scene.add_neurons(neurons_files, soma_color='orangered', dendrites_color='orangered', 
-                    axon_color='darkseagreen', neurite_radius=8) # add_neurons takes a lot of arguments to specify how the neurons should look
-    # make sure to check the source code to see all available optionsq
-
-    scene.add_brain_regions(['MOs'], alpha=0.15) 
-    scene.render(interactive=False, camera='coronal') 
-    scene.close()
 
 
 def test_scene_title():
     scene = Scene(title='The thalamus.')
 
-
-def test_streamlines():
-    # Start by creating a scene with the allen brain atlas atlas
-    scene = Scene()
-
-
-    # Download streamlines data for injections in the CA1 field of the hippocampus
-    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
-
-
-    scene.add_brain_regions(['CA1'], use_original_color=True, alpha=.2)
-
-    # you can pass either the filepaths or the data
-    scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
-    scene.render(interactive=False, camera='sagittal', zoom=1)
-    scene.close()
-
-def test_tractography():
-    from brainrender.atlases.aba import ABA
-    # Create a scene
-    scene = Scene()
-
-    # Get the center of mass of the region of interest
-    p0 = scene.get_region_CenterOfMass("ZI")
-
-    # Get projections to that point
-    analyzer = ABA()
-    tract = analyzer.get_projection_tracts_to_target(p0=p0)
-
-    # Add the brain regions and the projections to it
-    scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
-    scene.add_tractography(tract, display_injection_structure=False, color_by="region")
-
-    scene.render(interactive=False, )
-    scene.close()
 
 def test_video():
     from brainrender.animation.video import BasicVideoMaker as VideoMaker

@@ -24,8 +24,8 @@ SCREENSHOT_TRANSPARENT_BACKGROUND = True # If true the screenshots are saved wit
 DEFAULT_VIP_REGIONS = []          # list of acronyms of regions that must have different colors by default
 DEFAULT_VIP_COLOR = [.8, .2, .2]  # default color of VIP regions
 
-ROOT_COLOR = [.8, .8, .8]         # color of the overall brain model's actor
-ROOT_ALPHA = .1                   # transparency of the overall brain model's actor'
+ROOT_COLOR = [.4, .4, .4]         # color of the overall brain model's actor
+ROOT_ALPHA = .2                   # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
 DEFAULT_STRUCTURE_ALPHA = 0.5
@@ -47,7 +47,7 @@ STREAMLINES_RESOLUTION = 3     # resolution of actors used to render the neuron,
         # MOUSE LIGHT NEURONS RENDERING VARIABLES
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
 USE_MORPHOLOGY_CACHE = True     # If True once a neuron's data is parsed the resulting actor is saved to file and used for subsequent renderenings
-DEFAULT_NEURITE_RADIUS = 8     # radius of dendrites, axons...
+DEFAULT_NEURITE_RADIUS = 8     # rneurites (axon/dendrites) radius as a fraction of soma radius
 SOMA_RADIUS = 4                 # radius of the soma sphere
 NEURON_RESOLUTION = 16          # resolution of actors used to render the neuron, 
 NEURON_ALPHA = 0.85             # transparency of the neurons actors

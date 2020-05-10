@@ -7,7 +7,7 @@
 *.pyc
 *.vtk
 *.obj
-*.stl
+# *.stl
 *.nrrd
 *.swc
 *.svg

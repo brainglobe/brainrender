@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 from PIL import ImageColor
 
-from vtkplotter import load, merge, save
+from vtkplotter import load, merge, write
 
 from brainrender.atlases.base import Atlas
 from brainrender.Utils.webqueries import request
@@ -207,12 +207,12 @@ class IBDB(Atlas):
         if self.make_root:
             self.make_root_mesh()
 
-    def download_and_save_mesh(self, acronym, obj_path):
+    def download_and_write_mesh(self, acronym, obj_path):
         print(f"Downloading mesh data for {acronym}")
         path = self.structures.loc[self.structures.acronym == acronym].obj_path.values[0]
         url = f"{self._url_paths['data']}/{path}"
 
-        # download and save .obj
+        # download and write .obj
         mesh_data = request(url).content.decode("utf-8").split("\n")
         with open(obj_path, 'w') as f:
             for md in mesh_data:
@@ -232,7 +232,7 @@ class IBDB(Atlas):
         # Get the mesh for each brain region to create root
         meshes = [self._get_structure_mesh(reg) for reg in self.region_acronyms]
         root = merge(meshes)
-        save(root, obj_path)
+        write(root, obj_path)
 
 
     # ---------------------------------------------------------------------------- #
@@ -266,7 +266,7 @@ class IBDB(Atlas):
             mesh = load_mesh_from_file(obj_path, **kwargs)
             return mesh
         else:
-            mesh = self.download_and_save_mesh(acronym, obj_path)
+            mesh = self.download_and_write_mesh(acronym, obj_path)
             return None
 
     def _check_valid_region_arg(self, region):
@@ -282,15 +282,15 @@ class IBDB(Atlas):
 
     def _check_obj_file(self, region, obj_file):
         """
-        If the .obj file for a brain region hasn't been downloaded already, this function downloads it and saves it.
+        If the .obj file for a brain region hasn't been downloaded already, this function downloads it and writes it.
 
         :param region: string, acronym of brain region
-        :param obj_file: path to .obj file to save downloaded data.
+        :param obj_file: path to .obj file to write downloaded data.
 
         """
         # checks if the obj file has been downloaded already, if not it takes care of downloading it
         if not os.path.isfile(obj_file):
-            self.download_and_save_mesh(region, obj_file)
+            self.download_and_write_mesh(region, obj_file)
         return True
 
     def get_region_color(self, regions):
