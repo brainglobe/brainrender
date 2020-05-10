@@ -1,6 +1,6 @@
 
 # BrainRender
-<p align="center">
+<p align="center" style="margin-bottom: 3002px">
   <img width="600" src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png">
 </p>
 
