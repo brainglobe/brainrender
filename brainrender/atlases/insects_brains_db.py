@@ -22,6 +22,12 @@ from brainrender.Utils.data_io import load_mesh_from_file
 
     The insectbraindb.org is primarily curated by Dr. Stanley Heinze, and 
     was buily by Kevin Tedore, and has several significant supporters, including the ERC.
+
+
+
+
+    Check Examples/custom_atlases/insects_brains.py for more details.
+
 """
 
 
