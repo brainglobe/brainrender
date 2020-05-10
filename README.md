@@ -1,6 +1,9 @@
 
 # BrainRender
-<img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png" width="700">
+<p align="center">
+  <img width="1200" src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png">
+</p>
+
 
 
 `brainrender` is a python package for the visualization of three dimensional neuroanatomical from publicly available dataset (e.g. Allen Brain atlas) and from user generated experimental data. 
