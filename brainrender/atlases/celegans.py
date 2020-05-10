@@ -1,15 +1,9 @@
-"""
-This class rendereds datasets of the whole C. Elegans connectome. 
-All data from Daniel Witvliet (https://www.biorxiv.org/content/10.1101/2020.04.30.066209v1)
-"""
-
 import pandas as pd
 import numpy as np
 import os
 from tqdm import tqdm
 from PIL import ImageColor
 import math
-
 
 from vtkplotter import load, merge, write, load, mesh2Volume, Points, Arrows
 from vtkplotter.shapes import Tube, Spheres
@@ -22,6 +16,24 @@ from brainrender.colors import get_random_colors, makePalette, getColor
 from brainrender import NEURON_RESOLUTION, ROOT_ALPHA, ROOT_COLOR, VERBOSE
 
 # TODO add method to select pre/post synapses based on synaptic partner
+
+
+"""
+This class rendereds datasets of the whole C. Elegans connectome. 
+All data from Daniel Witvliet and co-authors.
+Check https://www.biorxiv.org/content/10.1101/2020.04.30.066209v1 
+for more details.
+
+
+Note: currently there is no support to let users download the
+connectome data programmatically. If you need the data please
+get in touch. We are working to improve this.
+
+
+check example file at Examples/custom_atlases/celegans_connectome.py
+for more details
+
+"""
 
 
 class Celegans(Atlas):
@@ -284,15 +296,11 @@ class Celegans(Atlas):
             if neuron not in self.atlas.neurons_names:
                 print(f"Neuron {neuron} not included in dataset")
             else:
-                if VERBOSE: print(f"Adding neuron {neuron}")
                 color = self.atlas.get_neuron_color(neuron, colorby=colorby)
 
                 if as_skeleton: # reconstruct skeleton from json
-                    neuron = self.atlas._parse_neuron_skeleton(neuron)
-                    if neuron is None: 
-                        continue
-                    else:
-                        neuron.color(color)
+                    actor = self.atlas._parse_neuron_skeleton(neuron)
+
 
                 else: # load as .obj file
                     try:
@@ -301,14 +309,15 @@ class Celegans(Atlas):
                         print(f"Could not find .obj file for neuron {neuron}")
                         continue
 
-                    actor = load_mesh_from_file(neuron_file, c=color)
+                    actor = load_mesh_from_file(neuron_file)
 
-                # Refine actor's look
-                actor.alpha(alpha)
+                if actor is not None:
+                    # Refine actor's look
+                    actor.alpha(alpha).c(color)
 
-                # Add to scene
-                self.actors['neurons'].append(actor)
-                self.store[neuron] = (actor, as_skeleton) # repurpusing the region's actors store for hosting neurons as dict
+                    # Add to scene
+                    self.actors['neurons'].append(actor)
+                    self.store[neuron] = (actor, as_skeleton) # repurpusing the region's actors store for hosting neurons as dict
 
 
     @staticmethod
@@ -334,7 +343,6 @@ class Celegans(Atlas):
         neurons = self.atlas._check_neuron_argument(neurons)
 
         for neuron in neurons:
-            if VERBOSE: print(f"Adding synapses for neuron {neuron}")
             if pre:
                 if colorby == 'synapse_type':
                     color = self.atlas.pre_synapses_color

@@ -1,6 +1,6 @@
 
 # BrainRender
-<p align="center" style="margin-bottom: 3002px">
+<p align="center">
   <img width="600" src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png">
 </p>
 
@@ -15,7 +15,11 @@ For more information about `brainrender` and how to use it, checkout the [brainr
 You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html).
 
 
-<p style="background-color: rgb(20, 20, 20)" align="center">
+### Recent news
+  * we've added the possibility to export brainrender scene to .html to embed ineractive data visualisations online. Check out these [examples](https://fedeclaudi.github.io/br-mouse.html) and learn how to export your scene with this [demo](Examples/export/export_for_web.py).
+  * we're working to add support for custom atlases to works on datasets from species other than the mouse! Read on [here](Docs/custom_atlases.md) for more details.
+
+<p align="center">
 <img src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/neurons_transparent.png" width="700" >
 </p>
 
@@ -31,7 +35,10 @@ pip install brainrender
 ## Publicly available datasets
 One of the main goal of `brainrender` is to provide a single platform to explore anatomical data from many
 publicly available datasets. Given that `brainrender` was initially developed for working on mouse data, most 
-features involve datasets of anatomical data for the mouse brain.  Here's a quick description of some of the things that `brainrender` can be used for. 
+features involve datasets of anatomical data for the mouse brain.  
+We are however in the process of **adding support for custom atlases**. This is already possible for a couple example ([read here for more info](Docs/custom_atlases.md)), and we will be adding more in the near future. Meanwhile get in touch for any feature request!
+
+Below is a quick description of some of the things that `brainrender` can be used for when working with data from the mouse brain. 
 
 ## Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
@@ -103,6 +110,10 @@ Injection site             |  Labelled neurons
 
 This often requires that the raw data be registered to the Allen atlas (or any other atlas supported by brainrender), before being visualised.
 This functionality is not supported in `brainrender`, however brainrender can be used to visualise data registered with other packages such as `amap` ([github repo](https://github.com/SainsburyWellcomeCentre/amap-python)) and `cellfinder` ([github repo](https://github.com/SainsburyWellcomeCentre/cellfinder)).
+
+
+You can also use brainrender to visualise data from experiments done on **species other than the mouse.** Read on [here](Docs/custom_atlases.md for more details about how to do that.
+
 
 
 You can also use `brainrender` to visualise the position of devices implanted in the brain (e.g. optic cannula). 
