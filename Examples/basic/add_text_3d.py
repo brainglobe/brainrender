@@ -18,7 +18,7 @@ scene = Scene(add_root=False, display_inset=False, use_default_key_bindings=Fals
 s = 'BRAINRENDER'
 
 # Specify a color for each letter
-colors = makePalette('salmon', 'powderblue', N=len(s)+1)
+colors = makePalette('salmon', 'powderblue', N=len(s))
 
 x = 0 # use to specify the position of each letter
 

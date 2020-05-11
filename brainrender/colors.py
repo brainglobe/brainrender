@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import vtk 
+import itertools
 # The following code and colors list is from vtkplotter.color : https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/colors.py
 # The code is copied here just to make it easier to look up and change colros
 try:
@@ -491,32 +492,52 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
         return mp(value)[0:3]
 
 
-def makePalette(color1, color2, N, hsv=True):
+def makePalette(N, *colors):
     """Generate N colors starting from `color1` to `color2`
     by linear interpolation HSV in or RGB spaces.
+    Adapted from vtkplotter makePalette function
 
     :param int: N: number of output colors.
-    :param color1: first rgb color.
-    :param color2: second rgb color.
-    :param bool: hsv: if `False`, interpolation is calculated in RGB space.
-    .. hint:: Example: |colorpalette.py|_
-    :param N: 
-    :param hsv:  (Default value = True)
-
+    :param colors: input colors, any number of colors with 0 < ncolors <= N is okay.
     """
-    if hsv:
-        color1 = rgb2hsv(color1)
-        color2 = rgb2hsv(color2)
-    c1 = np.array(getColor(color1))
-    c2 = np.array(getColor(color2))
-    cols = []
-    for f in np.linspace(0, 1, N - 1, endpoint=True):
-        c = c1 * (1 - f) + c2 * f
-        if hsv:
-            c = np.array(hsv2rgb(c))
-        cols.append(c)
-    return cols
+    if not isinstance(N, (float, int)):
+        raise ValueError(f'The first argument N should be an integer, not {type(N)}.')
+    N = int(N)
 
+    N_input_colors = len(colors)
+    if not N_input_colors:
+        raise ValueError('No colors where passed to makePalette')
+    if N_input_colors > N: 
+        raise ValueError('More input colors than out colors (N) where passed to makePalette')
+
+    if N_input_colors == 1:
+        return [np.array(getColor(colors[0])) for n in np.arange(N)]
+    if N_input_colors == N:
+        return N_input_colors
+    else:
+        # Get how many colors for each pair of colors we are interpolating over
+        fractions = ([N // N_input_colors + (1 if x < N % N_input_colors else 0)  for x in range (N_input_colors)])
+
+        # Get pairs of colors 
+        cs = [np.array(getColor(col)) for col in colors]
+
+        if len(cs)%2 != 0:
+            cs += [cs[-1]]
+
+        output = []
+        for n, (c1, c2) in enumerate(zip(cs, cs[1:])):
+            cols = []
+            for f in np.linspace(0, 1, fractions[n], endpoint=True):
+                c = c1 * (1 - f) + c2 * f
+                cols.append(c)
+            output.extend(cols)
+            
+        if len(output) != N:
+            if len(output) > N:
+                return output[:N]
+            else:
+                raise ValueError(f'Expected number of output colors was {N} but we got {len(output)} instead')
+        return output
 
 def get_random_colors(n_colors=1):
     """

@@ -31,9 +31,7 @@ neurons =  mlapi.download_neurons(neurons_metadata[:50]) # 50 neurons, might tak
 # ----------------------------- Rendering neurons ---------------------------- #
 
 # Create a custom colormap between 3 colors
-colors1 = makePalette('salmon', 'lightgreen', int(len(neurons)/2+1))
-colors2 = makePalette('lightgreen', 'lightblue', int(len(neurons)/2+1))
-colors = colors1 + colors2
+colors = makePalette(len(neurons), 'salmon', 'lightgreen', 'powderblue')
 
 # Create scene
 scene = Scene(add_root=True, display_inset=False)
