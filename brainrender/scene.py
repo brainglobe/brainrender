@@ -13,8 +13,8 @@ import pandas as pd
 from functools import partial
 from pathlib import Path
 
+import brainrender
 from brainrender.colors import check_colors, get_n_shades_of, get_random_colors, getColor
-from brainrender import * # Import default params 
 
 from brainrender.atlases.aba import ABA
 from brainrender.Utils.data_io import load_volume_file, load_mesh_from_file, get_probe_points_from_sharptrack
@@ -33,9 +33,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
 		and other classes within the same package.
 	"""
-	VIP_regions = DEFAULT_VIP_REGIONS
-	VIP_color = DEFAULT_VIP_COLOR
-	verbose = VERBOSE
+	VIP_regions = brainrender.DEFAULT_VIP_REGIONS
+	VIP_color = brainrender.DEFAULT_VIP_COLOR
+	verbose = brainrender.VERBOSE
 
 	ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
 
@@ -97,7 +97,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.jupyter = jupyter
 
 		if display_inset is None:
-			self.display_inset = DISPLAY_INSET
+			self.display_inset = brainrender.DISPLAY_INSET
 		else:
 			self.display_inset = display_inset
 
@@ -107,40 +107,40 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 
 		if add_root is None:
-			add_root = DISPLAY_ROOT
+			add_root = brainrender.DISPLAY_ROOT
 
 		# Camera parameters
 		if camera is None:
 			if self.atlas.default_camera is not None:
 				self.camera = check_camera_param(self.atlas.default_camera)
 			else:
-				self.camera = CAMERA
+				self.camera = brainrender.CAMERA
 		else:
 			self.camera = check_camera_param(camera)
 
 		# Set up vtkplotter plotter and actors records
-		if WHOLE_SCREEN and not self.jupyter:
+		if brainrender.WHOLE_SCREEN and not self.jupyter:
 			sz = "full"
-		elif WHOLE_SCREEN and self.jupyter:
+		elif brainrender.WHOLE_SCREEN and self.jupyter:
 			print("Setting window size to 'auto' as whole screen is not available in jupyter")
 			sz='auto'
 		else:
 			sz = "auto"
 
-		if SHOW_AXES:
+		if brainrender.SHOW_AXES:
 			axes = 4
 		else:
 			axes = 0
 
 		# Create plotter
-		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, title='brainrender')
+		self.plotter = Plotter(axes=axes, size=sz, pos=brainrender.WINDOW_POS, title='brainrender')
 		self.plotter.legendBC = getColor('blackboard')
 
 		# SCreenshots and keypresses variables
 		self.screenshots_folder = screenshot_kwargs.pop('folder', self.atlas.output_screenshots)
-		self.screenshots_name = screenshot_kwargs.pop('name', DEFAULT_SCREENSHOT_NAME)
-		self.screenshots_extension = screenshot_kwargs.pop('type', DEFAULT_SCREENSHOT_TYPE)
-		self.screenshots_scale = screenshot_kwargs.pop('scale', DEFAULT_SCREENSHOT_SCALE)
+		self.screenshots_name = screenshot_kwargs.pop('name', brainrender.DEFAULT_SCREENSHOT_NAME)
+		self.screenshots_extension = screenshot_kwargs.pop('type', brainrender.DEFAULT_SCREENSHOT_TYPE)
+		self.screenshots_scale = screenshot_kwargs.pop('scale', brainrender.DEFAULT_SCREENSHOT_SCALE)
 
 		if not use_default_key_bindings:
 			self.plotter.keyPressFunction = self.keypress
@@ -385,7 +385,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				elif plane == 'coronal':
 					plane = self.atlas.get_coronal_plane(**kwargs)
 				elif plane == 'horizontal':
-					plane = get_horizontal_plane(**kwargs)
+					plane = self.atlas.get_horizontal_plane(**kwargs)
 				else:
 					raise ValueError(f'Unrecognized plane name: {plane}')
 			else:
@@ -448,9 +448,9 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		"""
 		if not render:
-			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=0, **kwargs)
+			self.root = self.atlas._get_structure_mesh('root', c=brainrender.ROOT_COLOR, alpha=0, **kwargs)
 		else:
-			self.root = self.atlas._get_structure_mesh('root', c=ROOT_COLOR, alpha=ROOT_ALPHA, **kwargs)
+			self.root = self.atlas._get_structure_mesh('root', c=brainrender.ROOT_COLOR, alpha=brainrender.ROOT_ALPHA, **kwargs)
 
 		if self.root is None:
 			print("Could not find a root mesh")
@@ -499,7 +499,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if VIP_color is None:
 			VIP_color = self.VIP_color
 		if alpha is None:
-			_alpha = DEFAULT_STRUCTURE_ALPHA
+			_alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
 		else: _alpha = alpha
 
 		# check that we have a list
@@ -544,7 +544,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 					color = VIP_color
 				else:
 					if colors is None:
-						color = DEFAULT_STRUCTURE_COLOR
+						color = brainrender.DEFAULT_STRUCTURE_COLOR
 					elif isinstance(colors, list):
 						color = colors[i]
 					else: 
@@ -682,7 +682,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		"""
 		csv_suffix = ".csv"
-		supported_formats = HDF_SUFFIXES + [csv_suffix]
+		supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
 
 		#  check that the filepath makes sense
 		filepath = Path(filepath)
@@ -697,15 +697,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						   
 		elif filepath.suffix in supported_formats:
 			# parse file and load cell locations
-			if filepath.suffix in HDF_SUFFIXES:
+			if filepath.suffix in brainrender.HDF_SUFFIXES:
 				if hdf_key is None:
-					hdf_key = DEFAULT_HDF_KEY
+					hdf_key = brainrender.DEFAULT_HDF_KEY
 				try:
 					cells = pd.read_hdf(filepath, key=hdf_key)
 				except TypeError:
-					if hdf_key == DEFAULT_HDF_KEY:
+					if hdf_key == brainrender.DEFAULT_HDF_KEY:
 						raise ValueError(
-							f"The default identifier: {DEFAULT_HDF_KEY} "
+							f"The default identifier: {brainrender.DEFAULT_HDF_KEY} "
 							f"cannot be found in the hdf file. Please supply "
 							f"a key using 'scene.add_cells_from_file(filepath, "
 							f"hdf_key='key'")
@@ -796,7 +796,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if color is None: color = get_random_colors() # get a random color
 
 		if alpha is None:
-			alpha = DEFAULT_STRUCTURE_ALPHA
+			alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
 
 		if obj_file_path is None:
 			obj_file_path = os.path.splitext(image_file_path)[0] + extension
@@ -1016,7 +1016,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				elif plane == 'coronal':
 					plane = self.atlas.get_coronal_plane(**kwargs)
 				elif plane == 'horizontal':
-					plane = get_horizontal_plane(**kwargs)
+					plane = self.atlas.get_horizontal_plane(**kwargs)
 				else:
 					raise ValueError(f'Unrecognized plane name: {plane}')
 			else:
@@ -1085,7 +1085,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 	# ---------------------------------------------------------------------------- #
 	# -------------------------------- Prep render ------------------------------- #
 	def apply_render_style(self):
-		if SHADER_STYLE is None: # No style to apply
+		if brainrender.SHADER_STYLE is None: # No style to apply
 			return 
 
 		# Get all actors in the scene
@@ -1094,8 +1094,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		for actor in actors:
 			if actor is not None:
 				try:
-					if SHADER_STYLE != 'cartoon':
-						actor.lighting(style=SHADER_STYLE)
+					if brainrender.SHADER_STYLE != 'cartoon':
+						actor.lighting(style=brainrender.SHADER_STYLE)
 					else:
 						# actor.lighting(style='plastic', 
 						# 		enabled=False)
@@ -1140,7 +1140,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 			if interactive:
 				if self.verbose and not self.jupyter:
-					print(INTERACTIVE_MSG)
+					print(brainrender.INTERACTIVE_MSG)
 				elif self.jupyter:
 					print("The scene is ready to render in your jupyter notebook")
 				else:
@@ -1149,7 +1149,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			self._get_inset()
 
 		if zoom is None and not video:
-			if WHOLE_SCREEN:
+			if brainrender.WHOLE_SCREEN:
 				zoom = 1.85
 			else:
 				zoom = 1.5
@@ -1158,15 +1158,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.is_rendered = True
 		if not self.jupyter:
 			if interactive and not video:
-				show(*self.get_actors(), interactive=False, zoom=zoom, bg=BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=False, zoom=zoom, bg=brainrender.BACKGROUND_COLOR,)
 			elif video:
-				self.plotter.show(*self.get_actors(), interactive=False, bg=BACKGROUND_COLOR,
+				self.plotter.show(*self.get_actors(), interactive=False, bg=brainrender.BACKGROUND_COLOR,
 						offscreen=True, zoom=zoom)
 			else:
-				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom, bg=BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom, bg=brainrender.BACKGROUND_COLOR,)
 
 			if interactive and not video:
-				show(*self.get_actors(), interactive=True, bg=BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=True, bg=brainrender.BACKGROUND_COLOR,)
 
 	def close(self):
 		closePlotter()
@@ -1256,17 +1256,17 @@ class DualScene:
 		self.apply_render_style()
 
 		# Create camera and plotter
-		if WHOLE_SCREEN: 
+		if brainrender.WHOLE_SCREEN: 
 			sz = "full"
 		else: 
 			sz = "auto"
 		
-		if SHOW_AXES:
+		if brainrender.SHOW_AXES:
 			axes = 4
 		else:
 			axes = 0
 
-		mv = Plotter(N=2, axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, sharecam=True)
+		mv = Plotter(N=2, axes=axes, size=sz, pos=brainrender.WINDOW_POS, bg=brainrender.BACKGROUND_COLOR, sharecam=True)
 
 		actors = []
 		for scene in self.scenes:
@@ -1306,7 +1306,7 @@ class MultiScene:
 		
 			if camera is None: 
 				if scene.atlas.default_camera is None:
-					scene_camera = CAMERA
+					scene_camera = brainrender.CAMERA
 				else:
 					scene_camera = scene.atlas.default_camera
 			else:
@@ -1319,7 +1319,7 @@ class MultiScene:
 
 		if self.N > 4:
 			print("Rendering {} scenes. Might take a few minutes.".format(self.N))
-		mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True, bg=BACKGROUND_COLOR)
+		mv = Plotter(N=self.N, axes=4, size="auto", sharecam=True, bg=brainrender.BACKGROUND_COLOR)
 
 		actors = []
 		for i, scene in enumerate(self.scenes):
