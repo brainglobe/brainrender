@@ -133,7 +133,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			axes = 0
 
 		# Create plotter
-		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, bg=BACKGROUND_COLOR, title='brainrender')
+		self.plotter = Plotter(axes=axes, size=sz, pos=WINDOW_POS, title='brainrender')
 		self.plotter.legendBC = getColor('blackboard')
 
 		# SCreenshots and keypresses variables
@@ -1149,15 +1149,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.is_rendered = True
 		if not self.jupyter:
 			if interactive and not video:
-				show(*self.get_actors(), interactive=False, zoom=zoom)
+				show(*self.get_actors(), interactive=False, zoom=zoom, bg=BACKGROUND_COLOR,)
 			elif video:
-				self.plotter.show(*self.get_actors(), interactive=False, 
+				self.plotter.show(*self.get_actors(), interactive=False, bg=BACKGROUND_COLOR,
 						offscreen=True, zoom=zoom)
 			else:
-				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom)
+				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom, bg=BACKGROUND_COLOR,)
 
 			if interactive and not video:
-				show(*self.get_actors(), interactive=True)
+				show(*self.get_actors(), interactive=True, bg=BACKGROUND_COLOR,)
 
 	def close(self):
 		closePlotter()
