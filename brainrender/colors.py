@@ -516,13 +516,11 @@ def makePalette(N, *colors):
         return N_input_colors
     else:
         # Get how many colors for each pair of colors we are interpolating over
-        fractions = ([N // N_input_colors + (1 if x < N % N_input_colors else 0)  for x in range (N_input_colors)])
+        fractions = [N // N_input_colors + (1 if x < N % N_input_colors else 0)  for x in range (N_input_colors)]
 
         # Get pairs of colors 
         cs = [np.array(getColor(col)) for col in colors]
-
-        if len(cs)%2 != 0:
-            cs += [cs[-1]]
+        cs += [cs[-1]]
 
         output = []
         for n, (c1, c2) in enumerate(zip(cs, cs[1:])):
