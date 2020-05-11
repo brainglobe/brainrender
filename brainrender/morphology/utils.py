@@ -111,3 +111,7 @@ def edit_neurons(neurons, **kwargs):
 				neuron[name] = actor.mirror(axis='n')
 
 	return neurons
+
+
+
+

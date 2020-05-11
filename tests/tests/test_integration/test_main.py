@@ -11,12 +11,10 @@ from brainrender import *
 from brainrender.colors import get_n_shades_of
 from brainrender.atlases.aba import ABA
 from brainrender.Utils.parsers.streamlines import *
-from brainrender.Utils.parsers.mouselight import NeuronsParser
 from brainrender.Utils.data_io import listdir
-from brainrender.Utils.AllenMorphologyAPI.AllenMorphology import AllenMorphology
 
 from morphapi.morphology.morphology import Neuron
-from morphapi.api.mouselight import MouseLightAPI, mouselight_structures_identifiers
+from morphapi.api.mouselight import MouseLightAPI
 
 def test_imports():
     aba = ABA()
@@ -43,7 +41,7 @@ def test_streamlines():
 
     scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
 
-    scene.render(camera='sagittal', zoom=1, interactive=Fa;se)
+    scene.render(camera='sagittal', zoom=1, interactive=False)
     scene.close()
 
 
@@ -61,7 +59,7 @@ def test_neurons():
     neurons =  mlapi.download_neurons(neurons_metadata[:5])
 
     scene = Scene(title='One color')
-    scene.add_neurons(neurons, color='salmon', display_axon=False, neurite_radius=6)
+    scene.add_neurons(neurons, color='salmon', display_axon=True, neurite_radius=6)
     scene.render(interactive=False)
     scene.close()
 

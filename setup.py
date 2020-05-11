@@ -18,6 +18,7 @@ requirements = [
     "scikit-image",
     "brainio>=0.0.9",
     "sklearn",
+    "morphapi",
 ]
 
 setup(

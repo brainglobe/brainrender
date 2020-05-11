@@ -11,12 +11,11 @@ from morphapi.morphology.morphology import Neuron
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.morphology.utils import edit_neurons, get_neuron_actors_with_morphapi
-from brainrender.Utils.parsers.streamlines import parse_streamline
 from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
 from brainrender import * 
 from brainrender.Utils import actors_funcs
-from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap
+from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap, check_colors
 
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
@@ -233,6 +232,45 @@ class ABA(Atlas):
             return right
 
 
+    # ------------------------- Adding elements to scene ------------------------- #
+
+    def mirror_neuron(self, neuron_actors):
+		"""
+		Mirror over the sagittal plane between the two hemispheres.
+
+		:param neuron_actors: list of actors for one neuron.
+
+		"""
+        raise NotImplementedError('This function is obsolete and needs to be updated')
+		def _mirror_neuron(neuron, mcoord):
+			"""
+			Actually takes care of mirroring a neuron
+
+			:param neuron: neuron's meshes
+			:param mcoord: coordinates of the point to use for the mirroring
+
+			"""
+			# This function does the actual mirroring
+			for name, actor in neuron.items():
+				# get mesh points coords and shift them to other hemisphere
+				if isinstance(actor, (list, tuple, str)) or actor is None:
+					continue
+				neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
+			return neuron
+
+		# Makes sure that the neuron is in the desired hemisphere
+		mirror_coor = self.get_region_CenterOfMass('root', unilateral=False)[2]
+
+		if self.force_to_hemisphere.lower() == "left":
+			if self.soma_coords[2] > mirror_coor:
+				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
+		elif self.force_to_hemisphere.lower() == "right":
+			if self.soma_coords[2] < mirror_coor:
+				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
+		else:
+			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
+		return neuron_actors
+
     @staticmethod # static method because this should inherit from scene
     def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
                 alpha=1, neurite_radius=None):
@@ -419,10 +457,6 @@ class ABA(Atlas):
         self.actors["neurons"].extend(_neurons_actors)
         return
 
-
-
-    # -------------------------- Methods specific to ABA ------------------------- #
-
     @staticmethod
     def add_tractography(self, tractography, color=None, display_injection_structure=False,
                         display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
@@ -561,6 +595,60 @@ class ABA(Atlas):
 
         self.actors['tracts'].extend(actors)
 
+
+    @staticmethod
+    def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
+        """
+            Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.
+            Either  filepath or data should be passed
+
+            :param filepath: str, optional. Path to .json file with streamline data (Default value = None)
+            :param data: panadas.DataFrame, optional. DataFrame with streamline data. (Default value = None)
+            :param color: str color of the streamlines (Default value = 'ivory')
+            :param alpha: float transparency of the streamlines (Default value = .8)
+            :param radius: int radius of the streamlines actor (Default value = 10)
+            :param show_injection_site: bool, if True spheres are used to render the injection volume (Default value = True)
+            :param *args: 
+            :param **kwargs: 
+
+        """
+        if filepath is not None and data is None:
+            data = load_json(filepath)
+            # data = {k:{int(k2):v2 for k2, v2 in v.items()} for k,v in data.items()}
+        elif filepath is None and data is not None:
+            pass
+        else:
+            raise ValueError("Need to pass eiteher a filepath or data argument to parse_streamline")
+
+        # create actors for streamlines
+        lines = []
+        if len(data['lines']) == 1:
+            lines_data = data['lines'][0]
+        else:
+            lines_data = data['lines']
+        for line in lines_data:
+            points = [[l['x'], l['y'], l['z']] for l in line]
+            lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=STREAMLINES_RESOLUTION))
+
+        coords = []
+        if show_injection_site:
+            if len(data['injection_sites']) == 1:
+                injection_data = data['injection_sites'][0]
+            else:
+                injection_data = data['injection_sites']
+
+            for inj in injection_data:
+                coords.append(list(inj.values()))
+            spheres = [shapes.Spheres(coords, r=INJECTION_VOLUME_SIZE)]
+        else:
+            spheres = []
+
+        merged = merge(*lines, *spheres)
+        merged.color(color)
+        merged.alpha(alpha)
+        return [merged]
+
+
     @staticmethod
     def add_streamlines(self, sl_file, *args, colorby=None, color_each=False,  **kwargs):
         """
@@ -596,23 +684,23 @@ class ABA(Atlas):
                     if not color_each:
                         if color is not None:
                             if isinstance(slf, str):
-                                streamlines = parse_streamline(filepath=slf, *args, color=color, **kwargs)
+                                streamlines = self.atlas.parse_streamline(filepath=slf, *args, color=color, **kwargs)
                             else:
-                                streamlines = parse_streamline(data=slf, *args, color=color, **kwargs)
+                                streamlines = self.atlas.parse_streamline(data=slf, *args, color=color, **kwargs)
                         else:
                             if isinstance(slf, str):
-                                streamlines = parse_streamline(filepath=slf, *args, **kwargs)
+                                streamlines = self.atlas.parse_streamline(filepath=slf, *args, **kwargs)
                             else:
-                                streamlines = parse_streamline(data=slf,  *args, **kwargs)
+                                streamlines = self.atlas.parse_streamline(data=slf,  *args, **kwargs)
                     else:
                         if color is not None:
                             col = get_n_shades_of(color, 1)[0]
                         else:
                             col = get_random_colors(n_colors=1)
                         if isinstance(slf, str):
-                            streamlines = parse_streamline(filepath=slf, color=col, *args, **kwargs)
+                            streamlines = self.atlas.parse_streamline(filepath=slf, color=col, *args, **kwargs)
                         else:
-                            streamlines = parse_streamline(data= slf, color=col, *args, **kwargs)
+                            streamlines = self.atlas.parse_streamline(data= slf, color=col, *args, **kwargs)
                     self.actors['tracts'].extend(streamlines)
             else:
                 raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
