@@ -633,17 +633,26 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		else:
 			return to_return
 
-	def add_from_file(self, filepath, **kwargs):
+	def add_from_file(self, *filepaths, **kwargs):
 		"""
 		Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.
 
-		:param filepath: path to the file.
+		:param filepaths: path to the file. Can pass as many arguments as needed
 		:param **kwargs:
 
 		"""
-		actor = load_mesh_from_file(filepath, **kwargs)
-		self.actors['others'].append(actor)
-		return actor
+		actors = []
+		for filepath in filepaths:
+			actor = load_mesh_from_file(filepath, **kwargs)
+			self.actors['others'].append(actor)
+			actors.append(actor)
+			
+		if len(actors) == 1:
+			return actors[0]
+		elif len(actors) > 1:
+			return actors
+		else:
+			return None
 
 	def add_sphere_at_point(self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs):
 		"""
