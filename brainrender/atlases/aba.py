@@ -235,41 +235,41 @@ class ABA(Atlas):
     # ------------------------- Adding elements to scene ------------------------- #
 
     def mirror_neuron(self, neuron_actors):
-		"""
-		Mirror over the sagittal plane between the two hemispheres.
+        """
+        Mirror over the sagittal plane between the two hemispheres.
 
-		:param neuron_actors: list of actors for one neuron.
+        :param neuron_actors: list of actors for one neuron.
 
-		"""
+        """
         raise NotImplementedError('This function is obsolete and needs to be updated')
-		def _mirror_neuron(neuron, mcoord):
-			"""
-			Actually takes care of mirroring a neuron
+        def _mirror_neuron(neuron, mcoord):
+            """
+            Actually takes care of mirroring a neuron
 
-			:param neuron: neuron's meshes
-			:param mcoord: coordinates of the point to use for the mirroring
+            :param neuron: neuron's meshes
+            :param mcoord: coordinates of the point to use for the mirroring
 
-			"""
-			# This function does the actual mirroring
-			for name, actor in neuron.items():
-				# get mesh points coords and shift them to other hemisphere
-				if isinstance(actor, (list, tuple, str)) or actor is None:
-					continue
-				neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
-			return neuron
+            """
+            # This function does the actual mirroring
+            for name, actor in neuron.items():
+                # get mesh points coords and shift them to other hemisphere
+                if isinstance(actor, (list, tuple, str)) or actor is None:
+                    continue
+                neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
+            return neuron
 
-		# Makes sure that the neuron is in the desired hemisphere
-		mirror_coor = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        # Makes sure that the neuron is in the desired hemisphere
+        mirror_coor = self.get_region_CenterOfMass('root', unilateral=False)[2]
 
-		if self.force_to_hemisphere.lower() == "left":
-			if self.soma_coords[2] > mirror_coor:
-				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
-		elif self.force_to_hemisphere.lower() == "right":
-			if self.soma_coords[2] < mirror_coor:
-				neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
-		else:
-			raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
-		return neuron_actors
+        if self.force_to_hemisphere.lower() == "left":
+            if self.soma_coords[2] > mirror_coor:
+                neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
+        elif self.force_to_hemisphere.lower() == "right":
+            if self.soma_coords[2] < mirror_coor:
+                neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
+        else:
+            raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
+        return neuron_actors
 
     @staticmethod # static method because this should inherit from scene
     def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
