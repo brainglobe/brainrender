@@ -895,7 +895,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		size = kwargs.pop('size', 1.75)
 		color = kwargs.pop('color', 'k')
 		alpha = kwargs.pop('alpha', 1)
-		font = kwargs.pop('font', 'Courier')
+		font = kwargs.pop('font', 'Montserrat')
 
 		txt = self.add_vtkactor(Text2D(
 				text,
