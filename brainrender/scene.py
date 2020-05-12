@@ -128,7 +128,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			sz = "auto"
 
 		if brainrender.SHOW_AXES:
-			axes = 4
+			axes = 1
 		else:
 			axes = 0
 
@@ -713,12 +713,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 						raise ValueError(
 							f"The key: {hdf_key} cannot be found in the hdf "
 							f"file. Please check the correct identifer.")
-			self.add_cells(cells, color=color, radius=radius, res=res,
+			return self.add_cells(cells, color=color, radius=radius, res=res,
 						   alpha=alpha)
 
 		elif filepath.suffix == ".pkl":
 			cells = pd.read_picle(filepath)
-			self.add_cells(cells, color=color, radius=radius, res=res,
+			return self.add_cells(cells, color=color, radius=radius, res=res,
 						   alpha=alpha)
 		else:
 			raise NotImplementedError(
