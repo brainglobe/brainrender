@@ -455,7 +455,14 @@ class ABA(Atlas):
 
         # Add to actors storage
         self.actors["neurons"].extend(_neurons_actors)
-        return _neurons_actors
+        
+        # Return
+        if len(_neurons_actors) == 1:
+            return _neurons_actors[0]
+        elif not _neurons_actors:
+            return None
+        else:
+            return _neurons_actors
 
     @staticmethod
     def add_tractography(self, tractography, color=None, display_injection_structure=False,

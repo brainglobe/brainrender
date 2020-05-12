@@ -5,13 +5,16 @@ from morphapi.morphology.morphology import Neuron
 from vtkplotter import merge
 
 
-def get_neuron_actors_with_morphapi(swcfile=None, neuron=None, neurite_radius=DEFAULT_NEURITE_RADIUS):
+def get_neuron_actors_with_morphapi(swcfile=None, neuron=None, neurite_radius=None):
 	if swcfile is None and neuron is None:
 		raise ValueError('No input passed')
 
 	if swcfile is not None:
 		neuron = Neuron(swc_file=swcfile)
 	
+	if neurite_radius is None:
+		neurite_radius = DEFAULT_NEURITE_RADIUS
+
 	actors = neuron.create_mesh(neurite_radius=neurite_radius)
 	if actors is None: 
 		raise ValueError(f"Failed to get neuron actors. {swcfile} - {neuron}")

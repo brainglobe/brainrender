@@ -1158,15 +1158,19 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		self.is_rendered = True
 		if not self.jupyter:
 			if interactive and not video:
-				show(*self.get_actors(), interactive=False, zoom=zoom, bg=brainrender.BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=False, zoom=zoom, 
+							bg=brainrender.BACKGROUND_COLOR, axes=self.plotter.axes)
 			elif video:
-				self.plotter.show(*self.get_actors(), interactive=False, bg=brainrender.BACKGROUND_COLOR,
-						offscreen=True, zoom=zoom)
+				show(*self.get_actors(), interactive=False, 
+							bg=brainrender.BACKGROUND_COLOR,
+							offscreen=True, zoom=zoom, axes=self.plotter.axes)
 			else:
-				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom, bg=brainrender.BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=False,  offscreen=True, zoom=zoom, 
+							bg=brainrender.BACKGROUND_COLOR, axes=self.plotter.axes)
 
 			if interactive and not video:
-				show(*self.get_actors(), interactive=True, bg=brainrender.BACKGROUND_COLOR,)
+				show(*self.get_actors(), interactive=True, bg=brainrender.BACKGROUND_COLOR,
+							axes=self.plotter.axes)
 
 	def close(self):
 		closePlotter()

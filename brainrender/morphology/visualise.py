@@ -5,8 +5,11 @@ from tqdm import tqdm
 
 from vtkplotter import ProgressBar, shapes, merge
 from vtkplotter.mesh import Mesh as Actor
+from vtkplotter import settings
+
 from morphapi.morphology.morphology import Neuron
 
+import brainrender
 from brainrender.scene import Scene
 from brainrender.colors import get_random_colors, colorMap, getColor
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
@@ -16,19 +19,54 @@ from brainrender.morphology.utils import edit_neurons, get_neuron_actors_with_mo
 
 class MorphologyScene(Scene):
 
+    _default_axes_params = dict(
+        xyGrid = True,
+        yzGrid = True,
+        zxGrid = True,
+        xyPlaneColor = 'k',
+        zxPlaneColor = [.2, .2, .2],
+        yzPlaneColor = [.2, .2, .2],
+        # xyGridColor = 'red',
+        # xyAlpha = 1,
+        # # axesLineWidth = 10,
+        gridLineWidth = 0, 
+        xyGridColor = 'k',
+        zxGridColor = 'k',
+        yzGridColor = 'k',
+    )
+
     def __init__(self, *args, **kwargs):
+        self.default_neuron_color = kwargs.pop('default_neuron_color', "darksalmon")
+        show_axes = kwargs.pop("show_axes", True)
+        axes_kwargs = kwargs.pop("axes_kwargs", 1)
+        settings.DEFAULT_NEURITE_RADIUS = ("neurite_radius", 18) 
+
+        if axes_kwargs == 1:
+            settings.useDepthPeeling = False # necessary to make the axes render properly
+            settings.useFXAA = False
+
         # Initialise scene class
         Scene.__init__(self, add_root = False,
                         display_inset = False,
                         *args, **kwargs)
 
-    def _add_neurons_get_colors(neurons, color):
+        if show_axes:
+            brainrender.SHOW_AXES = True
+            if axes_kwargs == 1:
+                self.plotter.axes = self._default_axes_params
+
+            else:
+                self.plotter.axes = axes_kwargs
+
+
+
+    def _add_neurons_get_colors(self, neurons, color):
         """     
             Parses color argument for self.add_neurons
             
             :para, neurons: list of Neuron object or file paths...
             :param color: default None. Can be:
-                - None: each neuron is given a random color
+                - None: each neuron is colored according to the default color
                 - color: rbg, hex etc. If a single color is passed all neurons will have that color
                 - cmap: str with name of a colormap: neurons are colored based on their sequential order and cmap
                 - dict: a dictionary specifying a color for soma, dendrites and axon actors, will be the same for all neurons
@@ -44,7 +82,7 @@ class MorphologyScene(Scene):
 
         # If no color is passed, get random colors
         if color is None:
-            cols = get_random_colors(N)
+            cols = [self.default_neuron_color for n in np.arange(N)]
             colors = dict(
                 soma = cols.copy(),
                 axon = cols.copy(),
@@ -131,14 +169,14 @@ class MorphologyScene(Scene):
             Mouse Light project at Janelia, neuromorpho.org and other sources. 
             Accepts neurons argument as:
                 - file(s) with morphological data
-                - vtkplotter mesh actor(s) of entire neurons reconstructions
+                - vtkplotter mesh actor(s) of neurons reconstructions
                 - dictionary or list of dictionary with actors for different neuron parts
 
             :param self: instance of brainrender Scene to use to render neurons
             :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
             :param display_axon, display_dendrites: if set to False the corresponding neurite is not rendered
             :param color: default None. Can be:
-                    - None: each neuron is given a random color
+                    - None: each neuron is colored according to the default color
                     - color: rbg, hex etc. If a single color is passed all neurons will have that color
                     - cmap: str with name of a colormap: neurons are colored based on their sequential order and cmap
                     - dict: a dictionary specifying a color for soma, dendrites and axon actors, will be the same for all neurons
@@ -221,5 +259,11 @@ class MorphologyScene(Scene):
 
         # Add to actors storage
         self.actors["neurons"].extend(_neurons_actors)
-        return _neurons_actors
+
+        if len(_neurons_actors) == 1:
+            return _neurons_actors[0]
+        elif not _neurons_actors:
+            return None
+        else:
+            return _neurons_actors
 

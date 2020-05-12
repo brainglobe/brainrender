@@ -9,7 +9,7 @@
 *.obj
 # *.stl
 *.nrrd
-*.swc
+# *.swc
 *.svg
 *.tdms
 
