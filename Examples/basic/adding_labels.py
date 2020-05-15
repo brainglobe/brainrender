@@ -4,6 +4,7 @@
 """
 
 
+
 import brainrender
 brainrender.SHADER_STYLE = 'cartoon'
 from brainrender.scene import Scene
@@ -11,6 +12,11 @@ from brainrender.scene import Scene
 # Create a scene
 scene = Scene()
 
-scene.add_brain_regions(['VAL'], use_original_color=True, add_labels=True)
+# add_brain_regions can be used to add labels directly
+scene.add_brain_regions('VAL', add_labels=True)
+
+# you can also use scene.add_actor_label
+mos = scene.add_brain_regions('MOs')
+scene.add_actor_label(mos, 'MOs', size=400, color='blackboard')
 
 scene.render()
