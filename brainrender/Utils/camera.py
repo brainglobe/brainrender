@@ -116,4 +116,4 @@ def set_camera(scene, camera):
         set_camera_params(scene.plotter.camera, camera)
     else:
         scene.plotter.camera = camera
-
+    return camera

@@ -11,9 +11,6 @@ from brainrender.scene import Scene
 # Create a scene
 scene = Scene()
 
-scene.add_brain_regions(['VAL'], use_original_color=True)
-
-scene.actors['root']
-scene.actors['regions']['VAL'].flag('VAL') # hoover vore the mesh to see the label
+scene.add_brain_regions(['VAL'], use_original_color=True, add_labels=True)
 
 scene.render()

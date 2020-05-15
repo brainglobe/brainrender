@@ -208,6 +208,16 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_region_unilateral' method!")
 
+    @staticmethod
+    def add_brain_regions(self, *agrs, **kwargs):
+        """
+			Adds brain regions meshes to scene.
+			Check the atlas' method to know how it works
+		"""
+        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
+                    "'add_brain_regions' method!")
+
+
     @staticmethod # static because it inherits from scene
     def add_neurons(self, neurons,  **kwargs):
         """

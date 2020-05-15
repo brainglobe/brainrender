@@ -5,7 +5,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter, embedWindow, settings, Plane
+from vtkplotter import Text2D, closePlotter, embedWindow, settings, Plane, Text
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
 from tqdm import tqdm 	
@@ -152,7 +152,8 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		
 		# Prepare store for actors added to scene
-		self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], "others":[]}
+		self.actors = {"regions":{}, "tracts":[], "neurons":[], "root":None, "injection_sites":[], 
+						"others":[], "labels":[],}
 		self._actors = None # store a copy of the actors when manipulations like slicing are done
 		self.store = {} # in case we need to store some data
 
@@ -468,136 +469,33 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		return self.root
 	
-	def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
-						add_labels=False,
-						colors=None, use_original_color=True, alpha=None, hemisphere=None, **kwargs):
+	def add_brain_regions(self, *args, **kwargs):
 		"""
-		Adds rendered brain regions with data from theatlas. 
-		Many parameters can be passed to specify how the regions should be rendered.
-		To treat a subset of the rendered regions, specify which regions are VIP. 
-		Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
-
-		:param brain_regions: str list of acronyms of brain regions
-		:param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
-		:param VIP_color: if passed, this color is used for the VIP regions (Default value = None)
-		:param colors: str, color of rendered brian regions (Default value = None)
-		:param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
-		:param alpha: float, transparency of the rendered brain regions (Default value = None)
-		:param hemisphere: str (Default value = None)
-		:param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
-		:param **kwargs:
-
+			Adds brain regions meshes to scene.
+			Check the atlas' method to know how it works
 		"""
-		# Check that the atlas has brain regions data
-		if self.atlas.region_acronyms is None:
-			print(f"The atlas {self.atlas.atlas_name} has no brain regions data")
-			return
-
-		# Parse arguments
-		if VIP_regions is None:
-			VIP_regions = self.VIP_regions
-		if VIP_color is None:
-			VIP_color = self.VIP_color
-		if alpha is None:
-			_alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
-		else: _alpha = alpha
-
-		# check that we have a list
-		if not isinstance(brain_regions, list):
-			self.atlas._check_valid_region_arg(brain_regions)
-			brain_regions = [brain_regions]
-
-		# check the colors input is correct
-		if colors is not None:
-			if isinstance(colors[0], (list, tuple)):
-				if not len(colors) == len(brain_regions): 
-					raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
-				for col in colors:
-					if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
-			else:
-				if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
-				colors = [colors for i in range(len(brain_regions))]
-
-		# loop over all brain regions
-		actors = []
-		for i, region in enumerate(brain_regions):
-			self.atlas._check_valid_region_arg(region)
-
-			if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
-			if self.verbose: print("Rendering: ({})".format(region))
-
-			# get the structure and check if we need to download the object file
-			if region not in self.atlas.region_acronyms:
-				print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}. Skipping")
-				continue
-
-			obj_file = os.path.join(self.atlas.meshes_folder, "{}.{}".format(region, self.atlas.mesh_format))
-			if not self.atlas._check_obj_file(region, obj_file):
-				print("Could not render {}, maybe we couldn't get the mesh?".format(region))
-				continue
-
-			# check which color to assign to the brain region
-			if self.regions_aba_color or use_original_color:
-				color = [x/255 for x in self.atlas.get_region_color(region)]
-			else:
-				if region in VIP_regions:
-					color = VIP_color
-				else:
-					if colors is None:
-						color = brainrender.DEFAULT_STRUCTURE_COLOR
-					elif isinstance(colors, list):
-						color = colors[i]
-					else: 
-						color = colors
-
-			if region in VIP_regions:
-				alpha = 1
-			else:
-				alpha = _alpha
-
-			# Load the object file as a mesh and store the actor
-			if hemisphere is not None:
-				if hemisphere.lower() == "left" or hemisphere.lower() == "right":
-					obj = self.atlas.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
-			else:
-				obj = self.plotter.load(obj_file, c=color, alpha=alpha)
-
-			if obj is not None:
-				actors_funcs.edit_actor(obj, **kwargs)
-
-				if add_labels:
-					obj.flag(region)
-
-				self.actors["regions"][region] = obj
-				actors.append(obj)
-			else:
-				print(f"Something went wrong while loading mesh data for {region}")
-
-		if len(actors)==1:
-			return actors[0]
-		else:
-			return actors
+		return self.atlas.add_brain_regions(self, *args, **kwargs)
 
 	def add_neurons(self, *args, **kwargs):
 		"""
 		Adds rendered morphological data of neurons reconstructions.
 		Check the atlas' method to know how it works
 		"""
-		self.atlas.add_neurons(self, *args, **kwargs)
+		return self.atlas.add_neurons(self, *args, **kwargs)
 
 	def add_neurons_synapses(self, *args, **kwargs):
 		"""
 		Adds the location of pre or post synapses for a neuron (or list of neurons).
 		Check the atlas' method to know how it works 
 		"""
-		self.atlas.add_neurons_synapses(self, *args, **kwargs)
+		return self.atlas.add_neurons_synapses(self, *args, **kwargs)
 
 	def add_tractography(self, *args, **kwargs):
 		"""
 		Renders tractography data and adds it to the scene. 
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_tractography(self, *args, **kwargs)
+		return self.atlas.add_tractography(self, *args, **kwargs)
 		
 	def add_streamlines(self, *args,  **kwargs):
 		"""
@@ -611,21 +509,29 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		Creates Spherse at the location of injections with a volume proportional to the injected volume.
 		Check the function definition in ABA for more details
 		"""
-		self.atlas.add_injection_sites(self, *args, **kwargs)
+		return self.atlas.add_injection_sites(self, *args, **kwargs)
 
 	# -------------------------- General actors/elements ------------------------- #
-	def add_vtkactor(self, *actors):
+	def add_vtkactor(self, *actors, store=None):
 		"""
 		Add a vtk actor to the scene
 
 		:param actor:
+		:param store: one of the items in self.actors to use to store the actor
+				being created. It needs to be a list
 
 		"""
 		# TODO add a check that the arguments passed are indeed vtk actors?
 
 		to_return = []
 		for actor in actors:
-			self.actors['others'].append(actor)
+			if store is None:
+				self.actors['others'].append(actor)
+			else:
+				if not isinstance(store, list):
+					raise ValueError('Store should be a list')
+				store.append(actor)
+
 			to_return.append(actor)
 
 		if len(to_return) == 0:
@@ -907,6 +813,58 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		)
 		return txt
 		
+	def add_actor_label(self, actors, labels, **kwargs):
+		"""
+			Adds a 2D text ancored to a point on the actor's mesh
+			to label what the actor is
+
+			:param kwargs: key word arguments can be passed to determine 
+					text appearance:
+						- size: int, text size. Default 300
+						- color: str, text color. A list of colors can be passed
+								if None the actor's color is used. Default None.
+		"""
+		# Check args
+		if not isinstance(actors, (tuple, list)):
+			actors = [actors]
+		if not isinstance(labels, (tuple, list)):
+			labels = [labels]
+
+		# Get text params
+		size = kwargs.pop("size", 300)
+		color = kwargs.pop("color", None)
+
+		txts = []
+		for n, (actor, label) in enumerate(zip(actors, labels)):
+			if not isinstance(actor, Actor):
+				raise ValueError(f'Actor must be an instance of Actor, not {type(actor)}')
+			if not isinstance(label, str):
+				raise ValueError(f'Label must be a string, not {type(label)}')
+
+			# Get label color
+			if color is None:
+				color = actor.c()
+			elif isinstance(color, (list, tuple)):
+				color = color[n]
+			
+			# Get mesh's highest point
+			points = actor.points()
+			point = points[np.argmin(points[:, 1]), :]
+
+			# Create label
+			txts.append(Text(label, point, s=size, c=color))
+
+		# Add to scene and return
+		self.add_vtkactor(*txts, store=self.actors['labels'])
+
+		if len(txts) == 0:
+			return txts[0]
+		elif not txts:
+			return None
+		else:
+			return txts
+
+
 	def add_line_at_point(self, point, replace_coord, bounds,  **kwargs):
 		"""
 			Adds a line oriented on a given axis at a point
@@ -1153,6 +1111,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				zoom = 1.85
 			else:
 				zoom = 1.5
+		
+		# Make mesh labels follow the camera
+		if not self.jupyter:
+			for txt in self.actors['labels']:
+				txt.followCamera(self.plotter.camera)
+			
 
 
 		self.is_rendered = True

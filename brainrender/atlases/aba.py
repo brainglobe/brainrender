@@ -8,6 +8,7 @@ from vtkplotter.mesh import Mesh as Actor
 
 from morphapi.morphology.morphology import Neuron
 
+import brainrender
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.morphology.utils import edit_neurons, get_neuron_actors_with_morphapi
@@ -233,6 +234,117 @@ class ABA(Atlas):
 
 
     # ------------------------- Adding elements to scene ------------------------- #
+    @staticmethod # static method because it inherits from scene 
+    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+                        add_labels=False,
+                        colors=None, use_original_color=True, 
+                        alpha=None, hemisphere=None, **kwargs):
+
+        """
+            Adds rendered brain regions with data from theatlas. 
+            Many parameters can be passed to specify how the regions should be rendered.
+            To treat a subset of the rendered regions, specify which regions are VIP. 
+            Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
+
+            :param brain_regions: str list of acronyms of brain regions
+            :param VIP_regions: if a list of brain regions are passed, these are rendered differently compared to those in brain_regions (Default value = None)
+            :param VIP_color: if passed, this color is used for the VIP regions (Default value = None)
+            :param colors: str, color of rendered brian regions (Default value = None)
+            :param use_original_color: bool, if True, the allen's default color for the region is used.  (Default value = False)
+            :param alpha: float, transparency of the rendered brain regions (Default value = None)
+            :param hemisphere: str (Default value = None)
+            :param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
+            :param **kwargs: used to determine a bunch of thigs, including the look of add_labels
+        """
+        # Check that the atlas has brain regions data
+        if self.atlas.region_acronyms is None:
+            print(f"The atlas {self.atlas.atlas_name} has no brain regions data")
+            return
+
+        # Parse arguments
+        if VIP_regions is None:
+            VIP_regions = self.VIP_regions
+        if VIP_color is None:
+            VIP_color = self.VIP_color
+        if alpha is None:
+            _alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
+        else: _alpha = alpha
+
+        # check that we have a list
+        if not isinstance(brain_regions, list):
+            self.atlas._check_valid_region_arg(brain_regions)
+            brain_regions = [brain_regions]
+
+        # check the colors input is correct
+        if colors is not None:
+            if isinstance(colors[0], (list, tuple)):
+                if not len(colors) == len(brain_regions): 
+                    raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
+                for col in colors:
+                    if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
+            else:
+                if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
+                colors = [colors for i in range(len(brain_regions))]
+
+        # loop over all brain regions
+        actors = []
+        for i, region in enumerate(brain_regions):
+            self.atlas._check_valid_region_arg(region)
+
+            if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
+            if self.verbose: print("Rendering: ({})".format(region))
+
+            # get the structure and check if we need to download the object file
+            if region not in self.atlas.region_acronyms:
+                print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}. Skipping")
+                continue
+
+            obj_file = os.path.join(self.atlas.meshes_folder, "{}.{}".format(region, self.atlas.mesh_format))
+            if not self.atlas._check_obj_file(region, obj_file):
+                print("Could not render {}, maybe we couldn't get the mesh?".format(region))
+                continue
+
+            # check which color to assign to the brain region
+            if self.regions_aba_color or use_original_color:
+                color = [x/255 for x in self.atlas.get_region_color(region)]
+            else:
+                if region in VIP_regions:
+                    color = VIP_color
+                else:
+                    if colors is None:
+                        color = brainrender.DEFAULT_STRUCTURE_COLOR
+                    elif isinstance(colors, list):
+                        color = colors[i]
+                    else: 
+                        color = colors
+
+            if region in VIP_regions:
+                alpha = 1
+            else:
+                alpha = _alpha
+
+            # Load the object file as a mesh and store the actor
+            if hemisphere is not None:
+                if hemisphere.lower() == "left" or hemisphere.lower() == "right":
+                    obj = self.atlas.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
+            else:
+                obj = self.plotter.load(obj_file, c=color, alpha=alpha)
+
+            if obj is not None:
+                actors_funcs.edit_actor(obj, **kwargs)
+
+                if add_labels:
+                    self.add_actor_label(obj, region, **kwargs)
+
+                self.actors["regions"][region] = obj
+                actors.append(obj)
+            else:
+                print(f"Something went wrong while loading mesh data for {region}")
+
+        if len(actors)==1:
+            return actors[0]
+        else:
+            return actors
 
     def mirror_neuron(self, neuron_actors):
         """
