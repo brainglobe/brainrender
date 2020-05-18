@@ -5,7 +5,7 @@ import os
 import datetime
 import random
 from vtkplotter import Plotter, shapes, ProgressBar, show, screenshot, importWindow, interactive
-from vtkplotter import Text2D, closePlotter, embedWindow, settings, Plane, Text
+from vtkplotter import Text2D, closePlotter, embedWindow, settings, Plane, Text, Sphere
 from vtkplotter.shapes import Cylinder, Line, DashedLine
 from vtkplotter.mesh import Mesh as Actor
 from tqdm import tqdm 	
@@ -819,10 +819,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			to label what the actor is
 
 			:param kwargs: key word arguments can be passed to determine 
-					text appearance:
+					text appearance and location:
 						- size: int, text size. Default 300
 						- color: str, text color. A list of colors can be passed
 								if None the actor's color is used. Default None.
+						- xoffset, yoffset, zoffset: integers that shift the label position
+						- radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
 		"""
 		# Check args
 		if not isinstance(actors, (tuple, list)):
@@ -833,8 +835,20 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		# Get text params
 		size = kwargs.pop("size", 300)
 		color = kwargs.pop("color", None)
+		radius = kwargs.pop("radius", 100)
 
-		txts = []
+		xoffset = kwargs.pop("xoffset", 0)
+		yoffset = kwargs.pop("yoffset", 0)
+		zoffset = kwargs.pop("zoffset", 0)
+
+		if self.atlas.atlas_name == 'ABA':
+			offset = [-yoffset, -zoffset, xoffset]
+			default_offset = np.array([0, -200, 100])
+		else:
+			offset = [xoffset, yoffset, zoffset]
+			default_offset = np.array([100, 0, -200])
+
+		new_actors = []
 		for n, (actor, label) in enumerate(zip(actors, labels)):
 			if not isinstance(actor, Actor):
 				raise ValueError(f'Actor must be an instance of Actor, not {type(actor)}')
@@ -848,21 +862,32 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 				color = color[n]
 			
 			# Get mesh's highest point
-			points = actor.points()
+			points = actor.points().copy()
 			point = points[np.argmin(points[:, 1]), :]
+			point += np.array(offset) + default_offset
+
+			if self.atlas.get_hemisphere_from_point(point) == 'left':
+				point = self.atlas.mirror_point_across_hemispheres(point)
 
 			# Create label
-			txts.append(Text(label, point, s=size, c=color))
+			txt = Text(label, point, s=size, c=color)
+			new_actors.append(txt)
+
+			# Mark a point on Actor that corresponds to the label location
+			if radius is not None:
+				pt = actor.closestPoint(point)
+				new_actors.append(Sphere(pt, r=radius, c=color))
+
 
 		# Add to scene and return
-		self.add_vtkactor(*txts, store=self.actors['labels'])
+		self.add_vtkactor(*new_actors, store=self.actors['labels'])
 
-		if len(txts) == 0:
-			return txts[0]
-		elif not txts:
+		if len(new_actors) == 0:
+			return new_actors[0]
+		elif not new_actors:
 			return None
 		else:
-			return txts
+			return new_actors
 
 
 	def add_line_at_point(self, point, replace_coord, bounds,  **kwargs):

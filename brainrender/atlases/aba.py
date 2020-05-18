@@ -96,10 +96,11 @@ class ABA(Atlas):
         self.transgenic_lines = sorted(set([x for x in set(self.all_experiments.transgenic_line) if x is not None]))
 
 
-        # Store all regions metadata
-        self.regions = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
-        self.region_acronyms = list(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values(
-                                            'acronym').acronym.values)
+        # Store all regions metadata [If there's internet connection]
+        if self.other_sets is not None: 
+            self.regions = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
+            self.region_acronyms = list(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values(
+                                                'acronym').acronym.values)
 
     # ---------------------------------------------------------------------------- #
     #                       Methods to support Scene creation                      #
@@ -108,6 +109,19 @@ class ABA(Atlas):
         These methods are used by brainrender.scene to populate a scene using
         the Allen brain atlas meshes. They overwrite methods of the base atlas class
     """
+
+    # ----------------------------------- Utils ---------------------------------- #
+    def get_hemisphere_from_point(self, point):
+        if point[2] < self._root_midpoint[2]:
+            return 'left'
+        else:
+            return 'right'
+
+    def mirror_point_across_hemispheres(self, point):
+        delta = point[2] - self._root_midpoint[2]
+        point[2] = self._root_midpoint[2] - delta
+        return point
+
 
     # ---------------------- Overwriting base atlas methods ---------------------- #
     def _check_obj_file(self, region, obj_file):
@@ -254,7 +268,7 @@ class ABA(Atlas):
             :param alpha: float, transparency of the rendered brain regions (Default value = None)
             :param hemisphere: str (Default value = None)
             :param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
-            :param **kwargs: used to determine a bunch of thigs, including the look of add_labels
+            :param **kwargs: used to determine a bunch of thigs, including the look and location of lables from scene.add_labels
         """
         # Check that the atlas has brain regions data
         if self.atlas.region_acronyms is None:
@@ -890,7 +904,7 @@ class ABA(Atlas):
         try:
             all_sets = pd.DataFrame(self.oapi.get_structure_sets())
         except:
-            print("Could not retrieve data, possibly because there is no internet connection.")
+            print("Could not retrieve data, possibly because there is no internet connection. Limited functionality available.")
         else:
             sets = ["Summary structures of the pons", "Summary structures of the thalamus", 
                         "Summary structures of the hypothalamus", "List of structures for ABA Fine Structure Search",

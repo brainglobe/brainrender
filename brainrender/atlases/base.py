@@ -308,4 +308,18 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_colors_from_coordinates' method!")
 
+    def get_hemisphere_from_point(self, point):
+        """
+            Given a point it checks in which hemisphere the point is.
+            Depends on self._root_midpoint
+        """
+        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
+                    "'get_hemisphere_from_point' method!")
 
+    def mirror_point_across_hemispheres(self, point):
+        """
+            Given a point it returns the coordinates of the corresponding point in the other hemisphere
+            Depends on self._root_midpoint
+        """
+        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
+                    "'mirror_point_across_hemispheres' method!")
