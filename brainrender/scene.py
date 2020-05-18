@@ -68,7 +68,6 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 			:param tracts: list of JSON files with tractography data to be rendered (default value None)
 			:param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
 			:param verbose: if False less feedback is printed to screen (default value True)
-			:param jupyter: when using brainrender in Jupyter notebooks, this should be set to True (default value False)
 			:param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
 			:param base_dir: path to directory to use for saving data (default value None)
 			:param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
@@ -94,7 +93,12 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		# Setup a few rendering options
 		self.verbose = verbose
 		self.regions_aba_color = regions_aba_color
-		self.jupyter = jupyter
+
+		# Infer if we are using k3d from vtkplotter.settings
+		if settings.notebookBackend == 'k3d':
+			self.jupyter = True
+		else:
+			self.jupyter = False
 
 		if display_inset is None:
 			self.display_inset = brainrender.DISPLAY_INSET
