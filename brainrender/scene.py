@@ -25,7 +25,7 @@ from brainrender.Utils.image import image_to_surface
 from brainrender.Utils.camera import check_camera_param, set_camera
 
 
-class Scene(ABA):  # subclass brain render to have acces to structure trees
+class Scene():  # subclass brain render to have acces to structure trees
 	"""
 		The code below aims to create a scene to which actors can be added or removed, changed etc..
 		It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of
