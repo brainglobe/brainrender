@@ -87,7 +87,7 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		if atlas is None:
 			self.atlas = ABA(base_dir=base_dir,  **atlas_kwargs, **kwargs)
 		else:
-			self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
+			self.atlas = atlas
 
 
 		# Setup a few rendering options
@@ -452,10 +452,15 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 		:param **kwargs:
 
 		"""
+		print(brainrender.ROOT_COLOR)
 		if not render:
-			self.root = self.atlas._get_structure_mesh('root', c=brainrender.ROOT_COLOR, alpha=0, **kwargs)
+			print("there")
+			self.root = self.atlas._get_structure_mesh(['root'],
+													   c=brainrender.ROOT_COLOR, alpha=0, **kwargs)
 		else:
-			self.root = self.atlas._get_structure_mesh('root', c=brainrender.ROOT_COLOR, alpha=brainrender.ROOT_ALPHA, **kwargs)
+			print("Here")
+			self.root = self.add_brain_regions(['root'],
+											   c=brainrender.ROOT_COLOR, alpha=brainrender.ROOT_ALPHA, **kwargs)
 
 		if self.root is None:
 			print("Could not find a root mesh")
@@ -473,12 +478,35 @@ class Scene(ABA):  # subclass brain render to have acces to structure trees
 
 		return self.root
 	
-	def add_brain_regions(self, *args, **kwargs):
+	def add_brain_regions(self, brain_regions,  *args, c=None,
+						  use_original_color=True,
+						  alpha=0.4, **kwargs):
 		"""
 			Adds brain regions meshes to scene.
 			Check the atlas' method to know how it works
 		"""
-		return self.atlas.add_brain_regions(self, *args, **kwargs)
+		actors = []
+		for region in brain_regions:
+			region_id = self.atlas.acronym_to_id_map[region]
+
+			if c is None:
+				c = self.atlas.structures.get_colormap()[region_id]
+
+			obj_file = str(self.atlas.get_mesh_file_from_name(region))
+			obj = self.plotter.load(obj_file, c=c, alpha=alpha)
+
+			if obj is not None:
+				actors_funcs.edit_actor(obj, **kwargs)
+
+				# if add_labels:
+				#    self.add_actor_label(obj, region, **kwargs)
+
+				self.actors["regions"][region] = obj
+				actors.append(obj)
+			else:
+				print(
+					f"Something went wrong while loading mesh data for {region}")
+
 
 	def add_neurons(self, *args, **kwargs):
 		"""
