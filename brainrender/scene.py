@@ -460,7 +460,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 		Adds the location of pre or post synapses for a neuron (or list of neurons).
 		Check the atlas' method to know how it works 
 		"""
-		spheres_data, actors =  self.atlas.get_neurons_synapses(*args, **kwargs)
+		spheres_data, actors =  self.atlas.get_neurons_synapses(self.store, *args, **kwargs)
 
 		for data, kwargs in spheres_data:
 			self.add_cells(data, **kwargs)
