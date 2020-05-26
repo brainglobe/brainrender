@@ -2,7 +2,6 @@ from pathlib import Path
 
 from vtkplotter import load
 
-from brainatlas_api.core import Atlas as BGAtlas
 from brainatlas_api.bg_atlas import FishAtlas
 
 import brainrender
@@ -11,7 +10,7 @@ from brainrender.colors import check_colors
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.data_io import load_mesh_from_file
 
-class BrainGlobeAtlas(Atlas, BGAtlas):
+class BrainGlobeAtlas(Atlas):
     def __init__(self,  base_dir=None, **kwargs):
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
 
