@@ -12,7 +12,7 @@ from brainrender.atlases.aba import ABA
 scene = Scene()
 
 # Get the center of mass of the region of interest
-p0 = scene.get_region_CenterOfMass("ZI")
+p0 = scene.atlas.get_region_CenterOfMass("ZI")
 
 # Get projections to that point
 analyzer = ABA()

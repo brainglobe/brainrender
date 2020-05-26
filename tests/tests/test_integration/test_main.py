@@ -67,7 +67,7 @@ def test_neurons():
 def test_tractography():
     scene = Scene()
     analyzer = ABA()
-    p0 = scene.get_region_CenterOfMass("ZI")
+    p0 = scene.atlas.get_region_CenterOfMass("ZI")
     tract = analyzer.get_projection_tracts_to_target(p0=p0)
     scene.add_tractography(tract, display_injection_structure=False, color_by="target_region", 
                                 VIP_regions=['MOs'], VIP_color="red", others_color="ivory")

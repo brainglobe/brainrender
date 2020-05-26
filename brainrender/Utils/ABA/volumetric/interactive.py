@@ -22,7 +22,7 @@ class InteractiveVolumetric(VolumetricAPI):
         self.target_region_bounds = self.target_region_mesh.bounds()
         
         # The position of the point 
-        self.target = self.scene.get_region_CenterOfMass(target_region) # initialise with a point in the right hemisphere
+        self.target = self.scene.atlas.get_region_CenterOfMass(target_region) # initialise with a point in the right hemisphere
         self.target_in_region = True
         self.crosshair = []
         self._move_crosshair()
