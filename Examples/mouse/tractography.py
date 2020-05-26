@@ -20,6 +20,6 @@ tract = analyzer.get_projection_tracts_to_target(p0=p0)
 
 # Add the brain regions and the projections to it
 scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
-scene.add_tractography(tract, display_injection_structure=False, color_by="region")
+scene.add_tractography(tract,  color_by="region")
 
 scene.render()

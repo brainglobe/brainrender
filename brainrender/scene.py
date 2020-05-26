@@ -221,54 +221,6 @@ class Scene():  # subclass brain render to have acces to structure trees
 			self.inset.alpha(1)
 			self.plotter.showInset(self.inset, pos=(0.95,0.1), draggable=False)
 
-	# ----------------------------- Mesh interaction ----------------------------- #
-	def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
-		"""
-		Get the center of mass of the 3d mesh of one or multiple brain regions.
-
-		:param regions: str, list of brain regions acronyms
-		:param unilateral: bool, if True, the CoM is relative to one hemisphere (Default value = True)
-		:param hemisphere: str, if unilteral=True, specifies which hemisphere to use ['left' or 'right'] (Default value = "right")
-		:returns: coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region.
-								If a list is passed then a dictionary is returned. ]
-		"""
-
-		if not isinstance(regions, list):
-			# Check if input is an actor or if we need to load one
-			if isinstance(regions, Actor):
-				mesh = regions
-			else:
-				# load mesh corresponding to brain region
-				if unilateral:
-					mesh = self.atlas.get_region_unilateral(regions, hemisphere=hemisphere)
-				else:
-					mesh = self.atlas._get_structure_mesh(regions)
-
-			#  Check if we are considering only one hemisphere
-			if unilateral and hemisphere.lower() == 'right':
-				if self.root is None:
-					self.add_root(render=False)
-				return list(np.array(get_coords([np.int(x) for x in mesh.centerOfMass()], 
-										mirror=self.root_center[2])).astype(np.int32))
-			else:
-				return [np.int(x) for x in mesh.centerOfMass()]
-		else:
-			coms = {}
-			for region in regions:
-				if isinstance(region, Actor):
-					mesh = region
-				else:
-					if unilateral:
-						mesh = self.atlas.get_region_unilateral(region, hemisphere=hemisphere)
-					else:
-						mesh = self.atlas._get_structure_mesh(region)
-
-				if mesh is None:
-					coms[region] = None
-				else:
-					coms[region] = [np.int(x) for x in mesh.centerOfMass()]
-			return coms
-
 	def get_n_random_points_in_region(self, region, N, hemisphere=None):
 		"""
 		Gets N random points inside (or on the surface) of the mesh defining a brain region.
@@ -456,12 +408,9 @@ class Scene():  # subclass brain render to have acces to structure trees
 			print("Could not find a root mesh")
 			return None
 
-		# get the center of the root and the bounding box + update for atlas
-		self.root_center = self.root.centerOfMass()
-		self.root_bounds = {"x":self.root.xbounds(), "y":self.root.ybounds(), "z":self.root.zbounds()}
-
-		self.atlas._root_midpoint = self.root_center
-		self.atlas._root_bounds = [self.root.xbounds(), self.root.ybounds(), self.root.zbounds()]
+		# # get the center of the root and the bounding box + update for atlas
+		# self.atlas._root_midpoint = self.root.centerOfMass()
+		# self.atlas._root_bounds = [self.root.xbounds(), self.root.ybounds(), self.root.zbounds()]
 
 		if render:
 			self.actors['root'] = self.root
@@ -497,7 +446,10 @@ class Scene():  # subclass brain render to have acces to structure trees
 		Adds rendered morphological data of neurons reconstructions.
 		Check the atlas' method to know how it works
 		"""
-		return self.atlas.add_neurons(self, *args, **kwargs)
+		actors = self.atlas.get_neurons(*args, **kwargs)
+		self.actors["neurons"].extend(actors)
+
+		return actors
 
 	def add_neurons_synapses(self, *args, **kwargs):
 		"""
@@ -511,21 +463,26 @@ class Scene():  # subclass brain render to have acces to structure trees
 		Renders tractography data and adds it to the scene. 
 		Check the function definition in ABA for more details
 		"""
-		return self.atlas.add_tractography(self, *args, **kwargs)
+
+		actors =  self.atlas.get_tractography(*args, **kwargs)
+		self.actors['tracts'].extend(actors)
 		
 	def add_streamlines(self, *args,  **kwargs):
 		"""
 		Render streamline data.
 		Check the function definition in ABA for more details
 		"""
-		return self.atlas.add_streamlines(self, *args,  **kwargs)
+		actors =  self.atlas.get_streamlines(*args,  **kwargs)
+		self.actors['tracts'].extend(actors)
 
 	def add_injection_sites(self, *args, **kwargs):
 		"""
 		Creates Spherse at the location of injections with a volume proportional to the injected volume.
 		Check the function definition in ABA for more details
 		"""
-		return self.atlas.add_injection_sites(self, *args, **kwargs)
+		actors =  self.atlas.get_injection_sites(*args, **kwargs)
+		self.actors['injection_sites'].extend(actors)
+
 
 	# -------------------------- General actors/elements ------------------------- #
 	def add_vtkactor(self, *actors, store=None):

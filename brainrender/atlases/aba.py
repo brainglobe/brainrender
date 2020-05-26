@@ -18,6 +18,7 @@ from brainrender import *
 from brainrender.Utils import actors_funcs
 from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap, check_colors
 from brainrender.colors import get_n_shades_of
+from brainrender.Utils.ABA.aba_utils import parse_streamline, download_streamlines, experiments_source_search
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -103,7 +104,7 @@ class ABA(Atlas):
         the Allen brain atlas meshes. They overwrite methods of the base atlas class
     """
 
-    # ------------------------- Adding elements to scene ------------------------- #
+    # ------------------------- Getting elements for scene ------------------------- #
     def get_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
                         add_labels=False,
                         colors=None, use_original_color=True, 
@@ -209,18 +210,16 @@ class ABA(Atlas):
 
         return actors
 
-    @staticmethod # static method because this should inherit from scene
-    def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
+    def get_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
                 alpha=1, neurite_radius=None):
         """
-        Adds rendered morphological data of neurons reconstructions downloaded from the
+        Gets rendered morphological data of neurons reconstructions downloaded from the
         Mouse Light project at Janelia (or other sources). 
         Accepts neurons argument as:
             - file(s) with morphological data
             - vtkplotter mesh actor(s) of entire neurons reconstructions
             - dictionary or list of dictionary with actors for different neuron parts
 
-        :param self: instance of brainrender Scene to use to render neurons
         :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
         :param display_axon, display_dendrites: if set to False the corresponding neurite is not rendered
         :param color: default None. Can be:
@@ -390,10 +389,6 @@ class ABA(Atlas):
             if neuron['dendrites'] is not None:
                 neuron['dendrites'].c(colors['dendrites'][n])
 
-
-        # Add to actors storage
-        self.actors["neurons"].extend(_neurons_actors)
-        
         # Return
         if len(_neurons_actors) == 1:
             return _neurons_actors[0]
@@ -402,9 +397,7 @@ class ABA(Atlas):
         else:
             return _neurons_actors
 
-    @staticmethod
-    def add_tractography(self, tractography, color=None, display_injection_structure=False,
-                        display_onlyVIP_injection_structure=False, color_by="manual", others_alpha=1, verbose=True,
+    def get_tractography(self, tractography, color=None,  color_by="manual", others_alpha=1, verbose=True,
                         VIP_regions=[], VIP_color=None, others_color="white", include_all_inj_regions=False,
                         extract_region_from_inj_coords=False, display_injection_volume=True):
         """
@@ -414,8 +407,6 @@ class ABA(Atlas):
         :param tractography: list of dictionaries with tractography data
         :param color: color of rendered tractography data
 
-        :param display_injection_structure: Bool, if True the injection structure is rendered (Default value = False)
-        :param display_onlyVIP_injection_structure: bool if true displays the injection structure only for VIP regions (Default value = False)
         :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
         :param others_alpha: float (Default value = 1)
         :param verbose: bool (Default value = True)
@@ -461,7 +452,7 @@ class ABA(Atlas):
                     COLORS = [color for i in range(len(tractography))]
 
         elif color_by == "region":
-            COLORS = [self.atlas.get_region_color(t['structure-abbrev']) for t in tractography]
+            COLORS = [self.get_region_color(t['structure-abbrev']) for t in tractography]
 
         elif color_by == "target_region":
             if VIP_color is not None:
@@ -476,7 +467,7 @@ class ABA(Atlas):
                 except:
                     raise ValueError("Something went wrong while getting colors for tractography")
             else:
-                COLORS = [self.atlas.get_region_color(t['structure-abbrev']) if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+                COLORS = [self.get_region_color(t['structure-abbrev']) if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
         else:
             raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
 
@@ -491,15 +482,7 @@ class ABA(Atlas):
             if include_all_inj_regions:
                 inj_structures = [x['abbreviation'] for x in t['injection-structures']]
             else:
-                inj_structures = [self.atlas.get_structure_parent(t['structure-abbrev'])['acronym']]
-
-            # show brain structures in which injections happened
-            if display_injection_structure:
-                if not is_any_item_in_list(inj_structures, list(self.actors['regions'].keys())):
-                    if display_onlyVIP_injection_structure and is_any_item_in_list(inj_structures, VIP_regions):
-                        self.add_brain_regions([t['structure-abbrev']], colors=color)
-                    elif not display_onlyVIP_injection_structure:
-                        self.add_brain_regions([t['structure-abbrev']], colors=color)
+                inj_structures = [self.get_structure_parent(t['structure-abbrev'])['acronym']]
 
             if VERBOSE and verbose and not is_any_item_in_list(inj_structures, structures_acronyms):
                 print("     -- ({})".format(t['structure-abbrev']))
@@ -517,12 +500,12 @@ class ABA(Atlas):
             # check if we need to manually check injection coords
             if extract_region_from_inj_coords:
                 try:
-                    region = self.atlas.get_structure_from_coordinates(t['injection-coordinates'], 
+                    region = self.get_structure_from_coordinates(t['injection-coordinates'], 
                                                             just_acronym=False)
                     if region is None: continue
-                    inj_structures = [self.atlas.get_structure_parent(region['acronym'])['acronym']]
+                    inj_structures = [self.get_structure_parent(region['acronym'])['acronym']]
                 except:
-                    raise ValueError(self.atlas.get_structure_from_coordinates(t['injection-coordinates'], 
+                    raise ValueError(self.get_structure_from_coordinates(t['injection-coordinates'], 
                                                             just_acronym=False))
                 if inj_structures is None: continue
                 elif isinstance(extract_region_from_inj_coords, list):
@@ -538,64 +521,9 @@ class ABA(Atlas):
             points = [p['coord'] for p in t['path']]
             actors.append(shapes.Tube(points, r=TRACTO_RADIUS, c=color, alpha=alpha, res=TRACTO_RES))
 
-        self.actors['tracts'].extend(actors)
+        return actors
 
-
-    @staticmethod
-    def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
-        """
-            Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.
-            Either  filepath or data should be passed
-
-            :param filepath: str, optional. Path to .json file with streamline data (Default value = None)
-            :param data: panadas.DataFrame, optional. DataFrame with streamline data. (Default value = None)
-            :param color: str color of the streamlines (Default value = 'ivory')
-            :param alpha: float transparency of the streamlines (Default value = .8)
-            :param radius: int radius of the streamlines actor (Default value = 10)
-            :param show_injection_site: bool, if True spheres are used to render the injection volume (Default value = True)
-            :param *args: 
-            :param **kwargs: 
-
-        """
-        if filepath is not None and data is None:
-            data = load_json(filepath)
-            # data = {k:{int(k2):v2 for k2, v2 in v.items()} for k,v in data.items()}
-        elif filepath is None and data is not None:
-            pass
-        else:
-            raise ValueError("Need to pass eiteher a filepath or data argument to parse_streamline")
-
-        # create actors for streamlines
-        lines = []
-        if len(data['lines']) == 1:
-            lines_data = data['lines'][0]
-        else:
-            lines_data = data['lines']
-        for line in lines_data:
-            points = [[l['x'], l['y'], l['z']] for l in line]
-            lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=STREAMLINES_RESOLUTION))
-
-        coords = []
-        if show_injection_site:
-            if len(data['injection_sites']) == 1:
-                injection_data = data['injection_sites'][0]
-            else:
-                injection_data = data['injection_sites']
-
-            for inj in injection_data:
-                coords.append(list(inj.values()))
-            spheres = [shapes.Spheres(coords, r=INJECTION_VOLUME_SIZE)]
-        else:
-            spheres = []
-
-        merged = merge(*lines, *spheres)
-        merged.color(color)
-        merged.alpha(alpha)
-        return [merged]
-
-
-    @staticmethod
-    def add_streamlines(self, sl_file, *args, colorby=None, color_each=False,  **kwargs):
+    def get_streamlines(self, sl_file, *args, colorby=None, color_each=False,  **kwargs):
         """
         Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
 
@@ -623,54 +551,39 @@ class ABA(Atlas):
                 except:
                     raise ValueError("Invalide color argument: {}".format(color))
 
-        if isinstance(sl_file, list):
-            if isinstance(sl_file[0], (str, pd.DataFrame)): # we have a list of files to add
-                for slf in tqdm(sl_file):
-                    if not color_each:
-                        if color is not None:
-                            if isinstance(slf, str):
-                                streamlines = self.atlas.parse_streamline(filepath=slf, *args, color=color, **kwargs)
-                            else:
-                                streamlines = self.atlas.parse_streamline(data=slf, *args, color=color, **kwargs)
-                        else:
-                            if isinstance(slf, str):
-                                streamlines = self.atlas.parse_streamline(filepath=slf, *args, **kwargs)
-                            else:
-                                streamlines = self.atlas.parse_streamline(data=slf,  *args, **kwargs)
-                    else:
-                        if color is not None:
-                            col = get_n_shades_of(color, 1)[0]
-                        else:
-                            col = get_random_colors(n_colors=1)
-                        if isinstance(slf, str):
-                            streamlines = self.atlas.parse_streamline(filepath=slf, color=col, *args, **kwargs)
-                        else:
-                            streamlines = self.atlas.parse_streamline(data= slf, color=col, *args, **kwargs)
-                    self.actors['tracts'].extend(streamlines)
-            else:
-                raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
-        else:
-            if not isinstance(sl_file, (str, pd.DataFrame)):
-                raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
-            if not color_each:
-                if isinstance(sl_file, str):
-                    streamlines = parse_streamline(filepath=sl_file, *args,  **kwargs)
-                else:
-                    streamlines = parse_streamline(data=sl_file, *args,  **kwargs)
-            else:
-                if color is not None:
-                    col = get_n_shades_of(color, 1)[0]
-                else:
-                    col = get_random_colors(n_colors=1)
-                if isinstance(sl_file, str):
-                    streamlines = parse_streamline(filepath=sl_file, color=col, *args, **kwargs)
-                else:
-                    streamlines = parse_streamline(data=sl_file, color=col, *args, **kwargs)
-            self.actors['tracts'].extend(streamlines)
-        return streamlines
+        if not isinstance(sl_file, (list, tuple)):
+            sl_file = [sl_file]
 
-    @staticmethod
-    def add_injection_sites(self, experiments, color=None):
+        actors = []
+        if isinstance(sl_file[0], (str, pd.DataFrame)): # we have a list of files to add
+            for slf in tqdm(sl_file):
+                if not color_each:
+                    if color is not None:
+                        if isinstance(slf, str):
+                            streamlines = parse_streamline(filepath=slf, *args, color=color, **kwargs)
+                        else:
+                            streamlines = parse_streamline(data=slf, *args, color=color, **kwargs)
+                    else:
+                        if isinstance(slf, str):
+                            streamlines = parse_streamline(filepath=slf, *args, **kwargs)
+                        else:
+                            streamlines = parse_streamline(data=slf,  *args, **kwargs)
+                else:
+                    if color is not None:
+                        col = get_n_shades_of(color, 1)[0]
+                    else:
+                        col = get_random_colors(n_colors=1)
+                    if isinstance(slf, str):
+                        streamlines = parse_streamline(filepath=slf, color=col, *args, **kwargs)
+                    else:
+                        streamlines = parse_streamline(data= slf, color=col, *args, **kwargs)
+                actors.extend(streamlines)
+        else:
+            raise ValueError("unrecognized argument sl_file: {}".format(sl_file))
+
+        return actors
+     
+    def get_injection_sites(self, experiments, color=None):
         """
         Creates Spherse at the location of injections with a volume proportional to the injected volume
 
@@ -695,9 +608,9 @@ class ABA(Atlas):
                     c=color
                     ))
 
-        self.actors['injection_sites'].extend(injection_sites)
+        return injection_sites
 
-
+        
     # ---------------------------------------------------------------------------- #
     #                          STRUCTURE TREE INTERACTION                          #
     # ---------------------------------------------------------------------------- #
@@ -978,7 +891,8 @@ class ABA(Atlas):
             p0 = list(p0)
         elif not isinstance(p0, (list, tuple)):
             raise ValueError("Invalid argument passed (p0): {}".format(p0))
-
+        
+        p0 = [np.int(p) for p in p0]
         tract = self.mca.experiment_spatial_search(seed_point=p0, **kwargs)
 
         if isinstance(tract, str): 
@@ -990,7 +904,6 @@ class ABA(Atlas):
     # ---------------------------------------------------------------------------- #
     #                             STREAMLINES FETCHING                             #
     # ---------------------------------------------------------------------------- #
-
     def download_streamlines_for_region(self, region, *args, **kwargs):
         """
             Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
@@ -1004,9 +917,9 @@ class ABA(Atlas):
 
         """
         # Get experiments whose injections were targeted to the region
-        region_experiments = self.experiments_source_search(region, *args, **kwargs)
+        region_experiments = experiments_source_search(self.mca, region, *args, **kwargs)
         try:
-            return self.download_streamlines(region_experiments.id.values)
+            return download_streamlines(region_experiments.id.values, streamlines_folder=self.streamlines_cache)
         except:
             print(f"Could not download streamlines for region {region}")
             return [], [] # <- there were no experiments in the target region 
@@ -1030,98 +943,4 @@ class ABA(Atlas):
                 experiments = experiments.loc[experiments["transgenic-line"] == mouse_line]
             else:
                 raise NotImplementedError("ops, you've found a bug!. For now you can only pass one mouse line at the time, sorry.")
-        return self.download_streamlines(experiments.id.values)
-
-    @staticmethod
-    def make_url_given_id(expid):
-        """
-            Get url of JSON file for an experiment, give it's ID number
-
-            :param expid: int with experiment ID number
-
-        """
-        return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(expid)
-
-    def extract_ids_from_csv(self, csv_file, download=False, **kwargs):
-        """
-            Parse CSV file to extract experiments IDs and link to downloadable streamline data
-        
-            Given a CSV file with info about experiments downloaded from: http://connectivity.brain-map.org
-            extract experiments ID and get links to download (compressed) streamline data from https://neuroinformatics.nl.
-            Also return the experiments IDs to download data from: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
-            
-
-            :param csv_file: str with path to csv file
-            :param download: if True the data are downloaded automatically (Default value = False)
-            :param **kwargs: 
-
-        """
-
-        try:
-            data = pd.read_csv(csv_file)
-        except:
-            raise FileNotFoundError("Could not load: {}".format(csv_file))
-        else:
-            if not download:
-                print("Found {} experiments.\n".format(len(data.id.values)))
-
-        if not download: 
-            print("To download compressed data, click on the following URLs:")
-            for eid in data.id.values:
-                url = self.make_url_given_id(eid)
-                print(url)
-
-            print("\n")
-            string = ""
-            for x in data.id.values:
-                string += "{},".format(x)
-
-            print("To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html")
-            print("and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
-            print("You can copy and paste each individually or a list of IDs separated by a comma")
-            print("IDs: {}".format(string[:-1]))
-            print("\n")
-
-            return data.id.values
-        else:
-            return self.download_streamlines(data.id.values, **kwargs)
-
-    def download_streamlines(self, eids, streamlines_folder=None):
-        """
-            Given a list of expeirmental IDs, it downloads the streamline data from the https://neuroinformatics.nl cache and saves them as
-            json files. 
-
-            :param eids: list of integers with experiments IDs
-            :param streamlines_folder: str path to the folder where the JSON files should be saved, if None the default is used (Default value = None)
-
-        """
-        if streamlines_folder is None:
-            streamlines_folder = self.streamlines_cache
-
-        if not isinstance(eids, (list, np.ndarray, tuple)): eids = [eids]
-
-        filepaths, data = [], []
-        for eid in tqdm(eids):
-            url = self.make_url_given_id(eid)
-            jsonpath = os.path.join(streamlines_folder, str(eid)+".json")
-            filepaths.append(jsonpath)
-            if not os.path.isfile(jsonpath):
-                response = request(url)
-
-                # Write the response content as a temporary compressed file
-                temp_path = os.path.join(streamlines_folder, "temp.gz")
-                with open(temp_path, "wb") as temp:
-                    temp.write(response.content)
-
-                # Open in pandas and delete temp
-                url_data = pd.read_json(temp_path, lines=True, compression='gzip')
-                os.remove(temp_path)
-
-                # save json
-                url_data.to_json(jsonpath)
-
-                # append to lists and return
-                data.append(url_data)
-            else:
-                data.append(pd.read_json(jsonpath))
-        return filepaths, data
+        return download_streamlines(experiments.id.values, streamlines_folder=self.streamlines_cache)

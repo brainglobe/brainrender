@@ -209,32 +209,32 @@ class Atlas(Paths):
                     "'get_region_unilateral' method!")
 
     @staticmethod
-    def add_brain_regions(self, *agrs, **kwargs):
+    def get_brain_regions(self, *agrs, **kwargs):
         """
 			Adds brain regions meshes to scene.
 			Check the atlas' method to know how it works
 		"""
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'add_brain_regions' method!")
+                    "'get_brain_regions' method!")
 
 
     @staticmethod # static because it inherits from scene
-    def add_neurons(self, neurons,  **kwargs):
+    def get_neurons(self, neurons,  **kwargs):
         """
         Adds rendered morphological data of neurons reconstructions 
         For more details about argument look at each atlases' method
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'add_neurons' method!")
+                    "'get_neurons' method!")
         
     @staticmethod # static method because it inherits from scene
-    def add_neurons_synapses(self, neurons,  **kwargs):
+    def get_neurons_synapses(self, neurons,  **kwargs):
         """
         Adds the location of synapses.
         For more details about argument look at each atlases' method
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'add_neurons_synapses' method!")
+                    "'get_neurons_synapses' method!")
 
     # -------------------------- Parents and descendants ------------------------- #
     def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
