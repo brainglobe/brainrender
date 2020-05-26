@@ -455,6 +455,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 
 		return actors
 
+
 	def add_neurons_synapses(self, *args, **kwargs):
 		"""
 		Adds the location of pre or post synapses for a neuron (or list of neurons).
