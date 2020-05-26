@@ -43,7 +43,7 @@ Below is a quick description of some of the things that `brainrender` can be use
 ## Allen Mouse Brain Atlas
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
 and [connectivity atlas](http://connectivity.brain-map.org) using the Allen [API](http://help.brain-map.org/display/api/Allen%2BBrain%2BAtlas%2BAPI)
-(© 2015 Allen Institute for Brain Science. Allen Brain Atlas API. Available from: [https://brain-map.org/api/index.html](brain-map.org/api/index.html)) ([1], [2]).
+(© 2015 Allen Institute for Brain Science. Allen Brain Atlas API. Available from: [https://brain-map.org/api/index.html](https://brain-map.org/api/index.html)) ([1], [2]).
 
 ### Brain structures
 Brain structures are the most fundamental element of any `brainrender` scene. You can use brainrender to select which brain regions you'd like to visualise, and how they should look (color, transparency...). Brainrender then takes care of downloading and rendering the 3D mesh for the selected regions. 
