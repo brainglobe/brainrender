@@ -278,11 +278,9 @@ class Celegans(Atlas):
         return root
 
 
-    @staticmethod # static method because it inherits from scene
-    def add_neurons(self, neurons, alpha=1, as_skeleton=False, colorby='type'):   
+    def get_neurons(self, neurons, alpha=1, as_skeleton=False, colorby='type'):   
         """
-            THIS METHODS GETS CALLED BY SCENE, self referes to the instance of Scene not to this class.
-            Renders neurons and adds them to the scene. 
+            Renders neurons and adds returns to the scene. 
 
             :param neurons: list of names of neurons
             :param alpha: float in range 0,1 -  neurons transparency
@@ -290,21 +288,22 @@ class Celegans(Atlas):
                                 otherwise as a full mesh showing the whole morphology
             :param colorby: str, criteria to use to color the neurons. Accepts values like type, individual etc. 
         """
-        neurons = self.atlas._check_neuron_argument(neurons)
+        neurons = self._check_neuron_argument(neurons)
 
+        actors, store = [], {}
         for neuron in neurons:
-            if neuron not in self.atlas.neurons_names:
+            if neuron not in self.neurons_names:
                 print(f"Neuron {neuron} not included in dataset")
             else:
-                color = self.atlas.get_neuron_color(neuron, colorby=colorby)
+                color = self.get_neuron_color(neuron, colorby=colorby)
 
                 if as_skeleton: # reconstruct skeleton from json
-                    actor = self.atlas._parse_neuron_skeleton(neuron)
+                    actor = self._parse_neuron_skeleton(neuron)
 
 
                 else: # load as .obj file
                     try:
-                        neuron_file = [f for f in self.atlas.neurons_files if neuron in f][0]
+                        neuron_file = [f for f in self.neurons_files if neuron in f][0]
                     except:
                         print(f"Could not find .obj file for neuron {neuron}")
                         continue
@@ -314,14 +313,14 @@ class Celegans(Atlas):
                 if actor is not None:
                     # Refine actor's look
                     actor.alpha(alpha).c(color)
+            
+            actors.append(actor)
+            store[neuron] = (actor, as_skeleton) 
+        
+        return actors, store
 
-                    # Add to scene
-                    self.actors['neurons'].append(actor)
-                    self.store[neuron] = (actor, as_skeleton) # repurpusing the region's actors store for hosting neurons as dict
 
-
-    @staticmethod
-    def add_neurons_synapses(self, neurons, alpha=1, pre=False, post=False, colorby='synapse_type',
+    def get_neurons_synapses(self, scene_store, neurons, alpha=1, pre=False, post=False, colorby='synapse_type',
                                 draw_patches=False, draw_arrows=True):
         """
             THIS METHODS GETS CALLED BY SCENE, self referes to the instance of Scene not to this class.
@@ -340,33 +339,35 @@ class Celegans(Atlas):
         col_names = ['x', 'z', 'y']
         # used to correctly position synapses on .obj files
 
-        neurons = self.atlas._check_neuron_argument(neurons)
+        neurons = self._check_neuron_argument(neurons)
 
+        spheres_data, actors = [], []
         for neuron in neurons:
             if pre:
                 if colorby == 'synapse_type':
-                    color = self.atlas.pre_synapses_color
+                    color = self.pre_synapses_color
                 else:
-                    color = self.atlas.get_neuron_color(neuron, colorby=colorby)
+                    color = self.get_neuron_color(neuron, colorby=colorby)
 
-                data = self.atlas.synapses_data.loc[self.atlas.synapses_data.pre == neuron]
+                data = self.synapses_data.loc[self.synapses_data.pre == neuron]
                 if not len(data):
                     print(f"No pre- synapses found for neuron {neuron}")
                 else:
                     data = data[['x', 'y', 'z']]
                     data['y'] = -data['y']
-                    self.add_cells(data, color=color, verbose=False, alpha=alpha,
-                                        radius=self.atlas.synapses_radius, res=24, col_names = col_names)
+
+                    spheres_data.append((data, dict(color=color, verbose=False, alpha=alpha,
+                                        radius=self.synapses_radius, res=24, col_names = col_names)))
 
             if post:
                 if colorby == 'synapse_type':
-                    color = self.atlas.post_synapses_color
+                    color = self.post_synapses_color
                 else:
-                    color = self.atlas.get_neuron_color(neuron, colorby=colorby)
+                    color = self.get_neuron_color(neuron, colorby=colorby)
 
-                rows = [i for i,row in self.atlas.synapses_data.iterrows()
+                rows = [i for i,row in self.synapses_data.iterrows()
                             if neuron in row.posts]
-                data = self.atlas.synapses_data.iloc[rows]
+                data = self.synapses_data.iloc[rows]
                 
                 if not len(data):
                     print(f"No post- synapses found for neuron {neuron}")
@@ -379,19 +380,15 @@ class Celegans(Atlas):
                         of a neuron's mesh and or as a 3d arrow point toward the neuron.
                     """
 
-                    # get a sphere at each post synaptic location
-                    # spheres = self.add_cells(data, color=color, verbose=False, alpha=.1,
-                    #     radius=self.atlas.synapses_radius*4, res=24, col_names = col_names)
-
-                    spheres = self.add_cells(data, color='black', verbose=False, alpha=0,
-                        radius=self.atlas.synapses_radius*4, res=24, col_names = col_names)
+                    spheres_data.append((data, dict(color='black', verbose=False, alpha=0,
+                        radius=self.synapses_radius*4, res=24, col_names = col_names)))
 
                     # Get mesh points for neuron the synapses belong to
-                    if neuron not in self.store.keys():
-                        neuron_file = [f for f in self.atlas.neurons_files if neuron in f][0]
+                    if neuron not in scene_store.keys():
+                        neuron_file = [f for f in self.neurons_files if neuron in f][0]
                         neuron_act = load_mesh_from_file(neuron_file, c=color)
                     else:
-                        neuron_act, as_skeleton = self.store[neuron]
+                        neuron_act, as_skeleton = scene_store[neuron]
 
                     # Draw post synapses as dark patches
                     if draw_patches:
@@ -399,7 +396,8 @@ class Celegans(Atlas):
                             print("Can't display post synapses as dark spots when neron is rendered in skeleton mode")
                         else:
                             # Get faces that are inside the synapses spheres and color them darker
-                            
+                            raise NotImplementedError('This needs some fixing')
+
                             neuron_points = neuron_act.cellCenters()
                             inside_points = spheres.insidePoints(neuron_points, returnIds=True)
 
@@ -433,6 +431,9 @@ class Celegans(Atlas):
                         points0 = [get_point(p1, p2, d, -.5) for p1, p2, d in zip(points1, points2, dists)]
 
                         arrows = Arrows(points0, endPoints=points2, c=color, s=4)
-                        self.add_vtkactor(arrows)
+
+                        # ! aasduaisdbasiudbuia
+                        actors.append(arrows)
+        return spheres_data, actors
                             
 

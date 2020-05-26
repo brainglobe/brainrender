@@ -446,8 +446,12 @@ class Scene():  # subclass brain render to have acces to structure trees
 		Adds rendered morphological data of neurons reconstructions.
 		Check the atlas' method to know how it works
 		"""
-		actors = self.atlas.get_neurons(*args, **kwargs)
+		actors, store = self.atlas.get_neurons(*args, **kwargs)
 		self.actors["neurons"].extend(actors)
+
+		if store is not None:
+			for n,v in store.items():
+				self.store[n] = v
 
 		return actors
 
@@ -456,7 +460,14 @@ class Scene():  # subclass brain render to have acces to structure trees
 		Adds the location of pre or post synapses for a neuron (or list of neurons).
 		Check the atlas' method to know how it works 
 		"""
-		return self.atlas.add_neurons_synapses(self, *args, **kwargs)
+		spheres_data, actors =  self.atlas.get_neurons_synapses(*args, **kwargs)
+
+		for data, kwargs in spheres_data:
+			self.add_cells(data, **kwargs)
+
+		for actor in actors:
+			self.add_vtkactor(actor)
+
 
 	def add_tractography(self, *args, **kwargs):
 		"""
@@ -861,7 +872,6 @@ class Scene():  # subclass brain render to have acces to structure trees
 			return None
 		else:
 			return new_actors
-
 
 	def add_line_at_point(self, point, replace_coord, bounds,  **kwargs):
 		"""

@@ -8,6 +8,7 @@ from PIL import ImageColor
 
 from vtkplotter import load, merge, write
 
+import brainrender
 from brainrender.atlases.base import Atlas
 from brainrender.Utils.webqueries import request
 from brainrender.Utils.data_io import load_mesh_from_file
@@ -301,7 +302,7 @@ class IBDB(Atlas):
 
     def get_region_color(self, regions):
         """
-        Gets the RGB color of a brain region from the Allen Brain Atlas.
+        Gets the RGB color of a brain region from the atlas.
 
         :param regions:  list of regions acronyms.
 
@@ -319,6 +320,31 @@ class IBDB(Atlas):
             return colors
 
 
+    def get_brain_regions(self, brain_regions, alpha=None,colors=None, use_original_color=True, **kwargs):
+        if alpha is None:
+            alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
+
+        if not isinstance(brain_regions, (list, tuple)):
+            brain_regions = [brain_regions]
+
+        # check the colors input is correct
+        if not use_original_color:
+            if colors is None:
+                colors = [brainrender.DEFAULT_STRUCTURE_COLOR for reg in brain_regions]
+            else:
+                if isinstance(colors, (list, tuple)):
+                    if len(colors) != len(regions):
+                        raise ValueError('Wrong number of colors')
+                else:
+                    colors = [colors for reg in regions]
+        else:
+            colors = [self.get_region_color(reg) for reg in brain_regions]
+
+        actors = {}
+        for region, color in zip(brain_regions, colors):
+            actors[region] = self._get_structure_mesh(region, c=color)
+        
+        return actors
 
 
 

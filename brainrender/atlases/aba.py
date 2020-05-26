@@ -391,11 +391,11 @@ class ABA(Atlas):
 
         # Return
         if len(_neurons_actors) == 1:
-            return _neurons_actors[0]
+            return _neurons_actors[0], None
         elif not _neurons_actors:
-            return None
+            return None, None
         else:
-            return _neurons_actors
+            return _neurons_actors, None
 
     def get_tractography(self, tractography, color=None,  color_by="manual", others_alpha=1, verbose=True,
                         VIP_regions=[], VIP_color=None, others_color="white", include_all_inj_regions=False,

@@ -208,7 +208,6 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_region_unilateral' method!")
 
-    @staticmethod
     def get_brain_regions(self, *agrs, **kwargs):
         """
 			Adds brain regions meshes to scene.
@@ -218,7 +217,6 @@ class Atlas(Paths):
                     "'get_brain_regions' method!")
 
 
-    @staticmethod # static because it inherits from scene
     def get_neurons(self, neurons,  **kwargs):
         """
         Adds rendered morphological data of neurons reconstructions 
@@ -227,7 +225,6 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_neurons' method!")
         
-    @staticmethod # static method because it inherits from scene
     def get_neurons_synapses(self, neurons,  **kwargs):
         """
         Adds the location of synapses.
