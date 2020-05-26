@@ -3,7 +3,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-from vtkplotter import ProgressBar, shapes, merge
+from vtkplotter import ProgressBar, shapes, merge, load
 from vtkplotter.mesh import Mesh as Actor
 
 from morphapi.morphology.morphology import Neuron
@@ -17,7 +17,7 @@ from brainrender.Utils.webqueries import request
 from brainrender import * 
 from brainrender.Utils import actors_funcs
 from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap, check_colors
-
+from brainrender.colors import get_n_shades_of
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -34,6 +34,8 @@ class ABA(Atlas):
     This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees,
     experimental metadata and results, tractography data etc. 
     """
+    ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey'] # ignored when rendering
+
     # useful vars for analysis    
     excluded_regions = ["fiber tracts"]
     resolution = 25
@@ -52,20 +54,17 @@ class ABA(Atlas):
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
     # Used for streamlines
 
-    def __init__(self, projection_metric = "projection_energy", base_dir=None, **kwargs):
+    def __init__(self,  base_dir=None, **kwargs):
         """ 
         Set up file paths and Allen SDKs
         
         :param base_dir: path to directory to use for saving data (default value None)
-        :param path_fiprojection_metricle: - str, metric to quantify the strength of projections from the Allen Connectome. (default value 'projection_energy')
         :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
 
         """
 
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
         self.meshes_folder = self.mouse_meshes # where the .obj mesh for each region is saved
-
-        self.projection_metric = projection_metric
 
         # get mouse connectivity cache and structure tree
         self.mcc = MouseConnectivityCache(manifest_file=os.path.join(self.mouse_connectivity_cache, "manifest.json"))
@@ -90,12 +89,6 @@ class ABA(Atlas):
         # Get tree search api
         self.tree_search = TreeSearchApi()
 
-        # Get some metadata about experiments
-        self.all_experiments = self.mcc.get_experiments(dataframe=True)
-        self.strains = sorted([x for x in set(self.all_experiments.strain) if x is not None])
-        self.transgenic_lines = sorted(set([x for x in set(self.all_experiments.transgenic_line) if x is not None]))
-
-
         # Store all regions metadata [If there's internet connection]
         if self.other_sets is not None: 
             self.regions = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
@@ -110,152 +103,14 @@ class ABA(Atlas):
         the Allen brain atlas meshes. They overwrite methods of the base atlas class
     """
 
-    # ----------------------------------- Utils ---------------------------------- #
-    def get_hemisphere_from_point(self, point):
-        if point[2] < self._root_midpoint[2]:
-            return 'left'
-        else:
-            return 'right'
-
-    def mirror_point_across_hemispheres(self, point):
-        delta = point[2] - self._root_midpoint[2]
-        point[2] = self._root_midpoint[2] - delta
-        return point
-
-
-    # ---------------------- Overwriting base atlas methods ---------------------- #
-    def _check_obj_file(self, region, obj_file):
-        """
-        If the .obj file for a brain region hasn't been downloaded already, this function downloads it and saves it.
-
-        :param region: string, acronym of brain region
-        :param obj_file: path to .obj file to save downloaded data.
-
-        """
-        # checks if the obj file has been downloaded already, if not it takes care of downloading it
-        if not os.path.isfile(obj_file):
-            try:
-                if isinstance(region, dict):
-                    region = region['acronym']
-                structure = self.structure_tree.get_structures_by_acronym([region])[0]
-            except Exception as e:
-                raise ValueError(f'Could not find region with name {region}, got error: {e}')
-
-            try:
-                self.space.download_structure_mesh(structure_id = structure["id"],
-                                                    ccf_version ="annotation/ccf_2017",
-                                                    file_name=obj_file)
-                return True
-            except:
-                print("Could not get mesh for: {}".format(obj_file))
-                return False
-        else: return True
-
-    def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
-        """
-        Get the center of mass of the 3d mesh of one or multiple brain regions.
-
-        :param regions: str, list of brain regions acronyms
-        :param unilateral: bool, if True, the CoM is relative to one hemisphere (Default value = True)
-        :param hemisphere: str, if unilteral=True, specifies which hemisphere to use ['left' or 'right'] (Default value = "right")
-        :returns: coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region.
-                                If a list is passed then a dictionary is returned. ]
-        """
-
-        if not isinstance(regions, list):
-            # Check if input is an actor or if we need to load one
-            if isinstance(regions, Actor):
-                mesh = regions
-            else:
-                # load mesh corresponding to brain region
-                if unilateral:
-                    mesh = self.get_region_unilateral(regions, hemisphere="left")
-                else:
-                    mesh = self._get_structure_mesh(regions)
-
-            #  Check if we are considering only one hemisphere
-            if unilateral and hemisphere.lower() == 'right':
-                if self.root is None:
-                    self.add_root(render=False)
-                return list(np.array(get_coords([np.int(x) for x in mesh.centerOfMass()], 
-                                        mirror=self.root_center[2])).astype(np.int32))
-            else:
-                return [np.int(x) for x in mesh.centerOfMass()]
-        else:
-            coms = {}
-            for region in regions:
-                if isinstance(region, Actor):
-                    mesh = region
-                else:
-                    if unilateral:
-                        mesh = self.get_region_unilateral(region, hemisphere="left")
-                    else:
-                        mesh = self._get_structure_mesh(region)
-                coms[region] = [np.int(x) for x in mesh.centerOfMass()]
-            return coms
-
-    def _get_structure_mesh(self, acronym,   **kwargs):
-        """
-        Fetches the mesh for a brain region from the Allen Brain Atlas SDK.
-
-        :param acronym: string, acronym of brain region
-        :param **kwargs:
-
-        """
-        structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
-        obj_path = os.path.join(self.mouse_meshes, "{}.obj".format(acronym))
-
-        if self._check_obj_file(structure, obj_path):
-            mesh = load_mesh_from_file(obj_path, **kwargs)
-            return mesh
-        else:
-            return None
-
-    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
-        """
-        Regions meshes are loaded with both hemispheres' meshes by default.
-        This function splits them in two.
-
-        :param region: str, actors of brain region
-        :param hemisphere: str, which hemisphere to return ['left', 'right' or 'both'] (Default value = "both")
-        :param color: color of each side's mesh. (Default value = None)
-        :param alpha: transparency of each side's mesh.  (Default value = None)
-
-        """
-        if color is None: color = ROOT_COLOR
-        if alpha is None: alpha = ROOT_ALPHA
-        bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
-
-        if bilateralmesh is None:
-            print(f'Failed to get mesh for {region}, returning None')
-            return None
-
-        com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
-        cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
-
-        right = bilateralmesh.cutWithPlane( origin=com, normal=(0, 0, 1))
-        
-        # left is the mirror right # WIP
-        com = self.get_region_CenterOfMass('root', unilateral=False)[2]
-        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis='x')
-
-        if hemisphere == "both":
-            return left, right
-        elif hemisphere == "left": 
-            return left 
-        else:
-            return right
-
-
     # ------------------------- Adding elements to scene ------------------------- #
-    @staticmethod # static method because it inherits from scene 
-    def add_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
+    def get_brain_regions(self, brain_regions, VIP_regions=None, VIP_color=None,
                         add_labels=False,
                         colors=None, use_original_color=True, 
-                        alpha=None, hemisphere=None, **kwargs):
+                        alpha=None, hemisphere=None, verbose=False, **kwargs):
 
         """
-            Adds rendered brain regions with data from theatlas. 
+            Gets brain regions meshes for rendering
             Many parameters can be passed to specify how the regions should be rendered.
             To treat a subset of the rendered regions, specify which regions are VIP. 
             Use the kwargs to specify more detailes on how the regins should be rendered (e.g. wireframe look)
@@ -271,22 +126,21 @@ class ABA(Atlas):
             :param **kwargs: used to determine a bunch of thigs, including the look and location of lables from scene.add_labels
         """
         # Check that the atlas has brain regions data
-        if self.atlas.region_acronyms is None:
-            print(f"The atlas {self.atlas.atlas_name} has no brain regions data")
+        if self.region_acronyms is None:
+            print(f"The atlas {self.atlas_name} has no brain regions data")
             return
 
         # Parse arguments
         if VIP_regions is None:
-            VIP_regions = self.VIP_regions
+            VIP_regions = brainrender.DEFAULT_VIP_REGIONS
         if VIP_color is None:
-            VIP_color = self.VIP_color
+            VIP_color = brainrender.DEFAULT_VIP_COLOR
         if alpha is None:
             _alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
         else: _alpha = alpha
 
         # check that we have a list
         if not isinstance(brain_regions, list):
-            self.atlas._check_valid_region_arg(brain_regions)
             brain_regions = [brain_regions]
 
         # check the colors input is correct
@@ -301,26 +155,26 @@ class ABA(Atlas):
                 colors = [colors for i in range(len(brain_regions))]
 
         # loop over all brain regions
-        actors = []
+        actors = {}
         for i, region in enumerate(brain_regions):
-            self.atlas._check_valid_region_arg(region)
+            self._check_valid_region_arg(region)
 
-            if region in self.ignore_regions or region in list(self.actors['regions'].keys()): continue
-            if self.verbose: print("Rendering: ({})".format(region))
+            if region in self.ignore_regions: continue
+            if verbose: print("Rendering: ({})".format(region))
 
             # get the structure and check if we need to download the object file
-            if region not in self.atlas.region_acronyms:
-                print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas.atlas_name}. Skipping")
+            if region not in self.region_acronyms:
+                print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping")
                 continue
 
-            obj_file = os.path.join(self.atlas.meshes_folder, "{}.{}".format(region, self.atlas.mesh_format))
-            if not self.atlas._check_obj_file(region, obj_file):
+            obj_file = os.path.join(self.meshes_folder, "{}.{}".format(region, self.mesh_format))
+            if not self._check_obj_file(region, obj_file):
                 print("Could not render {}, maybe we couldn't get the mesh?".format(region))
                 continue
 
             # check which color to assign to the brain region
-            if self.regions_aba_color or use_original_color:
-                color = [x/255 for x in self.atlas.get_region_color(region)]
+            if use_original_color:
+                color = [x/255 for x in self.get_region_color(region)]
             else:
                 if region in VIP_regions:
                     color = VIP_color
@@ -340,62 +194,20 @@ class ABA(Atlas):
             # Load the object file as a mesh and store the actor
             if hemisphere is not None:
                 if hemisphere.lower() == "left" or hemisphere.lower() == "right":
-                    obj = self.atlas.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
+                    obj = self.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
+                else:
+                    raise ValueError(f'Invalid hemisphere argument: {hemisphere}')
             else:
-                obj = self.plotter.load(obj_file, c=color, alpha=alpha)
+                obj = load(obj_file, c=color, alpha=alpha)
 
             if obj is not None:
                 actors_funcs.edit_actor(obj, **kwargs)
 
-                if add_labels:
-                    self.add_actor_label(obj, region, **kwargs)
-
-                self.actors["regions"][region] = obj
-                actors.append(obj)
+                actors[region] = obj
             else:
                 print(f"Something went wrong while loading mesh data for {region}")
 
-        if len(actors)==1:
-            return actors[0]
-        else:
-            return actors
-
-    def mirror_neuron(self, neuron_actors):
-        """
-        Mirror over the sagittal plane between the two hemispheres.
-
-        :param neuron_actors: list of actors for one neuron.
-
-        """
-        raise NotImplementedError('This function is obsolete and needs to be updated')
-        def _mirror_neuron(neuron, mcoord):
-            """
-            Actually takes care of mirroring a neuron
-
-            :param neuron: neuron's meshes
-            :param mcoord: coordinates of the point to use for the mirroring
-
-            """
-            # This function does the actual mirroring
-            for name, actor in neuron.items():
-                # get mesh points coords and shift them to other hemisphere
-                if isinstance(actor, (list, tuple, str)) or actor is None:
-                    continue
-                neuron[name] = mirror_actor_at_point(actor, mcoord, axis='x')
-            return neuron
-
-        # Makes sure that the neuron is in the desired hemisphere
-        mirror_coor = self.get_region_CenterOfMass('root', unilateral=False)[2]
-
-        if self.force_to_hemisphere.lower() == "left":
-            if self.soma_coords[2] > mirror_coor:
-                neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
-        elif self.force_to_hemisphere.lower() == "right":
-            if self.soma_coords[2] < mirror_coor:
-                neuron_actors = _mirror_neuron(neuron_actors, mirror_coor)
-        else:
-            raise ValueError("unrecognised argument for force to hemisphere: {}".format(self.force_to_hemisphere))
-        return neuron_actors
+        return actors
 
     @staticmethod # static method because this should inherit from scene
     def add_neurons(self, neurons, color=None, display_axon=True, display_dendrites=True,
@@ -984,7 +796,21 @@ class ABA(Atlas):
                 parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1])
             return parents
 
-    # ----------------------------------- Utils ---------------------------------- #
+    
+    # ---------------------------------------------------------------------------- #
+    #                                     UTILS                                    #
+    # ---------------------------------------------------------------------------- #
+    def get_hemisphere_from_point(self, point):
+        if point[2] < self._root_midpoint[2]:
+            return 'left'
+        else:
+            return 'right'
+
+    def mirror_point_across_hemispheres(self, point):
+        delta = point[2] - self._root_midpoint[2]
+        point[2] = self._root_midpoint[2] - delta
+        return point
+
     def get_region_color(self, regions):
         """
         Gets the RGB color of a brain region from the Allen Brain Atlas.
@@ -996,6 +822,86 @@ class ABA(Atlas):
             return self.structure_tree.get_structures_by_acronym([regions])[0]['rgb_triplet']
         else:
             return [self.structure_tree.get_structures_by_acronym([r])[0]['rgb_triplet'] for r in regions]
+
+    def _check_obj_file(self, region, obj_file):
+        """
+        If the .obj file for a brain region hasn't been downloaded already, this function downloads it and saves it.
+
+        :param region: string, acronym of brain region
+        :param obj_file: path to .obj file to save downloaded data.
+
+        """
+        # checks if the obj file has been downloaded already, if not it takes care of downloading it
+        if not os.path.isfile(obj_file):
+            try:
+                if isinstance(region, dict):
+                    region = region['acronym']
+                structure = self.structure_tree.get_structures_by_acronym([region])[0]
+            except Exception as e:
+                raise ValueError(f'Could not find region with name {region}, got error: {e}')
+
+            try:
+                self.space.download_structure_mesh(structure_id = structure["id"],
+                                                    ccf_version ="annotation/ccf_2017",
+                                                    file_name=obj_file)
+                return True
+            except:
+                print("Could not get mesh for: {}".format(obj_file))
+                return False
+        else: return True
+
+    def _get_structure_mesh(self, acronym,   **kwargs):
+        """
+        Fetches the mesh for a brain region from the Allen Brain Atlas SDK.
+
+        :param acronym: string, acronym of brain region
+        :param **kwargs:
+
+        """
+        structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
+        obj_path = os.path.join(self.mouse_meshes, "{}.obj".format(acronym))
+
+        if self._check_obj_file(structure, obj_path):
+            mesh = load_mesh_from_file(obj_path, **kwargs)
+            return mesh
+        else:
+            return None
+
+    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
+        """
+        Regions meshes are loaded with both hemispheres' meshes by default.
+        This function splits them in two.
+
+        :param region: str, actors of brain region
+        :param hemisphere: str, which hemisphere to return ['left', 'right' or 'both'] (Default value = "both")
+        :param color: color of each side's mesh. (Default value = None)
+        :param alpha: transparency of each side's mesh.  (Default value = None)
+
+        """
+        if color is None: color = ROOT_COLOR
+        if alpha is None: alpha = ROOT_ALPHA
+        bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
+
+        if bilateralmesh is None:
+            print(f'Failed to get mesh for {region}, returning None')
+            return None
+
+        com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
+        cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
+
+        right = bilateralmesh.cutWithPlane( origin=com, normal=(0, 0, 1))
+        
+        # left is the mirror right # WIP
+        com = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis='x')
+
+        if hemisphere == "both":
+            return left, right
+        elif hemisphere == "left": 
+            return left 
+        else:
+            return right
+
 
     @staticmethod
     def _check_valid_region_arg(region):
@@ -1055,213 +961,8 @@ class ABA(Atlas):
 
 
     # ---------------------------------------------------------------------------- #
-    #                       CONNECTOME EXPERIMENT INTERACTION                      #
+    #                             TRACTOGRAPHY FETCHING                            #
     # ---------------------------------------------------------------------------- #
-
-    def load_all_experiments(self, cre=False):
-        """
-        This function downloads all the experimental data from the MouseConnectivityCache and saves the unionized results
-        as pickled pandas dataframes. The process is slow, but the ammount of disk space necessary to save the data is small,
-        so it's worth downloading all the experiments at once to speed up subsequent analysis.
-
-        :param cre: Bool - data from either wild time or cre mice lines (Default value = False)
-
-        """
-        
-        if not cre: raise NotImplementedError("Only works for wild type sorry")
-        # Downloads all experiments from allen brain atlas and saves the results as an easy to read pkl file
-        for acronym in self.structures.acronym.values:
-            print("Fetching experiments for : {}".format(acronym))
-
-            structure = self.structure_tree.get_structures_by_acronym([acronym])[0]
-            experiments = self.mcc.get_experiments(cre=cre, injection_structure_ids=[structure['id']])
-
-            print("     found {} experiments".format(len(experiments)))
-
-            try:
-                structure_unionizes = self.mcc.get_structure_unionizes([e['id'] for e in experiments], 
-                                                            is_injection=False,
-                                                            structure_ids=self.structures.id.values,
-                                                            include_descendants=False)
-            except: pass
-            structure_unionizes.to_pickle(os.path.join(self.output_data, "{}.pkl".format(acronym)))
-    
-    def experiments_source_search(self, SOI, *args, source=True,  **kwargs):
-        """
-        Returns data about experiments whose injection was in the SOI, structure of interest
-
-        :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
-        :param *args: 
-        :param source:  (Default value = True)
-        :param **kwargs: 
-
-        """
-        """
-            list of possible kwargs
-                injection_structures : list of integers or strings
-                    Integer Structure.id or String Structure.acronym.
-                target_domain : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                injection_hemisphere : string, optional
-                    'right' or 'left', Defaults to both hemispheres.
-                target_hemisphere : string, optional
-                    'right' or 'left', Defaults to both hemispheres.
-                transgenic_lines : list of integers or strings, optional
-                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
-                injection_domain : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                primary_structure_only : boolean, optional
-                product_ids : list of integers, optional
-                    Integer Product.id
-                start_row : integer, optional
-                    For paging purposes. Defaults to 0.
-                num_rows : integer, optional
-                    For paging purposes. Defaults to 2000.
-
-        """
-        transgenic_id = kwargs.pop('transgenic_id', 0) # id = 0 means use only wild type
-        primary_structure_only = kwargs.pop('primary_structure_only', True)
-
-        if not isinstance(SOI, list): SOI = [SOI]
-
-        if source:
-            injection_structures=SOI
-            target_domain = None
-        else:
-            injection_structures = None
-            target_domain = SOI
-
-        return pd.DataFrame(self.mca.experiment_source_search(injection_structures=injection_structures,
-                                            target_domain = target_domain,
-                                            transgenic_lines=transgenic_id,
-                                            primary_structure_only=primary_structure_only))
-
-    def experiments_target_search(self, *args, **kwargs):
-        """
-
-        :param *args: 
-        :param **kwargs: 
-
-        """
-        return self.experiments_source_search(*args, source=False, **kwargs)
-
-    def fetch_experiments_data(self, experiments_id, *args, average_experiments=False, **kwargs):
-        """
-        Get data and metadata for expeirments in the Allen Mouse Connectome project. 
-    
-        :param experiments_id: int, list, np.ndarray with ID of experiments whose data need to be fetched
-        :param *args: 
-        :param average_experiments:  (Default value = False)
-        :param **kwargs: 
-
-        """
-        if isinstance(experiments_id, np.ndarray):
-            experiments_id = [int(x) for x in experiments_id]
-        elif not isinstance(experiments_id, list): 
-            experiments_id = [experiments_id]
-        if [x for x in experiments_id if not isinstance(x, int)]:
-            raise ValueError("Invalid experiments_id argument: {}".format(experiments_id))
-
-        default_structures_ids = self.structures.id.values
-
-
-        is_injection = kwargs.pop('is_injection', False) # Include only structures that are not injection
-        structure_ids = kwargs.pop('structure_ids', default_structures_ids) # Pass IDs of structures of interest 
-        hemisphere_ids= kwargs.pop('hemisphere_ids', None) # 1 left, 2 right, 3 both
-
-        if not average_experiments:
-            return pd.DataFrame(self.mca.get_structure_unionizes(experiments_id,
-                                                is_injection = is_injection,
-                                                structure_ids = structure_ids,
-                                                hemisphere_ids = hemisphere_ids))
-        else:
-            raise NotImplementedError("Need to find a way to average across experiments")
-            unionized = pd.DataFrame(self.mca.get_structure_unionizes(experiments_id,
-                                                is_injection = is_injection,
-                                                structure_ids = structure_ids,
-                                                hemisphere_ids = hemisphere_ids))
-
-        for regionid in list(set(unionized.structure_id)):
-            region_avg = unionized.loc[unionized.structure_id == regionid].mean(axis=1) ## UNUSED!!??
-
-    ####### ANALYSIS ON EXPERIMENTAL DATA
-    def analyze_efferents(self, ROI, projection_metric = None):
-        """
-        Loads the experiments on ROI and looks at average statistics of efferent projections
-
-        :param ROI: str, acronym of brain region of interest
-        :param projection_metric: if None, the default projection metric is used, otherwise pass a string with metric to use (Default value = None)
-
-        """
-        if projection_metric is None: 
-            projection_metric = self.projection_metric
-
-        experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(ROI)))
-        experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
-
-        # Loop over all structures and get the injection density
-        results = {"left":[], "right":[], "both":[], "id":[], "acronym":[], "name":[]}
-        for target in self.structures.id.values:
-            target_acronym = self.structures.loc[self.structures.id == target].acronym.values[0]
-            target_name = self.structures.loc[self.structures.id == target].name.values[0]
-
-            exp_target = experiment_data.loc[experiment_data.structure_id == target]
-
-            exp_target_hemi = self.hemispheres(exp_target.loc[exp_target.hemisphere_id == 1], 
-                                                exp_target.loc[exp_target.hemisphere_id == 2], 
-                                                exp_target.loc[exp_target.hemisphere_id == 3])
-            proj_energy = self.hemispheres(np.nanmean(exp_target_hemi.left[projection_metric].values),
-                                            np.nanmean(exp_target_hemi.right[projection_metric].values),
-                                            np.nanmean(exp_target_hemi.both[projection_metric].values)
-            )
-
-
-            for hemi in self.hemispheres_names:
-                results[hemi].append(proj_energy._asdict()[hemi])
-            results["id"].append(target)
-            results["acronym"].append(target_acronym)
-            results["name"].append(target_name)
-
-        results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
-        return results
-
-    def analyze_afferents(self, ROI, projection_metric = None):
-        """[Loads the experiments on ROI and looks at average statistics of afferent projections]
-
-        :param ROI: str, acronym of region of itnerest
-        :param projection_metric: if None, the default projection metric is used, otherwise pass a string with metric to use (Default value = None)
-
-        """
-        if projection_metric is None: 
-            projection_metric = self.projection_metric
-        ROI_id = self.structure_tree.get_structures_by_acronym([ROI])[0]["id"] ## UNUSED!!??
-
-        # Loop over all strctures and get projection towards SOI
-        results = {"left":[], "right":[], "both":[], "id":[], "acronym":[], "name":[]}
-
-        for origin in self.structures.id.values:
-            origin_acronym = self.structures.loc[self.structures.id == origin].acronym.values[0]
-            origin_name = self.structures.loc[self.structures.id == origin].name.values[0]
-
-            experiment_data = pd.read_pickle(os.path.join(self.output_data, "{}.pkl".format(origin_acronym)))
-            experiment_data = experiment_data.loc[experiment_data.volume > self.volume_threshold]
-
-            exp_target = experiment_data.loc[experiment_data.structure_id == SOI_id] ## BUG! SOI_id is not defined
-            exp_target_hemi = self.hemispheres(exp_target.loc[exp_target.hemisphere_id == 1], exp_target.loc[exp_target.hemisphere_id == 2], exp_target.loc[exp_target.hemisphere_id == 3])
-            proj_energy = self.hemispheres(np.nanmean(exp_target_hemi.left[projection_metric].values),
-                                            np.nanmean(exp_target_hemi.right[projection_metric].values),
-                                            np.nanmean(exp_target_hemi.both[projection_metric].values)
-            )
-            for hemi in self.hemispheres_names:
-                results[hemi].append(proj_energy._asdict()[hemi])
-            results["id"].append(origin)
-            results["acronym"].append(origin_acronym)
-            results["name"].append(origin_name)
-
-        results = pd.DataFrame.from_dict(results).sort_values("right", na_position = "first")
-        return results
-
-    ####### GET TRACTOGRAPHY AND SPATIAL DATA
     def get_projection_tracts_to_target(self, p0=None, **kwargs):
         """
         Gets tractography data for all experiments whose projections reach the brain region or location of iterest.
@@ -1330,7 +1031,6 @@ class ABA(Atlas):
             else:
                 raise NotImplementedError("ops, you've found a bug!. For now you can only pass one mouse line at the time, sorry.")
         return self.download_streamlines(experiments.id.values)
-
 
     @staticmethod
     def make_url_given_id(expid):

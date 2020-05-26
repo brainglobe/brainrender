@@ -33,12 +33,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 		The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
 		and other classes within the same package.
 	"""
-	VIP_regions = brainrender.DEFAULT_VIP_REGIONS
-	VIP_color = brainrender.DEFAULT_VIP_COLOR
 	verbose = brainrender.VERBOSE
-
-	ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey']
-
 
 
 	def __init__(self,  
@@ -245,7 +240,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 			else:
 				# load mesh corresponding to brain region
 				if unilateral:
-					mesh = self.atlas.get_region_unilateral(regions, hemisphere="left")
+					mesh = self.atlas.get_region_unilateral(regions, hemisphere=hemisphere)
 				else:
 					mesh = self.atlas._get_structure_mesh(regions)
 
@@ -264,7 +259,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 					mesh = region
 				else:
 					if unilateral:
-						mesh = self.atlas.get_region_unilateral(region, hemisphere="left")
+						mesh = self.atlas.get_region_unilateral(region, hemisphere=hemisphere)
 					else:
 						mesh = self.atlas._get_structure_mesh(region)
 
@@ -478,7 +473,24 @@ class Scene():  # subclass brain render to have acces to structure trees
 			Adds brain regions meshes to scene.
 			Check the atlas' method to know how it works
 		"""
-		return self.atlas.add_brain_regions(self, *args, **kwargs)
+		add_labels = kwargs.pop('add_labels', False)
+
+
+		allactors =  self.atlas.get_brain_regions(*args, verbose=self.verbose, **kwargs)
+
+		actors = []
+		for region, actor in allactors.items():
+			if region  in self.actors['regions'].keys():
+				# Avoid inserting again
+				continue
+			
+			if add_labels:
+				self.add_actor_label(actor, region, **kwargs)
+			
+			self.actors['regions'][region] = actor
+			actors.append(actor)
+		
+		return actors
 
 	def add_neurons(self, *args, **kwargs):
 		"""

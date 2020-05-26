@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 import os
-from vtkplotter import Plane
+from vtkplotter import Plane, Mesh
 
 
 from brainrender.Utils.paths_manager import Paths
-
+from brainrender.Utils.data_manipulation import get_coords
 
 
 class Atlas(Paths):
@@ -282,14 +282,6 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_structure_parent' method!")
 
-    def get_hemispere_from_point(self, p0):
-        if self._root_midpoint[0] is None:
-            raise ValueError("The coordinates of the root's CoM are not specified for this atlas")
-        if p0[2] > self._root_midpoint[2]:
-            return 'right'
-        else:
-            return 'left'
-
     def get_structure_from_coordinates(self, p0, just_acronym=True):
         """
         Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
@@ -316,6 +308,13 @@ class Atlas(Paths):
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_hemisphere_from_point' method!")
 
+    def get_hemispere_from_point(self, p0):
+        """
+            Given a point it returns the corresponding point on the other hemisphere
+        """
+        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
+                    "'get_hemispere_from_point' method!")
+
     def mirror_point_across_hemispheres(self, point):
         """
             Given a point it returns the coordinates of the corresponding point in the other hemisphere
@@ -323,3 +322,44 @@ class Atlas(Paths):
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'mirror_point_across_hemispheres' method!")
+
+    def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
+        """
+        Get the center of mass of the 3d mesh of one or multiple brain regions.
+
+        :param regions: str, list of brain regions acronyms
+        :param unilateral: bool, if True, the CoM is relative to one hemisphere (Default value = True)
+        :param hemisphere: str, if unilteral=True, specifies which hemisphere to use ['left' or 'right'] (Default value = "right")
+        :returns: coms = {list, dict} -- [if only one regions is passed, then just returns the CoM coordinates for that region.
+                                If a list is passed then a dictionary is returned. ]
+        """
+
+        if not isinstance(regions, list):
+            regions = [regions]
+
+        coms = {}
+        for region in regions:
+            # Check if input is an actor or if we need to load one
+            if isinstance(region, Mesh):
+                mesh = region
+            else:
+                # load mesh corresponding to brain region
+                if unilateral:
+                    mesh = self.get_region_unilateral(region, hemisphere="left")
+                else:
+                    mesh = self._get_structure_mesh(region)
+            com =  mesh.centerOfMass()
+
+            #  if using right hemisphere, mirror COM
+            if unilateral and hemisphere.lower() == 'right':
+                com = self.mirror_point_across_hemispheres(com)
+            
+            coms[region] = com
+
+        # return data
+        if len(coms.keys()) == 1:
+            return com
+        elif len(coms.keys()) == 0:
+            return None
+        else:
+            return coms
