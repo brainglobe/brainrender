@@ -57,11 +57,6 @@ def test_neurons():
     # Then we can download the files and save them as a .json file
     neurons =  mlapi.download_neurons(neurons_metadata[:5])
 
-    scene = Scene(title='One color')
-    scene.add_neurons(neurons, color='salmon', display_axon=True, neurite_radius=6)
-    scene.render(interactive=False)
-    scene.close()
-
 
 
 def test_tractography():
@@ -69,8 +64,8 @@ def test_tractography():
     analyzer = ABA()
     p0 = scene.atlas.get_region_CenterOfMass("ZI")
     tract = analyzer.get_projection_tracts_to_target(p0=p0)
-    scene.add_tractography(tract, display_injection_structure=False, color_by="target_region", 
-                                VIP_regions=['MOs'], VIP_color="red", others_color="ivory")
+    scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
+    scene.add_tractography(tract,  color_by="region")
 
 def test_camera():
     # Create a scene

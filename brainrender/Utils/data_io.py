@@ -141,6 +141,9 @@ def load_mesh_from_file(filepath, *args, **kwargs):
 	:param **kwargs: 
 
 	"""
+	if not isinstance(filepath, str):
+		filepath = str(filepath)
+		
 	if not os.path.isfile(filepath): 
 		raise FileNotFoundError(filepath)
 

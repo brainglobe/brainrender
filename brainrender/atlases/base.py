@@ -15,7 +15,7 @@ class Atlas(Paths):
     """
 
     atlas_name = "BASE"
-    mesh_format = 'vtk' # or obj, stl etc..
+    mesh_format = 'obj' # or obj, stl etc..
 
     # These variables are generally useful but need to be specified for each atlas
     _root_midpoint = [None, None, None] # 3d coordinates of the CoM of root mesh
@@ -29,6 +29,7 @@ class Atlas(Paths):
     _root_bounds = [[], # size of bounding boox around atlas' root along each direction 
                     [], 
                     []]
+    ignore_regions = []
 
     default_camera = None # Replace this with a camera params dict to specify a default camera for your atlas
 
@@ -54,13 +55,6 @@ class Atlas(Paths):
         self.regions = None
                 # list of all regions in the atlas
         self.region_acronyms = None   
-
-    def print_structures(self):
-        """ 
-        Prints the name of every structure in the structure tree to the console.
-        """
-        if isinstance(self.regions, list) and isinstance(self.region_acronyms, list):
-            print([f"{a} - {n}" for a,n in zip(self.region_acronyms, self.regions)], sep="\n")
 
     # ---------------------------------------------------------------------------- #
     #                             General atlas methods                            #
@@ -192,7 +186,7 @@ class Atlas(Paths):
         :param **kwargs:
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'_get_structure_mesh' method!")
+                    "'get_structure_mesh' method!")
 
     def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
         """
@@ -215,7 +209,6 @@ class Atlas(Paths):
 		"""
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
                     "'get_brain_regions' method!")
-
 
     def get_neurons(self, neurons,  **kwargs):
         """
@@ -269,15 +262,15 @@ class Atlas(Paths):
 
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_parent' method!")
+                    "'get_region_color' method!")
 
-    @staticmethod
-    def _check_valid_region_arg(region):
+
+    def _check_valid_region_arg(self, region):
         """
         Check that the string passed is a valid brain region name.
         """
         raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_parent' method!")
+                    "'_check_valid_region_arg' method!")
 
     def get_structure_from_coordinates(self, p0, just_acronym=True):
         """
