@@ -10,11 +10,173 @@ import brainrender
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
 from brainrender.Utils.webqueries import request
 
-
 """ 
-    Code to support atlases.aba.ABA
+    Code to support atlases.mouse.ABA
 """
 
+
+# ---------------------------------------------------------------------------- #
+#                                    NEURONS                                   #
+# ---------------------------------------------------------------------------- #
+def parse_neurons_colors(neurons, color):
+    """
+        Prepares the color info to render neurons
+
+        :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
+        :param color: default None. Can be:
+                - None: each neuron is given a random color
+                - color: rbg, hex etc. If a single color is passed all neurons will have that color
+                - cmap: str with name of a colormap: neurons are colored based on their sequential order and cmap
+                - dict: a dictionary specifying a color for soma, dendrites and axon actors, will be the same for all neurons
+                - list: a list of length = number of neurons with either a single color for each neuron
+                        or a dictionary of colors for each neuron
+    """
+
+    N = len(neurons)
+    colors = dict(
+        soma = None,
+        axon = None,
+        dendrites = None,
+    )
+
+    # If no color is passed, get random colors
+    if color is None:
+        cols = get_random_colors(N)
+        colors = dict(
+            soma = cols.copy(),
+            axon = cols.copy(),
+            dendrites = cols.copy(),)
+    else:
+        if isinstance(color, str):
+            # Deal with a a cmap being passed
+            if color in _mapscales_cmaps:
+                cols = [colorMap(n, name=color, vmin=-2, vmax=N+2) for n in np.arange(N)]
+                colors = dict(
+                    soma = cols.copy(),
+                    axon = cols.copy(),
+                    dendrites = cols.copy(),)
+
+            else:
+                # Deal with a single color being passed
+                cols = [getColor(color) for n in np.arange(N)]
+                colors = dict(
+                    soma = cols.copy(),
+                    axon = cols.copy(),
+                    dendrites = cols.copy(),)
+        elif isinstance(color, dict):
+            # Deal with a dictionary with color for each component
+            if not 'soma' in color.keys():
+                raise ValueError(f"When passing a dictionary as color argument, \
+                                            soma should be one fo the keys: {color}")
+            dendrites_color = color.pop('dendrites', color['soma'])
+            axon_color = color.pop('axon', color['soma'])
+
+            colors = dict(
+                    soma = [color['soma'] for n in np.arange(N)],
+                    axon = [axon_color for n in np.arange(N)],
+                    dendrites = [dendrites_color for n in np.arange(N)],)
+                    
+        elif isinstance(color, (list, tuple)):
+            # Check that the list content makes sense
+            if len(color) != N:
+                raise ValueError(f"When passing a list of color arguments, the list length"+
+                            f" ({len(color)}) should match the number of neurons ({N}).")
+            if len(set([type(c) for c in color])) > 1:
+                raise ValueError(f"When passing a list of color arguments, all list elements"+
+                            " should have the same type (e.g. str or dict)")
+
+            if isinstance(color[0], dict):
+                # Deal with a list of dictionaries
+                soma_colors, dendrites_colors, axon_colors = [], [], []
+
+                for col in colors:
+                    if not 'soma' in col.keys():
+                        raise ValueError(f"When passing a dictionary as col argument, \
+                                                    soma should be one fo the keys: {col}")
+                    dendrites_colors.append(col.pop('dendrites', col['soma']))
+                    axon_colors.append(col.pop('axon', col['soma']))
+                    soma_colors.append(col['soma'])
+
+                colors = dict(
+                    soma = soma_colors,
+                    axon = axon_colors,
+                    dendrites = dendrites_colors,)
+
+            else:
+                # Deal with a list of colors
+                colors = dict(
+                    soma = color.copy(),
+                    axon = color.copy(),
+                    dendrites = color.copy(),)
+        else:
+            raise ValueError(f"Color argument passed is not valid. Should be a \
+                                    str, dict, list or None, not {type(color)}:{color}")
+
+    # Check colors, if everything went well we should have N colors per entry
+    for k,v in colors.items():
+        if len(v) != N:
+            raise ValueError(f"Something went wrong while preparing colors. Not all \
+                            entries have right length. We got: {colors}")
+
+    return colors
+
+
+
+# ---------------------------------------------------------------------------- #
+#                                 TRACTOGRAPHY                                 #
+# ---------------------------------------------------------------------------- #
+def parse_tractography_colors(tractography, color=None,  color_by="manual", VIP_regions=[], VIP_color=None, others_color="white"):
+    """
+        parses color arguments to render tracrography data
+
+        :param tractography: list of dictionaries with tractography data
+        :param color: color of rendered tractography data
+        :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
+        :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
+        :param VIP_color: str, color to use for VIP data (Default value = None)
+        :param others_color: str, color for not VIP data (Default value = "white")
+    """
+    # check coloring mode used and prepare a list COLORS to use for coloring stuff
+    if color_by == "manual":
+        # check color argument
+        if color is None:
+            color = brainrender.TRACT_DEFAULT_COLOR
+            COLORS = [color for i in range(len(tractography))]
+        elif isinstance(color, list):
+            if not len(color) == len(tractography):
+                raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
+            else:
+                for col in color:
+                    if not check_colors(col): raise ValueError("Color variable passed to tractography is invalid: {}".format(col))
+
+                COLORS = color
+        else:
+            if not check_colors(color):
+                raise ValueError("Color variable passed to tractography is invalid: {}".format(color))
+            else:
+                COLORS = [color for i in range(len(tractography))]
+
+    elif color_by == "region":
+        COLORS = [None for t in tractography] # will be filled up later
+
+    elif color_by == "target_region":
+        if VIP_color is not None:
+            if not check_colors(VIP_color) or not check_colors(others_color):
+                raise ValueError("Invalid VIP or other color passed")
+            try:
+                if include_all_inj_regions:
+                    COLORS = [VIP_color if is_any_item_in_list( [x['abbreviation'] for x in t['injection-structures']], VIP_regions)\
+                        else others_color for t in tractography]
+                else:
+                    COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+            except:
+                raise ValueError("Something went wrong while getting colors for tractography")
+        else:
+            COLORS = [None if t['structure-abbrev'] in VIP_regions else others_color for t in tractography] # will be filled up later
+    else:
+        raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
+
+    return COLORS
 
 
 def experiments_source_search(mca, SOI, *args, source=True,  **kwargs):
@@ -65,6 +227,9 @@ def experiments_source_search(mca, SOI, *args, source=True,  **kwargs):
                                             primary_structure_only=primary_structure_only))
 
 
+# ---------------------------------------------------------------------------- #
+#                                  STREAMLINES                                 #
+# ---------------------------------------------------------------------------- #
 def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
     """
         Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.

@@ -9,7 +9,7 @@ import json
 from brainrender.scene import Scene, MultiScene
 from brainrender import *
 from brainrender.colors import get_n_shades_of
-from brainrender.atlases.aba import ABA
+from brainrender.atlases.mouse import ABA
 from brainrender.Utils.data_io import listdir
 
 from morphapi.morphology.morphology import Neuron

@@ -1,8 +1,7 @@
+import pandas as pd
 from pathlib import Path
 
 from vtkplotter import load
-
-from brainatlas_api.bg_atlas import FishAtlas
 
 import brainrender
 from brainrender.atlases.base import Atlas
@@ -10,11 +9,29 @@ from brainrender.colors import check_colors
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.data_io import load_mesh_from_file
 
+
+"""
+    Atlas class supporting brainglobe-api atlases in brainrender.
+    For any atlas supported by the API, create a dedicated class like:
+
+    >>> from brainatlas_api.bg_atlas import FishAtlas
+    >>> 
+    >>> 
+    >>> class BGFishAtlas(BrainGlobeAtlas, FishAtlas):
+    >>>    atlas_name = "fishatlas"
+    >>> 
+    >>>    def __init__(self, base_dir=None, **kwargs):
+    >>>       BrainGlobeAtlas.__init__(self, base_dir=base_dir, **kwargs)
+    >>>       FishAtlas.__init__(self)
+    >>>       self.meshes_folder = self.root_dir / "meshes"
+
+
+"""
+
+
 class BrainGlobeAtlas(Atlas):
     def __init__(self,  base_dir=None, **kwargs):
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
-
-        
 
         
     # ---------------------------------------------------------------------------- #
@@ -129,13 +146,103 @@ class BrainGlobeAtlas(Atlas):
             return actors
 
 
+    # ---------------------------------------------------------------------------- #
+    #                                     UTILS                                    #
+    # ---------------------------------------------------------------------------- #
 
-class BGFishAtlas(BrainGlobeAtlas, FishAtlas):
-    atlas_name = "fishatlas"
+    # ! most of this code should be moved to brainglobe
 
-    def __init__(self, base_dir=None, **kwargs):
-        BrainGlobeAtlas.__init__(self, base_dir=base_dir, **kwargs)
-        FishAtlas.__init__(self)
+    def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
+        """
+        Get's the ancestors of the region(s) passed as arguments
 
-        self.meshes_folder = self.root_dir / "meshes"
+        :param regions: str, list of str with acronums of regions of interest
+        :param ancestors: if True, returns the ancestors of the region  (Default value = True)
+        :param descendants: if True, returns the descendants of the region (Default value = False)
 
+        """
+
+        if not isinstance(regions, list):
+            struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
+            return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants))
+        else:
+            ancestors = []
+            for region in regions:
+                struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
+                ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants)))
+            return ancestors
+
+    def get_structure_descendants(self, regions):
+        return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
+
+    def get_structure_parent(self, acronyms):
+        """
+        Gets the parent of a brain region (or list of regions) from the hierarchical structure of the
+        Allen Brain Atals.
+
+        :param acronyms: list of acronyms of brain regions.
+
+        """
+        if not isinstance(acronyms, list):
+            self._check_valid_region_arg(acronyms)
+            s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
+            if s['id'] in self.structures_ids:
+                return s
+            else:
+                return self.get_structure_ancestors(s['acronym']).iloc[-1]
+        else:
+            parents = []
+            for region in acronyms:
+                self._check_valid_region_arg(region)
+                s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
+
+                if s['id'] in self.structures_ids:
+                    parents.append(s)
+                parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1])
+            return parents
+
+    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
+        """
+        Regions meshes are loaded with both hemispheres' meshes by default.
+        This function splits them in two.
+
+        :param region: str, actors of brain region
+        :param hemisphere: str, which hemisphere to return ['left', 'right' or 'both'] (Default value = "both")
+        :param color: color of each side's mesh. (Default value = None)
+        :param alpha: transparency of each side's mesh.  (Default value = None)
+
+        """
+        if color is None: color = brainrender.ROOT_COLOR
+        if alpha is None: alpha = brainrender.ROOT_ALPHA
+        bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
+
+        if bilateralmesh is None:
+            print(f'Failed to get mesh for {region}, returning None')
+            return None
+
+        com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
+        cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
+
+        right = bilateralmesh.cutWithPlane( origin=com, normal=(0, 0, 1))
+        
+        # left is the mirror right # WIP
+        com = self.get_region_CenterOfMass('root', unilateral=False)[2]
+        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis='x')
+
+        if hemisphere == "both":
+            return left, right
+        elif hemisphere == "left": 
+            return left 
+        else:
+            return right
+
+    def get_hemisphere_from_point(self, point):
+        if point[2] < self._root_midpoint[2]:
+            return 'left'
+        else:
+            return 'right'
+
+    def mirror_point_across_hemispheres(self, point):
+        delta = point[2] - self._root_midpoint[2]
+        point[2] = self._root_midpoint[2] - delta
+        return point

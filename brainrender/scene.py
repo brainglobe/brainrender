@@ -16,7 +16,7 @@ from pathlib import Path
 import brainrender
 from brainrender.colors import check_colors, get_n_shades_of, get_random_colors, getColor
 
-from brainrender.atlases.aba import ABA
+from brainrender.atlases.mouse import ABA25Um
 from brainrender.Utils.data_io import load_volume_file, load_mesh_from_file, get_probe_points_from_sharptrack
 from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
 from brainrender.Utils import actors_funcs
@@ -80,7 +80,7 @@ class Scene():  # subclass brain render to have acces to structure trees
 			:param atlas_kwargs: dictionary used to pass extra arguments to atlas class
 		"""
 		if atlas is None:
-			self.atlas = ABA(base_dir=base_dir,  **atlas_kwargs, **kwargs)
+			self.atlas = ABA25Um(base_dir=base_dir,  **atlas_kwargs, **kwargs)
 		else:
 			self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
 

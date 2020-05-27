@@ -1,3 +1,14 @@
+def return_list_smart(lst):
+    """
+        If the list has length > returns the list
+        if it has length == 1 it returns the element
+        if it has length == 0 it returns None
+    """
+    if len(lst) > 1: return lst
+    elif len(lst) == 1: return lst[0]
+    else:
+        return None
+
 def get_coords(obj, mirror=False, mirror_ax='x'):
     """
     Takes coordinates in various format and turns them into what's expected from VTK plotter for rendering. 
