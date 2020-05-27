@@ -28,9 +28,12 @@ scene = Scene(atlas=IBDB, # specify that we are using the insects brains databse
 
 # You can use print(scene.atlas.species_info) to see a list of available species
 
-# Print a list of all the brain structures available for this species' brain
-print(scene.atlas.structures)
+# Print the hierarchical organisation of brain regions in the atlas:
+print(scene.atlas.structures_hierarchy)
 
+
+# Now print some of the structures names [used to fetch mesh data]
+print(scene.atlas.structures.head())
 
 # Add some brain regions in the mushroom body to the rendering
 central_complex = ['CBU-S2', 

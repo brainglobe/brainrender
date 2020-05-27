@@ -6,6 +6,8 @@ import os
 from tqdm import tqdm
 from PIL import ImageColor
 
+from treelib import Tree
+
 from vtkplotter import load, merge, write
 
 import brainrender
@@ -87,28 +89,39 @@ class IBDB(Atlas):
         return brain_id
 
     def get_structures_hierarchy(self):
+
+        def add_descendants_to_tree(tree, structure, parent_id=None):
+            """
+                Recursively goes through all the the descendants of a region and adds them to the tree
+            """
+            if parent_id is not None:
+                tree.create_node(
+                    tag=structure['name'],
+                    identifier=structure['id'],
+                    parent=parent_id,
+                )
+            else:
+                tree.create_node(
+                    tag=structure['name'],
+                    identifier=structure['id'],
+                )
+
+            if not 'children' in structure.keys(): return
+            if structure['children']:
+                for child in structure['children']:
+                    add_descendants_to_tree(tree, child, structure['id'])
+
         structures_hierarchy = request(self._url_paths['structures_tree']).json()
 
-        data = dict(
-            ids = [],
-            name = [],
-            parent = [],
-            children = []
+        tree = Tree()
+        tree.create_node(
+            tag='root',
+            identifier=0,
         )
+        for supercategory in structures_hierarchy:
+            add_descendants_to_tree(tree, supercategory, 0)
 
-        for structure in structures_hierarchy:
-            data['ids'].append(structure['id'])
-            data['name'].append(structure['name'])
-            data['parent'].append(None)
-            data['children'].append([(c['id'], c['name']) for c in structure['children']])
-
-            for child in structure['children']:
-                data['ids'].append(child['id'])
-                data['name'].append(child['name'])
-                data['parent'].append(structure)
-                data['children'].append([(c['id'], c['name']) for c in child['children']] if child['children'] else None)
-        
-        self.structures_hierarchy = pd.DataFrame(data)
+        self.structures_hierarchy = tree
 
     def get_structures_reconstructions(self, species, sex):
         iid = self.get_brain_id_from_species_name(species)
@@ -183,7 +196,10 @@ class IBDB(Atlas):
 
             structures['parent'].append(d['structures'][0]['structure']['parent'])
             structures['children'].append(d['structures'][0]['structure']['children'])
+
+
         self.structures = pd.DataFrame(structures)
+
 
     def get_brain(self, species=None, sex=None):
         # Get metadata about the brain from database
