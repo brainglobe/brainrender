@@ -91,7 +91,7 @@ class BrainGlobeAtlas(Atlas):
 
             # check the colors input is correct
             if colors is not None:
-                if isinstance(colors[0], (list, tuple)):
+                if isinstance(colors, (list, tuple)):
                     if not len(colors) == len(brain_regions): 
                         raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
                     for col in colors:

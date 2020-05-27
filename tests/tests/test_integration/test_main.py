@@ -67,6 +67,7 @@ def test_tractography():
     scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
     scene.add_tractography(tract,  color_by="region")
 
+
 def test_camera():
     # Create a scene
     scene = Scene(camera='top') # specify that you want a view from the top

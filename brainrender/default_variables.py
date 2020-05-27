@@ -13,9 +13,9 @@ CAMERA = 'three_quarters'       # Default camera settings (orientation etc. see 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
         # SCREENSHOTS AND EXPORT OPTIONS
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
-DEFAULT_SCREENSHOT_NAME = 'screenshot'  # screenshots will have this name and the time at which they were taken
-DEFAULT_SCREENSHOT_TYPE = '.png'        # png, svg or jpg supported
-DEFAULT_SCREENSHOT_SCALE = 1            # values >1 yield higher resolution screenshots
+DEFAULT_SCREENSHOT_NAME = 'screenshot'   # screenshots will have this name and the time at which they were taken
+DEFAULT_SCREENSHOT_TYPE = '.png'         # png, svg or jpg supported
+DEFAULT_SCREENSHOT_SCALE = 1             # values >1 yield higher resolution screenshots
 SCREENSHOT_TRANSPARENT_BACKGROUND = True # If true the screenshots are saved with a transparent background
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """
@@ -28,7 +28,7 @@ ROOT_COLOR = [.4, .4, .4]         # color of the overall brain model's actor
 ROOT_ALPHA = .2                   # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [.8, .8, .8]  
-DEFAULT_STRUCTURE_ALPHA = 0.5
+DEFAULT_STRUCTURE_ALPHA = 1
 
 
 """ ------------------------------------------------------------------------------------------------------------------------------------------- """

@@ -5,7 +5,7 @@
 import brainrender
 brainrender.SHADER_STYLE = 'cartoon'
 from brainrender.scene import Scene
-from brainrender.atlases.aba import ABA
+from brainrender.atlases.mouse import ABA
 
 
 # Create a scene
