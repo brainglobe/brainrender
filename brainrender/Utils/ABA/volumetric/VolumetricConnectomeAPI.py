@@ -231,7 +231,7 @@ class VolumetricAPI(Paths):
             fld = self.data_cache_targets
         else:
             raise ValueError(
-                f"Error while getting cached data file name.\n"
+                "Error while getting cached data file name.\n"
                 + f"What was {what} but should be projection/source/target/actor."
             )
 

@@ -4,8 +4,9 @@ import os
 from PIL import ImageColor
 import math
 
-from vtkplotter import load, merge, write, load, Points, Arrows
+from vtkplotter import load, merge, write, Points, Arrows
 from vtkplotter.shapes import Tube
+from vtkplotter.analysis import recoSurface
 
 from brainrender.scene import Scene
 from brainrender.atlases.base import Atlas
@@ -72,7 +73,7 @@ class Celegans(Atlas):
         # Get data
         if data_folder is None:
             raise ValueError(
-                f"No data folder was passed, use the 'atlas_kwargs' argument of Scene to pass a data folder path"
+                "No data folder was passed, use the 'atlas_kwargs' argument of Scene to pass a data folder path"
             )
         if not os.path.isdir(data_folder):
             raise FileNotFoundError(f"The folder {data_folder} does not exist")
@@ -85,7 +86,7 @@ class Celegans(Atlas):
             then saves it as an obj file at rootpath
         """
         raise NotImplementedError(
-            f"Create root method not supported yet, sorry"
+            "Create root method not supported yet, sorry"
         )
 
         print(f"Creating root mesh for atlas {self.atlas_name}")

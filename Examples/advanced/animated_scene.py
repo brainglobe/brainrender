@@ -18,6 +18,7 @@ import time
 import numpy as np
 from random import choices
 from tqdm import tqdm
+from morphapi.api.mouselight import MouseLightAPI
 
 
 from brainrender.Utils.camera import (
@@ -47,13 +48,14 @@ frac[:150] = np.linspace(0, 1, 150)
 frac[150:] = np.linspace(1, 0, len(frac[150:]))
 
 # -------------------------------- Fetch data -------------------------------- #
-# Fetch metadata for neurons with some in the secondary motor cortex
-neurons_metadata = mouselight_fetch_neurons_metadata(
-    filterby="soma", filter_regions=["MOs"]
-)
 
 # Then we can download the files and save them as a .json file
 ml_api = MouseLightAPI()
+# Fetch metadata for neurons with some in the secondary motor cortex
+neurons_metadata = ml_api.fetch_neurons_metadata(
+    filterby="soma", filter_regions=["MOs"]
+)
+
 neurons_files = ml_api.download_neurons(neurons_metadata[:N_neurons])
 
 # ------------------------------- Create scene ------------------------------- #

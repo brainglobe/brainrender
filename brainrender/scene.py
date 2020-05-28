@@ -24,7 +24,7 @@ from vtkplotter.mesh import Mesh as Actor
 import pandas as pd
 from pathlib import Path
 
-from brainrender.colors import getColor
+from brainrender.colors import getColor, get_random_colors
 
 from brainrender.atlases.mouse import ABA25Um
 from brainrender.Utils.data_io import (
@@ -345,7 +345,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                 copied_neurons.append(copied)
             neurons = copied_neurons
 
-        edited_neurons = edit_neurons(
+        edited_neurons = self.edit_neurons(
             neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs
         )
         self.actors["neurons"].extend(edited_neurons)
@@ -400,7 +400,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             else:
                 if not isinstance(plane, Plane):
                     raise ValueError(
-                        f"The plane arguments should either be a Plane actor or"
+                        "The plane arguments should either be a Plane actor or"
                         + "a string with the name of predefined planes."
                         + f" Not: {plane.__type__}"
                     )
@@ -532,7 +532,7 @@ class Scene:  # subclass brain render to have acces to structure trees
     def add_neurons_synapses(self, *args, **kwargs):
         """
         Adds the location of pre or post synapses for a neuron (or list of neurons).
-        Check the atlas' method to know how it works 
+        Check the atlas' method to know how it works. 
         """
         spheres_data, actors = self.atlas.get_neurons_synapses(
             self.store, *args, **kwargs
@@ -1156,7 +1156,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             else:
                 if not isinstance(plane, Plane):
                     raise ValueError(
-                        f"The plane arguments should either be a Plane actor or"
+                        "The plane arguments should either be a Plane actor or"
                         + "a string with the name of predefined planes."
                         + f" Not: {plane.__type__}"
                     )
@@ -1387,7 +1387,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         except:
             raise ValueError(
                 "Failed to export scene for web.\n"
-                + "Try updating k3d and msgpack: \ "
+                + "Try updating k3d and msgpack: \n "
                 + "pip install -U k3d\n"
                 + "pip install -U msgpack"
             )
@@ -1412,7 +1412,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                     os.mkdir(self.screenshots_folder)
                 except Exception as e:
                     raise FileNotFoundError(
-                        f"Could not crate a folder to save screenshots.\n"
+                        "Could not crate a folder to save screenshots.\n"
                         + f"Attempted to create a folder at {self.screenshots_folder}"
                         + f"But got exception: {e}"
                     )

@@ -9,7 +9,7 @@ from morphapi.morphology.morphology import Neuron
 
 import brainrender
 from brainrender.scene import Scene
-from brainrender.colors import colorMap, getColor
+from brainrender.colors import colorMap, getColor, _mapscales_cmaps
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 
 
@@ -104,7 +104,7 @@ class MorphologyScene(Scene):
                     )
             elif isinstance(color, dict):
                 # Deal with a dictionary with color for each component
-                if not "soma" in color.keys():
+                if "soma" in color.keys():
                     raise ValueError(
                         f"When passing a dictionary as color argument, \
                                                 soma should be one fo the keys: {color}"
@@ -122,12 +122,12 @@ class MorphologyScene(Scene):
                 # Check that the list content makes sense
                 if len(color) != N:
                     raise ValueError(
-                        f"When passing a list of color arguments, the list length"
+                        "When passing a list of color arguments, the list length"
                         + f" ({len(color)}) should match the number of neurons ({N})."
                     )
                 if len(set([type(c) for c in color])) > 1:
                     raise ValueError(
-                        f"When passing a list of color arguments, all list elements"
+                        "When passing a list of color arguments, all list elements"
                         + " should have the same type (e.g. str or dict)"
                     )
 
@@ -136,7 +136,7 @@ class MorphologyScene(Scene):
                     soma_colors, dendrites_colors, axon_colors = [], [], []
 
                     for col in colors:
-                        if not "soma" in col.keys():
+                        if "soma" not in col.keys():
                             raise ValueError(
                                 f"When passing a dictionary as col argument, \
                                                         soma should be one fo the keys: {col}"
@@ -255,7 +255,7 @@ class MorphologyScene(Scene):
                     elif "basal_dendrites" not in neuron.keys():
                         neuron_actors["dendrites"] = neuron["apical_dendrites"]
                     else:
-                        neuron_ctors["dendrites"] = merge(
+                        neuron_actors["dendrites"] = merge(
                             neuron["apical_dendrites"],
                             neuron["basal_dendrites"],
                         )

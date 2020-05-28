@@ -93,7 +93,7 @@ class Atlas(Paths):
             pos = self._root_midpoint
             if pos[0] is None:
                 raise ValueError(
-                    f"The atlases _root_midpoint attribute is not specified"
+                    "The atlases _root_midpoint attribute is not specified"
                 )
         elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
@@ -120,7 +120,7 @@ class Atlas(Paths):
             pos = self._root_midpoint
             if pos[0] is None:
                 raise ValueError(
-                    f"The atlases _root_midpoint attribute is not specified"
+                    "The atlases _root_midpoint attribute is not specified"
                 )
         elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
@@ -147,7 +147,7 @@ class Atlas(Paths):
             pos = self._root_midpoint
             if pos[0] is None:
                 raise ValueError(
-                    f"The atlases _root_midpoint attribute is not specified"
+                    "The atlases _root_midpoint attribute is not specified"
                 )
         elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")

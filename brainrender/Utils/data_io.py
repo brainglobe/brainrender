@@ -10,6 +10,8 @@ from brainio import brainio
 from vtkplotter import load, Volume
 
 # ------------------------------------ OS ------------------------------------ #
+
+
 def listdir(fld):
     """
     List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
@@ -65,7 +67,7 @@ def save_json(filepath, content, append=False):
     :param content: dictionary of stuff to save
 
     """
-    if not "json" in filepath:
+    if "json" not in filepath:
         raise ValueError("filepath is invalid")
 
     if not append:
@@ -84,7 +86,7 @@ def save_yaml(filepath, content, append=False, topcomment=None):
     :param content: dictionary of stuff to save
 
     """
-    if not "yaml" in filepath:
+    if "yaml" not in filepath:
         raise ValueError("filepath is invalid")
 
     if not append:
@@ -105,7 +107,7 @@ def load_json(filepath):
     :param filepath: path to a file
 
     """
-    if not os.path.isfile(filepath) or not ".json" in filepath.lower():
+    if not os.path.isfile(filepath) or ".json" not in filepath.lower():
         raise ValueError("unrecognized file path: {}".format(filepath))
     with open(filepath) as f:
         data = json.load(f)
@@ -121,7 +123,7 @@ def load_yaml(filepath):
     """
     if filepath is None or not os.path.isfile(filepath):
         raise ValueError("unrecognized file path: {}".format(filepath))
-    if not "yml" in filepath and not "yaml" in filepath:
+    if "yml" not in filepath and "yaml" not in filepath:
         raise ValueError("unrecognized file path: {}".format(filepath))
     return yaml.load(open(filepath), Loader=yaml.FullLoader)
 

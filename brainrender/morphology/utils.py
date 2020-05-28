@@ -1,8 +1,11 @@
 from brainrender import DEFAULT_NEURITE_RADIUS
+from brainrender.colors import check_colors, colorMap, get_random_colors
 
 from morphapi.morphology.morphology import Neuron
 
 from vtkplotter import merge
+
+import numpy as np
 
 
 def get_neuron_actors_with_morphapi(
@@ -63,13 +66,13 @@ def edit_neurons(neurons, **kwargs):
             if not kwargs["color_neurites"]:
                 axon_color = dendrites_color = soma_color
             else:
-                if not "axon_color" in kwargs:
+                if "axon_color" not in kwargs:
                     # print("no axon color provided, using somacolor")
                     axon_color = soma_color
                 else:
                     axon_color = kwargs["axon_color"]
 
-                if not "dendrites_color" in kwargs:
+                if "dendrites_color" not in kwargs:
                     # print("no dendrites color provided, using somacolor")
                     dendrites_color = soma_color
                 else:

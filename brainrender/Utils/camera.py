@@ -54,7 +54,7 @@ def check_camera_param(camera):
 
     elif not isinstance(camera, dict):
         raise ValueError(
-            f"Camera should be either a string with a camera name or a dictionary of camera params."
+            "Camera should be either a string with a camera name or a dictionary of camera params."
         )
 
     else:

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from vtkplotter import shapes
+from vtkplotter import shapes, merge, Mesh
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -14,9 +14,11 @@ from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
 from brainatlas_api.bg_atlas import AllenBrain25Um
 
+from morphapi.morphology.morphology import Neuron
+
 import brainrender
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
-from brainrender.colors import get_random_colors
+from brainrender.colors import get_random_colors, get_n_shades_of
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 from brainrender.Utils.ABA.aba_utils import (
     parse_streamline,
@@ -136,7 +138,7 @@ class ABA(BrainGlobeAtlas):
                     )
 
             # Deal with neuron as single actor
-            elif isinstance(neuron, Actor):
+            elif isinstance(neuron, Mesh):
                 # A single actor was passed, maybe it's the entire neuron
                 neuron_actors["soma"] = neuron  # store it as soma
                 pass
@@ -156,7 +158,7 @@ class ABA(BrainGlobeAtlas):
                     elif "basal_dendrites" not in neuron.keys():
                         neuron_actors["dendrites"] = neuron["apical_dendrites"]
                     else:
-                        neuron_ctors["dendrites"] = merge(
+                        neuron_actors["dendrites"] = merge(
                             neuron["apical_dendrites"],
                             neuron["basal_dendrites"],
                         )
@@ -177,7 +179,7 @@ class ABA(BrainGlobeAtlas):
             # Check that we don't have anything weird in neuron_actors
             for key, act in neuron_actors.items():
                 if act is not None:
-                    if not isinstance(act, Actor):
+                    if not isinstance(act, Mesh):
                         raise ValueError(
                             f"Neuron actor {key} is {act.__type__} but should be a vtkplotter Mesh. Not: {act}"
                         )
@@ -251,6 +253,7 @@ class ABA(BrainGlobeAtlas):
 
         COLORS = parse_tractography_colors(
             tractography,
+            include_all_inj_regions,
             color=color,
             color_by=color_by,
             VIP_regions=VIP_regions,
@@ -455,7 +458,7 @@ class ABA(BrainGlobeAtlas):
 
         # c= cgeck color
         if color is None:
-            color = INJECTION_DEFAULT_COLOR
+            color = brainrender.INJECTION_DEFAULT_COLOR
 
         injection_sites = []
         for exp in experiments:
@@ -466,7 +469,9 @@ class ABA(BrainGlobeAtlas):
                         exp["injection_y"],
                         exp["injection_z"],
                     ),
-                    r=INJECTION_VOLUME_SIZE * exp["injection_volume"] * 3,
+                    r=brainrender.INJECTION_VOLUME_SIZE
+                    * exp["injection_volume"]
+                    * 3,
                     c=color,
                 )
             )

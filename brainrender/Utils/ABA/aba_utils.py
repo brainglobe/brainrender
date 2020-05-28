@@ -8,7 +8,15 @@ from vtkplotter import shapes, merge
 
 import brainrender
 from brainrender.Utils.data_io import load_json
+from brainrender.Utils.data_manipulation import is_any_item_in_list
 from brainrender.Utils.webqueries import request
+from brainrender.colors import (
+    check_colors,
+    getColor,
+    colorMap,
+    _mapscales_cmaps,
+    get_random_colors,
+)
 
 """ 
     Code to support atlases.mouse.ABA
@@ -61,7 +69,7 @@ def parse_neurons_colors(neurons, color):
                 )
         elif isinstance(color, dict):
             # Deal with a dictionary with color for each component
-            if not "soma" in color.keys():
+            if "soma" not in color.keys():
                 raise ValueError(
                     f"When passing a dictionary as color argument, \
                                             soma should be one fo the keys: {color}"
@@ -79,12 +87,12 @@ def parse_neurons_colors(neurons, color):
             # Check that the list content makes sense
             if len(color) != N:
                 raise ValueError(
-                    f"When passing a list of color arguments, the list length"
+                    "When passing a list of color arguments, the list length"
                     + f" ({len(color)}) should match the number of neurons ({N})."
                 )
             if len(set([type(c) for c in color])) > 1:
                 raise ValueError(
-                    f"When passing a list of color arguments, all list elements"
+                    "When passing a list of color arguments, all list elements"
                     + " should have the same type (e.g. str or dict)"
                 )
 
@@ -93,7 +101,7 @@ def parse_neurons_colors(neurons, color):
                 soma_colors, dendrites_colors, axon_colors = [], [], []
 
                 for col in colors:
-                    if not "soma" in col.keys():
+                    if "soma" not in col.keys():
                         raise ValueError(
                             f"When passing a dictionary as col argument, \
                                                     soma should be one fo the keys: {col}"
@@ -137,6 +145,7 @@ def parse_neurons_colors(neurons, color):
 # ---------------------------------------------------------------------------- #
 def parse_tractography_colors(
     tractography,
+    include_all_inj_regions,
     color=None,
     color_by="manual",
     VIP_regions=[],
@@ -151,6 +160,7 @@ def parse_tractography_colors(
         :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
         :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
         :param VIP_color: str, color to use for VIP data (Default value = None)
+        :param include_all_inj_regions: bool (Default value = False)
         :param others_color: str, color for not VIP data (Default value = "white")
     """
     # check coloring mode used and prepare a list COLORS to use for coloring stuff

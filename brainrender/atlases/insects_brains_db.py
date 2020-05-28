@@ -110,7 +110,7 @@ class IBDB(Atlas):
                     tag=structure["name"], identifier=structure["id"],
                 )
 
-            if not "children" in structure.keys():
+            if "children" not in structure.keys():
                 return
             if structure["children"]:
                 for child in structure["children"]:
@@ -388,10 +388,10 @@ class IBDB(Atlas):
                 ]
             else:
                 if isinstance(colors, (list, tuple)):
-                    if len(colors) != len(regions):
+                    if len(colors) != len(brain_regions):
                         raise ValueError("Wrong number of colors")
                 else:
-                    colors = [colors for reg in regions]
+                    colors = [colors for reg in brain_regions]
         else:
             colors = [self.get_region_color(reg) for reg in brain_regions]
 

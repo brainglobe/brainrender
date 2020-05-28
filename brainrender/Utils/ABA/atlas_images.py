@@ -91,7 +91,7 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         :param atlas_name: str with atlas name
 
         """
-        if not atlas_name in self.atlases_names:
+        if atlas_name not in self.atlases_names:
             raise ValueError(
                 "Available atlases: {}".format(self.atlases_names)
             )

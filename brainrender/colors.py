@@ -395,9 +395,8 @@ def get_random_colormap():
 
 def get_n_shades_of(shade, n):
     """
-
-    :param shade: 
-    :param n: 
+    :param shade:  color
+    :param n: numnber of colors
 
     """
     shades = [k for k, v in colors.items() if shade in k]
@@ -410,7 +409,7 @@ def get_n_shades_of(shade, n):
 def _isSequence(arg):
     """
 
-    :param arg: 
+    :param arg:   item to check
 
     """
     # Check if input is iterable.
@@ -512,7 +511,7 @@ def getColorName(c):
     """Find the name of a color.
     |colorpalette| |colorpalette.py|_
 
-    :param c: 
+    :param c: c 
 
     """
     c = np.array(getColor(c))  # reformat to rgb
@@ -530,7 +529,7 @@ def getColorName(c):
 def hsv2rgb(hsv):
     """Convert HSV to RGB color.
 
-    :param hsv: 
+    :param hsv: gsv 
 
     """
     ma = vtk.vtkMath()
@@ -540,7 +539,7 @@ def hsv2rgb(hsv):
 def rgb2hsv(rgb):
     """Convert RGB to HSV color.
 
-    :param rgb: 
+    :param rgb: rgb 
 
     """
     ma = vtk.vtkMath()
@@ -550,7 +549,7 @@ def rgb2hsv(rgb):
 def rgb2int(rgb_tuple):
     """
 
-    :param rgb_tuple: 
+    :param rgb_tuple: rgb 
 
     """
     rgb = (
@@ -702,7 +701,7 @@ def get_random_colors(n_colors=1):
 def check_colors(color):
     """
 
-    :param color: 
+    :param color: color 
 
     """
     if isinstance(color, list):
