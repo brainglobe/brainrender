@@ -8,46 +8,60 @@
     passing the downloaded files to `scene.add_neurons`.
 """
 import brainrender
+
 brainrender.USE_MORPHOLOGY_CACHE = True
 from brainrender.scene import Scene
 
 from morphapi.morphology.morphology import Neuron
-from morphapi.api.mouselight import MouseLightAPI, mouselight_structures_identifiers
+from morphapi.api.mouselight import (
+    MouseLightAPI,
+    mouselight_structures_identifiers,
+)
 
 
 # ---------------------------- Downloading neurons --------------------------- #
 mlapi = MouseLightAPI()
 
 # Fetch metadata for neurons with some in the secondary motor cortex
-neurons_metadata = mlapi.fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
+neurons_metadata = mlapi.fetch_neurons_metadata(
+    filterby="soma", filter_regions=["MOs"]
+)
 
 # Then we can download the files and save them as a .json file
-neurons =  mlapi.download_neurons(neurons_metadata[:5])
+neurons = mlapi.download_neurons(neurons_metadata[:5])
 
 
 # ----------------------------- Rendering neurons ---------------------------- #
 
 # 1 color all neurons of the same color, don't show axons
-scene = Scene(title='One color')
-scene.add_neurons(neurons, color='salmon', display_axon=False, neurite_radius=6)
+scene = Scene(title="One color")
+scene.add_neurons(
+    neurons, color="salmon", display_axon=False, neurite_radius=6
+)
 scene.render()
 scene.close()
 
 # 2 color each neuron of a different color using a colormap
-scene = Scene(title='Colormap')
-scene.add_neurons(neurons, color='Reds', alpha=.8)
+scene = Scene(title="Colormap")
+scene.add_neurons(neurons, color="Reds", alpha=0.8)
 scene.render()
 scene.close()
 
 # 3 specify a color for each neuron
-scene = Scene(title='Color each')
-scene.add_neurons(neurons, color=['salmon', 'darkseagreeb', 'skyblue', 'chocolate', 'darkgoldenrod'], alpha=.8)
+scene = Scene(title="Color each")
+scene.add_neurons(
+    neurons,
+    color=["salmon", "darkseagreeb", "skyblue", "chocolate", "darkgoldenrod"],
+    alpha=0.8,
+)
 scene.render()
 scene.close()
 
 # 4 specify a color for each neuronal component
-scene = Scene(title='Color components')
-scene.add_neurons(neurons, color=dict(soma='red', dendrites='orange', axon='blackboard'))
+scene = Scene(title="Color components")
+scene.add_neurons(
+    neurons, color=dict(soma="red", dendrites="orange", axon="blackboard")
+)
 scene.render()
 scene.close()
 

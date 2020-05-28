@@ -42,26 +42,36 @@ __all__ = [
     "DEFAULT_SCREENSHOT_TYPE",
     "DEFAULT_SCREENSHOT_SCALE",
     "SCREENSHOT_TRANSPARENT_BACKGROUND",
-    ]
+]
 
 
 # -------------------------- Set vtkplotter shaders -------------------------- #
 from vtkplotter import settings
-settings.useDepthPeeling = True # necessary for rendering of semitransparent actors
-settings.useFXAA = True # necessary for rendering of semitransparent actors
 
+settings.useDepthPeeling = (
+    True  # necessary for rendering of semitransparent actors
+)
+settings.useFXAA = True  # necessary for rendering of semitransparent actors
 
 
 # ------------------------- reset default parameters file ------------------------- #
-params_file = os.path.join(os.path.expanduser("~"), ".brainrender", 'config.yaml')
+params_file = os.path.join(
+    os.path.expanduser("~"), ".brainrender", "config.yaml"
+)
 defaults = brainrender.default_variables.__dict__
-comment = '# Rendering options. An explanation for each parameter can be found ' +\
-            'in the documentation or in brainrender.default_variables.py\n'
+comment = (
+    "# Rendering options. An explanation for each parameter can be found "
+    + "in the documentation or in brainrender.default_variables.py\n"
+)
+
 
 def reset_defaults():
     # Get all variables from defaults
-    vs = {key: value for key, value in defaults.items() 
-                    if not (key.startswith('__') or key.startswith('_'))}
+    vs = {
+        key: value
+        for key, value in defaults.items()
+        if not (key.startswith("__") or key.startswith("_"))
+    }
     save_yaml(params_file, vs, append=False, topcomment=comment)
 
 
@@ -71,14 +81,18 @@ def reset_defaults():
 # Get base directory
 _user_dir = os.path.expanduser("~")
 if not os.path.isdir(_user_dir):
-    raise FileExistsError("Could not find user base folder (to save brainrender data). Platform: {}".format(sys.platform))
+    raise FileExistsError(
+        "Could not find user base folder (to save brainrender data). Platform: {}".format(
+            sys.platform
+        )
+    )
 _base_dir = os.path.join(_user_dir, ".brainrender")
 
 if not os.path.isdir(_base_dir):
     os.mkdir(_base_dir)
 
 # Create config path
-_config_path = os.path.join(_base_dir, 'config.yaml')
+_config_path = os.path.join(_base_dir, "config.yaml")
 if not os.path.isfile(_config_path):
     reset_defaults()
 
@@ -91,62 +105,67 @@ params = load_yaml(_config_path)
 
 # Check we have all the params
 for par in __all__:
-    if par in ['INTERACTIVE_MSG']:
+    if par in ["INTERACTIVE_MSG"]:
         continue
     if par not in params.keys():
         params[par] = defaults[par]
 save_yaml(params_file, params, append=False, topcomment=comment)
 
 # ------------------------- Other vtkplotter settings ------------------------ #
-settings.screeshotScale = params['DEFAULT_SCREENSHOT_SCALE']  # Improves resolution of saved screenshots
+settings.screeshotScale = params[
+    "DEFAULT_SCREENSHOT_SCALE"
+]  # Improves resolution of saved screenshots
 
-if params['SCREENSHOT_TRANSPARENT_BACKGROUND']:
-    settings.screenshotTransparentBackground = True # vtkplotter for transparent bg
-    settings.useFXAA = False # This needs to be false for transparent bg
-    print('settings: screenshots are set to have transparent background'+
-            'set the parameter "SCREENSHOT_TRANSPARENT_BACKGROUND" to false '+
-            'if you would prefer a not transparent background')
+if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
+    settings.screenshotTransparentBackground = (
+        True  # vtkplotter for transparent bg
+    )
+    settings.useFXAA = False  # This needs to be false for transparent bg
+    print(
+        "settings: screenshots are set to have transparent background"
+        + 'set the parameter "SCREENSHOT_TRANSPARENT_BACKGROUND" to false '
+        + "if you would prefer a not transparent background"
+    )
 
 
 # Set to make it easy to import
-BACKGROUND_COLOR = params['BACKGROUND_COLOR']
-DECIMATE_NEURONS = params['DECIMATE_NEURONS']
-DEFAULT_HDF_KEY = params['DEFAULT_HDF_KEY']
-DEFAULT_NEURITE_RADIUS = params['DEFAULT_NEURITE_RADIUS']
-DEFAULT_STRUCTURE_ALPHA = params['DEFAULT_STRUCTURE_ALPHA']
-DEFAULT_STRUCTURE_COLOR = params['DEFAULT_STRUCTURE_COLOR']
-DEFAULT_VIP_COLOR = params['DEFAULT_VIP_COLOR']
-DEFAULT_VIP_REGIONS = params['DEFAULT_VIP_REGIONS']
-DISPLAY_INSET = params['DISPLAY_INSET']
-DISPLAY_ROOT = params['DISPLAY_ROOT']
-HDF_SUFFIXES = params['HDF_SUFFIXES']
-INJECTION_DEFAULT_COLOR = params['INJECTION_DEFAULT_COLOR']
-INJECTION_VOLUME_SIZE = params['INJECTION_VOLUME_SIZE']
-NEURON_ALPHA = params['NEURON_ALPHA']
-NEURON_RESOLUTION = params['NEURON_RESOLUTION']
-ROOT_ALPHA = params['ROOT_ALPHA']
-ROOT_COLOR = params['ROOT_COLOR']
-SHADER_STYLE = params['SHADER_STYLE']
-SHOW_AXES = params['SHOW_AXES']
-SMOOTH_NEURONS = params['SMOOTH_NEURONS']
-SOMA_RADIUS = params['SOMA_RADIUS']
-STREAMLINES_RESOLUTION = params['STREAMLINES_RESOLUTION']
-TRACTO_ALPHA = params['TRACTO_ALPHA']
-TRACTO_RADIUS = params['TRACTO_RADIUS']
-TRACTO_RES = params['TRACTO_RES']
-TRACT_DEFAULT_COLOR = params['TRACT_DEFAULT_COLOR']
-USE_MORPHOLOGY_CACHE = params['USE_MORPHOLOGY_CACHE']
-VERBOSE = params['VERBOSE']
-WHOLE_SCREEN = params['WHOLE_SCREEN']
-WINDOW_POS = params['WINDOW_POS']
-CAMERA = params['CAMERA']
-DEFAULT_SCREENSHOT_NAME = params['DEFAULT_SCREENSHOT_NAME']
-DEFAULT_SCREENSHOT_TYPE = params['DEFAULT_SCREENSHOT_TYPE']
-DEFAULT_SCREENSHOT_SCALE = params['DEFAULT_SCREENSHOT_SCALE']
-SCREENSHOT_TRANSPARENT_BACKGROUND = params['SCREENSHOT_TRANSPARENT_BACKGROUND']
+BACKGROUND_COLOR = params["BACKGROUND_COLOR"]
+DECIMATE_NEURONS = params["DECIMATE_NEURONS"]
+DEFAULT_HDF_KEY = params["DEFAULT_HDF_KEY"]
+DEFAULT_NEURITE_RADIUS = params["DEFAULT_NEURITE_RADIUS"]
+DEFAULT_STRUCTURE_ALPHA = params["DEFAULT_STRUCTURE_ALPHA"]
+DEFAULT_STRUCTURE_COLOR = params["DEFAULT_STRUCTURE_COLOR"]
+DEFAULT_VIP_COLOR = params["DEFAULT_VIP_COLOR"]
+DEFAULT_VIP_REGIONS = params["DEFAULT_VIP_REGIONS"]
+DISPLAY_INSET = params["DISPLAY_INSET"]
+DISPLAY_ROOT = params["DISPLAY_ROOT"]
+HDF_SUFFIXES = params["HDF_SUFFIXES"]
+INJECTION_DEFAULT_COLOR = params["INJECTION_DEFAULT_COLOR"]
+INJECTION_VOLUME_SIZE = params["INJECTION_VOLUME_SIZE"]
+NEURON_ALPHA = params["NEURON_ALPHA"]
+NEURON_RESOLUTION = params["NEURON_RESOLUTION"]
+ROOT_ALPHA = params["ROOT_ALPHA"]
+ROOT_COLOR = params["ROOT_COLOR"]
+SHADER_STYLE = params["SHADER_STYLE"]
+SHOW_AXES = params["SHOW_AXES"]
+SMOOTH_NEURONS = params["SMOOTH_NEURONS"]
+SOMA_RADIUS = params["SOMA_RADIUS"]
+STREAMLINES_RESOLUTION = params["STREAMLINES_RESOLUTION"]
+TRACTO_ALPHA = params["TRACTO_ALPHA"]
+TRACTO_RADIUS = params["TRACTO_RADIUS"]
+TRACTO_RES = params["TRACTO_RES"]
+TRACT_DEFAULT_COLOR = params["TRACT_DEFAULT_COLOR"]
+USE_MORPHOLOGY_CACHE = params["USE_MORPHOLOGY_CACHE"]
+VERBOSE = params["VERBOSE"]
+WHOLE_SCREEN = params["WHOLE_SCREEN"]
+WINDOW_POS = params["WINDOW_POS"]
+CAMERA = params["CAMERA"]
+DEFAULT_SCREENSHOT_NAME = params["DEFAULT_SCREENSHOT_NAME"]
+DEFAULT_SCREENSHOT_TYPE = params["DEFAULT_SCREENSHOT_TYPE"]
+DEFAULT_SCREENSHOT_SCALE = params["DEFAULT_SCREENSHOT_SCALE"]
+SCREENSHOT_TRANSPARENT_BACKGROUND = params["SCREENSHOT_TRANSPARENT_BACKGROUND"]
 
-INTERACTIVE_MSG = \
-"""
+INTERACTIVE_MSG = """
  ==========================================================
 | Press: i     print info about selected object            |
 |        m     minimise opacity of selected mesh           |
@@ -182,7 +201,3 @@ INTERACTIVE_MSG = \
 | Check out documentation at:  https://vtkplotter.embl.es  |
  ==========================================================
 """
-
-
-
-

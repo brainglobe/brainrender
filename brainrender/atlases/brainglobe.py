@@ -30,10 +30,9 @@ from brainrender.Utils.data_io import load_mesh_from_file
 
 
 class BrainGlobeAtlas(Atlas):
-    def __init__(self,  base_dir=None, **kwargs):
+    def __init__(self, base_dir=None, **kwargs):
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
 
-        
     # ---------------------------------------------------------------------------- #
     #                      METHODS SUPPORTING SCENE POPULATION                     #
     # ---------------------------------------------------------------------------- #
@@ -47,22 +46,31 @@ class BrainGlobeAtlas(Atlas):
 
         """
         if not isinstance(region, int) and not isinstance(region, str):
-            raise ValueError("region must be a list, integer or string, not: {}".format(type(region)))
+            raise ValueError(
+                "region must be a list, integer or string, not: {}".format(
+                    type(region)
+                )
+            )
         else:
             return True
 
-    def _get_structure_mesh(self,  acronym,   **kwargs):
+    def _get_structure_mesh(self, acronym, **kwargs):
         obj_path = self.get_mesh_file_from_acronym(acronym)
         return load_mesh_from_file(obj_path, **kwargs)
 
+    def get_brain_regions(
+        self,
+        brain_regions,
+        add_labels=False,
+        colors=None,
+        use_original_color=True,
+        alpha=None,
+        hemisphere=None,
+        verbose=False,
+        **kwargs,
+    ):
 
-            
-    def get_brain_regions(self, brain_regions,
-                            add_labels=False,
-                            colors=None, use_original_color=True, 
-                            alpha=None, hemisphere=None, verbose=False, **kwargs):
-
-            """
+        """
                 Gets brain regions meshes for rendering
                 Many parameters can be passed to specify how the regions should be rendered.
                 To treat a subset of the rendered regions, specify which regions are VIP. 
@@ -76,75 +84,97 @@ class BrainGlobeAtlas(Atlas):
                 :param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
                 :param **kwargs: used to determine a bunch of thigs, including the look and location of lables from scene.add_labels
             """
-            # Check that the atlas has brain regions data
-            if self.structures_acronyms is None:
-                print(f"The atlas {self.atlas_name} has no brain regions data")
-                return
+        # Check that the atlas has brain regions data
+        if self.structures_acronyms is None:
+            print(f"The atlas {self.atlas_name} has no brain regions data")
+            return
 
-            # Parse arguments
-            if alpha is None:
-                alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
+        # Parse arguments
+        if alpha is None:
+            alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
 
-            # check that we have a list
-            if not isinstance(brain_regions, list):
-                brain_regions = [brain_regions]
+        # check that we have a list
+        if not isinstance(brain_regions, list):
+            brain_regions = [brain_regions]
 
-            # check the colors input is correct
-            if colors is not None:
-                if isinstance(colors, (list, tuple)):
-                    if not len(colors) == len(brain_regions): 
-                        raise ValueError("when passing colors as a list, the number of colors must match the number of brain regions")
-                    for col in colors:
-                        if not check_colors(col): raise ValueError("Invalide colors in input: {}".format(col))
+        # check the colors input is correct
+        if colors is not None:
+            if isinstance(colors, (list, tuple)):
+                if not len(colors) == len(brain_regions):
+                    raise ValueError(
+                        "when passing colors as a list, the number of colors must match the number of brain regions"
+                    )
+                for col in colors:
+                    if not check_colors(col):
+                        raise ValueError(
+                            "Invalide colors in input: {}".format(col)
+                        )
+            else:
+                if not check_colors(colors):
+                    raise ValueError(
+                        "Invalide colors in input: {}".format(colors)
+                    )
+                colors = [colors for i in range(len(brain_regions))]
+
+        # loop over all brain regions
+        actors = {}
+        for i, region in enumerate(brain_regions):
+            self._check_valid_region_arg(region)
+
+            if region in self.ignore_regions:
+                continue
+            if verbose:
+                print("Rendering: ({})".format(region))
+
+            # get the structure and check if we need to download the object file
+            if region not in self.structures_acronyms:
+                print(
+                    f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping"
+                )
+                continue
+
+            # Get path to .obj file
+            obj_file = str(self.get_mesh_file_from_acronym(region))
+
+            # check which color to assign to the brain region
+            if use_original_color:
+                color = [
+                    x / 255 for x in self.get_region_color_from_acronym(region)
+                ]
+            else:
+                if colors is None:
+                    color = brainrender.DEFAULT_STRUCTURE_COLOR
+                elif isinstance(colors, list):
+                    color = colors[i]
                 else:
-                    if not check_colors(colors): raise ValueError("Invalide colors in input: {}".format(colors))
-                    colors = [colors for i in range(len(brain_regions))]
+                    color = colors
 
-            # loop over all brain regions
-            actors = {}
-            for i, region in enumerate(brain_regions):
-                self._check_valid_region_arg(region)
-
-                if region in self.ignore_regions: continue
-                if verbose: print("Rendering: ({})".format(region))
-
-                # get the structure and check if we need to download the object file
-                if region not in self.structures_acronyms:
-                    print(f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping")
-                    continue
-
-                # Get path to .obj file
-                obj_file = str(self.get_mesh_file_from_acronym(region))
-
-                # check which color to assign to the brain region
-                if use_original_color:
-                    color = [x/255 for x in self.get_region_color_from_acronym(region)]
+            # Load the object file as a mesh and store the actor
+            if hemisphere is not None:
+                if (
+                    hemisphere.lower() == "left"
+                    or hemisphere.lower() == "right"
+                ):
+                    obj = self.get_region_unilateral(
+                        region, hemisphere=hemisphere, color=color, alpha=alpha
+                    )
                 else:
-                    if colors is None:
-                        color = brainrender.DEFAULT_STRUCTURE_COLOR
-                    elif isinstance(colors, list):
-                        color = colors[i]
-                    else: 
-                        color = colors
+                    raise ValueError(
+                        f"Invalid hemisphere argument: {hemisphere}"
+                    )
+            else:
+                obj = load(obj_file, c=color, alpha=alpha)
 
-                # Load the object file as a mesh and store the actor
-                if hemisphere is not None:
-                    if hemisphere.lower() == "left" or hemisphere.lower() == "right":
-                        obj = self.get_region_unilateral(region, hemisphere=hemisphere, color=color, alpha=alpha)
-                    else:
-                        raise ValueError(f'Invalid hemisphere argument: {hemisphere}')
-                else:
-                    obj = load(obj_file, c=color, alpha=alpha)
+            if obj is not None:
+                actors_funcs.edit_actor(obj, **kwargs)
 
-                if obj is not None:
-                    actors_funcs.edit_actor(obj, **kwargs)
+                actors[region] = obj
+            else:
+                print(
+                    f"Something went wrong while loading mesh data for {region}"
+                )
 
-                    actors[region] = obj
-                else:
-                    print(f"Something went wrong while loading mesh data for {region}")
-
-            return actors
-
+        return actors
 
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
@@ -152,7 +182,9 @@ class BrainGlobeAtlas(Atlas):
 
     # ! most of this code should be moved to brainglobe
 
-    def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
+    def get_structure_ancestors(
+        self, regions, ancestors=True, descendants=False
+    ):
         """
         Get's the ancestors of the region(s) passed as arguments
 
@@ -163,17 +195,39 @@ class BrainGlobeAtlas(Atlas):
         """
 
         if not isinstance(regions, list):
-            struct_id = self.structure_tree.get_structures_by_acronym([regions])[0]['id']
-            return pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants))
+            struct_id = self.structure_tree.get_structures_by_acronym(
+                [regions]
+            )[0]["id"]
+            return pd.DataFrame(
+                self.tree_search.get_tree(
+                    "Structure",
+                    struct_id,
+                    ancestors=ancestors,
+                    descendants=descendants,
+                )
+            )
         else:
             ancestors = []
             for region in regions:
-                struct_id = self.structure_tree.get_structures_by_acronym([region])[0]['id']
-                ancestors.append(pd.DataFrame(self.tree_search.get_tree('Structure', struct_id, ancestors=ancestors, descendants=descendants)))
+                struct_id = self.structure_tree.get_structures_by_acronym(
+                    [region]
+                )[0]["id"]
+                ancestors.append(
+                    pd.DataFrame(
+                        self.tree_search.get_tree(
+                            "Structure",
+                            struct_id,
+                            ancestors=ancestors,
+                            descendants=descendants,
+                        )
+                    )
+                )
             return ancestors
 
     def get_structure_descendants(self, regions):
-        return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
+        return self.get_structure_ancestors(
+            regions, ancestors=False, descendants=True
+        )
 
     def get_structure_parent(self, acronyms):
         """
@@ -186,22 +240,26 @@ class BrainGlobeAtlas(Atlas):
         if not isinstance(acronyms, list):
             self._check_valid_region_arg(acronyms)
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
-            if s['id'] in self.structures_ids:
+            if s["id"] in self.structures_ids:
                 return s
             else:
-                return self.get_structure_ancestors(s['acronym']).iloc[-1]
+                return self.get_structure_ancestors(s["acronym"]).iloc[-1]
         else:
             parents = []
             for region in acronyms:
                 self._check_valid_region_arg(region)
                 s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
 
-                if s['id'] in self.structures_ids:
+                if s["id"] in self.structures_ids:
                     parents.append(s)
-                parents.append(self.get_structure_ancestors(s['acronym']).iloc[-1])
+                parents.append(
+                    self.get_structure_ancestors(s["acronym"]).iloc[-1]
+                )
             return parents
 
-    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
+    def get_region_unilateral(
+        self, region, hemisphere="both", color=None, alpha=None
+    ):
         """
         Regions meshes are loaded with both hemispheres' meshes by default.
         This function splits them in two.
@@ -212,35 +270,39 @@ class BrainGlobeAtlas(Atlas):
         :param alpha: transparency of each side's mesh.  (Default value = None)
 
         """
-        if color is None: color = brainrender.ROOT_COLOR
-        if alpha is None: alpha = brainrender.ROOT_ALPHA
+        if color is None:
+            color = brainrender.ROOT_COLOR
+        if alpha is None:
+            alpha = brainrender.ROOT_ALPHA
         bilateralmesh = self._get_structure_mesh(region, c=color, alpha=alpha)
 
         if bilateralmesh is None:
-            print(f'Failed to get mesh for {region}, returning None')
+            print(f"Failed to get mesh for {region}, returning None")
             return None
 
-        com = bilateralmesh.centerOfMass()   # this will always give a point that is on the midline
+        com = (
+            bilateralmesh.centerOfMass()
+        )  # this will always give a point that is on the midline
         cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
 
-        right = bilateralmesh.cutWithPlane( origin=com, normal=(0, 0, 1))
-        
+        right = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
+
         # left is the mirror right # WIP
-        com = self.get_region_CenterOfMass('root', unilateral=False)[2]
-        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis='x')
+        com = self.get_region_CenterOfMass("root", unilateral=False)[2]
+        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis="x")
 
         if hemisphere == "both":
             return left, right
-        elif hemisphere == "left": 
-            return left 
+        elif hemisphere == "left":
+            return left
         else:
             return right
 
     def get_hemisphere_from_point(self, point):
         if point[2] < self._root_midpoint[2]:
-            return 'left'
+            return "left"
         else:
-            return 'right'
+            return "right"
 
     def mirror_point_across_hemispheres(self, point):
         delta = point[2] - self._root_midpoint[2]

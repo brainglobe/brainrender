@@ -10,13 +10,25 @@ from morphapi.morphology.morphology import Neuron
 
 import brainrender
 from brainrender.Utils.data_io import load_mesh_from_file, load_json
-from brainrender.Utils.data_manipulation import get_coords, flatten_list, is_any_item_in_list
+from brainrender.Utils.data_manipulation import (
+    get_coords,
+    flatten_list,
+    is_any_item_in_list,
+)
 
 from brainrender import STREAMLINES_RESOLUTION, INJECTION_VOLUME_SIZE
 from brainrender.Utils.webqueries import request
-from brainrender import * 
+from brainrender import *
 from brainrender.Utils import actors_funcs
-from brainrender.colors import _mapscales_cmaps, makePalette, get_random_colors, getColor, colors, colorMap, check_colors
+from brainrender.colors import (
+    _mapscales_cmaps,
+    makePalette,
+    get_random_colors,
+    getColor,
+    colors,
+    colorMap,
+    check_colors,
+)
 from brainrender.colors import get_n_shades_of
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
@@ -29,7 +41,6 @@ from allensdk.core.reference_space_cache import ReferenceSpaceCache
 from brainrender.atlases.base import Atlas
 
 
-
 """
     THIS CODE IS OUTDATED AND LEFT HERE UNTIL IT'S TRANSFERED TO BRAINGLOBE API ATLAS.
     The mouse atlases for brainrender are found at brainrender.atlases.mouse
@@ -38,20 +49,26 @@ from brainrender.atlases.base import Atlas
 
 raise NotImplementedError()
 
+
 class ABA(Atlas):
     """
     This class handles interaction with the Allen Brain Atlas datasets and APIs to get structure trees,
     experimental metadata and results, tractography data etc. 
     """
-    ignore_regions = ['retina', 'brain', 'fiber tracts', 'grey'] # ignored when rendering
 
-    # useful vars for analysis    
+    ignore_regions = [
+        "retina",
+        "brain",
+        "fiber tracts",
+        "grey",
+    ]  # ignored when rendering
+
+    # useful vars for analysis
 
     atlas_name = "ABA"
-    mesh_format = 'obj'
+    mesh_format = "obj"
 
-    
-    def __init__(self,  base_dir=None, **kwargs):
+    def __init__(self, base_dir=None, **kwargs):
         """ 
         Set up file paths and Allen SDKs
         
@@ -61,32 +78,34 @@ class ABA(Atlas):
         """
 
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
-        self.meshes_folder = self.mouse_meshes # where the .obj mesh for each region is saved
-
-
+        self.meshes_folder = (
+            self.mouse_meshes
+        )  # where the .obj mesh for each region is saved
 
         # Store all regions metadata [If there's internet connection]
-        if self.other_sets is not None: 
-            self.regions = self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values('acronym')
-            self.region_acronyms = list(self.other_sets["Structures whose surfaces are represented by a precomputed mesh"].sort_values(
-                                                'acronym').acronym.values)
+        if self.other_sets is not None:
+            self.regions = self.other_sets[
+                "Structures whose surfaces are represented by a precomputed mesh"
+            ].sort_values("acronym")
+            self.region_acronyms = list(
+                self.other_sets[
+                    "Structures whose surfaces are represented by a precomputed mesh"
+                ]
+                .sort_values("acronym")
+                .acronym.values
+            )
 
-   
     # -------------------------- Parents and descendants ------------------------- #
 
-
-    
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
     # ---------------------------------------------------------------------------- #
 
-
-
     def get_hemispere_from_point(self, p0):
         if p0[2] > self._root_midpoint[2]:
-            return 'right'
+            return "right"
         else:
-            return 'left'
+            return "left"
 
     def get_structure_from_coordinates(self, p0, just_acronym=True):
         """
@@ -105,24 +124,29 @@ class ABA(Atlas):
         structure = self.structure_tree.get_structures_by_id([structure_id])[0]
         if structure is not None:
             if just_acronym:
-                return structure['acronym']
+                return structure["acronym"]
         return structure
-    
+
     def get_colors_from_coordinates(self, p0):
         """
             Given a point or a list of points returns a list of colors where 
             each item is the color of the brain region each point is in
         """
         if isinstance(p0[0], (float, int)):
-            struct = self.get_structure_from_coordinates(p0, just_acronym=False)
+            struct = self.get_structure_from_coordinates(
+                p0, just_acronym=False
+            )
             if struct is not None:
-                return struct['rgb_triplet']
+                return struct["rgb_triplet"]
             else:
                 return None
         else:
-            structures = [self.get_structure_from_coordinates(p, just_acronym=False) for p in p0]
-            colors = [struct['rgb_triplet'] if struct is not None else None 
-                            for struct in structures]
-            return colors 
-
-
+            structures = [
+                self.get_structure_from_coordinates(p, just_acronym=False)
+                for p in p0
+            ]
+            colors = [
+                struct["rgb_triplet"] if struct is not None else None
+                for struct in structures
+            ]
+            return colors

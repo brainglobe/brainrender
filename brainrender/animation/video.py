@@ -16,19 +16,23 @@ class BasicVideoMaker:
             - niters: number of iterations (frames) when creating the video
             - fps: framerate of video
     """
+
     def __init__(self, scene, **kwargs):
         self.scene = scene
-        
-        # Parss keyword argumets
-        self.save_fld = kwargs.pop('save_fld', self.scene.atlas.output_videos)
-        self.save_name = kwargs.pop('save_name', 'brainrender_video_'+
-                            f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}')
-        self.video_format = kwargs.pop('video_format', 'mp4')
 
-        self.duration = kwargs.pop('duration', 3)
-        self.niters = kwargs.pop('niters', 60)
+        # Parss keyword argumets
+        self.save_fld = kwargs.pop("save_fld", self.scene.atlas.output_videos)
+        self.save_name = kwargs.pop(
+            "save_name",
+            "brainrender_video_"
+            + f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}',
+        )
+        self.video_format = kwargs.pop("video_format", "mp4")
+
+        self.duration = kwargs.pop("duration", 3)
+        self.niters = kwargs.pop("niters", 60)
         self.fps = kwargs.pop("fps", 30)
- 
+
     def parse_kwargs(self, **kwargs):
         """
             Parses arguments for video creation
@@ -42,11 +46,11 @@ class BasicVideoMaker:
 
             Arguments not specified in kwargs will be assigned default values
         """
-        self.save_fld = kwargs.pop('save_fld', self.save_fld)
-        self.save_name = kwargs.pop('save_name', self.save_name)
-        self.video_format = kwargs.pop('video_format', self.video_format)
-        self.duration = kwargs.pop('duration', None)
-        self.niters = kwargs.pop('niters', self.niters)
+        self.save_fld = kwargs.pop("save_fld", self.save_fld)
+        self.save_name = kwargs.pop("save_name", self.save_name)
+        self.video_format = kwargs.pop("video_format", self.video_format)
+        self.duration = kwargs.pop("duration", None)
+        self.niters = kwargs.pop("niters", self.niters)
         self.fps = kwargs.pop("fps", self.fps)
 
     def make_video(self, azimuth=0, elevation=0, roll=0, **kwargs):
@@ -60,23 +64,26 @@ class BasicVideoMaker:
         """
         self.parse_kwargs(**kwargs)
 
-        curdir = os.getcwd() # we need to cd to the folder where the video is saved and then back here
+        curdir = (
+            os.getcwd()
+        )  # we need to cd to the folder where the video is saved and then back here
         os.chdir(self.save_fld)
         print(f"Saving video in {self.save_fld}")
 
         # Create video
-        video = Video(name=self.save_name, 
-                    duration=self.duration, fps=self.fps)
+        video = Video(
+            name=self.save_name, duration=self.duration, fps=self.fps
+        )
 
         # Render the scene first
         self.scene.render(interactive=False)
 
         # Make frames
         for i in range(self.niters):
-            self.scene.plotter.show() # render(interactive=False, video=True)  # render the scene first
+            self.scene.plotter.show()  # render(interactive=False, video=True)  # render the scene first
             self.scene.plotter.camera.Elevation(elevation)
             self.scene.plotter.camera.Azimuth(azimuth)
-            self.scene.plotter.camera.Roll(roll) 
+            self.scene.plotter.camera.Roll(roll)
             video.addFrame()
         video.close()  # merge all the recorded frames
 
@@ -84,11 +91,11 @@ class BasicVideoMaker:
         os.chdir(curdir)
 
 
-
 class CustomVideoMaker(BasicVideoMaker):
     """
         Subclasses BasicVideoMaker and replaces make_video method.
     """
+
     def __init__(self, scene, **kwargs):
         BasicVideoMaker.__init__(self, scene, **kwargs)
 
@@ -113,24 +120,30 @@ class CustomVideoMaker(BasicVideoMaker):
         """
         self.parse_kwargs(**kwargs)
 
-        curdir = os.getcwd() # we need to cd to the folder where the video is saved and then back here
+        curdir = (
+            os.getcwd()
+        )  # we need to cd to the folder where the video is saved and then back here
         os.chdir(self.save_fld)
 
         # Create video
-        video = Video(name=self.save_name, 
-                    duration=self.duration, 
-                    fps=self.fps)
+        video = Video(
+            name=self.save_name, duration=self.duration, fps=self.fps
+        )
 
         # run custom function
         video = video_function(scene=self.scene, video=video, videomaker=self)
 
         # Check output
-        if video is None or not isinstance(video, Video): 
-            raise ValueError("The custom video function didn't return anything "+
-                                    "or it returned something other than the instance of Video "+
-                                    "It must return the video object so that it can be closed properly.")
+        if video is None or not isinstance(video, Video):
+            raise ValueError(
+                "The custom video function didn't return anything "
+                + "or it returned something other than the instance of Video "
+                + "It must return the video object so that it can be closed properly."
+            )
         if not isinstance(video, Video):
-            raise ValueError(f"The custom video function returned invalid objects: {video} instead of video object")
+            raise ValueError(
+                f"The custom video function returned invalid objects: {video} instead of video object"
+            )
 
         # close video
-        video.close()  
+        video.close()

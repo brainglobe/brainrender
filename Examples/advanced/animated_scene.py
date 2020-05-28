@@ -1,4 +1,3 @@
-
 """
 This example shows how to crate an animate scene where
 over a number of frames:
@@ -8,9 +7,10 @@ over a number of frames:
 
 
 import brainrender
+
 brainrender.WHOLE_SCREEN = False
-brainrender.SHADER_STYLE = 'cartoon'
-brainrender.ROOT_ALPHA = .1
+brainrender.SHADER_STYLE = "cartoon"
+brainrender.ROOT_ALPHA = 0.1
 
 import vtk
 from vtkplotter import *
@@ -22,43 +22,56 @@ from tqdm import tqdm
 
 
 from brainrender.Utils.MouseLightAPI.mouselight_api import MouseLightAPI
-from brainrender.Utils.MouseLightAPI.mouselight_info import mouselight_api_info, mouselight_fetch_neurons_metadata
-from brainrender.Utils.camera import top_camera, three_quarters_camera, buildcam, sagittal_camera
+from brainrender.Utils.MouseLightAPI.mouselight_info import (
+    mouselight_api_info,
+    mouselight_fetch_neurons_metadata,
+)
+from brainrender.Utils.camera import (
+    top_camera,
+    three_quarters_camera,
+    buildcam,
+    sagittal_camera,
+)
 from brainrender.colors import colorMap
 
 # --------------------------------- Variables -------------------------------- #
-minalpha = 0.01 # transparency of background neurons
-darkcolor = 'lightgray' # background neurons color
-lightcolor = 'lawngreen' # highlighted neurons color
+minalpha = 0.01  # transparency of background neurons
+darkcolor = "lightgray"  # background neurons color
+lightcolor = "lawngreen"  # highlighted neurons color
 
 N_FRAMES = 250
-N_neurons = -1 # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
-N_neurons_in_frame = 8 # number of neurons to be highlighted in a given frame
-N_frames_for_change = 15 # every N frames which neurons are shown changes
+N_neurons = (
+    -1
+)  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
+N_neurons_in_frame = 8  # number of neurons to be highlighted in a given frame
+N_frames_for_change = 15  # every N frames which neurons are shown changes
 
 # Variables to specify camera position at each frame
 zoom = np.linspace(1, 1.5, N_FRAMES)
-frac = np.zeros_like(zoom) # for camera transition, interpolation value between cameras
-frac[:150] = np.linspace(0, 1, 150) 
+frac = np.zeros_like(
+    zoom
+)  # for camera transition, interpolation value between cameras
+frac[:150] = np.linspace(0, 1, 150)
 frac[150:] = np.linspace(1, 0, len(frac[150:]))
 
 # -------------------------------- Fetch data -------------------------------- #
 # Fetch metadata for neurons with some in the secondary motor cortex
-neurons_metadata = mouselight_fetch_neurons_metadata(filterby='soma', filter_regions=['MOs'])
+neurons_metadata = mouselight_fetch_neurons_metadata(
+    filterby="soma", filter_regions=["MOs"]
+)
 
 # Then we can download the files and save them as a .json file
-ml_api = MouseLightAPI() 
-neurons_files =  ml_api.download_neurons(neurons_metadata[:N_neurons]) 
+ml_api = MouseLightAPI()
+neurons_files = ml_api.download_neurons(neurons_metadata[:N_neurons])
 
 # ------------------------------- Create scene ------------------------------- #
 scene = Scene(display_inset=False, use_default_key_bindings=True)
-root = scene.actors['root']
+root = scene.actors["root"]
 
-scene.add_neurons(neurons_files, random_color=True,
-                        neurite_radius=12, alpha=0)
+scene.add_neurons(neurons_files, random_color=True, neurite_radius=12, alpha=0)
 
 # Make all neurons background
-for neuron in scene.actors['neurons']:
+for neuron in scene.actors["neurons"]:
     for mesh in neuron.values():
         mesh.alpha(minalpha)
         mesh.color(darkcolor)
@@ -68,21 +81,25 @@ for neuron in scene.actors['neurons']:
 cam1 = buildcam(sagittal_camera)
 
 
-cam2 = buildcam(dict(
-    position = [-16624.081, -33431.408, 33527.412] ,
-    focal = [6587.835, 3849.085, 5688.164],
-    viewup = [0.634, -0.676, -0.376],
-    distance = 51996.653,
-    clipping = [34765.671, 73812.327] ,
-))
+cam2 = buildcam(
+    dict(
+        position=[-16624.081, -33431.408, 33527.412],
+        focal=[6587.835, 3849.085, 5688.164],
+        viewup=[0.634, -0.676, -0.376],
+        distance=51996.653,
+        clipping=[34765.671, 73812.327],
+    )
+)
 
-cam3 = buildcam(dict(
-    position = [1862.135, -4020.792, -36292.348] ,
-    focal = [6587.835, 3849.085, 5688.164],
-    viewup = [0.185, -0.97, 0.161],
-    distance = 42972.44,
-    clipping = [29629.503, 59872.10] ,
-))
+cam3 = buildcam(
+    dict(
+        position=[1862.135, -4020.792, -36292.348],
+        focal=[6587.835, 3849.085, 5688.164],
+        viewup=[0.185, -0.97, 0.161],
+        distance=42972.44,
+        clipping=[29629.503, 59872.10],
+    )
+)
 
 # Iniziale camera position
 startcam = scene.plotter.moveCamera(cam1, cam2, frac[0])
@@ -92,7 +109,7 @@ startcam = scene.plotter.moveCamera(cam1, cam2, frac[0])
 # Create frames
 prev_neurons = []
 for step in tqdm(np.arange(N_FRAMES)):
-    if step % N_frames_for_change == 0: # change neurons every N framse
+    if step % N_frames_for_change == 0:  # change neurons every N framse
 
         # reset neurons from previous set of neurons
         for neuron in prev_neurons:
@@ -102,9 +119,11 @@ for step in tqdm(np.arange(N_FRAMES)):
         prev_neurons = []
 
         # highlight new neurons
-        neurons = choices(scene.actors['neurons'], k=N_neurons_in_frame)
+        neurons = choices(scene.actors["neurons"], k=N_neurons_in_frame)
         for n, neuron in enumerate(neurons):
-            color = colorMap(n, 'Greens_r', vmin=-2, vmax=N_neurons_in_frame+3)
+            color = colorMap(
+                n, "Greens_r", vmin=-2, vmax=N_neurons_in_frame + 3
+            )
             for component, actor in neuron.items():
                 actor.alpha(1)
                 actor.color(color)
@@ -116,6 +135,5 @@ for step in tqdm(np.arange(N_FRAMES)):
         cam1 = cam3
 
     # Update rendered window
-    time.sleep(.1)
+    time.sleep(0.1)
     scene.render(zoom=zoom[step], interactive=False, video=True)
-

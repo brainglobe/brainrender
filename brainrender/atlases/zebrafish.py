@@ -2,6 +2,7 @@ from brainatlas_api.bg_atlas import FishAtlas
 
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
 
+
 class BGFishAtlas(BrainGlobeAtlas, FishAtlas):
     atlas_name = "fishatlas"
 
@@ -10,4 +11,3 @@ class BGFishAtlas(BrainGlobeAtlas, FishAtlas):
         FishAtlas.__init__(self)
 
         self.meshes_folder = self.root_dir / "meshes"
-

@@ -1,7 +1,9 @@
 """ 
     Collection of functions to edit actors looks and other features.
 """
-def mirror_actor_at_point(actor, point, axis='x'):
+
+
+def mirror_actor_at_point(actor, point, axis="x"):
     """
     Mirror an actor around a point
 
@@ -12,32 +14,48 @@ def mirror_actor_at_point(actor, point, axis='x'):
     """
     if not isinstance(actor, dict):
         coords = actor.points()
-        if axis == 'x':
-            shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
-        elif axis == 'y':
-            shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
-        elif axis == 'z':
-            shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
-        
+        if axis == "x":
+            shifted_coords = [
+                [c[0], c[1], point + (point - c[2])] for c in coords
+            ]
+        elif axis == "y":
+            shifted_coords = [
+                [c[0], point + (point - c[1]), c[2]] for c in coords
+            ]
+        elif axis == "z":
+            shifted_coords = [
+                [point + (point - c[0]), c[1], c[2]] for c in coords
+            ]
+
         actor.points(shifted_coords)
-        actor = actor.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+        actor = actor.mirror(
+            axis="n"
+        )  # to make sure that the mirrored actor looks correctly
         return actor
     else:
         mirrored_actor = {}
         for n, a in actor.items():
             coords = a.points()
-            if axis == 'x':
-                shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
-            elif axis == 'y':
-                shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
-            elif axis == 'z':
-                shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
-            
+            if axis == "x":
+                shifted_coords = [
+                    [c[0], c[1], point + (point - c[2])] for c in coords
+                ]
+            elif axis == "y":
+                shifted_coords = [
+                    [c[0], point + (point - c[1]), c[2]] for c in coords
+                ]
+            elif axis == "z":
+                shifted_coords = [
+                    [point + (point - c[0]), c[1], c[2]] for c in coords
+                ]
+
             a.points(shifted_coords)
-            a = a.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+            a = a.mirror(
+                axis="n"
+            )  # to make sure that the mirrored actor looks correctly
             mirrored_actor[n] = actor
         return mirrored_actor
-        
+
 
 def set_wireframe(actor):
     """
@@ -48,6 +66,7 @@ def set_wireframe(actor):
     """
     actor.wireframe(value=True)
 
+
 def set_solid(actor):
     """
     set an actor's look to solid
@@ -56,6 +75,7 @@ def set_solid(actor):
 
     """
     actor.wireframe(value=False)
+
 
 def set_color(actor, color):
     """
@@ -66,6 +86,7 @@ def set_color(actor, color):
 
     """
     actor.color(c=color)
+
 
 def set_line(actor, lw=None, c=None):
     """
@@ -81,6 +102,7 @@ def set_line(actor, lw=None, c=None):
     if c is not None:
         actor.lc(lineColor=c)
 
+
 def upsample_actor(actor, fact=1):
     """
     Increase resolution of actor
@@ -90,6 +112,7 @@ def upsample_actor(actor, fact=1):
 
     """
     actor.subdivide(N=fact)
+
 
 def downsample_actor(actor, fact=0.5):
     """
@@ -101,6 +124,7 @@ def downsample_actor(actor, fact=0.5):
     """
     actor.decimate(fraction=fact)
 
+
 def smooth_actor(actor, factor=15):
     """
     Smooth an actor's mesh
@@ -111,10 +135,18 @@ def smooth_actor(actor, factor=15):
     """
     actor.smoothLaplacian(niter=factor)
 
-def edit_actor(actor, 
-    wireframe=False, solid=False, 
-    color=False, line=False, line_kwargs={}, 
-    upsample=False, downsample=False, smooth=False):
+
+def edit_actor(
+    actor,
+    wireframe=False,
+    solid=False,
+    color=False,
+    line=False,
+    line_kwargs={},
+    upsample=False,
+    downsample=False,
+    smooth=False,
+):
     """
     Apply a set of functions to edit an actor's look. 
 

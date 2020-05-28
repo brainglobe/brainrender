@@ -2,6 +2,7 @@ from brainatlas_api.bg_atlas import RatAtlas
 
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
 
+
 class BGRatAtlas(BrainGlobeAtlas, RatAtlas):
     atlas_name = "ratatlas"
 
@@ -10,4 +11,3 @@ class BGRatAtlas(BrainGlobeAtlas, RatAtlas):
         RatAtlas.__init__(self)
 
         self.meshes_folder = self.root_dir / "meshes"
-

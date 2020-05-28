@@ -3,18 +3,17 @@
     with the MorphologyScene class
 """
 import brainrender
-brainrender.SHADER_STYLE = 'cartoon'
+
+brainrender.SHADER_STYLE = "cartoon"
 
 from brainrender.morphology.visualise import MorphologyScene
 
 
-scene = MorphologyScene(title='A neuron')
+scene = MorphologyScene(title="A neuron")
 
-neuron = scene.add_neurons('Examples/example_files/neuron4.swc',
-                color = dict(
-                    soma = 'red',
-                    dendrites= 'orangered',
-                    axon = [.4, .4, .4],
-                ))
+neuron = scene.add_neurons(
+    "Examples/example_files/neuron4.swc",
+    color=dict(soma="red", dendrites="orangered", axon=[0.4, 0.4, 0.4],),
+)
 
 scene.render()

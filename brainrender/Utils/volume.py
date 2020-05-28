@@ -12,7 +12,6 @@ import os
 import numpy as np
 
 
-
 def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
     """
         Load volume image from .nrrd file. 
@@ -25,9 +24,9 @@ def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
         :param alpha: float in range [0, 1], transparency [for the part of volume with value > vmin]
     """
     # Load/check volumetric data
-    if isinstance(data, str): # load from file
+    if isinstance(data, str):  # load from file
         if not os.path.isfile(data):
-            raise FileNotFoundError(f'Volume data file {data} not found')
+            raise FileNotFoundError(f"Volume data file {data} not found")
 
         try:
             data = brainio.load_any(data)
@@ -35,22 +34,23 @@ def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
             raise ValueError(f"Could not load volume data from file: {data}")
 
     elif not isinstance(data, np.ndarray):
-        raise ValueError(f"Data should be a filepath or np array, not: {data.__type__}")
+        raise ValueError(
+            f"Data should be a filepath or np array, not: {data.__type__}"
+        )
 
     # Create volume and set transparency range
     vol = Volume(data, alpha=alpha, **kwargs)
 
     otf = vol.GetProperty().GetScalarOpacity()
     otf.RemoveAllPoints()
-    otf.AddPoint(vmin, 0) # set to transparent
-    otf.AddPoint(vmin+.1, alpha) # set to opaque
+    otf.AddPoint(vmin, 0)  # set to transparent
+    otf.AddPoint(vmin + 0.1, alpha)  # set to opaque
     otf.AddPoint(data.max(), alpha)
 
     return vol
 
 
-
-def extract_volume_surface(vol, threshold=.1, smooth=False):
+def extract_volume_surface(vol, threshold=0.1, smooth=False):
     """ 
         Returns a vtkplotter mesh actor with just the outer surface of a volume
 
@@ -59,8 +59,10 @@ def extract_volume_surface(vol, threshold=.1, smooth=False):
         :param smooth: bool, if True the surface mesh is smoothed
     """
 
-    if not isinstance(vol, Volume): 
-        raise TypeError(f"vol argument should be an instance of Volume not {vol.__type__}")
+    if not isinstance(vol, Volume):
+        raise TypeError(
+            f"vol argument should be an instance of Volume not {vol.__type__}"
+        )
 
     mesh = vol.isosurface(threshold=threshold).cap()
 
@@ -78,8 +80,10 @@ def extract_label_mesh(vol, lbl):
         :param vol: a vtkplotter Volume
         :param lbl: float or int
     """
-    if not isinstance(vol, Volume): 
-        raise TypeError(f"vol argument should be an instance of Volume not {vol.__type__}")
+    if not isinstance(vol, Volume):
+        raise TypeError(
+            f"vol argument should be an instance of Volume not {vol.__type__}"
+        )
 
-    mask = vol.threshold(above=lbl-.1, below=lbl+.1)
-    return extract_volume_surface(mask, threshold=lbl-.1)
+    mask = vol.threshold(above=lbl - 0.1, below=lbl + 0.1)
+    return extract_volume_surface(mask, threshold=lbl - 0.1)

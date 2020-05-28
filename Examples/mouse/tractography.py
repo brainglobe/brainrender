@@ -3,7 +3,8 @@
     using the AllenBrainAtlas (ABA) and Scene classes
 """
 import brainrender
-brainrender.SHADER_STYLE = 'cartoon'
+
+brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
 from brainrender.atlases.mouse import ABA
 
@@ -19,7 +20,7 @@ analyzer = ABA()
 tract = analyzer.get_projection_tracts_to_target(p0=p0)
 
 # Add the brain regions and the projections to it
-scene.add_brain_regions(['ZI'], alpha=.4, use_original_color=True)
-scene.add_tractography(tract,  color_by="region")
+scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
+scene.add_tractography(tract, color_by="region")
 
 scene.render()

@@ -33,99 +33,116 @@ def parse_neurons_colors(neurons, color):
     """
 
     N = len(neurons)
-    colors = dict(
-        soma = None,
-        axon = None,
-        dendrites = None,
-    )
+    colors = dict(soma=None, axon=None, dendrites=None,)
 
     # If no color is passed, get random colors
     if color is None:
         cols = get_random_colors(N)
         colors = dict(
-            soma = cols.copy(),
-            axon = cols.copy(),
-            dendrites = cols.copy(),)
+            soma=cols.copy(), axon=cols.copy(), dendrites=cols.copy(),
+        )
     else:
         if isinstance(color, str):
             # Deal with a a cmap being passed
             if color in _mapscales_cmaps:
-                cols = [colorMap(n, name=color, vmin=-2, vmax=N+2) for n in np.arange(N)]
+                cols = [
+                    colorMap(n, name=color, vmin=-2, vmax=N + 2)
+                    for n in np.arange(N)
+                ]
                 colors = dict(
-                    soma = cols.copy(),
-                    axon = cols.copy(),
-                    dendrites = cols.copy(),)
+                    soma=cols.copy(), axon=cols.copy(), dendrites=cols.copy(),
+                )
 
             else:
                 # Deal with a single color being passed
                 cols = [getColor(color) for n in np.arange(N)]
                 colors = dict(
-                    soma = cols.copy(),
-                    axon = cols.copy(),
-                    dendrites = cols.copy(),)
+                    soma=cols.copy(), axon=cols.copy(), dendrites=cols.copy(),
+                )
         elif isinstance(color, dict):
             # Deal with a dictionary with color for each component
-            if not 'soma' in color.keys():
-                raise ValueError(f"When passing a dictionary as color argument, \
-                                            soma should be one fo the keys: {color}")
-            dendrites_color = color.pop('dendrites', color['soma'])
-            axon_color = color.pop('axon', color['soma'])
+            if not "soma" in color.keys():
+                raise ValueError(
+                    f"When passing a dictionary as color argument, \
+                                            soma should be one fo the keys: {color}"
+                )
+            dendrites_color = color.pop("dendrites", color["soma"])
+            axon_color = color.pop("axon", color["soma"])
 
             colors = dict(
-                    soma = [color['soma'] for n in np.arange(N)],
-                    axon = [axon_color for n in np.arange(N)],
-                    dendrites = [dendrites_color for n in np.arange(N)],)
-                    
+                soma=[color["soma"] for n in np.arange(N)],
+                axon=[axon_color for n in np.arange(N)],
+                dendrites=[dendrites_color for n in np.arange(N)],
+            )
+
         elif isinstance(color, (list, tuple)):
             # Check that the list content makes sense
             if len(color) != N:
-                raise ValueError(f"When passing a list of color arguments, the list length"+
-                            f" ({len(color)}) should match the number of neurons ({N}).")
+                raise ValueError(
+                    f"When passing a list of color arguments, the list length"
+                    + f" ({len(color)}) should match the number of neurons ({N})."
+                )
             if len(set([type(c) for c in color])) > 1:
-                raise ValueError(f"When passing a list of color arguments, all list elements"+
-                            " should have the same type (e.g. str or dict)")
+                raise ValueError(
+                    f"When passing a list of color arguments, all list elements"
+                    + " should have the same type (e.g. str or dict)"
+                )
 
             if isinstance(color[0], dict):
                 # Deal with a list of dictionaries
                 soma_colors, dendrites_colors, axon_colors = [], [], []
 
                 for col in colors:
-                    if not 'soma' in col.keys():
-                        raise ValueError(f"When passing a dictionary as col argument, \
-                                                    soma should be one fo the keys: {col}")
-                    dendrites_colors.append(col.pop('dendrites', col['soma']))
-                    axon_colors.append(col.pop('axon', col['soma']))
-                    soma_colors.append(col['soma'])
+                    if not "soma" in col.keys():
+                        raise ValueError(
+                            f"When passing a dictionary as col argument, \
+                                                    soma should be one fo the keys: {col}"
+                        )
+                    dendrites_colors.append(col.pop("dendrites", col["soma"]))
+                    axon_colors.append(col.pop("axon", col["soma"]))
+                    soma_colors.append(col["soma"])
 
                 colors = dict(
-                    soma = soma_colors,
-                    axon = axon_colors,
-                    dendrites = dendrites_colors,)
+                    soma=soma_colors,
+                    axon=axon_colors,
+                    dendrites=dendrites_colors,
+                )
 
             else:
                 # Deal with a list of colors
                 colors = dict(
-                    soma = color.copy(),
-                    axon = color.copy(),
-                    dendrites = color.copy(),)
+                    soma=color.copy(),
+                    axon=color.copy(),
+                    dendrites=color.copy(),
+                )
         else:
-            raise ValueError(f"Color argument passed is not valid. Should be a \
-                                    str, dict, list or None, not {type(color)}:{color}")
+            raise ValueError(
+                f"Color argument passed is not valid. Should be a \
+                                    str, dict, list or None, not {type(color)}:{color}"
+            )
 
     # Check colors, if everything went well we should have N colors per entry
-    for k,v in colors.items():
+    for k, v in colors.items():
         if len(v) != N:
-            raise ValueError(f"Something went wrong while preparing colors. Not all \
-                            entries have right length. We got: {colors}")
+            raise ValueError(
+                f"Something went wrong while preparing colors. Not all \
+                            entries have right length. We got: {colors}"
+            )
 
     return colors
-
 
 
 # ---------------------------------------------------------------------------- #
 #                                 TRACTOGRAPHY                                 #
 # ---------------------------------------------------------------------------- #
-def parse_tractography_colors(tractography, color=None,  color_by="manual", VIP_regions=[], VIP_color=None, others_color="white"):
+def parse_tractography_colors(
+    tractography,
+    color=None,
+    color_by="manual",
+    VIP_regions=[],
+    VIP_color=None,
+    others_color="white",
+):
     """
         parses color arguments to render tracrography data
 
@@ -144,20 +161,31 @@ def parse_tractography_colors(tractography, color=None,  color_by="manual", VIP_
             COLORS = [color for i in range(len(tractography))]
         elif isinstance(color, list):
             if not len(color) == len(tractography):
-                raise ValueError("If a list of colors is passed, it must have the same number of items as the number of tractography traces")
+                raise ValueError(
+                    "If a list of colors is passed, it must have the same number of items as the number of tractography traces"
+                )
             else:
                 for col in color:
-                    if not check_colors(col): raise ValueError("Color variable passed to tractography is invalid: {}".format(col))
+                    if not check_colors(col):
+                        raise ValueError(
+                            "Color variable passed to tractography is invalid: {}".format(
+                                col
+                            )
+                        )
 
                 COLORS = color
         else:
             if not check_colors(color):
-                raise ValueError("Color variable passed to tractography is invalid: {}".format(color))
+                raise ValueError(
+                    "Color variable passed to tractography is invalid: {}".format(
+                        color
+                    )
+                )
             else:
                 COLORS = [color for i in range(len(tractography))]
 
     elif color_by == "region":
-        COLORS = [None for t in tractography] # will be filled up later
+        COLORS = [None for t in tractography]  # will be filled up later
 
     elif color_by == "target_region":
         if VIP_color is not None:
@@ -165,29 +193,51 @@ def parse_tractography_colors(tractography, color=None,  color_by="manual", VIP_
                 raise ValueError("Invalid VIP or other color passed")
             try:
                 if include_all_inj_regions:
-                    COLORS = [VIP_color if is_any_item_in_list( [x['abbreviation'] for x in t['injection-structures']], VIP_regions)\
-                        else others_color for t in tractography]
+                    COLORS = [
+                        VIP_color
+                        if is_any_item_in_list(
+                            [
+                                x["abbreviation"]
+                                for x in t["injection-structures"]
+                            ],
+                            VIP_regions,
+                        )
+                        else others_color
+                        for t in tractography
+                    ]
                 else:
-                    COLORS = [VIP_color if t['structure-abbrev'] in VIP_regions else others_color for t in tractography]
+                    COLORS = [
+                        VIP_color
+                        if t["structure-abbrev"] in VIP_regions
+                        else others_color
+                        for t in tractography
+                    ]
             except:
-                raise ValueError("Something went wrong while getting colors for tractography")
+                raise ValueError(
+                    "Something went wrong while getting colors for tractography"
+                )
         else:
-            COLORS = [None if t['structure-abbrev'] in VIP_regions else others_color for t in tractography] # will be filled up later
+            COLORS = [
+                None if t["structure-abbrev"] in VIP_regions else others_color
+                for t in tractography
+            ]  # will be filled up later
     else:
-        raise ValueError("Unrecognised 'color_by' argument {}".format(color_by))
+        raise ValueError(
+            "Unrecognised 'color_by' argument {}".format(color_by)
+        )
 
     return COLORS
 
 
-def experiments_source_search(mca, SOI, *args, source=True,  **kwargs):
-        """
+def experiments_source_search(mca, SOI, *args, source=True, **kwargs):
+    """
         Returns data about experiments whose injection was in the SOI, structure of interest
         :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
         :param *args: 
         :param source:  (Default value = True)
         :param **kwargs: 
         """
-        """
+    """
             list of possible kwargs
                 injection_structures : list of integers or strings
                     Integer Structure.id or String Structure.acronym.
@@ -209,28 +259,44 @@ def experiments_source_search(mca, SOI, *args, source=True,  **kwargs):
                 num_rows : integer, optional
                     For paging purposes. Defaults to 2000.
         """
-        transgenic_id = kwargs.pop('transgenic_id', 0) # id = 0 means use only wild type
-        primary_structure_only = kwargs.pop('primary_structure_only', True)
+    transgenic_id = kwargs.pop(
+        "transgenic_id", 0
+    )  # id = 0 means use only wild type
+    primary_structure_only = kwargs.pop("primary_structure_only", True)
 
-        if not isinstance(SOI, list): SOI = [SOI]
+    if not isinstance(SOI, list):
+        SOI = [SOI]
 
-        if source:
-            injection_structures=SOI
-            target_domain = None
-        else:
-            injection_structures = None
-            target_domain = SOI
+    if source:
+        injection_structures = SOI
+        target_domain = None
+    else:
+        injection_structures = None
+        target_domain = SOI
 
-        return pd.DataFrame(mca.experiment_source_search(injection_structures=injection_structures,
-                                            target_domain = target_domain,
-                                            transgenic_lines=transgenic_id,
-                                            primary_structure_only=primary_structure_only))
+    return pd.DataFrame(
+        mca.experiment_source_search(
+            injection_structures=injection_structures,
+            target_domain=target_domain,
+            transgenic_lines=transgenic_id,
+            primary_structure_only=primary_structure_only,
+        )
+    )
 
 
 # ---------------------------------------------------------------------------- #
 #                                  STREAMLINES                                 #
 # ---------------------------------------------------------------------------- #
-def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, color='ivory', alpha=.8, radius=10, **kwargs):
+def parse_streamline(
+    *args,
+    filepath=None,
+    data=None,
+    show_injection_site=True,
+    color="ivory",
+    alpha=0.8,
+    radius=10,
+    **kwargs,
+):
     """
         Given a path to a .json file with streamline data (or the data themselves), render the streamline as tubes actors.
         Either  filepath or data should be passed
@@ -251,24 +317,34 @@ def parse_streamline(*args, filepath=None, data=None, show_injection_site=True, 
     elif filepath is None and data is not None:
         pass
     else:
-        raise ValueError("Need to pass eiteher a filepath or data argument to parse_streamline")
+        raise ValueError(
+            "Need to pass eiteher a filepath or data argument to parse_streamline"
+        )
 
     # create actors for streamlines
     lines = []
-    if len(data['lines']) == 1:
-        lines_data = data['lines'][0]
+    if len(data["lines"]) == 1:
+        lines_data = data["lines"][0]
     else:
-        lines_data = data['lines']
+        lines_data = data["lines"]
     for line in lines_data:
-        points = [[l['x'], l['y'], l['z']] for l in line]
-        lines.append(shapes.Tube(points,  r=radius, c=color, alpha=alpha, res=brainrender.STREAMLINES_RESOLUTION))
+        points = [[l["x"], l["y"], l["z"]] for l in line]
+        lines.append(
+            shapes.Tube(
+                points,
+                r=radius,
+                c=color,
+                alpha=alpha,
+                res=brainrender.STREAMLINES_RESOLUTION,
+            )
+        )
 
     coords = []
     if show_injection_site:
-        if len(data['injection_sites']) == 1:
-            injection_data = data['injection_sites'][0]
+        if len(data["injection_sites"]) == 1:
+            injection_data = data["injection_sites"][0]
         else:
-            injection_data = data['injection_sites']
+            injection_data = data["injection_sites"]
 
         for inj in injection_data:
             coords.append(list(inj.values()))
@@ -289,7 +365,9 @@ def make_url_given_id(expid):
         :param expid: int with experiment ID number
 
     """
-    return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(expid)
+    return "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(
+        expid
+    )
 
 
 def download_streamlines(eids, streamlines_folder=None):
@@ -302,12 +380,13 @@ def download_streamlines(eids, streamlines_folder=None):
 
     """
 
-    if not isinstance(eids, (list, np.ndarray, tuple)): eids = [eids]
+    if not isinstance(eids, (list, np.ndarray, tuple)):
+        eids = [eids]
 
     filepaths, data = [], []
     for eid in tqdm(eids):
         url = make_url_given_id(eid)
-        jsonpath = os.path.join(streamlines_folder, str(eid)+".json")
+        jsonpath = os.path.join(streamlines_folder, str(eid) + ".json")
         filepaths.append(jsonpath)
         if not os.path.isfile(jsonpath):
             response = request(url)
@@ -318,7 +397,7 @@ def download_streamlines(eids, streamlines_folder=None):
                 temp.write(response.content)
 
             # Open in pandas and delete temp
-            url_data = pd.read_json(temp_path, lines=True, compression='gzip')
+            url_data = pd.read_json(temp_path, lines=True, compression="gzip")
             os.remove(temp_path)
 
             # save json
@@ -354,7 +433,7 @@ def extract_ids_from_csv(csv_file, download=False, **kwargs):
         if not download:
             print("Found {} experiments.\n".format(len(data.id.values)))
 
-    if not download: 
+    if not download:
         print("To download compressed data, click on the following URLs:")
         for eid in data.id.values:
             url = make_url_given_id(eid)
@@ -365,13 +444,18 @@ def extract_ids_from_csv(csv_file, download=False, **kwargs):
         for x in data.id.values:
             string += "{},".format(x)
 
-        print("To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html")
-        print("and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field.")
-        print("You can copy and paste each individually or a list of IDs separated by a comma")
+        print(
+            "To download JSON directly, go to: https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html"
+        )
+        print(
+            "and  copy and paste the following experiments ID in the 'Enter the Allen Connectivity Experiment number:' field."
+        )
+        print(
+            "You can copy and paste each individually or a list of IDs separated by a comma"
+        )
         print("IDs: {}".format(string[:-1]))
         print("\n")
 
         return data.id.values
     else:
         return download_streamlines(data.id.values, **kwargs)
-

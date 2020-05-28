@@ -3,7 +3,8 @@
 """
 
 import brainrender
-brainrender.SHADER_STYLE = 'cartoon'
+
+brainrender.SHADER_STYLE = "cartoon"
 
 from brainrender.scene import Scene
 from brainrender.colors import makePalette
@@ -11,27 +12,31 @@ from vtkplotter import Text
 
 
 # Crate a scene
-scene = Scene(add_root=False, display_inset=False, use_default_key_bindings=False)
+scene = Scene(
+    add_root=False, display_inset=False, use_default_key_bindings=False
+)
 
 
 # Text to add
-s = 'BRAINRENDER'
+s = "BRAINRENDER"
 
 # Specify a color for each letter
-colors = makePalette('salmon', 'powderblue', N=len(s))
+colors = makePalette("salmon", "powderblue", N=len(s))
 
-x = 0 # use to specify the position of each letter
+x = 0  # use to specify the position of each letter
 
 # Add letters one at the time to color them individually
-for n, letter in enumerate('BRAINRENDER'):
-    if 'I' == letter or 'N' == letter and n <5: # make the spacing right 
-        x += .6
+for n, letter in enumerate("BRAINRENDER"):
+    if "I" == letter or "N" == letter and n < 5:  # make the spacing right
+        x += 0.6
     else:
         x += 1
-    
+
     # Add letter and silhouette to the scne
-    act = Text(letter, depth=.5, c=colors[n], pos=(x, 0, 0), justify='centered')
-    sil = act.silhouette().lw(3).color('k')
+    act = Text(
+        letter, depth=0.5, c=colors[n], pos=(x, 0, 0), justify="centered"
+    )
+    sil = act.silhouette().lw(3).color("k")
     scene.add_vtkactor(act, sil)
 
 

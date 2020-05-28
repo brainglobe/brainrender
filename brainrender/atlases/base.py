@@ -15,23 +15,29 @@ class Atlas(Paths):
     """
 
     atlas_name = "BASE"
-    mesh_format = 'obj' # or obj, stl etc..
+    mesh_format = "obj"  #  or obj, stl etc..
 
     # These variables are generally useful but need to be specified for each atlas
-    _root_midpoint = [None, None, None] # 3d coordinates of the CoM of root mesh
-    _planes_norms = dict( # normals of planes cutting through the scene along
-                        # orthogonal axes. These values must be replaced if atlases
-                        # are oriented differently.
-                        sagittal = [0, 0, 1],
-                        coronal = [1, 0, 0],
-                        horizontal = [0, 1, 0],
+    _root_midpoint = [
+        None,
+        None,
+        None,
+    ]  # 3d coordinates of the CoM of root mesh
+    _planes_norms = dict(  # normals of planes cutting through the scene along
+        # orthogonal axes. These values must be replaced if atlases
+        # are oriented differently.
+        sagittal=[0, 0, 1],
+        coronal=[1, 0, 0],
+        horizontal=[0, 1, 0],
     )
-    _root_bounds = [[], # size of bounding boox around atlas' root along each direction 
-                    [], 
-                    []]
+    _root_bounds = [
+        [],  # size of bounding boox around atlas' root along each direction
+        [],
+        [],
+    ]
     ignore_regions = []
 
-    default_camera = None # Replace this with a camera params dict to specify a default camera for your atlas
+    default_camera = None  # Replace this with a camera params dict to specify a default camera for your atlas
 
     def __init__(self, base_dir=None, **kwargs):
         """ 
@@ -43,27 +49,28 @@ class Atlas(Paths):
         """
         # Specify atlas specific paths
         Paths.__init__(self, base_dir=base_dir, **kwargs)
-        self.meshes_folder = None # where the .obj mesh for each region is saved
+        self.meshes_folder = (
+            None  # where the .obj mesh for each region is saved
+        )
 
-
-        # Get some atlas specific data 
+        # Get some atlas specific data
         # ! REPLACE these in the init method of your atlas
         self.annotated_volume = None
-                                # A 3d image with a scalar label at each region indicating
-                                # which brain region each voxel corresponds to
+        # A 3d image with a scalar label at each region indicating
+        # which brain region each voxel corresponds to
 
         self.regions = None
-                # list of all regions in the atlas
-        self.region_acronyms = None   
+        # list of all regions in the atlas
+        self.region_acronyms = None
 
     # ---------------------------------------------------------------------------- #
     #                             General atlas methods                            #
     # ---------------------------------------------------------------------------- #
     # ---------------------------------- Planes ---------------------------------- #
     # functions to create oriented planes that can be used to slice actors etc
-    def get_plane_at_point(self, pos, norm, sx, sy, 
-                        color='lightgray', alpha=.25,
-                     **kwargs):
+    def get_plane_at_point(
+        self, pos, norm, sx, sy, color="lightgray", alpha=0.25, **kwargs
+    ):
         """ 
             Returns a plane going through a point at pos, oriented 
             orthogonally to the vector norm and of width and height
@@ -74,11 +81,10 @@ class Atlas(Paths):
             :param norm: 3-tuple or list with 3d vector the plane is orthogonal to
             :param color, alpha: plane color and transparency
         """
-        plane = Plane(pos=pos, normal=norm, 
-                    sx=sx, sy=sy, c=color, alpha=alpha)
+        plane = Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha)
         return plane
 
-    def get_sagittal_plane(self, pos=None,  **kwargs):
+    def get_sagittal_plane(self, pos=None, **kwargs):
         """
             Creates a Plane actor centered at the midpoint of root (or a user given locatin)
             and oriented along the sagittal axis
@@ -86,24 +92,26 @@ class Atlas(Paths):
             :param pos: if not None, passe a list of 3 xyz defining the position of the 
                             point the plane goes through.
         """
-        if pos is None: 
+        if pos is None:
             pos = self._root_midpoint
             if pos[0] is None:
-                raise ValueError(f"The atlases _root_midpoint attribute is not specified")
-        elif not isinstance(pos, (list, tuple)) or not len(pos)==3:
+                raise ValueError(
+                    f"The atlases _root_midpoint attribute is not specified"
+                )
+        elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
 
-        norm = self._planes_norms['sagittal']
+        norm = self._planes_norms["sagittal"]
         sx = float(np.diff(self._root_bounds[0]))
         sy = float(np.diff(self._root_bounds[1]))
 
-        sx += sx/5
-        sy += sy/5
+        sx += sx / 5
+        sy += sy / 5
         sag_plane = self.get_plane_at_point(pos, norm, sx, sy, **kwargs)
 
         return sag_plane
 
-    def get_horizontal_plane(self, pos=None,  **kwargs):
+    def get_horizontal_plane(self, pos=None, **kwargs):
         """
             Creates a Plane actor centered at the midpoint of root (or a user given locatin)
             and oriented along the horizontal axis
@@ -111,24 +119,26 @@ class Atlas(Paths):
             :param pos: if not None, passe a list of 3 xyz defining the position of the 
                             point the plane goes through.
         """
-        if pos is None: 
+        if pos is None:
             pos = self._root_midpoint
             if pos[0] is None:
-                raise ValueError(f"The atlases _root_midpoint attribute is not specified")
-        elif not isinstance(pos, (list, tuple)) or not len(pos)==3:
+                raise ValueError(
+                    f"The atlases _root_midpoint attribute is not specified"
+                )
+        elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
 
-        norm = self._planes_norms['horizontal']
+        norm = self._planes_norms["horizontal"]
         sx = float(np.diff(self._root_bounds[2]))
         sy = float(np.diff(self._root_bounds[0]))
 
-        sx += sx/5
-        sy += sy/5
+        sx += sx / 5
+        sy += sy / 5
         hor_plane = self.get_plane_at_point(pos, norm, sx, sy, **kwargs)
 
         return hor_plane
 
-    def get_coronal_plane(self, pos=None,  **kwargs):
+    def get_coronal_plane(self, pos=None, **kwargs):
         """
             Creates a Plane actor centered at the midpoint of root (or a user given locatin)
             and oriented along the coronal axis
@@ -136,23 +146,24 @@ class Atlas(Paths):
             :param pos: if not None, passe a list of 3 xyz defining the position of the 
                             point the plane goes through.
         """
-        if pos is None: 
+        if pos is None:
             pos = self._root_midpoint
             if pos[0] is None:
-                raise ValueError(f"The atlases _root_midpoint attribute is not specified")
-        elif not isinstance(pos, (list, tuple)) or not len(pos)==3:
+                raise ValueError(
+                    f"The atlases _root_midpoint attribute is not specified"
+                )
+        elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
 
-        norm = self._planes_norms['coronal']
+        norm = self._planes_norms["coronal"]
         sx = float(np.diff(self._root_bounds[2]))
         sy = float(np.diff(self._root_bounds[1]))
 
-        sx += sx/5
-        sy += sy/5
+        sx += sx / 5
+        sy += sy / 5
         cor_plane = self.get_plane_at_point(pos, norm, sx, sy, **kwargs)
 
         return cor_plane
-
 
     # ---------------------------------------------------------------------------- #
     #                       Methods to support Scene creation                      #
@@ -175,20 +186,26 @@ class Atlas(Paths):
         :param obj_file: path to .obj file to save downloaded data.
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'_check_obj_file' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'_check_obj_file' method!"
+        )
 
-    def _get_structure_mesh(self, acronym,  **kwargs):
+    def _get_structure_mesh(self, acronym, **kwargs):
         """
         Fetches the mesh for a brain region from the Allen Brain Atlas SDK.
 
         :param acronym: string, acronym of brain region
         :param **kwargs:
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_mesh' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_structure_mesh' method!"
+        )
 
-    def get_region_unilateral(self, region, hemisphere="both", color=None, alpha=None):
+    def get_region_unilateral(
+        self, region, hemisphere="both", color=None, alpha=None
+    ):
         """
         Regions meshes are loaded with both hemispheres' meshes by default.
         This function splits them in two.
@@ -199,35 +216,45 @@ class Atlas(Paths):
         :param alpha: transparency of each side's mesh.  (Default value = None)
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_region_unilateral' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_region_unilateral' method!"
+        )
 
     def get_brain_regions(self, *agrs, **kwargs):
         """
 			Adds brain regions meshes to scene.
 			Check the atlas' method to know how it works
 		"""
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_brain_regions' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_brain_regions' method!"
+        )
 
-    def get_neurons(self, neurons,  **kwargs):
+    def get_neurons(self, neurons, **kwargs):
         """
         Adds rendered morphological data of neurons reconstructions 
         For more details about argument look at each atlases' method
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_neurons' method!")
-        
-    def get_neurons_synapses(self, neurons,  **kwargs):
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_neurons' method!"
+        )
+
+    def get_neurons_synapses(self, neurons, **kwargs):
         """
         Adds the location of synapses.
         For more details about argument look at each atlases' method
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_neurons_synapses' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_neurons_synapses' method!"
+        )
 
     # -------------------------- Parents and descendants ------------------------- #
-    def get_structure_ancestors(self, regions, ancestors=True, descendants=False):
+    def get_structure_ancestors(
+        self, regions, ancestors=True, descendants=False
+    ):
         """
         Get's the ancestors of the region(s) passed as arguments
 
@@ -236,11 +263,15 @@ class Atlas(Paths):
         :param descendants: if True, returns the descendants of the region (Default value = False)
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_ancestors/get_structure_descendants' methods!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_structure_ancestors/get_structure_descendants' methods!"
+        )
 
     def get_structure_descendants(self, regions):
-        return self.get_structure_ancestors(regions, ancestors=False, descendants=True)
+        return self.get_structure_ancestors(
+            regions, ancestors=False, descendants=True
+        )
 
     def get_structure_parent(self, acronyms):
         """
@@ -250,8 +281,10 @@ class Atlas(Paths):
         :param acronyms: list of acronyms of brain regions.
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_parent' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_structure_parent' method!"
+        )
 
     # ----------------------------------- Utils ---------------------------------- #
     def get_region_color(self, regions):
@@ -261,16 +294,19 @@ class Atlas(Paths):
         :param regions:  list of regions acronyms.
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_region_color' method!")
-
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_region_color' method!"
+        )
 
     def _check_valid_region_arg(self, region):
         """
         Check that the string passed is a valid brain region name.
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'_check_valid_region_arg' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'_check_valid_region_arg' method!"
+        )
 
     def get_structure_from_coordinates(self, p0, just_acronym=True):
         """
@@ -279,41 +315,53 @@ class Atlas(Paths):
         :param p0: list of floats with XYZ coordinates. 
 
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_structure_from_coordinates' method!")
-    
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_structure_from_coordinates' method!"
+        )
+
     def get_colors_from_coordinates(self, p0):
         """
             Given a point or a list of points returns a list of colors where 
             each item is the color of the brain region each point is in
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_colors_from_coordinates' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_colors_from_coordinates' method!"
+        )
 
     def get_hemisphere_from_point(self, point):
         """
             Given a point it checks in which hemisphere the point is.
             Depends on self._root_midpoint
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_hemisphere_from_point' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_hemisphere_from_point' method!"
+        )
 
     def get_hemispere_from_point(self, p0):
         """
             Given a point it returns the corresponding point on the other hemisphere
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'get_hemispere_from_point' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'get_hemispere_from_point' method!"
+        )
 
     def mirror_point_across_hemispheres(self, point):
         """
             Given a point it returns the coordinates of the corresponding point in the other hemisphere
             Depends on self._root_midpoint
         """
-        raise NotImplementedError(f"Your atlas {self.atlas_name} doesn't support" +
-                    "'mirror_point_across_hemispheres' method!")
+        raise NotImplementedError(
+            f"Your atlas {self.atlas_name} doesn't support"
+            + "'mirror_point_across_hemispheres' method!"
+        )
 
-    def get_region_CenterOfMass(self, regions, unilateral=True, hemisphere="right"):
+    def get_region_CenterOfMass(
+        self, regions, unilateral=True, hemisphere="right"
+    ):
         """
         Get the center of mass of the 3d mesh of one or multiple brain regions.
 
@@ -335,15 +383,17 @@ class Atlas(Paths):
             else:
                 # load mesh corresponding to brain region
                 if unilateral:
-                    mesh = self.get_region_unilateral(region, hemisphere="left")
+                    mesh = self.get_region_unilateral(
+                        region, hemisphere="left"
+                    )
                 else:
                     mesh = self._get_structure_mesh(region)
-            com =  mesh.centerOfMass()
+            com = mesh.centerOfMass()
 
             #  if using right hemisphere, mirror COM
-            if unilateral and hemisphere.lower() == 'right':
+            if unilateral and hemisphere.lower() == "right":
                 com = self.mirror_point_across_hemispheres(com)
-            
+
             coms[region] = com
 
         # return data
