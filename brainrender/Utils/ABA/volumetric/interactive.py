@@ -1,5 +1,3 @@
-from functools import partial
-
 from brainrender.Utils.ABA.volumetric.VolumetricConnectomeAPI import (
     VolumetricAPI,
 )

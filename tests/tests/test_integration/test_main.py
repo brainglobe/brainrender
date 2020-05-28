@@ -1,24 +1,7 @@
-import os
-from random import choice
 import pandas as pd
-import numpy as np
-import random
-import json
-
-
-from brainrender.scene import Scene, MultiScene
-from brainrender import *
-from brainrender.colors import get_n_shades_of
+from brainrender.scene import Scene
 from brainrender.atlases.mouse import ABA
-from brainrender.Utils.data_io import listdir
-
-from morphapi.morphology.morphology import Neuron
 from morphapi.api.mouselight import MouseLightAPI
-
-
-def test_imports():
-    aba = ABA()
-    mlapi = MouseLightAPI()
 
 
 def test_regions():
@@ -55,6 +38,9 @@ def test_neurons():
 
     # Then we can download the files and save them as a .json file
     neurons = mlapi.download_neurons(neurons_metadata[:5])
+    scene.add_neurons(
+        neurons, color="salmon", display_axon=False, neurite_radius=6
+    )
 
 
 def test_tractography():
@@ -142,6 +128,8 @@ def test_labelled_cells():
 
 def test_scene_title():
     scene = Scene(title="The thalamus.")
+    scene.render(interactive=False)
+    scene.close()
 
 
 def test_video():

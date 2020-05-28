@@ -5,16 +5,15 @@ sys.path.append("./")
 from brainrender.Utils.data_io import connected_to_internet
 
 import requests
-import time
 
 
 def request(url):
     """
-	Sends a request to a url
+    Sends a request to a url
 
-	:param url: 
+    :param url: 
 
-	"""
+    """
     if not connected_to_internet():
         raise ConnectionError(
             "You need to have an internet connection to send requests."

@@ -1,5 +1,4 @@
 import pandas as pd
-from pathlib import Path
 
 from vtkplotter import load
 
@@ -283,8 +282,6 @@ class BrainGlobeAtlas(Atlas):
         com = (
             bilateralmesh.centerOfMass()
         )  # this will always give a point that is on the midline
-        cut = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
-
         right = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
 
         # left is the mirror right # WIP

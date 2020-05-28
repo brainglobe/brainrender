@@ -12,8 +12,7 @@ brainrender.WHOLE_SCREEN = False
 brainrender.SHADER_STYLE = "cartoon"
 brainrender.ROOT_ALPHA = 0.1
 
-import vtk
-from vtkplotter import *
+
 from brainrender.scene import Scene
 import time
 import numpy as np
@@ -23,11 +22,9 @@ from tqdm import tqdm
 
 from brainrender.Utils.camera import (
     top_camera,
-    three_quarters_camera,
     buildcam,
     sagittal_camera,
 )
-from brainrender.colors import colorMap
 
 # --------------------------------- Variables -------------------------------- #
 minalpha = 0  # transparency of background neurons

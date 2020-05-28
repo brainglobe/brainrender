@@ -7,47 +7,31 @@ import random
 from vtkplotter import (
     Plotter,
     shapes,
-    ProgressBar,
     show,
     screenshot,
-    importWindow,
     interactive,
 )
 from vtkplotter import (
     Text2D,
     closePlotter,
-    embedWindow,
     settings,
     Plane,
     Text,
     Sphere,
 )
-from vtkplotter.shapes import Cylinder, Line, DashedLine
+from vtkplotter.shapes import Cylinder, Line
 from vtkplotter.mesh import Mesh as Actor
-from tqdm import tqdm
 import pandas as pd
-from functools import partial
 from pathlib import Path
 
-import brainrender
-from brainrender.colors import (
-    check_colors,
-    get_n_shades_of,
-    get_random_colors,
-    getColor,
-)
+from brainrender.colors import getColor
 
 from brainrender.atlases.mouse import ABA25Um
 from brainrender.Utils.data_io import (
-    load_volume_file,
     load_mesh_from_file,
     get_probe_points_from_sharptrack,
 )
-from brainrender.Utils.data_manipulation import (
-    get_coords,
-    flatten_list,
-    is_any_item_in_list,
-)
+from brainrender.Utils.data_manipulation import flatten_list
 from brainrender.Utils import actors_funcs
 
 from brainrender.Utils.image import image_to_surface
@@ -56,12 +40,12 @@ from brainrender.Utils.camera import check_camera_param, set_camera
 
 class Scene:  # subclass brain render to have acces to structure trees
     """
-		The code below aims to create a scene to which actors can be added or removed, changed etc..
-		It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of
-		snapshots or animated videos.
-		The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
-		and other classes within the same package.
-	"""
+        The code below aims to create a scene to which actors can be added or removed, changed etc..
+        It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of
+        snapshots or animated videos.
+        The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
+        and other classes within the same package.
+    """
 
     verbose = brainrender.VERBOSE
 
@@ -86,30 +70,30 @@ class Scene:  # subclass brain render to have acces to structure trees
     ):
         """
 
-			Creates and manages a Plotter instance
+            Creates and manages a Plotter instance
 
-			:param brain_regions: list of brain regions acronyms to be added to the rendered scene (default value None)
-			:param regions_aba_color: if True, use the Allen Brain Atlas regions colors (default value None)
-			:param neurons: path to JSON or SWC file with data of neurons to be rendered [or list of files] (default value None)
-			:param tracts: list of JSON files with tractography data to be rendered (default value None)
-			:param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
-			:param verbose: if False less feedback is printed to screen (default value True)
-			:param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
-			:param base_dir: path to directory to use for saving data (default value None)
-			:param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
-			:param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
-			:param screenshot_kwargs: pass a dictionary with keys:
-						- 'folder' -> str, path to folder where to save screenshots
-						- 'name' -> str, filename to prepend to screenshots files
-						- 'format' -> str, 'png', 'svg' or 'jpg'
-						- scale -> float, values > 1 yield higher resultion screenshots
-			:param use_default_key_bindings: if True the defualt keybindings from VtkPlotter are used, otherwise
-							a custom function that can be used to take screenshots with the parameter above. 
-			:param title: str, if a string is passed a text is added to the top of the rendering window as a title
-			:param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
-				if not atlas is passed the allen brain atlas for the adult mouse brain is used.
-			:param atlas_kwargs: dictionary used to pass extra arguments to atlas class
-		"""
+            :param brain_regions: list of brain regions acronyms to be added to the rendered scene (default value None)
+            :param regions_aba_color: if True, use the Allen Brain Atlas regions colors (default value None)
+            :param neurons: path to JSON or SWC file with data of neurons to be rendered [or list of files] (default value None)
+            :param tracts: list of JSON files with tractography data to be rendered (default value None)
+            :param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
+            :param verbose: if False less feedback is printed to screen (default value True)
+            :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
+            :param base_dir: path to directory to use for saving data (default value None)
+            :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
+            :param kwargs: can be used to pass path to individual data folders. See brainrender/Utils/paths_manager.py
+            :param screenshot_kwargs: pass a dictionary with keys:
+                        - 'folder' -> str, path to folder where to save screenshots
+                        - 'name' -> str, filename to prepend to screenshots files
+                        - 'format' -> str, 'png', 'svg' or 'jpg'
+                        - scale -> float, values > 1 yield higher resultion screenshots
+            :param use_default_key_bindings: if True the defualt keybindings from VtkPlotter are used, otherwise
+                            a custom function that can be used to take screenshots with the parameter above. 
+            :param title: str, if a string is passed a text is added to the top of the rendering window as a title
+            :param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
+                if not atlas is passed the allen brain atlas for the adult mouse brain is used.
+            :param atlas_kwargs: dictionary used to pass extra arguments to atlas class
+        """
         if atlas is None:
             self.atlas = ABA25Um(base_dir=base_dir, **atlas_kwargs, **kwargs)
         else:
@@ -234,11 +218,11 @@ class Scene:  # subclass brain render to have acces to structure trees
     # ---------------------------------------------------------------------------- #
     def _check_point_in_region(self, point, region_actor):
         """
-			Checks if a point of defined coordinates is within the mesh of a given actorr
+            Checks if a point of defined coordinates is within the mesh of a given actorr
 
-			:param point: 3-tuple or list of xyz coordinates
-			:param region_actor: vtkplotter actor
-		"""
+            :param point: 3-tuple or list of xyz coordinates
+            :param region_actor: vtkplotter actor
+        """
         if not region_actor.insidePoints([point]):
             return False
         else:
@@ -246,11 +230,11 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def _get_inset(self, **kwargs):
         """
-		Handles the rendering of the inset showing the outline of the whole brain (root) in a corner of the scene.
+        Handles the rendering of the inset showing the outline of the whole brain (root) in a corner of the scene.
 
-		:param **kwargs:
+        :param **kwargs:
 
-		"""
+        """
         if "plotter" in list(kwargs.keys()):
             self.add_root(render=False, **kwargs)
 
@@ -274,11 +258,11 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def get_n_random_points_in_region(self, region, N, hemisphere=None):
         """
-		Gets N random points inside (or on the surface) of the mesh defining a brain region.
+        Gets N random points inside (or on the surface) of the mesh defining a brain region.
 
-		:param region: str, acronym of the brain region.
-		:param N: int, number of points to return.
-		"""
+        :param region: str, acronym of the brain region.
+        :param N: int, number of points to return.
+        """
         if isinstance(region, Actor):
             region_mesh = region
         else:
@@ -309,11 +293,11 @@ class Scene:  # subclass brain render to have acces to structure trees
     # ---------------------------- Actor interaction ----------------------------- #
     def edit_actors(self, actors, **kwargs):
         """
-		edits a list of actors (e.g. render as wireframe or solid)
-		:param actors: list of actors
-		:param **kwargs:
+        edits a list of actors (e.g. render as wireframe or solid)
+        :param actors: list of actors
+        :param **kwargs:
 
-		"""
+        """
         if not isinstance(actors, list):
             actors = [actors]
 
@@ -323,13 +307,13 @@ class Scene:  # subclass brain render to have acces to structure trees
     def edit_neurons(self, neurons=None, copy=False, **kwargs):
 
         """
-		Edit neurons that have already been rendered. Change color, mirror them etc.
+        Edit neurons that have already been rendered. Change color, mirror them etc.
 
-		:param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
-		:param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
-		:param **kwargs:
+        :param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
+        :param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
+        :param **kwargs:
 
-		"""
+        """
         only_soma = False
         if "mirror" in list(kwargs.keys()):
             if kwargs["mirror"] == "soma":
@@ -368,8 +352,8 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def mirror_actor_hemisphere(self, actors):
         """
-			Mirrors actors from one hemisphere to the next
-		"""
+            Mirrors actors from one hemisphere to the next
+        """
         if not isinstance(actors, list):
             actors = [actors]
 
@@ -448,10 +432,10 @@ class Scene:  # subclass brain render to have acces to structure trees
     # ------------------------------ Cells functions ----------------------------- #
     def get_cells_in_region(self, cells, region):
         """
-			Selects the cells that are in a list of user provided regions from a dataframe of cell locations
+            Selects the cells that are in a list of user provided regions from a dataframe of cell locations
 
-			:param cells: pd.DataFrame of cells x,y,z coordinates
-		"""
+            :param cells: pd.DataFrame of cells x,y,z coordinates
+        """
         if isinstance(region, list):
             region_list = []
             for reg in region:
@@ -475,12 +459,12 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_root(self, render=True, **kwargs):
         """
-		adds the root the scene (i.e. the whole brain outline)
+        adds the root the scene (i.e. the whole brain outline)
 
-		:param render:  (Default value = True)
-		:param **kwargs:
+        :param render:  (Default value = True)
+        :param **kwargs:
 
-		"""
+        """
         if not render:
             self.root = self.atlas._get_structure_mesh(
                 "root", c=brainrender.ROOT_COLOR, alpha=0, **kwargs
@@ -508,9 +492,9 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_brain_regions(self, *args, **kwargs):
         """
-			Adds brain regions meshes to scene.
-			Check the atlas' method to know how it works
-		"""
+            Adds brain regions meshes to scene.
+            Check the atlas' method to know how it works
+        """
         add_labels = kwargs.pop("add_labels", False)
 
         allactors = self.atlas.get_brain_regions(
@@ -533,9 +517,9 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_neurons(self, *args, **kwargs):
         """
-		Adds rendered morphological data of neurons reconstructions.
-		Check the atlas' method to know how it works
-		"""
+        Adds rendered morphological data of neurons reconstructions.
+        Check the atlas' method to know how it works
+        """
         actors, store = self.atlas.get_neurons(*args, **kwargs)
         self.actors["neurons"].extend(actors)
 
@@ -547,9 +531,9 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_neurons_synapses(self, *args, **kwargs):
         """
-		Adds the location of pre or post synapses for a neuron (or list of neurons).
-		Check the atlas' method to know how it works 
-		"""
+        Adds the location of pre or post synapses for a neuron (or list of neurons).
+        Check the atlas' method to know how it works 
+        """
         spheres_data, actors = self.atlas.get_neurons_synapses(
             self.store, *args, **kwargs
         )
@@ -562,39 +546,39 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_tractography(self, *args, **kwargs):
         """
-		Renders tractography data and adds it to the scene. 
-		Check the function definition in ABA for more details
-		"""
+        Renders tractography data and adds it to the scene. 
+        Check the function definition in ABA for more details
+        """
 
         actors = self.atlas.get_tractography(*args, **kwargs)
         self.actors["tracts"].extend(actors)
 
     def add_streamlines(self, *args, **kwargs):
         """
-		Render streamline data.
-		Check the function definition in ABA for more details
-		"""
+        Render streamline data.
+        Check the function definition in ABA for more details
+        """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         self.actors["tracts"].extend(actors)
 
     def add_injection_sites(self, *args, **kwargs):
         """
-		Creates Spherse at the location of injections with a volume proportional to the injected volume.
-		Check the function definition in ABA for more details
-		"""
+        Creates Spherse at the location of injections with a volume proportional to the injected volume.
+        Check the function definition in ABA for more details
+        """
         actors = self.atlas.get_injection_sites(*args, **kwargs)
         self.actors["injection_sites"].extend(actors)
 
     # -------------------------- General actors/elements ------------------------- #
     def add_vtkactor(self, *actors, store=None):
         """
-		Add a vtk actor to the scene
+        Add a vtk actor to the scene
 
-		:param actor:
-		:param store: one of the items in self.actors to use to store the actor
-				being created. It needs to be a list
+        :param actor:
+        :param store: one of the items in self.actors to use to store the actor
+                being created. It needs to be a list
 
-		"""
+        """
         # TODO add a check that the arguments passed are indeed vtk actors?
 
         to_return = []
@@ -615,12 +599,12 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_from_file(self, *filepaths, **kwargs):
         """
-		Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.
+        Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.
 
-		:param filepaths: path to the file. Can pass as many arguments as needed
-		:param **kwargs:
+        :param filepaths: path to the file. Can pass as many arguments as needed
+        :param **kwargs:
 
-		"""
+        """
         actors = []
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
@@ -638,14 +622,14 @@ class Scene:  # subclass brain render to have acces to structure trees
         self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs
     ):
         """
-		Adds a shere at a location specified by the user
+        Adds a shere at a location specified by the user
 
-		:param pos: list of x,y,z coordinates (Default value = [0, 0, 0])
-		:param radius: int, radius of the sphere (Default value = 100)
-		:param color: color of the sphere (Default value = "black")
-		:param alpha: transparency of the sphere (Default value = 1)
-		:param **kwargs:
-		"""
+        :param pos: list of x,y,z coordinates (Default value = [0, 0, 0])
+        :param radius: int, radius of the sphere (Default value = 100)
+        :param color: color of the sphere (Default value = "black")
+        :param alpha: transparency of the sphere (Default value = 1)
+        :param **kwargs:
+        """
         sphere = shapes.Sphere(
             pos=pos, r=radius, c=color, alpha=alpha, **kwargs
         )
@@ -656,16 +640,16 @@ class Scene:  # subclass brain render to have acces to structure trees
         self, filepath, hdf_key=None, color="red", radius=25, res=3, alpha=1
     ):
         """
-		Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh.
+        Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh.
 
-		:param filepath: str path to file
-		:param hdf_key: str (Default value = None)
-		:param color: str, color of spheres used to render the cells (Default value = "red")
-		:param radius: int, radius of spheres used to render the cells (Default value = 25)
-		:param res: int, resolution of spheres used to render the cells (Default value = 3)
-		:param alpha: float, transparency of spheres used to render the cells (Default value = 1)
+        :param filepath: str path to file
+        :param hdf_key: str (Default value = None)
+        :param color: str, color of spheres used to render the cells (Default value = "red")
+        :param radius: int, radius of spheres used to render the cells (Default value = 25)
+        :param res: int, resolution of spheres used to render the cells (Default value = 3)
+        :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
 
-		"""
+        """
         csv_suffix = ".csv"
         supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
 
@@ -729,29 +713,29 @@ class Scene:  # subclass brain render to have acces to structure trees
         verbose=True,
     ):
         """
-		Renders cells given their coordinates as a collection of spheres.
+        Renders cells given their coordinates as a collection of spheres.
 
-		:param coords: pandas dataframe with x,y,z coordinates
-		:param color: str, color of spheres used to render the cells (Default value = "red")
-		:param radius: int, radius of spheres used to render the cells (Default value = 25)
-		:param res: int, resolution of spheres used to render the cells (Default value = 3)
-		:param alpha: float, transparency of spheres used to render the cells (Default value = 1)
-		:param color_by_region: bool. If true the cells are colored according to the color of the brain region they are in
-		:param regions: if a list of brain regions acronym is passed, only cells in these regions will be added to the scene
-		:param col_names: list of strings with names of pandas dataframe columns. If passed it should be a list of 3 columns
-				which have the x, y, z coordinates. If not passed, it is assumed that the columns are ['x', 'y', 'z']
-		"""
+        :param coords: pandas dataframe with x,y,z coordinates
+        :param color: str, color of spheres used to render the cells (Default value = "red")
+        :param radius: int, radius of spheres used to render the cells (Default value = 25)
+        :param res: int, resolution of spheres used to render the cells (Default value = 3)
+        :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
+        :param color_by_region: bool. If true the cells are colored according to the color of the brain region they are in
+        :param regions: if a list of brain regions acronym is passed, only cells in these regions will be added to the scene
+        :param col_names: list of strings with names of pandas dataframe columns. If passed it should be a list of 3 columns
+                which have the x, y, z coordinates. If not passed, it is assumed that the columns are ['x', 'y', 'z']
+        """
         if isinstance(coords, pd.DataFrame):
             if col_names is None:
                 col_names = ["x", "y", "z"]
             else:
                 if not isinstance(col_names, (list, tuple)):
                     raise ValueError(
-                        f"Column names should be a list of 3 columns"
+                        "Column names should be a list of 3 columns"
                     )
                 if not len(col_names) == 3:
                     raise ValueError(
-                        f"Column names should be a list of 3 columns"
+                        "Column names should be a list of 3 columns"
                     )
 
             if regions is not None:
@@ -797,24 +781,24 @@ class Scene:  # subclass brain render to have acces to structure trees
     ):
 
         """
-		Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
-		a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.
+        Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
+        a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.
 
-		:param image_file_path: str
-		:param color: str (Default value = None)
-		:param alpha: int (Default value = None)
-		:param obj_file_path: str (Default value = None)
-		:param voxel_size: float (Default value = 1)
-		:param orientation: str (Default value = "saggital")
-		:param invert_axes: tuple (Default value = None)
-		:param extension: str (Default value = ".obj")
-		:param step_size: int (Default value = 2)
-		:param keep_obj_file: bool (Default value = True)
-		:param overwrite: str (Default value = 'use')
-		:param overwrite: if a (Default value = 'use')
-		:param smooth: bool (Default value = True)
+        :param image_file_path: str
+        :param color: str (Default value = None)
+        :param alpha: int (Default value = None)
+        :param obj_file_path: str (Default value = None)
+        :param voxel_size: float (Default value = 1)
+        :param orientation: str (Default value = "saggital")
+        :param invert_axes: tuple (Default value = None)
+        :param extension: str (Default value = ".obj")
+        :param step_size: int (Default value = 2)
+        :param keep_obj_file: bool (Default value = True)
+        :param overwrite: str (Default value = 'use')
+        :param overwrite: if a (Default value = 'use')
+        :param smooth: bool (Default value = True)
 
-		"""
+        """
 
         # Check args
         if color is None:
@@ -891,20 +875,20 @@ class Scene:  # subclass brain render to have acces to structure trees
         **kwargs,
     ):
         """
-			Adds a cylindrical vtk actor to scene to render optic cannulas. By default
-			this is a semi-transparent blue cylinder centered on the center of mass of
-			a specified target region and oriented vertically.
+            Adds a cylindrical vtk actor to scene to render optic cannulas. By default
+            this is a semi-transparent blue cylinder centered on the center of mass of
+            a specified target region and oriented vertically.
 
-			:param target_region: str, acronym of target region to extract coordinates
-				of implanted fiber. By defualt the fiber will be centered on the center
-				of mass of the target region but the offset arguments can be used to
-				fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
-			:param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
-			:param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
-				the implanted cannula.
-			:param **kwargs: used to specify which hemisphere the cannula is and parameters
-				of the rendered cylinder: color, alpha, rotation axis...
-		"""
+            :param target_region: str, acronym of target region to extract coordinates
+                of implanted fiber. By defualt the fiber will be centered on the center
+                of mass of the target region but the offset arguments can be used to
+                fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
+            :param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
+            :param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
+                the implanted cannula.
+            :param **kwargs: used to specify which hemisphere the cannula is and parameters
+                of the rendered cylinder: color, alpha, rotation axis...
+        """
         # Set some default kwargs
         hemisphere = kwargs.pop("hemisphere", "right")
         color = kwargs.pop("color", "powderblue")
@@ -919,7 +903,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         elif pos is None:
             print(
                 "No 'pos' or 'target_region' arguments were \
-							passed to 'add_optic_cannula', nothing to render"
+                            passed to 'add_optic_cannula', nothing to render"
             )
             return
         else:
@@ -952,12 +936,12 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_text(self, text, **kwargs):
         """
-			Adds a 2D text to the scene. Default params are to crate a large black
-			text at the top of the rendering window.
+            Adds a 2D text to the scene. Default params are to crate a large black
+            text at the top of the rendering window.
 
-			:param text: str with text to write
-			:param kwargs: keyword arguments accepted by vtkplotter.shapes.Text2D
-		"""
+            :param text: str with text to write
+            :param kwargs: keyword arguments accepted by vtkplotter.shapes.Text2D
+        """
         pos = kwargs.pop("pos", 8)
         size = kwargs.pop("size", 1.75)
         color = kwargs.pop("color", "k")
@@ -965,23 +949,23 @@ class Scene:  # subclass brain render to have acces to structure trees
         font = kwargs.pop("font", "Montserrat")
 
         txt = self.add_vtkactor(
-            Text2D(text, pos=pos, s=size, c=color, alpha=alpha,)
+            Text2D(text, pos=pos, s=size, c=color, alpha=alpha, font=font)
         )
         return txt
 
     def add_actor_label(self, actors, labels, **kwargs):
         """
-			Adds a 2D text ancored to a point on the actor's mesh
-			to label what the actor is
+            Adds a 2D text ancored to a point on the actor's mesh
+            to label what the actor is
 
-			:param kwargs: key word arguments can be passed to determine 
-					text appearance and location:
-						- size: int, text size. Default 300
-						- color: str, text color. A list of colors can be passed
-								if None the actor's color is used. Default None.
-						- xoffset, yoffset, zoffset: integers that shift the label position
-						- radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
-		"""
+            :param kwargs: key word arguments can be passed to determine 
+                    text appearance and location:
+                        - size: int, text size. Default 300
+                        - color: str, text color. A list of colors can be passed
+                                if None the actor's color is used. Default None.
+                        - xoffset, yoffset, zoffset: integers that shift the label position
+                        - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
+        """
         # Check args
         if not isinstance(actors, (tuple, list)):
             actors = [actors]
@@ -1048,13 +1032,13 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_line_at_point(self, point, replace_coord, bounds, **kwargs):
         """
-			Adds a line oriented on a given axis at a point
+            Adds a line oriented on a given axis at a point
 
-			:param point:list or 1d np array with coordinates of point where crosshair is centered
-			:param replace_coord: index of the coordinate to replace (i.e. along which axis is the line oriented)
-			:param bounds: list of two floats with lower and upper bound for line, determins the extent of the line
-			:param kwargs: dictionary with arguments to specify how lines should look like
-		"""
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param replace_coord: index of the coordinate to replace (i.e. along which axis is the line oriented)
+            :param bounds: list of two floats with lower and upper bound for line, determins the extent of the line
+            :param kwargs: dictionary with arguments to specify how lines should look like
+        """
         # Get line coords
         p0, p1 = point.copy(), point.copy()
         p0[replace_coord] = bounds[0]
@@ -1071,31 +1055,31 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_rostrocaudal_line_at_point(self, point, **kwargs):
         """
-			Add a line at a point oriented along the trostrocaudal axis
+            Add a line at a point oriented along the trostrocaudal axis
 
-			:param point:list or 1d np array with coordinates of point where crosshair is centered
-			:param line_kwargs: dictionary with arguments to specify how lines should look like
-		"""
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
         bounds = self._root_bounds[0]
         return self.add_line_at_point(point, 0, bounds, **kwargs)
 
     def add_dorsoventral_line_at_point(self, point, **kwargs):
         """
-			Add a line at a point oriented along the mdorsoventralediolateral axis
+            Add a line at a point oriented along the mdorsoventralediolateral axis
 
-			:param point:list or 1d np array with coordinates of point where crosshair is centered
-			:param line_kwargs: dictionary with arguments to specify how lines should look like
-		"""
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
         bounds = self._root_bounds[1]
         return self.add_line_at_point(point, 1, bounds, **kwargs)
 
     def add_mediolateral_line_at_point(self, point, **kwargs):
         """
-			Add a line at a point oriented along the mediolateral axis
+            Add a line at a point oriented along the mediolateral axis
 
-			:param point:list or 1d np array with coordinates of point where crosshair is centered
-			:param line_kwargs: dictionary with arguments to specify how lines should look like
-		"""
+            :param point:list or 1d np array with coordinates of point where crosshair is centered
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+        """
         bounds = self._root_bounds[2]
         return self.add_line_at_point(point, 2, bounds, **kwargs)
 
@@ -1110,17 +1094,17 @@ class Scene:  # subclass brain render to have acces to structure trees
         point_kwargs={},
     ):
         """
-			Add a crosshair (set of orthogonal lines meeting at a point)
-			centered on a given point.
+            Add a crosshair (set of orthogonal lines meeting at a point)
+            centered on a given point.
 
-			:param point: list or 1d np array with coordinates of point where crosshair is centered
-			:param ml: bool, if True a line oriented on the mediolateral axis is added
-			:param dv: bool, if True a line oriented on the dorsoventral axis is added
-			:param ap: bool, if True a line oriented on the anteriorposterior or rostsrocaudal axis is added
-			:param show_point: bool, if True a sphere at the loation of the point is shown
-			:param line_kwargs: dictionary with arguments to specify how lines should look like
-			:param point_kwargs: dictionary with arguments to specify how the point should look
-		"""
+            :param point: list or 1d np array with coordinates of point where crosshair is centered
+            :param ml: bool, if True a line oriented on the mediolateral axis is added
+            :param dv: bool, if True a line oriented on the dorsoventral axis is added
+            :param ap: bool, if True a line oriented on the anteriorposterior or rostsrocaudal axis is added
+            :param show_point: bool, if True a sphere at the loation of the point is shown
+            :param line_kwargs: dictionary with arguments to specify how lines should look like
+            :param point_kwargs: dictionary with arguments to specify how the point should look
+        """
         actors = []
         if ml:
             actors.append(
@@ -1144,15 +1128,15 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def add_plane(self, plane, **kwargs):
         """
-			Adds one or more planes to the scene.
-			For more details on how to build custom planes, check:
-			brainrender/atlases/base.py -> Base.get_plane_at_point 
-			method.
+            Adds one or more planes to the scene.
+            For more details on how to build custom planes, check:
+            brainrender/atlases/base.py -> Base.get_plane_at_point 
+            method.
 
-			:param plane: either a string with the name of one of 
-				the predifined planes ['sagittal', 'coronal', 'horizontal'] 
-				or an instance of the Plane class from vtkplotter.shapes
-		"""
+            :param plane: either a string with the name of one of 
+                the predifined planes ['sagittal', 'coronal', 'horizontal'] 
+                or an instance of the Plane class from vtkplotter.shapes
+        """
         if isinstance(plane, (list, tuple)):
             planes = plane.copy()
         else:
@@ -1184,16 +1168,16 @@ class Scene:  # subclass brain render to have acces to structure trees
         self, probe_points_file, points_kwargs={}, **kwargs
     ):
         """
-			Visualises the position of an implanted probe in the brain. 
-			Uses the location of points along the probe extracted with SharpTrack
-			[https://github.com/cortex-lab/allenCCF].
-			It renders the position of points along the probe and a line fit through them.
-			Code contributed by @tbslv on github. 
+            Visualises the position of an implanted probe in the brain. 
+            Uses the location of points along the probe extracted with SharpTrack
+            [https://github.com/cortex-lab/allenCCF].
+            It renders the position of points along the probe and a line fit through them.
+            Code contributed by @tbslv on github. 
 
-			:param probe_points_file: str, path to a .mat file with probe points coordinates
-			:param points_kwargs: dict, used to specify how probe points should look like (e.g color, alpha...)
-			:param kwargs: keyword arguments used to specify how the probe should look like (e.g. color, alpha...)
-		"""
+            :param probe_points_file: str, path to a .mat file with probe points coordinates
+            :param points_kwargs: dict, used to specify how probe points should look like (e.g color, alpha...)
+            :param kwargs: keyword arguments used to specify how the probe should look like (e.g. color, alpha...)
+        """
         # Get the position of probe points and render
         probe_points_df = get_probe_points_from_sharptrack(probe_points_file)
 
@@ -1292,8 +1276,8 @@ class Scene:  # subclass brain render to have acces to structure trees
         self, interactive=True, video=False, camera=None, zoom=None, **kwargs
     ):
         """
-		Takes care of rendering the scene
-		"""
+        Takes care of rendering the scene
+        """
         self.apply_render_style()
 
         if not video:
@@ -1375,10 +1359,10 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def export_for_web(self, filepath="brexport.html"):
         """
-			This function is used to export a brainrender scene
-			for hosting it online. It saves an html file that can
-			be opened in a web browser to show an interactive brainrender scene
-		"""
+            This function is used to export a brainrender scene
+            for hosting it online. It saves an html file that can
+            be opened in a web browser to show an interactive brainrender scene
+        """
         if not filepath.endswith(".html"):
             raise ValueError("Filepath should point to a .html file")
 
@@ -1519,10 +1503,10 @@ class MultiScene:
     def render(self, _interactive=True, **kwargs):
         """
 
-		:param _interactive:  (Default value = True)
-		:param **kwargs:
+        :param _interactive:  (Default value = True)
+        :param **kwargs:
 
-		"""
+        """
         camera = kwargs.pop("camera", None)
 
         for scene in self.scenes:

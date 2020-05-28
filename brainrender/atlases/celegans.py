@@ -1,25 +1,22 @@
 import pandas as pd
 import numpy as np
 import os
-from tqdm import tqdm
 from PIL import ImageColor
 import math
 
-from vtkplotter import load, merge, write, load, mesh2Volume, Points, Arrows
-from vtkplotter.shapes import Tube, Spheres
+from vtkplotter import load, merge, write, load, Points, Arrows
+from vtkplotter.shapes import Tube
 
 from brainrender.scene import Scene
 from brainrender.atlases.base import Atlas
-from brainrender.Utils.webqueries import request
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
     listdir,
     get_subdirs,
     load_json,
-    get_file_name,
 )
-from brainrender.colors import get_random_colors, makePalette, getColor
-from brainrender import NEURON_RESOLUTION, ROOT_ALPHA, ROOT_COLOR, VERBOSE
+from brainrender.colors import get_random_colors, getColor
+from brainrender import NEURON_RESOLUTION, ROOT_ALPHA, ROOT_COLOR
 
 # TODO add method to select pre/post synapses based on synaptic partner
 

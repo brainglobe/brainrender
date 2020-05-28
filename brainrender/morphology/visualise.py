@@ -1,9 +1,7 @@
 import os
-import pandas as pd
 import numpy as np
-from tqdm import tqdm
 
-from vtkplotter import ProgressBar, shapes, merge
+from vtkplotter import merge
 from vtkplotter.mesh import Mesh as Actor
 from vtkplotter import settings
 
@@ -11,17 +9,8 @@ from morphapi.morphology.morphology import Neuron
 
 import brainrender
 from brainrender.scene import Scene
-from brainrender.colors import get_random_colors, colorMap, getColor
-from brainrender.Utils.data_io import load_mesh_from_file, load_json
-from brainrender.Utils.data_manipulation import (
-    get_coords,
-    flatten_list,
-    is_any_item_in_list,
-)
-from brainrender.morphology.utils import (
-    edit_neurons,
-    get_neuron_actors_with_morphapi,
-)
+from brainrender.colors import colorMap, getColor
+from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 
 
 class MorphologyScene(Scene):

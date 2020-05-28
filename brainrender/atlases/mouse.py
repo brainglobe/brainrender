@@ -16,11 +16,8 @@ from brainatlas_api.bg_atlas import AllenBrain25Um
 
 import brainrender
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
-from brainrender.colors import check_colors, get_random_colors
-from brainrender.morphology.utils import (
-    edit_neurons,
-    get_neuron_actors_with_morphapi,
-)
+from brainrender.colors import get_random_colors
+from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 from brainrender.Utils.ABA.aba_utils import (
     parse_streamline,
     download_streamlines,
@@ -34,7 +31,6 @@ from brainrender.Utils.data_manipulation import (
     return_list_smart,
     is_any_item_in_list,
 )
-from brainrender.Utils import actors_funcs
 
 
 class ABA(BrainGlobeAtlas):

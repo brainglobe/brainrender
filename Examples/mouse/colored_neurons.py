@@ -14,11 +14,7 @@ brainrender.BACKGROUND_COLOR = "blackboard"
 from brainrender.scene import Scene
 from brainrender.colors import makePalette
 
-from morphapi.morphology.morphology import Neuron
-from morphapi.api.mouselight import (
-    MouseLightAPI,
-    mouselight_structures_identifiers,
-)
+from morphapi.api.mouselight import MouseLightAPI
 
 
 # ---------------------------- Downloading neurons --------------------------- #

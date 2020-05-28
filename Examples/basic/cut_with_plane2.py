@@ -6,10 +6,8 @@
 import brainrender
 
 brainrender.SHADER_STYLE = "cartoon"
-
 from brainrender.scene import Scene
-import numpy as np
-from vtkplotter import Plane
+
 
 scene = Scene(use_default_key_bindings=True)
 

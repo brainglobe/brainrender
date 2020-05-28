@@ -12,11 +12,11 @@ from vtkplotter import load, Volume
 # ------------------------------------ OS ------------------------------------ #
 def listdir(fld):
     """
-	List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
+    List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
 
-	:param fld: string, folder path
+    :param fld: string, folder path
 
-	"""
+    """
     if not os.path.isdir(fld):
         raise FileNotFoundError("Could not find directory: {}".format(fld))
 
@@ -25,8 +25,8 @@ def listdir(fld):
 
 def get_subdirs(folderpath):
     """
-		Returns the subfolders in a given folder
-	"""
+        Returns the subfolders in a given folder
+    """
     return [f.path for f in os.scandir(folderpath) if f.is_dir()]
 
 
@@ -59,12 +59,12 @@ def save_npy_to_gz(filepath, data):
 
 def save_json(filepath, content, append=False):
     """
-	Saves content to a JSON file
+    Saves content to a JSON file
 
-	:param filepath: path to a file (must include .json)
-	:param content: dictionary of stuff to save
+    :param filepath: path to a file (must include .json)
+    :param content: dictionary of stuff to save
 
-	"""
+    """
     if not "json" in filepath:
         raise ValueError("filepath is invalid")
 
@@ -78,12 +78,12 @@ def save_json(filepath, content, append=False):
 
 def save_yaml(filepath, content, append=False, topcomment=None):
     """
-	Saves content to a yaml file
+    Saves content to a yaml file
 
-	:param filepath: path to a file (must include .yaml)
-	:param content: dictionary of stuff to save
+    :param filepath: path to a file (must include .yaml)
+    :param content: dictionary of stuff to save
 
-	"""
+    """
     if not "yaml" in filepath:
         raise ValueError("filepath is invalid")
 
@@ -100,11 +100,11 @@ def save_yaml(filepath, content, append=False, topcomment=None):
 
 def load_json(filepath):
     """
-	Load a JSON file
+    Load a JSON file
 
-	:param filepath: path to a file
+    :param filepath: path to a file
 
-	"""
+    """
     if not os.path.isfile(filepath) or not ".json" in filepath.lower():
         raise ValueError("unrecognized file path: {}".format(filepath))
     with open(filepath) as f:
@@ -114,11 +114,11 @@ def load_json(filepath):
 
 def load_yaml(filepath):
     """
-	Load a YAML file
+    Load a YAML file
 
-	:param filepath: path to yaml file
+    :param filepath: path to yaml file
 
-	"""
+    """
     if filepath is None or not os.path.isfile(filepath):
         raise ValueError("unrecognized file path: {}".format(filepath))
     if not "yml" in filepath and not "yaml" in filepath:
@@ -128,12 +128,12 @@ def load_yaml(filepath):
 
 def load_volume_file(filepath):
     """
-	Load a volume file (e.g., .nii) and returns the data
+    Load a volume file (e.g., .nii) and returns the data
 
-	:param filepath: path to file
-	:param **kwargs: 
+    :param filepath: path to file
+    :param **kwargs: 
 
-	"""
+    """
     if not os.path.isfile(filepath):
         raise FileNotFoundError(filepath)
     try:
@@ -146,12 +146,12 @@ def load_volume_file(filepath):
 
 def load_mesh_from_file(filepath, *args, **kwargs):
     """	
-	Load a a mesh or volume from files like .obj, .stl, ...
+    Load a a mesh or volume from files like .obj, .stl, ...
 
-	:param filepath: path to file
-	:param **kwargs: 
+    :param filepath: path to file
+    :param **kwargs: 
 
-	"""
+    """
     if not isinstance(filepath, str):
         filepath = str(filepath)
 
@@ -169,11 +169,11 @@ def load_mesh_from_file(filepath, *args, **kwargs):
 # ----------------------------- Internet queries ----------------------------- #
 def connected_to_internet(url="http://www.google.com/", timeout=5):
     """
-		Check that there is an internet connection
+        Check that there is an internet connection
 
-		:param url: url to use for testing (Default value = 'http://www.google.com/')
-		:param timeout:  timeout to wait for [in seconds] (Default value = 5)
-	"""
+        :param url: url to use for testing (Default value = 'http://www.google.com/')
+        :param timeout:  timeout to wait for [in seconds] (Default value = 5)
+    """
 
     try:
         _ = requests.get(url, timeout=timeout)
@@ -185,12 +185,12 @@ def connected_to_internet(url="http://www.google.com/", timeout=5):
 
 def send_query(query_string, clean=False):
     """
-	Send a query/request to a website
+    Send a query/request to a website
 
-	:param query_string: string with query content
-	:param clean:  (Default value = False)
+    :param query_string: string with query content
+    :param clean:  (Default value = False)
 
-	"""
+    """
     response = requests.get(query_string)
     if response.ok:
         if not clean:
@@ -204,13 +204,13 @@ def send_query(query_string, clean=False):
 # ----------------------------- Data manipulation ---------------------------- #
 def get_probe_points_from_sharptrack(points_filepath, scale_factor=10):
     """
-		Loads the location of the of probe points as extracted by SharpTrack
-		[https://github.com/cortex-lab/allenCCF].
+        Loads the location of the of probe points as extracted by SharpTrack
+        [https://github.com/cortex-lab/allenCCF].
 
-		:param points_filepath: str, path to a .mat file with probe points
-		:param scale_factor: 10, sharptrack uses a 10um reference atlas so the 
-				coordinates need to be scaled to match brainrender's
-	"""
+        :param points_filepath: str, path to a .mat file with probe points
+        :param scale_factor: 10, sharptrack uses a 10um reference atlas so the 
+                coordinates need to be scaled to match brainrender's
+    """
     if not os.path.isfile(points_filepath) or not points_filepath.endswith(
         ".mat"
     ):

@@ -12,11 +12,7 @@ import brainrender
 brainrender.USE_MORPHOLOGY_CACHE = True
 from brainrender.scene import Scene
 
-from morphapi.morphology.morphology import Neuron
-from morphapi.api.mouselight import (
-    MouseLightAPI,
-    mouselight_structures_identifiers,
-)
+from morphapi.api.mouselight import MouseLightAPI
 
 
 # ---------------------------- Downloading neurons --------------------------- #

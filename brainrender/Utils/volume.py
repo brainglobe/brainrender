@@ -1,10 +1,7 @@
 """
     Code useful for dealing with volumetric data (e.g. allen annotation volume for the mouse atlas)
 """
-
-from brainrender.scene import Scene
-
-from vtkplotter import Volume, show
+from vtkplotter import Volume
 
 from brainio import brainio
 

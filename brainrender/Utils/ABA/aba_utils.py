@@ -4,10 +4,10 @@ import numpy as np
 
 from tqdm import tqdm
 
-from vtkplotter import ProgressBar, shapes, merge, load
+from vtkplotter import shapes, merge
 
 import brainrender
-from brainrender.Utils.data_io import load_mesh_from_file, load_json
+from brainrender.Utils.data_io import load_json
 from brainrender.Utils.webqueries import request
 
 """ 

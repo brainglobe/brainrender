@@ -2,8 +2,6 @@ import os
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
-from brainrender.Utils import camera
-
 
 __all__ = [
     "BACKGROUND_COLOR",

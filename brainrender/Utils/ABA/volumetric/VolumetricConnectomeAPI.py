@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-from vtkplotter import Volume, load
+from vtkplotter import Volume
 
 # TODO see if this can be added to setup.py
 try:

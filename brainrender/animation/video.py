@@ -119,10 +119,6 @@ class CustomVideoMaker(BasicVideoMaker):
 
         """
         self.parse_kwargs(**kwargs)
-
-        curdir = (
-            os.getcwd()
-        )  # we need to cd to the folder where the video is saved and then back here
         os.chdir(self.save_fld)
 
         # Create video

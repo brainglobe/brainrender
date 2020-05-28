@@ -1,11 +1,8 @@
-import pandas as pd
 import numpy as np
-import os
 from vtkplotter import Plane, Mesh
 
 
 from brainrender.Utils.paths_manager import Paths
-from brainrender.Utils.data_manipulation import get_coords
 
 
 class Atlas(Paths):
@@ -223,9 +220,9 @@ class Atlas(Paths):
 
     def get_brain_regions(self, *agrs, **kwargs):
         """
-			Adds brain regions meshes to scene.
-			Check the atlas' method to know how it works
-		"""
+            Adds brain regions meshes to scene.
+            Check the atlas' method to know how it works
+        """
         raise NotImplementedError(
             f"Your atlas {self.atlas_name} doesn't support"
             + "'get_brain_regions' method!"

@@ -1,7 +1,6 @@
 import numpy as np
 import random
 import vtk
-import itertools
 
 # The following code and colors list is from vtkplotter.color : https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/colors.py
 # The code is copied here just to make it easier to look up and change colros
