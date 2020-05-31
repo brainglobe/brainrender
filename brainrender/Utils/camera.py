@@ -148,13 +148,12 @@ def get_camera_params(scene=None, camera=None):
         cam = camera
 
     params = dict(
-        position = cam.GetPosition(),
-        focal_point = cam.GetFocalPoint(),
-        view_up = cam.GetViewUp(),
-        distance = cam.GetDistance(),
-        clipping_range = cam.GetClippingRange(),
-        orientation = cam.GetOrientation(),
+        position=cam.GetPosition(),
+        focal_point=cam.GetFocalPoint(),
+        view_up=cam.GetViewUp(),
+        distance=cam.GetDistance(),
+        clipping_range=cam.GetClippingRange(),
+        orientation=cam.GetOrientation(),
     )
 
     return params
-
