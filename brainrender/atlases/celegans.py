@@ -1,5 +1,6 @@
 import pandas as pd
-import numpy as np
+
+# import numpy as np
 import os
 from PIL import ImageColor
 import math
@@ -16,7 +17,7 @@ from brainrender.Utils.data_io import (
     get_subdirs,
     load_json,
 )
-from brainrender.colors import get_random_colors, getColor
+from brainrender.colors import get_random_colors  # , getColor
 from brainrender import NEURON_RESOLUTION, ROOT_ALPHA, ROOT_COLOR
 
 # TODO add method to select pre/post synapses based on synaptic partner
@@ -483,22 +484,22 @@ class Celegans(Atlas):
                             # Get faces that are inside the synapses spheres and color them darker
                             raise NotImplementedError("This needs some fixing")
 
-                            neuron_points = neuron_act.cellCenters()
-                            inside_points = spheres.insidePoints(
-                                neuron_points, returnIds=True
-                            )
+                            # neuron_points = neuron_act.cellCenters()
+                            # inside_points = spheres.insidePoints(
+                            #     neuron_points, returnIds=True
+                            # )
 
-                            n_cells = neuron_act.polydata().GetNumberOfCells()
-                            scals = np.zeros((n_cells))
-                            scals[inside_points] = 1
+                            # n_cells = neuron_act.polydata().GetNumberOfCells()
+                            # scals = np.zeros((n_cells))
+                            # scals[inside_points] = 1
 
-                            colors = [
-                                neuron_act.c()
-                                if s == 0
-                                else getColor("blackboard")
-                                for s in scals
-                            ]
-                            neuron_act.cellIndividualColors(colors)
+                            # colors = [
+                            #     neuron_act.c()
+                            #     if s == 0
+                            #     else getColor("blackboard")
+                            #     for s in scals
+                            # ]
+                            # neuron_act.cellIndividualColors(colors)
 
                     # Draw post synapses as arrow
                     if draw_arrows:
