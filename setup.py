@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     extras_require={
         "nb": ["jupyter", "k3d"],
-        "dev": ["pytest-cov", "pytest", "coveralls", "coverage<=4.5.4",],
+        "dev": ["pytest-cov", "pytest", "coveralls", "coverage<=4.5.4", "pre-commit"],
     },
     python_requires=">=3.6, <3.8",
     packages=find_namespace_packages(
