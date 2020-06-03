@@ -27,7 +27,7 @@ for region in regions:
 x, y, z = [c[0] for c in cells], [c[1] for c in cells], [c[2] for c in cells]
 cells = pd.DataFrame(
     dict(x=x, y=y, z=z)
-)  # ! <- coordinates should be stared as a pandas dataframe
+)  # ! <- coordinates should be stored as a pandas dataframe
 
 
 # Add cells

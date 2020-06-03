@@ -705,6 +705,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         coords,
         color="red",
         color_by_region=False,
+        color_by_metadata=None,
         radius=25,
         res=3,
         alpha=1,
@@ -716,16 +717,20 @@ class Scene:  # subclass brain render to have acces to structure trees
         Renders cells given their coordinates as a collection of spheres.
 
         :param coords: pandas dataframe with x,y,z coordinates
-        :param color: str, color of spheres used to render the cells (Default value = "red")
+        :param color: str, color of spheres used to render the cells (Default value = "red"). 
+                Alternatively a list of colors specifying the color of each cell.
         :param radius: int, radius of spheres used to render the cells (Default value = 25)
         :param res: int, resolution of spheres used to render the cells (Default value = 3)
         :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
         :param color_by_region: bool. If true the cells are colored according to the color of the brain region they are in
+        :paramcolor_by_metadata: str, if the name of a column of the coords dataframe is passed, cells are colored according 
+                to their value for that column. 
         :param regions: if a list of brain regions acronym is passed, only cells in these regions will be added to the scene
         :param col_names: list of strings with names of pandas dataframe columns. If passed it should be a list of 3 columns
                 which have the x, y, z coordinates. If not passed, it is assumed that the columns are ['x', 'y', 'z']
         """
         if isinstance(coords, pd.DataFrame):
+            coords_df = coords.copy()  # keep a copy
             if col_names is None:
                 col_names = ["x", "y", "z"]
             else:
@@ -753,6 +758,16 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         if color_by_region:
             color = self.atlas.get_colors_from_coordinates(coords)
+        elif color_by_metadata is not None:
+            if color_by_metadata not in coords_df.columns:
+                raise ValueError(
+                    'Color_by_metadata argument should be the name of one of the columns of "coords"'
+                )
+
+            vals = list(coords_df[color_by_metadata].values)
+            base_cols = get_random_colors(n_colors=len(set(vals)))
+            cols_lookup = {v: c for v, c in zip(set(vals), base_cols)}
+            color = [cols_lookup[v] for v in vals]
 
         spheres = shapes.Spheres(
             coords, c=color, r=radius, res=res, alpha=alpha
