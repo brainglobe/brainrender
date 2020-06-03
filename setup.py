@@ -19,6 +19,7 @@ requirements = [
     "brainio>=0.0.9",
     "sklearn",
     "morphapi",
+    "requests",
 ]
 
 setup(
