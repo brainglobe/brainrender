@@ -1,6 +1,7 @@
 """ 
     This tutorial shows how download and rendered afferent mesoscale projection data
-    using the AllenBrainAtlas (ABA) and Scene classes
+    using the AllenBrainAtlas (ABA) and Scene classes and coloring a subset of the 
+    data differently based on the location of virus injection
 """
 import brainrender
 
@@ -21,6 +22,6 @@ tract = analyzer.get_projection_tracts_to_target(p0=p0)
 
 # Add the brain regions and the projections to it
 scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
-scene.add_tractography(tract, color_by="target_region")
+scene.add_tractography(tract, color_by="target_region", VIP_regions=['SCm'], VIP_color='green')
 
 scene.render()

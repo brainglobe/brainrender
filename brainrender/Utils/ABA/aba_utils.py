@@ -150,7 +150,7 @@ def parse_tractography_colors(
     color_by="manual",
     VIP_regions=[],
     VIP_color=None,
-    others_color="white",
+    others_color="salmon",
 ):
     """
         parses color arguments to render tracrography data
@@ -158,6 +158,11 @@ def parse_tractography_colors(
         :param tractography: list of dictionaries with tractography data
         :param color: color of rendered tractography data
         :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
+            Options:
+                - manual: the user needs to provide a color or list of colors
+                - target_region: tracts are colored according to the region where the injection was done.
+                        if VIP_regions is passed, then only tracts for the VIP regions are colored
+
         :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
         :param VIP_color: str, color to use for VIP data (Default value = None)
         :param include_all_inj_regions: bool (Default value = False)
@@ -194,9 +199,6 @@ def parse_tractography_colors(
             else:
                 COLORS = [color for i in range(len(tractography))]
 
-    elif color_by == "region":
-        COLORS = [None for t in tractography]  # will be filled up later
-
     elif color_by == "target_region":
         if VIP_color is not None:
             if not check_colors(VIP_color) or not check_colors(others_color):
@@ -227,10 +229,8 @@ def parse_tractography_colors(
                     "Something went wrong while getting colors for tractography"
                 )
         else:
-            COLORS = [
-                None if t["structure-abbrev"] in VIP_regions else others_color
-                for t in tractography
-            ]  # will be filled up later
+            COLORS = [None for t in tractography]  # will be filled up later
+
     else:
         raise ValueError(
             "Unrecognised 'color_by' argument {}".format(color_by)

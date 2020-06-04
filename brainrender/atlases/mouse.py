@@ -45,6 +45,7 @@ class ABA(BrainGlobeAtlas):
     """
 
     atlas_name = "ABA"
+    resolution=25
 
     excluded_regions = ["fiber tracts"]
 
