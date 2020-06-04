@@ -18,7 +18,6 @@ from morphapi.morphology.morphology import Neuron
 
 import brainrender
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
-from brainrender.colors import get_random_colors, get_n_shades_of
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 from brainrender.Utils.ABA.aba_utils import (
     parse_streamline,
@@ -45,7 +44,7 @@ class ABA(BrainGlobeAtlas):
     """
 
     atlas_name = "ABA"
-    resolution=25
+    resolution = 25
 
     excluded_regions = ["fiber tracts"]
 
@@ -357,84 +356,46 @@ class ABA(BrainGlobeAtlas):
 
         return actors
 
-    def get_streamlines(
-        self, sl_file, *args, colorby=None, color_each=False, **kwargs
-    ):
+    def get_streamlines(self, sl_file, color=None, *args, **kwargs):
         """
         Render streamline data downloaded from https://neuroinformatics.nl/HBP/allen-connectivity-viewer/streamline-downloader.html
 
         :param sl_file: path to JSON file with streamliens data [or list of files]
-        :param colorby: str,  criteria for how to color the streamline data (Default value = None)
-        :param color_each: bool, if True, the streamlines for each injection is colored differently (Default value = False)
+        :param color: either a single color or a list of colors to color each streamline individually
         :param *args:
         :param **kwargs:
 
         """
-        color = None
-        if not color_each:
-            if colorby is not None:
-                try:
-                    color = self.structure_tree.get_structures_by_acronym(
-                        [colorby]
-                    )[0]["rgb_triplet"]
-                    if "color" in kwargs.keys():
-                        del kwargs["color"]
-                except:
-                    raise ValueError(
-                        "Could not extract color for region: {}".format(
-                            colorby
-                        )
-                    )
-        else:
-            if colorby is not None:
-                color = kwargs.pop("color", None)
-                try:
-                    get_n_shades_of(color, 1)
-                except:
-                    raise ValueError(
-                        "Invalide color argument: {}".format(color)
-                    )
-
         if not isinstance(sl_file, (list, tuple)):
             sl_file = [sl_file]
+
+        # get a list of colors of length len(sl_file)
+        if color is not None:
+            if isinstance(color, list):
+                if isinstance(color[0], (float, int)):  # it's an rgb color
+                    color = [color for i in sl_file]
+                elif len(color) != len(sl_file):
+                    raise ValueError(
+                        "Wrong number of colors, should be one per streamline or 1"
+                    )
+            else:
+                color = [color for i in sl_file]
+        else:
+            color = ["salmon" for i in sl_file]
 
         actors = []
         if isinstance(
             sl_file[0], (str, pd.DataFrame)
         ):  # we have a list of files to add
-            for slf in tqdm(sl_file):
-                if not color_each:
-                    if color is not None:
-                        if isinstance(slf, str):
-                            streamlines = parse_streamline(
-                                filepath=slf, *args, color=color, **kwargs
-                            )
-                        else:
-                            streamlines = parse_streamline(
-                                data=slf, *args, color=color, **kwargs
-                            )
-                    else:
-                        if isinstance(slf, str):
-                            streamlines = parse_streamline(
-                                filepath=slf, *args, **kwargs
-                            )
-                        else:
-                            streamlines = parse_streamline(
-                                data=slf, *args, **kwargs
-                            )
+            for slf, col in tqdm(zip(sl_file, color)):
+                if isinstance(slf, str):
+                    streamlines = parse_streamline(
+                        color=col, filepath=slf, *args, **kwargs
+                    )
                 else:
-                    if color is not None:
-                        col = get_n_shades_of(color, 1)[0]
-                    else:
-                        col = get_random_colors(n_colors=1)
-                    if isinstance(slf, str):
-                        streamlines = parse_streamline(
-                            filepath=slf, color=col, *args, **kwargs
-                        )
-                    else:
-                        streamlines = parse_streamline(
-                            data=slf, color=col, *args, **kwargs
-                        )
+                    streamlines = parse_streamline(
+                        color=col, data=slf, *args, **kwargs
+                    )
                 actors.extend(streamlines)
         else:
             raise ValueError(
