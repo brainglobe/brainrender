@@ -1075,7 +1075,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param point:list or 1d np array with coordinates of point where crosshair is centered
             :param line_kwargs: dictionary with arguments to specify how lines should look like
         """
-        bounds = self._root_bounds[0]
+        bounds = self.atlas._root_bounds[0]
         return self.add_line_at_point(point, 0, bounds, **kwargs)
 
     def add_dorsoventral_line_at_point(self, point, **kwargs):
@@ -1085,7 +1085,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param point:list or 1d np array with coordinates of point where crosshair is centered
             :param line_kwargs: dictionary with arguments to specify how lines should look like
         """
-        bounds = self._root_bounds[1]
+        bounds = self.atlas._root_bounds[1]
         return self.add_line_at_point(point, 1, bounds, **kwargs)
 
     def add_mediolateral_line_at_point(self, point, **kwargs):
@@ -1095,7 +1095,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param point:list or 1d np array with coordinates of point where crosshair is centered
             :param line_kwargs: dictionary with arguments to specify how lines should look like
         """
-        bounds = self._root_bounds[2]
+        bounds = self.atlas._root_bounds[2]
         return self.add_line_at_point(point, 2, bounds, **kwargs)
 
     def add_crosshair_at_point(
