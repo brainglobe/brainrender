@@ -552,6 +552,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         actors = self.atlas.get_tractography(*args, **kwargs)
         self.actors["tracts"].extend(actors)
+        return actors
 
     def add_streamlines(self, *args, **kwargs):
         """
@@ -560,6 +561,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         self.actors["tracts"].extend(actors)
+        return actors
 
     def add_injection_sites(self, *args, **kwargs):
         """
@@ -568,6 +570,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
         actors = self.atlas.get_injection_sites(*args, **kwargs)
         self.actors["injection_sites"].extend(actors)
+        return actors
 
     # -------------------------- General actors/elements ------------------------- #
     def add_vtkactor(self, *actors, store=None):
