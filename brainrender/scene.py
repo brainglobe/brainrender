@@ -31,7 +31,7 @@ from brainrender.Utils.data_io import (
     load_mesh_from_file,
     get_probe_points_from_sharptrack,
 )
-from brainrender.Utils.data_manipulation import flatten_list
+from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
 from brainrender.Utils import actors_funcs
 
 from brainrender.Utils.image import image_to_surface
@@ -513,7 +513,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             self.actors["regions"][region] = actor
             actors.append(actor)
 
-        return actors
+        return return_list_smart(actors)
 
     def add_neurons(self, *args, **kwargs):
         """
@@ -527,7 +527,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             for n, v in store.items():
                 self.store[n] = v
 
-        return actors
+        return return_list_smart(actors)
 
     def add_neurons_synapses(self, *args, **kwargs):
         """
@@ -552,7 +552,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         actors = self.atlas.get_tractography(*args, **kwargs)
         self.actors["tracts"].extend(actors)
-        return actors
+        return return_list_smart(actors)
 
     def add_streamlines(self, *args, **kwargs):
         """
@@ -561,7 +561,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         self.actors["tracts"].extend(actors)
-        return actors
+        return return_list_smart(actors)
 
     def add_injection_sites(self, *args, **kwargs):
         """
@@ -570,7 +570,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
         actors = self.atlas.get_injection_sites(*args, **kwargs)
         self.actors["injection_sites"].extend(actors)
-        return actors
+        return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
     def add_vtkactor(self, *actors, store=None):
@@ -595,10 +595,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
             to_return.append(actor)
 
-        if len(to_return) == 0:
-            return to_return[0]
-        else:
-            return to_return
+        return return_list_smart(to_return)
 
     def add_from_file(self, *filepaths, **kwargs):
         """
@@ -614,12 +611,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             self.actors["others"].append(actor)
             actors.append(actor)
 
-        if len(actors) == 1:
-            return actors[0]
-        elif len(actors) > 1:
-            return actors
-        else:
-            return None
+        return return_list_smart(actors)
 
     def add_sphere_at_point(
         self, pos=[0, 0, 0], radius=100, color="black", alpha=1, **kwargs
@@ -1041,12 +1033,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         # Add to scene and return
         self.add_vtkactor(*new_actors, store=self.actors["labels"])
 
-        if len(new_actors) == 0:
-            return new_actors[0]
-        elif not new_actors:
-            return None
-        else:
-            return new_actors
+        return return_list_smart(new_actors)
 
     def add_line_at_point(self, point, replace_coord, bounds, **kwargs):
         """
@@ -1180,6 +1167,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                     )
             actors.append(plane)
         self.add_vtkactor(*actors)
+        return return_list_smart(actors)
 
     # ----------------------- Application specific methods ----------------------- #
     def add_probe_from_sharptrack(

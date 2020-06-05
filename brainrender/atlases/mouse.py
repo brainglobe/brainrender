@@ -371,7 +371,7 @@ class ABA(BrainGlobeAtlas):
 
         # get a list of colors of length len(sl_file)
         if color is not None:
-            if isinstance(color, list):
+            if isinstance(color, (list, tuple)):
                 if isinstance(color[0], (float, int)):  # it's an rgb color
                     color = [color for i in sl_file]
                 elif len(color) != len(sl_file):

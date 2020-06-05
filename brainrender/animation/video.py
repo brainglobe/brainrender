@@ -72,7 +72,10 @@ class BasicVideoMaker:
 
         # Create video
         video = Video(
-            name=self.save_name, duration=self.duration, fps=self.fps
+            name=self.save_name,
+            duration=self.duration,
+            fps=self.fps,
+            backend="cv",
         )
 
         # Render the scene first
