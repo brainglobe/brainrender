@@ -38,6 +38,7 @@ setup(
             "coveralls",
             "coverage<=4.5.4",
             "pre-commit",
+            "opencv-python",
         ],
     },
     python_requires=">=3.6, <3.8",

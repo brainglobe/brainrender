@@ -3,6 +3,10 @@ This example shows how to crate an animate scene where
 over a number of frames:
     - Different sets of neurons from the mouselight database are shown
     - The camera moves around 
+
+Note that creating videos requires opencv which is not installed
+with brainrender by default, please install with "pip install opencv-python"
+
 """
 
 
