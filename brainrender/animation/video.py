@@ -1,6 +1,65 @@
-from vtkplotter import Video
+try:
+    import cv2
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "You need opencv to save videos in brainrender, please install opencv with: "
+        + "pip install opencv-python"
+    )
+
+
+from vtkplotter import Video as VtkVideo
 import datetime
 import os
+
+from brainrender.Utils.video import save_videocap_to_video
+
+
+class Video(VtkVideo):
+    # Redifine vtkplotter.Video close method
+    def __init__(self, *args, fmt="mp4", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.format = fmt
+
+    def get_cap_from_images_folder(self, img_format="%1d.png"):
+        """
+            It creates a cv2 VideoCaptur 'cap' from a folder of images (frames)
+        """
+        if not os.path.isdir(self.tmp_dir.name):
+            raise ValueError(f"Folder {self.tmp_dir.name} doesn't exist")
+        if not os.listdir(self.tmp_dir.name):
+            raise ValueError(f"Folder {self.tmp_dir.name} is empty")
+
+        # Create video capture
+        cap = cv2.VideoCapture(os.path.join(self.tmp_dir.name, img_format))
+
+        # Check all went well
+        ret, frame = cap.read()
+        if not ret:
+            raise ValueError(
+                "Something went wrong, can't read form folder: "
+                + self.tmp_dir.name
+            )
+        else:
+            cap.set(1, 0)  # reset cap to first frame
+        return cap
+
+    def close(self):
+        """
+            Takes a folder full of frames saved as images and converts it into a video.
+        """
+        # Save frames as video
+        cap = self.get_cap_from_images_folder()
+        save_videocap_to_video(
+            cap,
+            self.name + "." + self.format,
+            self.format,
+            int(self.fps),
+            iscolor=True,
+        )
+        print(f"Saved video as: {self.name}.{self.format}")
+
+        # Clean up
+        self.tmp_dir.cleanup()
 
 
 class BasicVideoMaker:
@@ -75,7 +134,7 @@ class BasicVideoMaker:
             name=self.save_name,
             duration=self.duration,
             fps=self.fps,
-            backend="cv",
+            fmt=self.video_format,
         )
 
         # Render the scene first
@@ -88,6 +147,8 @@ class BasicVideoMaker:
             self.scene.plotter.camera.Azimuth(azimuth)
             self.scene.plotter.camera.Roll(roll)
             video.addFrame()
+
+        self.scene.close()
         video.close()  # merge all the recorded frames
 
         # Cd bake to original dir
