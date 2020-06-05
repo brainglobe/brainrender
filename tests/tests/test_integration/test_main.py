@@ -12,6 +12,8 @@ from brainrender.atlases.mouse import ABA
 from brainrender.Utils.camera import (
     buildcam,
     sagittal_camera,
+    top_camera,
+    coronal_camera,
 )
 from brainrender.colors import colorMap, makePalette
 from brainrender.atlases.insects_brains_db import IBDB
@@ -23,7 +25,7 @@ from brainrender.morphology.visualise import MorphologyScene
 
 
 def test_regions():
-    scene = Scene()
+    scene = Scene(camera=coronal_camera)
     regions = ["MOs", "VISp", "ZI"]
     scene.add_brain_regions(regions, colors="green")
     ca1 = scene.add_brain_regions("CA1", wireframe=True)
@@ -249,23 +251,9 @@ def test_tractography():
     analyzer = ABA()
     p0 = scene.atlas.get_region_CenterOfMass("ZI")
     tract = analyzer.get_projection_tracts_to_target(p0=p0)
-    scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
-    scene.add_tractography(tract, color_by="region")
+    scene.add_tractography(tract, color_by="target_region")
 
-
-def test_tractography_vip():
-    # Create a scene
     scene = Scene()
-
-    # Get the center of mass of the region of interest
-    p0 = scene.atlas.get_region_CenterOfMass("ZI")
-
-    # Get projections to that point
-    analyzer = ABA()
-    tract = analyzer.get_projection_tracts_to_target(p0=p0)
-
-    # Add the brain regions and the projections to it
-    scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
     scene.add_tractography(
         tract, color_by="target_region", VIP_regions=["SCm"], VIP_color="green"
     )
@@ -443,3 +431,99 @@ def test_video():
     vm.make_video(
         elevation=1, roll=5
     )  # specify how the scene rotates at each frame
+
+
+def test_custom_video():
+    from brainrender.animation.video import CustomVideoMaker
+
+    # --------------------------------- Variables -------------------------------- #
+    minalpha = 0  # transparency of background neurons
+    darkcolor = "lightgray"  # background neurons color
+
+    N_FRAMES = 20
+    N_streamlines_in_frame = (
+        2  # number of streamlines to be highlighted in a given frame
+    )
+    N_frames_for_change = (
+        50  # every N frames which streamlines are shown changes
+    )
+
+    # Variables to specify camera position at each frame
+    zoom = np.linspace(1, 1.35, N_FRAMES)
+    frac = np.zeros_like(
+        zoom
+    )  # for camera transition, interpolation value between cameras
+    frac[:150] = np.linspace(0, 1, 150)
+    frac[150:] = np.linspace(1, 0, len(frac[150:]))
+
+    # ------------------------------- Create scene ------------------------------- #
+    scene = Scene(display_inset=True, use_default_key_bindings=True)
+
+    filepaths, data = scene.atlas.download_streamlines_for_region("TH")
+    scene.add_streamlines(
+        data, color="darkseagreen", show_injection_site=False
+    )
+
+    scene.add_brain_regions(["TH"], alpha=0.2)
+
+    # Make all streamlines background
+    for mesh in scene.actors["tracts"]:
+        mesh.alpha(minalpha)
+        mesh.color(darkcolor)
+
+    # Create new cameras
+    cam1 = buildcam(sagittal_camera)
+    cam2 = buildcam(top_camera)
+    cam3 = buildcam(
+        dict(
+            position=[1862.135, -4020.792, -36292.348],
+            focal=[6587.835, 3849.085, 5688.164],
+            viewup=[0.185, -0.97, 0.161],
+            distance=42972.44,
+            clipping=[29629.503, 59872.10],
+        )
+    )
+
+    # Iniziale camera position
+    scene.plotter.moveCamera(cam1, cam2, frac[0])
+
+    # ------------------------------- Create frames ------------------------------ #
+    def frame_maker(scene=None, video=None, videomaker=None):
+        prev_streamlines = []
+        for step in tqdm(np.arange(N_FRAMES)):
+            if (
+                step % N_frames_for_change == 0
+            ):  # change neurons every N framse
+
+                # reset neurons from previous set of neurons
+                for mesh in prev_streamlines:
+                    mesh.alpha(minalpha)
+                    mesh.color(darkcolor)
+                prev_streamlines = []
+
+                # highlight new neurons
+                streamlines = choices(
+                    scene.actors["tracts"], k=N_streamlines_in_frame
+                )
+                for n, mesh in enumerate(streamlines):
+                    # color = colorMap(n, 'Reds', vmin=-2, vmax=N_streamlines_in_frame+3)
+                    mesh.alpha(0.7)
+                    mesh.color("orangered")
+                    prev_streamlines.append(mesh)
+
+            # Move scene camera between 3 cameras
+            if step < 150:
+                scene.plotter.moveCamera(cam1, cam2, frac[step])
+            else:
+                scene.plotter.moveCamera(cam3, cam2, frac[step])
+
+            # Add frame to video
+            scene.render(zoom=zoom[step], interactive=False, video=True)
+            video.addFrame()
+        return video
+
+    # ---------------------------------------------------------------------------- #
+    #                                  Video maker                                 #
+    # ---------------------------------------------------------------------------- #
+    vm = CustomVideoMaker(scene, save_name="streamlines_animation")
+    vm.make_video(frame_maker)

@@ -104,7 +104,7 @@ class MorphologyScene(Scene):
                     )
             elif isinstance(color, dict):
                 # Deal with a dictionary with color for each component
-                if "soma" in color.keys():
+                if "soma" not in color.keys():
                     raise ValueError(
                         f"When passing a dictionary as color argument, \
                                                 soma should be one fo the keys: {color}"
