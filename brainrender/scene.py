@@ -34,7 +34,6 @@ from brainrender.Utils.data_io import (
 from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
 from brainrender.Utils import actors_funcs
 
-from brainrender.Utils.image import image_to_surface
 from brainrender.Utils.camera import check_camera_param, set_camera
 
 
@@ -685,7 +684,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             )
 
         elif filepath.suffix == ".pkl":
-            cells = pd.read_picle(filepath)
+            cells = pd.read_pikle(filepath)
             return self.add_cells(
                 cells, color=color, radius=radius, res=res, alpha=alpha
             )
@@ -774,106 +773,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         return spheres
 
-    def add_image(
-        self,
-        image_file_path,
-        color=None,
-        alpha=None,
-        obj_file_path=None,
-        voxel_size=1,
-        orientation="saggital",
-        invert_axes=None,
-        extension=".obj",
-        step_size=2,
-        keep_obj_file=True,
-        overwrite="use",
-        smooth=True,
-    ):
-
-        """
-        Loads a 3d image and processes it to extract mesh coordinates. Mesh coordinates are extracted with
-        a fast marching algorithm and saved to a .obj file. This file is then used to render the mesh.
-
-        :param image_file_path: str
-        :param color: str (Default value = None)
-        :param alpha: int (Default value = None)
-        :param obj_file_path: str (Default value = None)
-        :param voxel_size: float (Default value = 1)
-        :param orientation: str (Default value = "saggital")
-        :param invert_axes: tuple (Default value = None)
-        :param extension: str (Default value = ".obj")
-        :param step_size: int (Default value = 2)
-        :param keep_obj_file: bool (Default value = True)
-        :param overwrite: str (Default value = 'use')
-        :param overwrite: if a (Default value = 'use')
-        :param smooth: bool (Default value = True)
-
-        """
-
-        # Check args
-        if color is None:
-            color = get_random_colors()  # get a random color
-
-        if alpha is None:
-            alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
-
-        if obj_file_path is None:
-            obj_file_path = os.path.splitext(image_file_path)[0] + extension
-
-        if os.path.exists(obj_file_path):
-            if overwrite == "use":
-                print(
-                    "Found a .obj file that matches your input data. Rendering that instead."
-                )
-                print(
-                    "If you would like to change this behaviour, change the 'overwrite' argument."
-                )
-            elif overwrite == "overwrite":
-                print(
-                    "Found a .obj file that matches your input data. Overriding it."
-                )
-                print(
-                    "If you would like to change this behaviour, change the 'overwrite' argument."
-                )
-                # Process the image and save as .obj file
-                image_to_surface(
-                    image_file_path,
-                    obj_file_path,
-                    voxel_size=voxel_size,
-                    orientation=orientation,
-                    invert_axes=invert_axes,
-                    step_size=step_size,
-                )
-            elif overwrite == "catch":
-                raise FileExistsError(
-                    "The .obj file exists alread, to overwrite change the 'overwrite' argument."
-                )
-            else:
-                raise ValueError(
-                    "Unrecognized value for argument overwrite: {}".format(
-                        overwrite
-                    )
-                )
-        else:
-            print(f"Converting file: {image_file_path} to surface")
-            image_to_surface(
-                image_file_path,
-                obj_file_path,
-                voxel_size=voxel_size,
-                orientation=orientation,
-                invert_axes=invert_axes,
-                step_size=step_size,
-            )
-
-        # render obj file, smooth and clean up.
-        actor = self.add_from_file(obj_file_path, c=color, alpha=alpha)
-
-        if smooth:
-            actors_funcs.smooth_actor(actor)
-
-        if not keep_obj_file:
-            os.remove(obj_file_path)
-
     def add_optic_cannula(
         self,
         target_region=None,
@@ -907,7 +806,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         # Get coordinates of brain-side face of optic cannula
         if target_region is not None:
-            pos = self.get_region_CenterOfMass(
+            pos = self.atlas.get_region_CenterOfMass(
                 target_region, unilateral=True, hemisphere=hemisphere
             )
         elif pos is None:
@@ -1452,7 +1351,7 @@ class DualScene:
     def __init__(self, *args, **kwargs):
         self.scenes = [Scene(*args, **kwargs), Scene(*args, **kwargs)]
 
-    def render(self):
+    def render(self, _interactive=True):
         """ """
 
         self.apply_render_style()
@@ -1487,7 +1386,9 @@ class DualScene:
             actors[0], at=0, zoom=1.15, axes=axes, roll=180, interactive=False
         )
         mv.show(actors[1], at=1, interactive=False)
-        interactive()
+
+        if _interactive:
+            interactive()
 
 
 class MultiScene:
