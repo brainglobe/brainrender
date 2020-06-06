@@ -1,4 +1,5 @@
 # Ignored file types
+brexport.html
 *.ckpt
 *.vscode
 *.json

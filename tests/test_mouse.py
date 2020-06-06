@@ -1,70 +1,78 @@
-# from brainrender.scene import Scene
+import pytest
+from brainrender.scene import Scene
+from brainrender.colors import makePalette
+from morphapi.api.mouselight import MouseLightAPI
 
 
-# @pytest.fixture
-# def scene():
-#     return Scene()
+@pytest.fixture
+def scene():
+    return Scene()
 
 
-# # ---------------------------------------------------------------------------- #
-# #                                Mouse specific                                #
-# # ---------------------------------------------------------------------------- #
+def test_streamlines(scene):
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
+    scene.add_streamlines(
+        data[0], color="darkseagreen", show_injection_site=False
+    )
 
 
-# def test_streamlines():
-#     scene = Scene()
-
-#     filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
-
-#     scene.add_brain_regions(["CA1"], use_original_color=True, alpha=0.2)
-
-#     scene.add_streamlines(
-#         data, color="darkseagreen", show_injection_site=False
-#     )
-
-#     scene.render(camera="sagittal", zoom=1, interactive=False)
-#     scene.close()
+def test_streamlines_download(scene):
+    p0 = scene.atlas.get_region_CenterOfMass("ZI")
+    scene.atlas.download_streamlines_to_region(p0)
 
 
-# def test_streamlines_colored():
-#     # Start by creating a scene with the allen brain atlas atlas
-#     scene = Scene()
-
-#     # Download streamlines data for injections in the CA1 field of the hippocampus
-#     filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
-
-#     scene.add_brain_regions(["CA1"], use_original_color=True, alpha=0.2)
-
-#     # you can pass either the filepaths or the data
-#     colors = makePalette(len(data), "salmon", "lightgreen")
-#     scene.add_streamlines(data, color=colors, show_injection_site=False)
+def test_streamlines_colored(scene):
+    filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
+    colors = makePalette(len(data), "salmon", "lightgreen")
+    scene.add_streamlines(data, color=colors, show_injection_site=False)
+    scene.add_streamlines(filepaths, color=None, show_injection_site=True)
 
 
-# def test_neurons():
-#     scene = Scene()
+def test_neurons(scene):
+    mlapi = MouseLightAPI()
+    neurons_metadata = mlapi.fetch_neurons_metadata(
+        filterby="soma", filter_regions=["MOs"]
+    )
 
-#     mlapi = MouseLightAPI()
+    neurons = mlapi.download_neurons(neurons_metadata[:5])
+    actors = scene.add_neurons(
+        neurons, color="salmon", display_axon=False, neurite_radius=6
+    )
 
-#     # Fetch metadata for neurons with some in the secondary motor cortex
-#     neurons_metadata = mlapi.fetch_neurons_metadata(
-#         filterby="soma", filter_regions=["MOs"]
-#     )
+    scene.add_neurons(actors, color=None, display_dendrites=False)
 
-#     # Then we can download the files and save them as a .json file
-#     neurons = mlapi.download_neurons(neurons_metadata[:5])
-#     scene.add_neurons(
-#         neurons, color="salmon", display_axon=False, neurite_radius=6
-#     )
+    scene.add_neurons(actors, color="Reds", display_dendrites=False)
+
+    scene.add_neurons(actors, color=["green"], display_dendrites=False)
+
+    scene.add_neurons(
+        actors, color=dict(soma="red", axon="green", dendrites="blue")
+    )
+
+    scene.add_neurons(
+        actors, color=[dict(soma="red", axon="green", dendrites="blue")]
+    )
 
 
-# def test_tractography():
-#     scene = Scene()
-#     analyzer = ABA()
-#     p0 = scene.atlas.get_region_CenterOfMass("ZI")
-#     tract = analyzer.get_projection_tracts_to_target(p0=p0)
-#     scene.add_tractography(tract, color_by="target_region")
+def test_tractography(scene):
+    p0 = scene.atlas.get_region_CenterOfMass("ZI")
 
-#     scene = Scene()
-#     scene.add_tractography(
-#         tract, color_by="target_region", VIP_regions=["SCm"], VIP_color="green"
-#     )
+    tract = scene.atlas.get_projection_tracts_to_target(p0=p0)
+
+    scene.add_tractography(tract[:25], color_by="manual", color="red")
+
+    scene.add_tractography(
+        tract[25:50],
+        color_by="target_region",
+        VIP_regions=["SCm"],
+        VIP_color="green",
+    )
+
+    scene.add_tractography(
+        tract[50:75],
+        color_by="target_region",
+        VIP_regions=["SCm"],
+        VIP_color="green",
+        include_all_inj_regions=True,
+        display_injection_volume=True,
+    )

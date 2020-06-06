@@ -334,7 +334,10 @@ def parse_streamline(
     # create actors for streamlines
     lines = []
     if len(data["lines"]) == 1:
-        lines_data = data["lines"][0]
+        try:
+            lines_data = data["lines"][0]
+        except KeyError:
+            lines_data = data["lines"]["0"]
     else:
         lines_data = data["lines"]
     for line in lines_data:
@@ -352,7 +355,10 @@ def parse_streamline(
     coords = []
     if show_injection_site:
         if len(data["injection_sites"]) == 1:
-            injection_data = data["injection_sites"][0]
+            try:
+                injection_data = data["injection_sites"][0]
+            except KeyError:
+                injection_data = data["injection_sites"]["0"]
         else:
             injection_data = data["injection_sites"]
 

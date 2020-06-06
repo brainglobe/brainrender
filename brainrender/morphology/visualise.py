@@ -11,6 +11,7 @@ import brainrender
 from brainrender.scene import Scene
 from brainrender.colors import colorMap, getColor, _mapscales_cmaps
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
+from brainrender.Utils.data_manipulation import return_list_smart
 
 
 class MorphologyScene(Scene):
@@ -135,7 +136,7 @@ class MorphologyScene(Scene):
                     # Deal with a list of dictionaries
                     soma_colors, dendrites_colors, axon_colors = [], [], []
 
-                    for col in colors:
+                    for col in color:
                         if "soma" not in col.keys():
                             raise ValueError(
                                 f"When passing a dictionary as col argument, \
@@ -298,9 +299,4 @@ class MorphologyScene(Scene):
         # Add to actors storage
         self.actors["neurons"].extend(_neurons_actors)
 
-        if len(_neurons_actors) == 1:
-            return _neurons_actors[0]
-        elif not _neurons_actors:
-            return None
-        else:
-            return _neurons_actors
+        return return_list_smart(_neurons_actors)

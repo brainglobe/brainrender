@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from vtkplotter import Text
+from vtkplotter import Text, settings
 
 import brainrender
 from brainrender.scene import Scene, DualScene, MultiScene
@@ -13,18 +13,70 @@ def scene():
     return Scene()
 
 
+def test_default():
+    brainrender.DISPLAY_INSET
+    brainrender.DISPLAY_ROOT
+    brainrender.WHOLE_SCREEN
+    brainrender.BACKGROUND_COLOR
+    brainrender.SHOW_AXES
+    brainrender.WINDOW_POS
+    brainrender.CAMERA
+    brainrender.DEFAULT_SCREENSHOT_NAME
+    brainrender.DEFAULT_SCREENSHOT_TYPE
+    brainrender.DEFAULT_SCREENSHOT_SCALE
+    brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND
+    brainrender.DEFAULT_VIP_REGIONS
+    brainrender.DEFAULT_VIP_COLOR
+    brainrender.ROOT_COLOR
+    brainrender.ROOT_ALPHA
+    brainrender.DEFAULT_STRUCTURE_COLOR
+    brainrender.DEFAULT_STRUCTURE_ALPHA
+    brainrender.INJECTION_VOLUME_SIZE
+    brainrender.TRACTO_RADIUS
+    brainrender.TRACTO_ALPHA
+    brainrender.TRACTO_RES
+    brainrender.TRACT_DEFAULT_COLOR
+    brainrender.INJECTION_DEFAULT_COLOR
+    brainrender.STREAMLINES_RESOLUTION
+    brainrender.INJECTION_VOLUME_SIZE
+    brainrender.TRACTO_RADIUS
+    brainrender.TRACTO_ALPHA
+    brainrender.TRACTO_RES
+    brainrender.TRACT_DEFAULT_COLOR
+    brainrender.INJECTION_DEFAULT_COLOR
+    brainrender.STREAMLINES_RESOLUTION
+    brainrender.SHADER_STYLE
+    brainrender.DECIMATE_NEURONS
+    brainrender.SMOOTH_NEURONS
+    brainrender.VERBOSE
+    brainrender.HDF_SUFFIXES
+    brainrender.DEFAULT_HDF_KEY
+
+    brainrender.reset_defaults()
+
+
 def test_scene_creation():
     Scene()
     Scene(jupyter=True)
     Scene(display_inset=False)
     Scene(add_root=False)
-    Scene(add_root=False, display_inset=False)
+    s = Scene(add_root=False, display_inset=False)
+    s.render(interactive=False)
+    s.close()
     Scene(use_default_key_bindings=True)
     Scene(regions_aba_color=True)
     Scene(brain_regions=["MOs"])
     Scene(camera="sagittal")
     Scene(camera=coronal_camera)
     Scene(title="My title")
+
+    settings.notebookBackend = "k3d"
+    Scene()
+    settings.notebookBackend = None
+
+    brainrender.SHOW_AXES = True
+    brainrender.WHOLE_SCREEN = False
+    Scene()
 
 
 def test_root(scene):
@@ -81,9 +133,13 @@ def test_cut_with_plane(scene):
     sil = root.silhouette().lw(1).c("k")
     scene.add_vtkactor(sil)
 
+    scene.cut_actors_with_plane(["sagittal", "coronal", "horizontal"])
+
 
 def test_add_plane(scene):
     scene.add_plane("sagittal")
+
+    scene.add_plane(["sagittal", "coronal", "horizontal"])
 
 
 def test_camera():
@@ -155,6 +211,7 @@ def test_crosshair(scene):
 
     # Add a point in the right hemisphere
     point = scene.atlas.get_region_CenterOfMass("TH")
+    scene.add_rostrocaudal_line_at_point(point)
     scene.add_crosshair_at_point(
         point,
         ap=False,  # show only lines on the medio-lateral and dorso-ventral axes
@@ -188,16 +245,19 @@ def test_labelled_cells(scene):
     scene.add_brain_regions(regions, alpha=0.2)
 
     # Get fake cell coordinates
-    cells = []  # to store x,y,z coordinates
+    cells, regions = [], []  # to store x,y,z coordinates
     for region in regions:
         region_cells = scene.get_n_random_points_in_region(region=region, N=N)
         cells.extend(region_cells)
+        regions.extend([region for i in region_cells])
     x, y, z = (
         [c[0] for c in cells],
         [c[1] for c in cells],
         [c[2] for c in cells],
     )
-    cells = pd.DataFrame(dict(x=x, y=y, z=z))
+    cells = pd.DataFrame(
+        dict(x=x, y=y, z=z, region=regions)
+    )  # ! <- coordinates should be stored as a pandas dataframe
 
     # Add cells
     scene.add_cells(cells, color="darkseagreen", res=12, radius=25)
@@ -209,7 +269,7 @@ def test_add_from_file(scene):
 
 
 def test_add_sphere(scene):
-    scene.add_sphere_at_poin()
+    scene.add_sphere_at_point()
 
 
 def test_add_optic_cannula(scene):
@@ -225,18 +285,6 @@ def test_sharptrack(scene):
     )
 
 
-def test_screenshot(scene):
-    scene.take_screenshot()
-
-
-def test_render_style():
-    brainrender.SHOW_AXES = True
-    scene = Scene()
-
-    brainrender.SHADER_STYLE = "cartoon"
-    scene.render(interactive=False)
-
-
 def test_export_for_web(scene):
     scene.export_for_web()
 
@@ -244,6 +292,15 @@ def test_export_for_web(scene):
 def test_multi_scenes():
     df = DualScene()
     df.render(_interactive=False)
+    df.close()
 
     ms = MultiScene(6)
     ms.render(_interactive=False)
+    ms.close()
+
+
+def test_screenshot(scene):
+    scene.take_screenshot()
+    scene.render(interactive=False)
+    scene.take_screenshot()
+    scene.close()

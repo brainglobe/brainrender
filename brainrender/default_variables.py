@@ -84,4 +84,4 @@ VERBOSE = True  # if True print useful messages during use
 # SUPPORTED_FILE FORMATS
 """ --------------------------------------------------------------------------------- """
 HDF_SUFFIXES = [".h5", ".hdf", ".hdf5", ".he5"]
-DEFAULT_HDF_KEY = "df"
+DEFAULT_HDF_KEY = "hdf"

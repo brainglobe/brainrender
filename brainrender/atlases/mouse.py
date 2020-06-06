@@ -82,6 +82,50 @@ class ABA(BrainGlobeAtlas):
         # Get tree search api
         self.tree_search = TreeSearchApi()
 
+    def get_structure_from_coordinates(self, p0, just_acronym=True):
+        """
+        Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in.
+
+        :param p0: list of floats with XYZ coordinates.
+
+        """
+        voxel = np.round(np.array(p0) / self.resolution).astype(int)
+        try:
+            structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
+        except:
+            return None
+
+        # Each voxel in the annotation volume is annotated as specifically as possible
+        structure = self.structure_tree.get_structures_by_id([structure_id])[0]
+        if structure is not None:
+            if just_acronym:
+                return structure["acronym"]
+        return structure
+
+    def get_colors_from_coordinates(self, p0):
+        """
+            Given a point or a list of points returns a list of colors where
+            each item is the color of the brain region each point is in
+        """
+        if isinstance(p0[0], (float, int)):
+            struct = self.get_structure_from_coordinates(
+                p0, just_acronym=False
+            )
+            if struct is not None:
+                return struct["rgb_triplet"]
+            else:
+                return None
+        else:
+            structures = [
+                self.get_structure_from_coordinates(p, just_acronym=False)
+                for p in p0
+            ]
+            colors = [
+                struct["rgb_triplet"] if struct is not None else None
+                for struct in structures
+            ]
+            return colors
+
     # ------------------------- Scene population methods ------------------------- #
     def get_neurons(
         self,
@@ -195,7 +239,8 @@ class ABA(BrainGlobeAtlas):
         for n, neuron in enumerate(_neurons_actors):
             if neuron["axon"] is not None:
                 neuron["axon"].c(colors["axon"][n])
-            neuron["soma"].c(colors["soma"][n])
+            if neuron["soma"] is not None:
+                neuron["soma"].c(colors["soma"][n])
             if neuron["dendrites"] is not None:
                 neuron["dendrites"].c(colors["dendrites"][n])
 
@@ -224,6 +269,10 @@ class ABA(BrainGlobeAtlas):
         :param color: color of rendered tractography data
 
         :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
+                        options:
+                            -  manual, define color of each tract
+                            - target_region, color by the injected region
+
         :param others_alpha: float (Default value = 1)
         :param verbose: bool (Default value = True)
         :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
@@ -403,42 +452,6 @@ class ABA(BrainGlobeAtlas):
             )
 
         return actors
-
-    def get_injection_sites(self, experiments, color=None):
-        """
-        Creates Spherse at the location of injections with a volume proportional to the injected volume
-
-        :param experiments: list of dictionaries with tractography data
-        :param color:  (Default value = None)
-
-        """
-        # check arguments
-        if not isinstance(experiments, list):
-            raise ValueError("experiments must be a list")
-        if not isinstance(experiments[0], dict):
-            raise ValueError("experiments should be a list of dictionaries")
-
-        # c= cgeck color
-        if color is None:
-            color = brainrender.INJECTION_DEFAULT_COLOR
-
-        injection_sites = []
-        for exp in experiments:
-            injection_sites.append(
-                shapes.Sphere(
-                    pos=(
-                        exp["injection_x"],
-                        exp["injection_y"],
-                        exp["injection_z"],
-                    ),
-                    r=brainrender.INJECTION_VOLUME_SIZE
-                    * exp["injection_volume"]
-                    * 3,
-                    c=color,
-                )
-            )
-
-        return injection_sites
 
     # ----------------------------------- Utils ---------------------------------- #
     def get_projection_tracts_to_target(self, p0=None, **kwargs):

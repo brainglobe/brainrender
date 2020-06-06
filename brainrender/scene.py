@@ -357,7 +357,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             actors = [actors]
 
         for actor in actors:
-            mirror_coord = self.get_region_CenterOfMass(
+            mirror_coord = self.atlas.get_region_CenterOfMass(
                 "root", unilateral=False
             )[2]
             actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis="x")
@@ -443,7 +443,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                 )
         else:
             region_list = list(
-                self.get_structure_descendants(region)["acronym"].values
+                self.atlas.get_structure_descendants(region)["acronym"].values
             )
         return cells[cells.region.isin(region_list)]
 
@@ -631,7 +631,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         return sphere
 
     def add_cells_from_file(
-        self, filepath, hdf_key=None, color="red", radius=25, res=3, alpha=1
+        self, filepath, hdf_key="hdf", color="red", radius=25, res=3, alpha=1
     ):
         """
         Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh.
@@ -1310,6 +1310,12 @@ class Scene:  # subclass brain render to have acces to structure trees
     # ---------------------------------------------------------------------------- #
     def keypress(self, key):
         if key == "s":
+            if not self.is_rendered:
+                print(
+                    "You need to render the scene before you can take a screenshot"
+                )
+                return
+
             if not os.path.isdir(self.screenshots_folder) and len(
                 self.screenshots_folder
             ):
@@ -1353,9 +1359,6 @@ class DualScene:
 
     def render(self, _interactive=True):
         """ """
-
-        self.apply_render_style()
-
         # Create camera and plotter
         if brainrender.WHOLE_SCREEN:
             sz = "full"
@@ -1378,6 +1381,7 @@ class DualScene:
 
         actors = []
         for scene in self.scenes:
+            scene.apply_render_style()
             scene_actors = scene.get_actors()
             actors.append(scene_actors)
             mv.add(scene_actors)
@@ -1389,6 +1393,9 @@ class DualScene:
 
         if _interactive:
             interactive()
+
+    def close(self):
+        closePlotter()
 
 
 class MultiScene:
@@ -1446,6 +1453,7 @@ class MultiScene:
 
         actors = []
         for i, scene in enumerate(self.scenes):
+            scene.apply_render_style()
             scene_actors = scene.get_actors()
             actors.append(scene_actors)
             mv.add(scene_actors)
@@ -1456,3 +1464,6 @@ class MultiScene:
         print("Rendering complete")
         if _interactive:
             interactive()
+
+    def close(self):
+        closePlotter()
