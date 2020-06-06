@@ -26,6 +26,10 @@ class ImageDownload(SvgApi, ImageDownloadApi):
     Handles query to the Allen ImageDownloadApi and saves the data
     """
 
+    mouse_coronal = "Mouse, P56, Coronal"
+    mouse_sagittal = "Mouse, P56, Sagittal"
+    mouse3d = "Mouse, Adult, 3D Coronal"
+
     # useful tutorial: https://allensdk.readthedocs.io/en/latest/_static/examples/nb/image_download.html
     def __init__(self):
         SvgApi.__init__(
@@ -47,18 +51,16 @@ class ImageDownload(SvgApi, ImageDownloadApi):
 
         self.mouse_coronal_atlas_id = int(
             self.atlases.loc[
-                self.atlases["name"] == "Mouse, P56, Coronal"
+                self.atlases["name"] == self.mouse_coronal
             ].id.values[0]
         )
         self.mouse_sagittal_atlas_id = int(
             self.atlases.loc[
-                self.atlases["name"] == "Mouse, P56, Sagittal"
+                self.atlases["name"] == self.mouse_sagittal
             ].id.values[0]
         )
         self.mouse_3D_atlas_id = int(
-            self.atlases.loc[
-                self.atlases["name"] == "Mouse, Adult, 3D Coronal"
-            ].id.values[0]
+            self.atlases.loc[self.atlases["name"] == self.mouse3d].id.values[0]
         )
 
         # Get metadata about products
@@ -202,11 +204,14 @@ class ImageDownload(SvgApi, ImageDownloadApi):
             else:
                 self.download_svg(imgid, file_path=savename)
 
+        os.chdir(curdir)
         file_names = os.listdir(savedir)
         print("Downloaded {} images".format(len(file_names)))
         os.chdir(curdir)
 
-    def download_images_by_atlasid(self, savedir, atlasid, **kwargs):
+    def download_images_by_atlasid(
+        self, savedir, atlasid, debug=False, **kwargs
+    ):
         """
         Downloads all the images that belong to an altlas
 
@@ -216,9 +221,15 @@ class ImageDownload(SvgApi, ImageDownloadApi):
 
         """
         imgsids = self.get_atlasimages_by_atlasid(atlasid)["id"]
+
+        if debug:  # use fewer images to speed up
+            imgsids = imgsids[:2]
+
         imgs_secs_n = self.get_atlasimages_by_atlasid(atlasid)[
             "section_number"
         ]
+
+        _ = kwargs.pop("snames", None)
 
         self.download_images_by_imagesid(
             savedir, imgsids, snames=imgs_secs_n, **kwargs
