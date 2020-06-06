@@ -304,3 +304,8 @@ def test_screenshot(scene):
     scene.render(interactive=False)
     scene.take_screenshot()
     scene.close()
+
+
+def test_add_vtkactor(scene):
+    act = scene.add_brain_regions("MOs")
+    scene.add_vtkactor(act)

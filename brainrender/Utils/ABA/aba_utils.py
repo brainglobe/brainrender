@@ -100,7 +100,7 @@ def parse_neurons_colors(neurons, color):
                 # Deal with a list of dictionaries
                 soma_colors, dendrites_colors, axon_colors = [], [], []
 
-                for col in colors:
+                for col in color:
                     if "soma" not in col.keys():
                         raise ValueError(
                             f"When passing a dictionary as col argument, \

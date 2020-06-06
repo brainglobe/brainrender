@@ -43,14 +43,19 @@ def test_neurons(scene):
 
     scene.add_neurons(actors, color="Reds", display_dendrites=False)
 
-    scene.add_neurons(actors, color=["green"], display_dendrites=False)
+    scene.add_neurons(
+        actors, color=["green" for i in actors], display_dendrites=False
+    )
 
     scene.add_neurons(
         actors, color=dict(soma="red", axon="green", dendrites="blue")
     )
 
     scene.add_neurons(
-        actors, color=[dict(soma="red", axon="green", dendrites="blue")]
+        actors,
+        color=[
+            dict(soma="red", axon="green", dendrites="blue") for i in actors
+        ],
     )
 
 
