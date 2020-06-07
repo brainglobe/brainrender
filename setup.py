@@ -35,7 +35,7 @@ setup(
         "dev": [
             "pytest-cov",
             "pytest",
-            "pytest-instafail",
+            "pytest-sugar",
             "coveralls",
             "coverage<=4.5.4",
             "pre-commit",

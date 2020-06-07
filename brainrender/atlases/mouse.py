@@ -91,6 +91,7 @@ class ABA(BrainGlobeAtlas):
         display_dendrites=True,
         alpha=1,
         neurite_radius=None,
+        use_cache=True,
     ):
         """
         Gets rendered morphological data of neurons reconstructions downloaded from the
@@ -111,6 +112,7 @@ class ABA(BrainGlobeAtlas):
                         or a dictionary of colors for each neuron
         :param alpha: float in range 0,1. Neurons transparency
         :param neurite_radius: float > 0 , radius of tube actor representing neurites
+        :param use_cache: bool, if True a cache is used to avoid having to crate a neuron's mesh anew, otherwise a new mesh is created
         """
 
         if not isinstance(neurons, (list, tuple)):
@@ -168,7 +170,9 @@ class ABA(BrainGlobeAtlas):
             # Deal with neuron as instance of Neuron from morphapi
             elif isinstance(neuron, Neuron):
                 neuron_actors, _ = get_neuron_actors_with_morphapi(
-                    neuron=neuron
+                    neuron=neuron,
+                    neurite_radius=neurite_radius,
+                    use_cache=use_cache,
                 )
             # Deal with other inputs
             else:

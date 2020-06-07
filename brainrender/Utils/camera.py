@@ -143,6 +143,9 @@ def get_camera_params(scene=None, camera=None):
         the camera parameters. 
     """
     if scene is not None:
+        if not scene.is_rendered:
+            scene.render(interactive=False)
+            scene.close()
         cam = scene.plotter.camera
     else:
         cam = camera

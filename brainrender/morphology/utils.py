@@ -9,7 +9,7 @@ import numpy as np
 
 
 def get_neuron_actors_with_morphapi(
-    swcfile=None, neuron=None, neurite_radius=None
+    swcfile=None, neuron=None, neurite_radius=None, use_cache=True,
 ):
     if swcfile is None and neuron is None:
         raise ValueError("No input passed")
@@ -20,7 +20,9 @@ def get_neuron_actors_with_morphapi(
     if neurite_radius is None:
         neurite_radius = DEFAULT_NEURITE_RADIUS
 
-    actors = neuron.create_mesh(neurite_radius=neurite_radius)
+    actors = neuron.create_mesh(
+        neurite_radius=neurite_radius, use_cache=use_cache
+    )
     if actors is None:
         raise ValueError(f"Failed to get neuron actors. {swcfile} - {neuron}")
     else:
