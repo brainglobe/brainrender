@@ -181,7 +181,6 @@ class Scene:  # subclass brain render to have acces to structure trees
             "tracts": [],
             "neurons": [],
             "root": None,
-            "injection_sites": [],
             "others": [],
             "labels": [],
         }
@@ -302,52 +301,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         for actor in actors:
             actors_funcs.edit_actor(actor, **kwargs)
-
-    def edit_neurons(self, neurons=None, copy=False, **kwargs):
-
-        """
-        Edit neurons that have already been rendered. Change color, mirror them etc.
-
-        :param neurons: list of neurons actors to edit, if None all neurons in the scene are edited (Default value = None)
-        :param copy: if True, the neurons are copied first and then the copy is edited  (Default value = False)
-        :param **kwargs:
-
-        """
-        only_soma = False
-        if "mirror" in list(kwargs.keys()):
-            if kwargs["mirror"] == "soma":
-                only_soma = True
-            mirror_coord = self.get_region_CenterOfMass(
-                "root", unilateral=False
-            )[2]
-        else:
-            mirror_coord = None
-
-        if neurons is None:
-            neurons = self.actors["neurons"]
-            if not copy:
-                self.actors["neurons"] = []
-        elif not isinstance(neurons, list):
-            neurons = [neurons]
-
-        if copy:
-            copied_neurons = []
-            for n in neurons:
-                copied = {
-                    k: (
-                        a.clone()
-                        if not isinstance(a, (list, tuple)) and a is not None
-                        else []
-                    )
-                    for k, a in n.items()
-                }
-                copied_neurons.append(copied)
-            neurons = copied_neurons
-
-        edited_neurons = self.edit_neurons(
-            neurons, mirror_coord=mirror_coord, only_soma=only_soma, **kwargs
-        )
-        self.actors["neurons"].extend(edited_neurons)
 
     def mirror_actor_hemisphere(self, actors):
         """
@@ -562,15 +515,6 @@ class Scene:  # subclass brain render to have acces to structure trees
         self.actors["tracts"].extend(actors)
         return return_list_smart(actors)
 
-    def add_injection_sites(self, *args, **kwargs):
-        """
-        Creates Spherse at the location of injections with a volume proportional to the injected volume.
-        Check the function definition in ABA for more details
-        """
-        actors = self.atlas.get_injection_sites(*args, **kwargs)
-        self.actors["injection_sites"].extend(actors)
-        return return_list_smart(actors)
-
     # -------------------------- General actors/elements ------------------------- #
     def add_vtkactor(self, *actors, store=None):
         """
@@ -759,6 +703,10 @@ class Scene:  # subclass brain render to have acces to structure trees
                 )
 
             vals = list(coords_df[color_by_metadata].values)
+            if len(vals) == 0:
+                print(
+                    f"Cant color by {color_by_metadata} as no values were found"
+                )
             base_cols = get_random_colors(n_colors=len(set(vals)))
             cols_lookup = {v: c for v, c in zip(set(vals), base_cols)}
             color = [cols_lookup[v] for v in vals]
@@ -1293,7 +1241,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             raise ValueError(
                 "Failed to export scene for web.\n"
                 + "Try updating k3d and msgpack: \n "
-                + "pip install -U k3d\n"
+                + "pip install k3d==2.7.4\n"
                 + "pip install -U msgpack"
             )
 

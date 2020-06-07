@@ -238,16 +238,18 @@ def test_cells_from_file(scene):
 
 def test_labelled_cells(scene):
     # Gerate the coordinates of N cells across 3 regions
-    regions = ["MOs", "VISp", "ZI"]
+    _regions = ["MOs", "VISp", "ZI"]
     N = 1000  # getting 1k cells per region, but brainrender can deal with >1M cells easily.
 
     # Render regions
-    scene.add_brain_regions(regions, alpha=0.2)
+    scene.add_brain_regions(_regions, alpha=0.2)
 
     # Get fake cell coordinates
     cells, regions = [], []  # to store x,y,z coordinates
-    for region in regions:
+    for region in _regions:
         region_cells = scene.get_n_random_points_in_region(region=region, N=N)
+        if len(region_cells) != N:
+            raise ValueError
         cells.extend(region_cells)
         regions.extend([region for i in region_cells])
     x, y, z = (
@@ -262,6 +264,15 @@ def test_labelled_cells(scene):
     # Add cells
     scene.add_cells(cells, color="darkseagreen", res=12, radius=25)
     scene.get_cells_in_region(cells, "MOs")
+    scene.add_cells(cells[:100], color_by_metadata="x")
+    scene.add_cells(cells, color_by_region=True, radius=50, res=25)
+
+
+def test_get_random_points(scene):
+    scene.get_n_random_points_in_region("MOs", 100)
+    scene.get_n_random_points_in_region("MOp", 100, hemisphere="right")
+    ca1 = scene.add_brain_regions("CA1")
+    scene.get_n_random_points_in_region(ca1, 100)
 
 
 def test_add_from_file(scene):

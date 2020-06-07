@@ -2,11 +2,8 @@
     Code useful for dealing with volumetric data (e.g. allen annotation volume for the mouse atlas)
 """
 from vtkplotter import Volume
-
-from brainio import brainio
-
-import os
 import numpy as np
+from brainrender.Utils.data_io import load_volume_file
 
 
 def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
@@ -22,14 +19,7 @@ def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
     """
     # Load/check volumetric data
     if isinstance(data, str):  # load from file
-        if not os.path.isfile(data):
-            raise FileNotFoundError(f"Volume data file {data} not found")
-
-        try:
-            data = brainio.load_any(data)
-        except:
-            raise ValueError(f"Could not load volume data from file: {data}")
-
+        data = load_volume_file(data)
     elif not isinstance(data, np.ndarray):
         raise ValueError(
             f"Data should be a filepath or np array, not: {data.__type__}"

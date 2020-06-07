@@ -82,50 +82,6 @@ class ABA(BrainGlobeAtlas):
         # Get tree search api
         self.tree_search = TreeSearchApi()
 
-    def get_structure_from_coordinates(self, p0, just_acronym=True):
-        """
-        Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in.
-
-        :param p0: list of floats with XYZ coordinates.
-
-        """
-        voxel = np.round(np.array(p0) / self.resolution).astype(int)
-        try:
-            structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
-        except:
-            return None
-
-        # Each voxel in the annotation volume is annotated as specifically as possible
-        structure = self.structure_tree.get_structures_by_id([structure_id])[0]
-        if structure is not None:
-            if just_acronym:
-                return structure["acronym"]
-        return structure
-
-    def get_colors_from_coordinates(self, p0):
-        """
-            Given a point or a list of points returns a list of colors where
-            each item is the color of the brain region each point is in
-        """
-        if isinstance(p0[0], (float, int)):
-            struct = self.get_structure_from_coordinates(
-                p0, just_acronym=False
-            )
-            if struct is not None:
-                return struct["rgb_triplet"]
-            else:
-                return None
-        else:
-            structures = [
-                self.get_structure_from_coordinates(p, just_acronym=False)
-                for p in p0
-            ]
-            colors = [
-                struct["rgb_triplet"] if struct is not None else None
-                for struct in structures
-            ]
-            return colors
-
     # ------------------------- Scene population methods ------------------------- #
     def get_neurons(
         self,
@@ -258,7 +214,6 @@ class ABA(BrainGlobeAtlas):
         VIP_color=None,
         others_color="white",
         include_all_inj_regions=False,
-        extract_region_from_inj_coords=False,
         display_injection_volume=True,
     ):
         """
@@ -279,7 +234,6 @@ class ABA(BrainGlobeAtlas):
         :param VIP_color: str, color to use for VIP data (Default value = None)
         :param others_color: str, color for not VIP data (Default value = "white")
         :param include_all_inj_regions: bool (Default value = False)
-        :param extract_region_from_inj_coords: bool (Default value = False)
         :param display_injection_volume: float, if True a spehere is added to display the injection coordinates and volume (Default value = True)
         """
 
@@ -353,32 +307,6 @@ class ABA(BrainGlobeAtlas):
 
             if alpha == 0:
                 continue  # skip transparent ones
-
-            # check if we need to manually check injection coords
-            if extract_region_from_inj_coords:
-                try:
-                    region = self.get_region_name_from_coords(
-                        t["injection-coordinates"]
-                    )
-                    if region is None:
-                        continue
-                    inj_structures = [
-                        self.get_structure_parent(region["acronym"])["acronym"]
-                    ]
-                except:
-                    raise ValueError(
-                        self.get_region_name_from_coords(
-                            t["injection-coordinates"]
-                        )
-                    )
-                if inj_structures is None:
-                    continue
-                elif isinstance(extract_region_from_inj_coords, list):
-                    # check if injection coord are in one of the brain regions in list, otherwise skip
-                    if not is_any_item_in_list(
-                        inj_structures, extract_region_from_inj_coords
-                    ):
-                        continue
 
             # represent injection site as sphere
             if display_injection_volume:

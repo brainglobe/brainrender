@@ -12,6 +12,16 @@ def return_list_smart(lst):
         return None
 
 
+def return_dict_smart(dct):
+    keys = list(dct.keys())
+    if len(keys) == 1:
+        return dct[keys[0]]
+    elif len(keys) == 0:
+        return None
+    else:
+        return dct
+
+
 def get_coords(obj, mirror=False, mirror_ax="x"):
     """
     Takes coordinates in various format and turns them into what's expected from VTK plotter for rendering. 

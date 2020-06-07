@@ -3,6 +3,7 @@ from vtkplotter import Plane, Mesh
 
 
 from brainrender.Utils.paths_manager import Paths
+from brainrender.Utils.data_manipulation import return_dict_smart
 
 
 class Atlas(Paths):
@@ -394,9 +395,4 @@ class Atlas(Paths):
             coms[region] = com
 
         # return data
-        if len(coms.keys()) == 1:
-            return com
-        elif len(coms.keys()) == 0:
-            return None
-        else:
-            return coms
+        return return_dict_smart(coms)
