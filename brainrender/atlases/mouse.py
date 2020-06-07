@@ -91,6 +91,7 @@ class ABA(BrainGlobeAtlas):
         display_dendrites=True,
         alpha=1,
         neurite_radius=None,
+        soma_radius=None,
         use_cache=True,
     ):
         """
@@ -128,7 +129,10 @@ class ABA(BrainGlobeAtlas):
                 if os.path.isfile(neuron):
                     if neuron.endswith(".swc"):
                         neuron_actors, _ = get_neuron_actors_with_morphapi(
-                            swcfile=neuron, neurite_radius=neurite_radius
+                            swcfile=neuron,
+                            neurite_radius=neurite_radius,
+                            soma_radius=soma_radius,
+                            use_cache=use_cache,
                         )
                     else:
                         raise NotImplementedError(

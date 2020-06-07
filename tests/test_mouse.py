@@ -36,10 +36,16 @@ def test_neurons(scene):
 
     neurons = mlapi.download_neurons(neurons_metadata[:5])
     actors = scene.add_neurons(
-        neurons, color="salmon", display_axon=False, neurite_radius=6
+        neurons,
+        color="salmon",
+        display_axon=False,
+        neurite_radius=6,
+        soma_radius=20,
     )
 
-    scene.add_neurons(actors, color=None, display_dendrites=False)
+    scene.add_neurons(
+        actors, color=None, display_dendrites=False, use_cache=False
+    )
 
     scene.add_neurons(actors, color="Reds", display_dendrites=False)
 

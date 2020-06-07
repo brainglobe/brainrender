@@ -473,7 +473,10 @@ class Scene:  # subclass brain render to have acces to structure trees
         Check the atlas' method to know how it works
         """
         actors, store = self.atlas.get_neurons(*args, **kwargs)
-        self.actors["neurons"].extend(actors)
+        if isinstance(actors, list):
+            self.actors["neurons"].extend(actors)
+        else:
+            self.actors["neurons"].append(actors)
 
         if store is not None:
             for n, v in store.items():

@@ -1,4 +1,4 @@
-from brainrender import DEFAULT_NEURITE_RADIUS
+from brainrender import DEFAULT_NEURITE_RADIUS, SOMA_RADIUS
 from brainrender.colors import check_colors, colorMap, get_random_colors
 
 from morphapi.morphology.morphology import Neuron
@@ -9,7 +9,11 @@ import numpy as np
 
 
 def get_neuron_actors_with_morphapi(
-    swcfile=None, neuron=None, neurite_radius=None, use_cache=True,
+    swcfile=None,
+    neuron=None,
+    neurite_radius=None,
+    use_cache=True,
+    soma_radius=None,
 ):
     if swcfile is None and neuron is None:
         raise ValueError("No input passed")
@@ -19,9 +23,13 @@ def get_neuron_actors_with_morphapi(
 
     if neurite_radius is None:
         neurite_radius = DEFAULT_NEURITE_RADIUS
+    if soma_radius is None:
+        soma_radius = SOMA_RADIUS
 
     actors = neuron.create_mesh(
-        neurite_radius=neurite_radius, use_cache=use_cache
+        neurite_radius=neurite_radius,
+        use_cache=use_cache,
+        soma_radius=soma_radius,
     )
     if actors is None:
         raise ValueError(f"Failed to get neuron actors. {swcfile} - {neuron}")

@@ -7,9 +7,6 @@
     You can also download data manually from the neuronbrowser website and render them by
     passing the downloaded files to `scene.add_neurons`.
 """
-import brainrender
-
-brainrender.USE_MORPHOLOGY_CACHE = True
 from brainrender.scene import Scene
 
 from morphapi.api.mouselight import MouseLightAPI
