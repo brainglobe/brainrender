@@ -477,6 +477,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             self.actors["neurons"].extend(actors)
         else:
             self.actors["neurons"].append(actors)
+            actors = [actors]
 
         if store is not None:
             for n, v in store.items():

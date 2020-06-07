@@ -43,6 +43,9 @@ def test_neurons(scene):
         soma_radius=20,
     )
 
+    actor = scene.add_neurons(
+        neurons[0], color="salmon", display_axon=False, use_cache=True,
+    )
     scene.add_neurons(
         actors, color=None, display_dendrites=False, use_cache=False
     )
@@ -63,6 +66,8 @@ def test_neurons(scene):
             dict(soma="red", axon="green", dendrites="blue") for i in actors
         ],
     )
+
+    scene.add_neurons(actor)
 
 
 def test_tractography(scene):

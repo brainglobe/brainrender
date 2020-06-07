@@ -46,9 +46,9 @@ def parse_neurons_colors(neurons, color):
     # If no color is passed, get random colors
     if color is None:
         cols = get_random_colors(N)
-        colors = dict(
-            soma=cols.copy(), axon=cols.copy(), dendrites=cols.copy(),
-        )
+        if not isinstance(cols, list):
+            cols = [cols]
+        colors = dict(soma=cols, axon=cols, dendrites=cols,)
     else:
         if isinstance(color, str):
             # Deal with a a cmap being passed
