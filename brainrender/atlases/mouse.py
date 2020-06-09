@@ -19,12 +19,12 @@ from morphapi.morphology.morphology import Neuron
 import brainrender
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
-from brainrender.Utils.ABA.aba_utils import (
+from brainrender.ABA.aba_utils import (
     parse_streamline,
     download_streamlines,
     experiments_source_search,
 )
-from brainrender.Utils.ABA.aba_utils import (
+from brainrender.ABA.aba_utils import (
     parse_neurons_colors,
     parse_tractography_colors,
 )

@@ -1,5 +1,5 @@
 import pytest
-from brainrender.Utils.ABA.atlas_images import ImageDownload
+from brainrender.ABA.atlas_images import ImageDownload
 from tempfile import TemporaryDirectory
 
 

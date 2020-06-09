@@ -3,7 +3,7 @@
     mouse brain atlas. 
 """
 
-from brainrender.Utils.ABA.atlas_images import ImageDownload
+from brainrender.ABA.atlas_images import ImageDownload
 
 imd = ImageDownload()
 
