@@ -1,12 +1,56 @@
 import pytest
+from vtkplotter import Mesh
+import numpy as np
+
 from brainrender.scene import Scene
 from brainrender.colors import makePalette
 from morphapi.api.mouselight import MouseLightAPI
+from brainrender.ABA.gene_expression import GeneExpressionAPI
 
 
 @pytest.fixture
 def scene():
     return Scene()
+
+
+def test_gene_expression():
+    geapi = GeneExpressionAPI()
+    gene = "Cacna2d1"
+    geneid = geapi.get_gene_id_by_name(gene)
+    symbol = geapi.get_gene_symbol_by_id(geneid)
+
+    expids = geapi.get_gene_experiments(geneid)
+    if not isinstance(geneid, int):
+        raise ValueError
+    if symbol != gene:
+        raise ValueError
+    if not isinstance(expids, list) or not len(expids):
+        raise ValueError
+    if not isinstance(expids[0], int):
+        raise ValueError
+
+    data = geapi.get_gene_data(geneid, expids[0])
+    data3 = geapi.get_gene_data(
+        geneid, expids[0]
+    )  # again to make sure cache works
+    data2 = geapi.get_gene_data(geneid, expids[1])
+
+    if (
+        not isinstance(data, np.ndarray)
+        or not isinstance(data2, np.ndarray)
+        or not isinstance(data3, np.ndarray)
+    ):
+        raise ValueError
+    if data != data3:
+        raise ValueError
+
+    gene_actor = geapi.griddata_to_volume(
+        data, min_quantile=90, cmap="inferno"
+    )
+    gene_actor2 = geapi.griddata_to_volume(data2, min_value=0.2)
+
+    if not isinstance(gene_actor, Mesh) or not isinstance(gene_actor2, Mesh):
+        raise ValueError
 
 
 def test_streamlines(scene):
