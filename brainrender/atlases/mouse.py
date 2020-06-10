@@ -23,8 +23,6 @@ from brainrender.ABA.aba_utils import (
     parse_streamline,
     download_streamlines,
     experiments_source_search,
-)
-from brainrender.ABA.aba_utils import (
     parse_neurons_colors,
     parse_tractography_colors,
 )

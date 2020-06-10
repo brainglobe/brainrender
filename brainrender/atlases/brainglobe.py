@@ -54,7 +54,7 @@ class BrainGlobeAtlas(Atlas):
             return True
 
     def _get_structure_mesh(self, acronym, **kwargs):
-        obj_path = self.get_mesh_file_from_acronym(acronym)
+        obj_path = self.meshfile_from_structure(acronym)
         return load_mesh_from_file(obj_path, **kwargs)
 
     def get_brain_regions(

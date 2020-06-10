@@ -34,6 +34,7 @@ default_paths = dict(
     annotated_volume_fld="Data/ABA",
     mouse_connectivity_volumetric="Data/ABA/Volumetric",
     mouse_connectivity_volumetric_cache="Data/ABA/Volumetric/cache",
+    gene_expression_cache="Data/ABA/Volumetric/GeneExpressionCache",
     # Streamlines cache
     streamlines_cache="Data/Streamlines",
     # ------------------- Folders for the insect brain db atlas ------------------ #
@@ -62,7 +63,7 @@ class Paths:
         "annotated_volume_fld",
         "mouse_connectivity_volumetric",
         "mouse_connectivity_volumetric_cache",
-        "ibdb_meshes_folder",
+        "gene_expression_cache," "ibdb_meshes_folder",
         "zfish_meshes_folder",
     ]
 
