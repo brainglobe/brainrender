@@ -6,16 +6,46 @@ import brainrender
 # from brainrender.ABA.gene_expression.ge_utils import read_raw
 from brainrender.Utils.paths_manager import Paths
 
+# from brainrender.Utils.webqueries import request
+
 
 class GeneExpressionAPI(Paths):
     voxel_size = 200  # um
     grid_size = [58, 41, 67]  # number of voxels along each direction
 
+    all_genes_url = (
+        "http://api.brain-map.org/api/v2/data/query.json?criteria="
+        + "model::Gene,"
+        + "rma::criteria,products[abbreviation$eq'DevMouse'],"
+        + "rma::options,[tabular$eq'genes.id','genes.acronym+as+gene_symbol','genes.name+as+gene_name',"
+        + "'genes.entrez_id+as+entrez_gene_id','genes.homologene_id+as+homologene_group_id'],"
+        + "[order$eq'genes.acronym']"
+        + "&num_rows=all&start_row=0"
+    )
+
     def __init__(self, base_dir=None, **kwargs):
         super().__init__(base_dir, **kwargs)
 
-        # TODO make methods to query list of genes available
+        # Get metadata about all available genes
+        self.genes = None  # when necessary gene data can be downloaded with self.get_all_genes
+
         # TODO make methods to download and cache data
+
+    # TODO make decorator to catch this is no internet connection
+    def get_all_genes(self):
+        """
+            Download metadata about all the genes available in the Allen gene expression dataset
+        """
+        # res = request(url)
+        # return pd.DataFrame(res.json()["msg"])
+        return
+
+    def get_gene_data(self, gene):
+        # TODO: check if gene cached, if yes load
+        # TODO if not load, but fail on no internet
+        # TODO after loading cache the results
+        if not isinstance(gene, list):
+            gene = [gene]
 
     def griddata_to_volume(
         self, griddata, min_quantile=None, min_value=None, **kwargs

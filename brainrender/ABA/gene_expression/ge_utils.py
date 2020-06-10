@@ -2,6 +2,18 @@ import os
 import numpy as np
 
 
+"""
+    This query URL can be used to download information about ISH experiments from the
+    Allen institute:
+    url = 'http://api.brain-map.org/api/v2/data/query.json?criteria='+\
+            "model::SectionDataSet,"+\
+            "rma::criteria,[failed$eqfalse],products[abbreviation$eq'Mouse'],treatments[name$eq'ISH'],"+\
+            "rma::include,genes,specimen(donor(age)),plane_of_section"+\
+            "&num_rows=50&start_row=0"
+    request(url).json()['msg']
+"""
+
+
 def read_raw(filepath):
     """
         reads a .raw file with gene expression data 

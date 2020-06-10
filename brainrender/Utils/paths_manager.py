@@ -63,7 +63,8 @@ class Paths:
         "annotated_volume_fld",
         "mouse_connectivity_volumetric",
         "mouse_connectivity_volumetric_cache",
-        "gene_expression_cache," "ibdb_meshes_folder",
+        "gene_expression_cache",
+        "ibdb_meshes_folder",
         "zfish_meshes_folder",
     ]
 
