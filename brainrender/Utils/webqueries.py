@@ -24,3 +24,14 @@ def request(url):
     else:
         exception_string = "URL request failed: {}".format(response.reason)
     raise ValueError(exception_string)
+
+
+# ----------------------------- Define decorators ---------------------------- #
+def fail_on_no_connection(func):
+    if not connected_to_internet():
+        raise ConnectionError("No internet connection found.")
+
+    def inner(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return inner
