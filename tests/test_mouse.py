@@ -41,7 +41,7 @@ def test_gene_expression():
         or not isinstance(data3, np.ndarray)
     ):
         raise ValueError
-    if data != data3:
+    if not np.array_equal(data, data3):
         raise ValueError
 
     gene_actor = geapi.griddata_to_volume(
