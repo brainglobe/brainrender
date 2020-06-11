@@ -83,11 +83,6 @@ class BrainGlobeAtlas(Atlas):
                 :param add_labels: bool (default False). If true a label is added to each regions' actor. The label is visible when hovering the mouse over the actor
                 :param **kwargs: used to determine a bunch of thigs, including the look and location of lables from scene.add_labels
             """
-        # Check that the atlas has brain regions data
-        if self.structures_acronyms is None:
-            print(f"The atlas {self.atlas_name} has no brain regions data")
-            return
-
         # Parse arguments
         if alpha is None:
             alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
@@ -133,12 +128,13 @@ class BrainGlobeAtlas(Atlas):
                 continue
 
             # Get path to .obj file
-            obj_file = str(self.get_mesh_file_from_acronym(region))
+            obj_file = str(self.meshfile_from_structure(region))
 
             # check which color to assign to the brain region
             if use_original_color:
                 color = [
-                    x / 255 for x in self.get_region_color_from_acronym(region)
+                    x / 255
+                    for x in self._get_from_structure(region, "rgb_triplet")
                 ]
             else:
                 if colors is None:

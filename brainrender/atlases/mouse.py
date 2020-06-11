@@ -499,3 +499,8 @@ class ABA25Um(ABA, AllenBrain25Um):
         AllenBrain25Um.__init__(self)
 
         self.meshes_folder = self.root_dir / "meshes"
+
+        # Get regions names/acronyms/ids for ease of use
+        self.structures_acronyms = self.lookup.acronym.values
+        self.structures_ids = self.lookup.id.values
+        self.structures_names = self.lookup.name.values

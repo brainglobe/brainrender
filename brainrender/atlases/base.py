@@ -60,6 +60,8 @@ class Atlas(Paths):
         self.regions = None
         # list of all regions in the atlas
         self.region_acronyms = None
+        self.structures = None
+        self.acronyms = None
 
     # ---------------------------------------------------------------------------- #
     #                             General atlas methods                            #
