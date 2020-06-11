@@ -2,6 +2,7 @@ import os
 import numpy as np
 import zipfile
 import io
+import sys
 from brainrender.Utils.data_io import get_subdirs, listdir
 from brainrender.Utils.webqueries import request
 
@@ -50,7 +51,7 @@ def download_and_cache(url, cachedir):
     z.extractall(cachedir)
 
 
-def load_cached_gene(cache, metric):
+def load_cached_gene(cache, metric, grid_size):
     """
         Loads a gene's data from cache
     """
@@ -62,15 +63,15 @@ def load_cached_gene(cache, metric):
     if len(files) > 1:
         raise NotImplementedError("Deal with more than one file found")
     else:
-        return read_raw(files[0])
+        return read_raw(files[0], grid_size)
 
 
 # --------------------------------- Open .raw -------------------------------- #
-def read_raw(filepath):
+def read_raw(filepath, grid_size):
     """
         reads a .raw file with gene expression data 
         downloaded from the Allen atlas and returns 
-        a numpy array with the correct shape.
+        a numpy array with the correct grid_size.
         See as reference:
             http://help.brain-map.org/display/mousebrain/API#API-Expression3DGridsz
 
@@ -87,6 +88,9 @@ def read_raw(filepath):
         content = test.read()
 
     # Create np array and return
-    shape = [58, 41, 67]
-    data = np.frombuffer(content, dtype="float32").reshape(shape).T
+    data = np.frombuffer(content, dtype="float32").reshape(grid_size)
+
+    if sys.platform == "darwin":
+        data = data.T  # TODO figure out why this is necessary on Mac OS?
+
     return data

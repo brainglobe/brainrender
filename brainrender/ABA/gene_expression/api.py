@@ -39,8 +39,6 @@ class GeneExpressionAPI(Paths):
         # Get metadata about all available genes
         self.genes = None  # when necessary gene data can be downloaded with self.get_all_genes
 
-        # TODO make methods to download and cache data
-
     @fail_on_no_connection
     def get_all_genes(self):
         """
@@ -133,7 +131,7 @@ class GeneExpressionAPI(Paths):
 
         # download experiment data
         for eid in exp_ids:
-            print(f"Downloading data for {gene} - experiment: {eid}")
+            print(f"Downloading data for {gene_symbol} - experiment: {eid}")
             url = self.download_url.replace("EXP_ID", str(eid))
             download_and_cache(
                 url, os.path.join(self.gene_expression_cache, f"{gene}-{eid}")
@@ -160,7 +158,7 @@ class GeneExpressionAPI(Paths):
                 )
 
         # Load from cache
-        data = load_cached_gene(cache, metric)
+        data = load_cached_gene(cache, metric, self.grid_size)
         return data
 
     def griddata_to_volume(
