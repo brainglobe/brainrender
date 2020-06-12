@@ -1041,7 +1041,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         col_by_region = points_kwargs.pop("color_by_region", True)
         color = points_kwargs.pop("color", "salmon")
         radius = points_kwargs.pop("radius", 30)
-        self.add_cells(
+        spheres = self.add_cells(
             probe_points_df,
             color=color,
             color_by_region=col_by_region,
@@ -1083,6 +1083,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         # Add to scene
         self.add_vtkactor(probe)
+        return probe, spheres
 
     # ---------------------------------------------------------------------------- #
     #                                   RENDERING                                  #

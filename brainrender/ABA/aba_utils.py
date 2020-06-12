@@ -117,6 +117,8 @@ def parse_neurons_colors(neurons, color):
                 )
 
             else:
+                if isinstance(color, tuple):
+                    color = [color]
                 # Deal with a list of colors
                 colors = dict(
                     soma=color.copy(),

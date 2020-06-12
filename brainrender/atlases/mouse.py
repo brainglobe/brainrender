@@ -272,7 +272,7 @@ class ABA(BrainGlobeAtlas):
         COLORS = [
             c
             if c is not None
-            else self.get_region_color_from_acronym(t["structure-abbrev"])
+            else self._get_from_structure(t["structure-abbrev"], "rgb_triplet")
             for c, t in zip(COLORS, tractography)
         ]
 
