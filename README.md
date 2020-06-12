@@ -31,7 +31,7 @@ If you want the most recent version of `brainrender`'s code, you can get it dire
 pip install -U git+https://github.com/BrancoLab/BrainRender.git
 ```
 
-$~$
+
 # Usage
 `brainrender` relies on brainglobe's [brainatlas-api](https://github.com/brainglobe/brainatlas-api) to fetch structural and morphological data for various brain atlases, including two mice atlases, one zebrafish atlas and one atlas of the human brain. Much of what brainrender can do works across all of these atlases:
 
@@ -43,7 +43,7 @@ Brain structures             |  Labelled cells        |  Neuron reconstructions
 
 
 
-$~$
+
 ## Publicly available datasets
 Brainrender can be used to download a visualize a neuroanatomical data from several publicly available datasets based on the Allen Atlas of the mouse brain.
 Anatomical and projection data is downloaded from the  Allen Brain Atlas [reference atlas](http://atlas.brain-map.org)
@@ -57,22 +57,22 @@ neurons morphological data from Janelia's [mouse light](https://www.janelia.org/
 
 Streamlines             |  Tractography        |   
 :-------------------------:|:-------------------------:|
-<a href="Examples/mouse/streamlines.py" target="_blank"><img src="Docs/Media/clean_screenshots/streamlines.png"><br>`streamlines.py`</a> | <a href="Examples/mouse/tractography.py" target="_blank"><img src="Docs/Media/clean_screenshots/tractography.png"><br>`tractography.py` </a>
+<a href="Examples/mouse/streamlines.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/streamlines.png"><br>`streamlines.py`</a> | <a href="Examples/mouse/tractography.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/tractography.png"><br>`tractography.py` </a>
 
 
 gene expression | MouseLight
 :-------------------------:|:-------------------------:|
- <a href="Examples/mouse/gene_expression.py" target="_blank"><img src="Docs/Media/clean_screenshots/gene_expr.png"><br>`gene_expression.py`</a> |  <a href="Examples/mouse/mouselight.py" target="_blank"><img src="Docs/Media/clean_screenshots/neurons.png"><br>`mouselight.py`</a>
+ <a href="Examples/mouse/gene_expression.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/gene_expr.png"><br>`gene_expression.py`</a> |  <a href="Examples/mouse/mouselight.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/neurons.png"><br>`mouselight.py`</a>
 
 
-$~$
+
 ## Mouse brain-specific
 `brainrender` can be used to visualise the location of implanted neuropixel probes with data from [SHARP TRACK](https://github.com/cortex-lab/allenCCF).
 Neuropixel             | 
 :-------------------------:|
-<a href="Examples/user_data/sharptrack.py" target="_blank"><img src="Docs/Media/clean_screenshots/neuropixel.png" style="max-width:200px"><br>`sharptrack.py` </a>| 
+<a href="Examples/user_data/sharptrack.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/neuropixel.png" style="width:400px"><br>`sharptrack.py` </a>| 
 
-$~$
+
 ## Exporting
 To facilitate the creation of scientific illustrations, brainrender let's you take screenshots of your scenes, create animated videos and embed [interactive visualisations](https://fedeclaudi.github.io/br-info.html) in your website. 
 
@@ -82,7 +82,7 @@ To learn how to do it, check these examples:
  - [animation](Examples/advanced/animated_scene.py)
  - [export for web](Examples/export/export_for_web.py)
 
-$~$
+
 ## Other
 `brainrender` relies on the powerful `vtkplotter`(https://vtkplotter.embl.es) ([github](https://github.com/marcomusy/vtkPlotter)) rendering engine, thus providing you with the flexibility to render just about anything you might need for your visualisation. As an example, here you can see how to visualise the location of an implanted optic fiber or any 3d obct from an `.stl` or `.obj` file. 
 
@@ -101,7 +101,7 @@ A few more things you can do to improve your visualizations:
 - and more...
 
 
-$~$
+
 ## Other atlases
 In addition to the atlases supported by `brainatlas-api`, you can easily create `Atlas` classes to support the visualisation of your own datasets in brainrender (see [here](Docs/custom_atlases.md) for more details). As a way of example we provide two such classes. One to visualise insect brains from [insectbraindb.org]( https://insectbraindb.org/app/) and one for _C. Elegans_ connectome data from Daniel Witvliet's recent [preprint](https://www.biorxiv.org/content/10.1101/2020.04.30.066209v1).
 
@@ -110,14 +110,14 @@ Insect brains             |  _C. Elegans_ connectome
 <a href="Examples/custom_atlases/insects_brains.py" target="_blank"><img  src="Docs/Media/clean_screenshots/ibdb.png"><br>`insects_brains.py` </a>| <a href="Examples/custom_atlases/celegans_connectome.py" target="_blank"><img  src="Docs/Media/clean_screenshots/celegans.png"><br>`celegans_connectome.py` </a>
 
 
-$~$
+
 # Getting in touch
 If you're unsure how to use `brainrender`, please start by having a look at the  [user guide](https://github.com/BrancoLab/BrainRender/blob/master/Docs/UserGuide.md) and the [examples](https://github.com/BrancoLab/BrainRender/blob/master/Examples) notebooks. If you still have unanswered questions, please do not hesitate to get in touch (the easiest way is to open an issue on github). 
 
 For any bug report or feature request, please open an issue with a brief description of the matter. 
 Although brainrender can already to much, we are always happy to add more functionality that could be useful for users. If you spot some feature that is missing, we'd love to hear about is so please get in touch!
 
-$~$
+
 ## Referencing Brain Render
 If you found BrainRender useful and decided to include a rendering in your talks, posters or article, please acknowledge BrainRender's contribution by citing the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1) as:
 ```
@@ -126,7 +126,7 @@ Federico Claudi, Adam L. Tyson, Tiago Branco
 bioRxiv 2020.02.23.961748; doi: https://doi.org/10.1101/2020.02.23.961748 
 ```
 
-$~$
+
 # Similar tools
 ## In R
 `cocoframer` is an R library for interacting with the Allen's Mouse CCF [github repository](https://github.com/AllenInstitute/cocoframer).
@@ -136,7 +136,7 @@ $~$
 ### In Matlab
 `BrainMesh` is a Matlab GUI for rendering 3D mouse brain structure [github repository](https://github.com/Yaoyao-Hao/BrainMesh).
 
-$~$
+
 ## References
 * [1] Lein, E.S. et al. (2007) Genome-wide atlas of gene expression in the adult mouse brain, Nature 445: 168-176. doi:10.1038/nature05453
 * [2] Oh, S.W. et al. (2014) A mesoscale connectome of the mouse brain, Nature 508: 207-214. doi:10.1038/nature13186
