@@ -55,9 +55,15 @@ neurons morphological data from Janelia's [mouse light](https://www.janelia.org/
 (see the [neurons browser](http://ml-neuronbrowser.janelia.org)). [3]
 
 
-Streamlines             |  Tractography        |   gene expression | MouseLight
-:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
-<a href="Examples/mouse/streamlines.py" target="_blank"><img src="Docs/Media/clean_screenshots/streamlines.png"><br>`streamlines.py`</a> | <a href="Examples/mouse/tractography.py" target="_blank"><img src="Docs/Media/clean_screenshots/tractography.png"><br>`tractography.py` </a>|  <a href="Examples/mouse/gene_expression.py" target="_blank"><img src="Docs/Media/clean_screenshots/gene_expr.png"><br>`gene_expression.py`</a> |  <a href="Examples/mouse/mouselight.py" target="_blank"><img src="Docs/Media/clean_screenshots/neurons.png"><br>`mouselight.py`</a>
+Streamlines             |  Tractography        |   
+:-------------------------:|:-------------------------:|
+<a href="Examples/mouse/streamlines.py" target="_blank"><img src="Docs/Media/clean_screenshots/streamlines.png"><br>`streamlines.py`</a> | <a href="Examples/mouse/tractography.py" target="_blank"><img src="Docs/Media/clean_screenshots/tractography.png"><br>`tractography.py` </a>
+
+
+gene expression | MouseLight
+:-------------------------:|:-------------------------:|
+ <a href="Examples/mouse/gene_expression.py" target="_blank"><img src="Docs/Media/clean_screenshots/gene_expr.png"><br>`gene_expression.py`</a> |  <a href="Examples/mouse/mouselight.py" target="_blank"><img src="Docs/Media/clean_screenshots/neurons.png"><br>`mouselight.py`</a>
+
 
 $~$
 ## Mouse brain-specific
