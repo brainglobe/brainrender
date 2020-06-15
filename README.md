@@ -84,7 +84,7 @@ To learn how to do it, check these examples:
 
 
 ## Other
-`brainrender` relies on the powerful `vtkplotter`(https://vtkplotter.embl.es) ([github](https://github.com/marcomusy/vtkPlotter)) rendering engine, thus providing you with the flexibility to render just about anything you might need for your visualisation. As an example, here you can see how to visualise the location of an implanted optic fiber or any 3d obct from an `.stl` or `.obj` file. 
+`brainrender` relies on the powerful `vedo`(https://vedo.embl.es) ([github](https://github.com/marcomusy/vedo)) rendering engine, thus providing you with the flexibility to render just about anything you might need for your visualisation. As an example, here you can see how to visualise the location of an implanted optic fiber or any 3d obct from an `.stl` or `.obj` file. 
 
 
 Optic fibre             |  .stl file visualisation | .obj file visualisation
@@ -149,5 +149,5 @@ bioRxiv 2020.02.23.961748; doi: https://doi.org/10.1101/2020.02.23.961748
 Brainrender was deisgned to be a powerful and flexible software for downloading and rendering neuroanatomical data while still being relatively easy to use (using brainrender requires minimal coding experience). 
 This was achieved by: 
   1) handling the interaction with the API, SDK and databases services used to find and download the data behind the scenes, requiring minimal user input. 
-  2) Using [vtkplotter](https://vtkplotter.embl.es) to handle the rendering. Vtkplotter  ([github repo](https://github.com/marcomusy/vtkPlotter)) is a powerful rendering engine that produces high quality three dimensional rendering. Vtkplotter is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
+  2) Using [vedo](https://vedo.embl.es) to handle the rendering. vedo  ([github repo](https://github.com/marcomusy/vedo)) is a powerful rendering engine that produces high quality three dimensional rendering. vedo is also flexible, meaning that it can handle data provided in various file formats, allowing `brainrender` to render data from various sources. 
 

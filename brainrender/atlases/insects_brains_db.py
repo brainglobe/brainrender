@@ -5,7 +5,7 @@ from PIL import ImageColor
 
 from treelib import Tree
 
-from vtkplotter import load, merge, write
+from vedo import load, merge, write
 
 import brainrender
 from brainrender.atlases.base import Atlas

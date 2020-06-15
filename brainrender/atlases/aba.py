@@ -1,8 +1,8 @@
 # import numpy as np
 # from tqdm import tqdm
 
-# from vtkplotter import ProgressBar, shapes, merge, load
-# from vtkplotter.mesh import Mesh as Actor
+# from vedo import ProgressBar, shapes, merge, load
+# from vedo.mesh import Mesh as Actor
 
 # from morphapi.morphology.morphology import Neuron
 

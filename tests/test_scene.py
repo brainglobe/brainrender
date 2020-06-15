@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from vtkplotter import Text, settings
+from vedo import Text, settings
 
 import brainrender
 from brainrender.scene import Scene, DualScene, MultiScene
@@ -151,6 +151,7 @@ def test_camera():
     scene.close()
 
     # Now render but with a different view
+    scene = Scene()
     scene.render(interactive=False, camera="sagittal", zoom=1)
     scene.close()
 
@@ -163,6 +164,7 @@ def test_camera():
         clipping=[5892.778, 14113.736],
     )
 
+    scene = Scene()
     scene.render(interactive=False, camera=bespoke_camera, zoom=1)
     scene.close()
 

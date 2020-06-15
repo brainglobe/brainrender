@@ -1,5 +1,5 @@
 import numpy as np
-from vtkplotter import Volume
+from vedo import Volume
 import pandas as pd
 import os
 
@@ -166,7 +166,7 @@ class GeneExpressionAPI(Paths):
     ):
         """
             Takes a 3d numpy array with volumetric gene expression
-            and returns a vtkplotter.Volume.isosurface actor.
+            and returns a vedo.Volume.isosurface actor.
             The isosurface needs a lower bound threshold, this can be
             either a user defined hard value (min_value) or the value
             corresponding to some percentile of the gene expression data.

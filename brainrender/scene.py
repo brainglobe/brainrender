@@ -4,14 +4,14 @@ import numpy as np
 import os
 import datetime
 import random
-from vtkplotter import (
+from vedo import (
     Plotter,
     shapes,
     show,
     screenshot,
     interactive,
 )
-from vtkplotter import (
+from vedo import (
     Text2D,
     closePlotter,
     settings,
@@ -19,8 +19,8 @@ from vtkplotter import (
     Text,
     Sphere,
 )
-from vtkplotter.shapes import Cylinder, Line
-from vtkplotter.mesh import Mesh as Actor
+from vedo.shapes import Cylinder, Line
+from vedo.mesh import Mesh as Actor
 import pandas as pd
 from pathlib import Path
 
@@ -42,7 +42,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         The code below aims to create a scene to which actors can be added or removed, changed etc..
         It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of
         snapshots or animated videos.
-        The class Scene is based on the Plotter class of Vtkplotter: https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/plotter.py
+        The class Scene is based on the Plotter class of vedo: https://github.com/marcomusy/vedo/blob/master/vedo/plotter.py
         and other classes within the same package.
     """
 
@@ -86,7 +86,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                         - 'name' -> str, filename to prepend to screenshots files
                         - 'format' -> str, 'png', 'svg' or 'jpg'
                         - scale -> float, values > 1 yield higher resultion screenshots
-            :param use_default_key_bindings: if True the defualt keybindings from VtkPlotter are used, otherwise
+            :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
             :param title: str, if a string is passed a text is added to the top of the rendering window as a title
             :param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
@@ -102,7 +102,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         self.verbose = verbose
         self.regions_aba_color = regions_aba_color
 
-        # Infer if we are using k3d from vtkplotter.settings
+        # Infer if we are using k3d from vedo.settings
         if settings.notebookBackend == "k3d":
             self.jupyter = True
         else:
@@ -131,7 +131,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         else:
             self.camera = check_camera_param(camera)
 
-        # Set up vtkplotter plotter and actors records
+        # Set up vedo plotter and actors records
         if brainrender.WHOLE_SCREEN and not self.jupyter:
             sz = "full"
         elif brainrender.WHOLE_SCREEN and self.jupyter:
@@ -219,7 +219,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             Checks if a point of defined coordinates is within the mesh of a given actorr
 
             :param point: 3-tuple or list of xyz coordinates
-            :param region_actor: vtkplotter actor
+            :param region_actor: vedo actor
         """
         if not region_actor.insidePoints([point]):
             return False
@@ -285,7 +285,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         except:
             ipts = region_mesh.insidePoints(
                 pts
-            )  # to deal with older instances of vtkplotter
+            )  # to deal with older instances of vedo
         return random.choices(ipts, k=N)
 
     # ---------------------------- Actor interaction ----------------------------- #
@@ -801,7 +801,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             text at the top of the rendering window.
 
             :param text: str with text to write
-            :param kwargs: keyword arguments accepted by vtkplotter.shapes.Text2D
+            :param kwargs: keyword arguments accepted by vedo.shapes.Text2D
         """
         pos = kwargs.pop("pos", 8)
         size = kwargs.pop("size", 1.75)
@@ -991,7 +991,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
             :param plane: either a string with the name of one of 
                 the predifined planes ['sagittal', 'coronal', 'horizontal'] 
-                or an instance of the Plane class from vtkplotter.shapes
+                or an instance of the Plane class from vedo.shapes
         """
         if isinstance(plane, (list, tuple)):
             planes = plane.copy()

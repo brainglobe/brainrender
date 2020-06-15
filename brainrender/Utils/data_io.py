@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io as sio
 import pandas as pd
 from brainio import brainio
-from vtkplotter import load, Volume
+from vedo import load, Volume
 
 # ------------------------------------ OS ------------------------------------ #
 
@@ -140,8 +140,8 @@ def load_volume_file(filepath):
         raise FileNotFoundError(filepath)
     try:
         volume = brainio.load_any(filepath)
-    except:
-        raise ValueError(f"Could not load volume data: {filepath}")
+    except Exception as e:
+        raise ValueError(f"Could not load volume data: {filepath}:\n {e}")
     else:
         return volume
 

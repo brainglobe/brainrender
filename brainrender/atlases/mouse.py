@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from vtkplotter import shapes, merge, Mesh
+from vedo import shapes, merge, Mesh
 
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from allensdk.api.queries.ontologies_api import OntologiesApi
@@ -97,7 +97,7 @@ class ABA(BrainGlobeAtlas):
         Mouse Light project at Janelia (or other sources). 
         Accepts neurons argument as:
             - file(s) with morphological data
-            - vtkplotter mesh actor(s) of entire neurons reconstructions
+            - vedo mesh actor(s) of entire neurons reconstructions
             - dictionary or list of dictionary with actors for different neuron parts
 
         :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
@@ -187,7 +187,7 @@ class ABA(BrainGlobeAtlas):
                 if act is not None:
                     if not isinstance(act, Mesh):
                         raise ValueError(
-                            f"Neuron actor {key} is {act.__type__} but should be a vtkplotter Mesh. Not: {act}"
+                            f"Neuron actor {key} is {act.__type__} but should be a vedo Mesh. Not: {act}"
                         )
 
             if not display_axon:

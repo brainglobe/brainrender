@@ -4,7 +4,7 @@ import numpy as np
 
 from tqdm import tqdm
 
-from vtkplotter import shapes, merge
+from vedo import shapes, merge
 
 import brainrender
 from brainrender.Utils.data_io import load_json

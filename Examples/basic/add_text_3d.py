@@ -8,7 +8,7 @@ brainrender.SHADER_STYLE = "cartoon"
 
 from brainrender.scene import Scene
 from brainrender.colors import makePalette
-from vtkplotter import Text
+from vedo import Text
 
 
 # Crate a scene

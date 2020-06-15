@@ -1,5 +1,5 @@
 import pytest
-from vtkplotter import Mesh
+from vedo import Mesh
 import numpy as np
 
 from brainrender.scene import Scene

@@ -3,7 +3,7 @@ from brainrender.colors import check_colors, colorMap, get_random_colors
 
 from morphapi.morphology.morphology import Neuron
 
-from vtkplotter import merge
+from vedo import merge
 
 import numpy as np
 

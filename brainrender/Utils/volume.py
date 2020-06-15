@@ -1,7 +1,7 @@
 """
     Code useful for dealing with volumetric data (e.g. allen annotation volume for the mouse atlas)
 """
-from vtkplotter import Volume
+from vedo import Volume
 import numpy as np
 from brainrender.Utils.data_io import load_volume_file
 
@@ -14,7 +14,7 @@ def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
 
         :param data: str, path to file with volume data or 3d numpy array
         :param vmin: float, values below this numner will be assigned an alpha=0 and not be visualized
-        :param **kwargs: kwargs to pass to the Volume class from vtkplotter
+        :param **kwargs: kwargs to pass to the Volume class from vedo
         :param alpha: float in range [0, 1], transparency [for the part of volume with value > vmin]
     """
     # Load/check volumetric data
@@ -39,9 +39,9 @@ def load_labelled_volume(data, vmin=0, alpha=1, **kwargs):
 
 def extract_volume_surface(vol, threshold=0.1, smooth=False):
     """ 
-        Returns a vtkplotter mesh actor with just the outer surface of a volume
+        Returns a vedo mesh actor with just the outer surface of a volume
 
-        :param vol: instance of Volume class from vtkplotter
+        :param vol: instance of Volume class from vedo
         :param threshold: float, min value to threshold the volume for isosurface extraction
         :param smooth: bool, if True the surface mesh is smoothed
     """
@@ -61,10 +61,10 @@ def extract_volume_surface(vol, threshold=0.1, smooth=False):
 
 def extract_label_mesh(vol, lbl):
     """
-        Given a vtkplotter Volume with a scalar value labelling each voxel, 
+        Given a vedo Volume with a scalar value labelling each voxel, 
         this function returns a mesh of only the voxels whose value matches the lbl argument
 
-        :param vol: a vtkplotter Volume
+        :param vol: a vedo Volume
         :param lbl: float or int
     """
     if not isinstance(vol, Volume):

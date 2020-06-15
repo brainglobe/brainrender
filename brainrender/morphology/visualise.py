@@ -1,9 +1,9 @@
 import os
 import numpy as np
 
-from vtkplotter import merge
-from vtkplotter.mesh import Mesh as Actor
-from vtkplotter import settings
+from vedo import merge
+from vedo.mesh import Mesh as Actor
+from vedo import settings
 
 from morphapi.morphology.morphology import Neuron
 
@@ -191,7 +191,7 @@ class MorphologyScene(Scene):
             Mouse Light project at Janelia, neuromorpho.org and other sources. 
             Accepts neurons argument as:
                 - file(s) with morphological data
-                - vtkplotter mesh actor(s) of neurons reconstructions
+                - vedo mesh actor(s) of neurons reconstructions
                 - dictionary or list of dictionary with actors for different neuron parts
 
             :param self: instance of brainrender Scene to use to render neurons
@@ -279,7 +279,7 @@ class MorphologyScene(Scene):
                 if act is not None:
                     if not isinstance(act, Actor):
                         raise ValueError(
-                            f"Neuron actor {key} is {act.__type__} but should be a vtkplotter Mesh. Not: {act}"
+                            f"Neuron actor {key} is {act.__type__} but should be a vedo Mesh. Not: {act}"
                         )
 
             if not display_axon:

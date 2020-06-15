@@ -2,7 +2,7 @@ import numpy as np
 import random
 import vtk
 
-# The following code and colors list is from vtkplotter.color : https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/colors.py
+# The following code and colors list is from vedo.color : https://github.com/marcomusy/vedo/blob/master/vedo/colors.py
 # The code is copied here just to make it easier to look up and change colros
 try:
     import matplotlib
@@ -577,7 +577,7 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
     .. tip:: Can also use directly a matplotlib color map:
         :Example:
             .. code-block:: python
-                from vtkplotter import colorMap
+                from vedo import colorMap
                 import matplotlib.cm as cm
                 print( colorMap(0.2, cm.flag, 0, 1) )
                 (1.0, 0.809016994374948, 0.6173258487801733)
@@ -629,7 +629,7 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
 def makePalette(N, *colors):
     """Generate N colors starting from `color1` to `color2`
     by linear interpolation HSV in or RGB spaces.
-    Adapted from vtkplotter makePalette function
+    Adapted from vedo makePalette function
 
     :param int: N: number of output colors.
     :param colors: input colors, any number of colors with 0 < ncolors <= N is okay.

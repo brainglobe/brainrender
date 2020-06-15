@@ -5,9 +5,9 @@ import os
 from PIL import ImageColor
 import math
 
-from vtkplotter import load, merge, write, Points, Arrows
-from vtkplotter.shapes import Tube
-from vtkplotter.analysis import recoSurface
+from vedo import load, merge, write, Points, Arrows
+from vedo.shapes import Tube
+from vedo.analysis import recoSurface
 
 from brainrender.scene import Scene
 from brainrender.atlases.base import Atlas

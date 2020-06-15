@@ -69,7 +69,7 @@ def check_camera_param(camera):
 
 def buildcam(cm):
     """
-        Builds a camera from a dictionary of parameters, from vtkplotter
+        Builds a camera from a dictionary of parameters, from vedo
     """
 
     cm = cm.copy()

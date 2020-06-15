@@ -1,5 +1,5 @@
 import numpy as np
-from vtkplotter import Plane, Mesh
+from vedo import Plane, Mesh
 
 
 from brainrender.Utils.paths_manager import Paths

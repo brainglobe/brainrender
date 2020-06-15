@@ -42,8 +42,8 @@ __all__ = [
 ]
 
 
-# -------------------------- Set vtkplotter shaders -------------------------- #
-from vtkplotter import settings
+# -------------------------- Set vedo shaders -------------------------- #
+from vedo import settings
 
 settings.useDepthPeeling = (
     True  # necessary for rendering of semitransparent actors
@@ -108,15 +108,13 @@ for par in __all__:
         params[par] = defaults[par]
 save_yaml(params_file, params, append=False, topcomment=comment)
 
-# ------------------------- Other vtkplotter settings ------------------------ #
+# ------------------------- Other vedo settings ------------------------ #
 settings.screeshotScale = params[
     "DEFAULT_SCREENSHOT_SCALE"
 ]  # Improves resolution of saved screenshots
 
 if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
-    settings.screenshotTransparentBackground = (
-        True  # vtkplotter for transparent bg
-    )
+    settings.screenshotTransparentBackground = True  # vedo for transparent bg
     settings.useFXAA = False  # This needs to be false for transparent bg
     print(
         "settings: screenshots are set to have transparent background"
@@ -194,6 +192,6 @@ INTERACTIVE_MSG = """
 |        Right-click   zoom scene in or out                |
 |        Cntrl-click   rotate scene perpendicularly        |
 |----------------------------------------------------------|
-| Check out documentation at:  https://vtkplotter.embl.es  |
+| Check out documentation at:  https://vedo.embl.es  |
  ==========================================================
 """

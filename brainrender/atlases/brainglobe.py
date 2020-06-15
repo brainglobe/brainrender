@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from vtkplotter import load
+from vedo import load
 
 import brainrender
 from brainrender.atlases.base import Atlas

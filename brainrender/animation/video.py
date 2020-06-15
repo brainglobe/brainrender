@@ -7,7 +7,7 @@ except ModuleNotFoundError:
     )
 
 
-from vtkplotter import Video as VtkVideo
+from vedo import Video as VtkVideo
 import datetime
 import os
 
@@ -15,7 +15,7 @@ from brainrender.Utils.video import save_videocap_to_video
 
 
 class Video(VtkVideo):
-    # Redifine vtkplotter.Video close method
+    # Redifine vedo.Video close method
     def __init__(self, *args, fmt="mp4", **kwargs):
         super().__init__(*args, **kwargs)
         self.format = fmt
@@ -64,7 +64,7 @@ class Video(VtkVideo):
 
 class BasicVideoMaker:
     """
-        Wrapper around vtkplotter Video class to facilitate the creation of videos from
+        Wrapper around vedo Video class to facilitate the creation of videos from
         brainrender scenes.
 
         Use kwargs to specify:

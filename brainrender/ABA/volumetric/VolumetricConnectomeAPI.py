@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-from vtkplotter import Volume
+from vedo import Volume
 
 # TODO see if this can be added to setup.py
 try:
@@ -506,7 +506,7 @@ class VolumetricAPI(Paths):
     ):
         """
             Gets the spatialised projection intensity from a source to a target
-            and renders it as a vtkplotter lego visualisation.
+            and renders it as a vedo lego visualisation.
 
             :param source: str or list of str with acronym of source regions
             :param target: str or list of str with acronym of target regions

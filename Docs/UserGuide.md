@@ -101,7 +101,7 @@ Just make sure to disable the rendering of the 'root' brain actor when instantia
 If you have the location of lablled cells saved as a `.h5` file or `pandas.DataFrame` you can use scene to render them. Just use the `Scene.add_cells()` function. 
 
 ## Visualising other kinds of data
-You can use `brainrender` to visualise almost anything (thanks to the awesome `vtkplotter` that brainrender depends upon). You can load `.obj` and `.stl` files and render them directly in your `Scene`. 
+You can use `brainrender` to visualise almost anything (thanks to the awesome `vedo` that brainrender depends upon). You can load `.obj` and `.stl` files and render them directly in your `Scene`. 
 The `Scene` class can also be used to render simple shapes (e.g. a cylinder to represent an optic fibre) directly, with `Scene.add_optic_cannula()`.
 
 ## Making videos, taking photos.
