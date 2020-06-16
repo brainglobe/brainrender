@@ -2,6 +2,7 @@ import os
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
+import warnings
 
 __all__ = [
     "BACKGROUND_COLOR",
@@ -116,10 +117,8 @@ settings.screeshotScale = params[
 if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
     settings.screenshotTransparentBackground = True  # vedo for transparent bg
     settings.useFXAA = False  # This needs to be false for transparent bg
-    print(
-        "settings: screenshots are set to have transparent background"
-        + 'set the parameter "SCREENSHOT_TRANSPARENT_BACKGROUND" to false '
-        + "if you would prefer a not transparent background"
+    warnings.warn(
+        "BRAINRENDER - settings: screenshots are set to have transparent background. Set the parameter 'SCREENSHOT_TRANSPARENT_BACKGROUND' to False if you'd prefer a not transparent background"
     )
 
 
