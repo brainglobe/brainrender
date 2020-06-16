@@ -10,8 +10,6 @@ from vedo import (
     show,
     screenshot,
     interactive,
-)
-from vedo import (
     Text2D,
     closePlotter,
     settings,
@@ -23,17 +21,17 @@ from vedo.shapes import Cylinder, Line
 from vedo.mesh import Mesh as Actor
 import pandas as pd
 from pathlib import Path
+import brainatlas_api
 
 from brainrender.colors import getColor, get_random_colors
-
 from brainrender.atlases.mouse import ABA25Um
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
     get_probe_points_from_sharptrack,
 )
+from brainrender.atlases import generate_bgatlas_on_the_fly
 from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
 from brainrender.Utils import actors_funcs
-
 from brainrender.Utils.camera import check_camera_param, set_camera
 
 
@@ -90,13 +88,25 @@ class Scene:  # subclass brain render to have acces to structure trees
                             a custom function that can be used to take screenshots with the parameter above. 
             :param title: str, if a string is passed a text is added to the top of the rendering window as a title
             :param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
-                if not atlas is passed the allen brain atlas for the adult mouse brain is used.
+                if not atlas is passed the allen brain atlas for the adult mouse brain is used. If a string with the atlas
+                name is passed it will try to load the corresponding brainglobe atlas.
             :param atlas_kwargs: dictionary used to pass extra arguments to atlas class
         """
         if atlas is None:
             self.atlas = ABA25Um(base_dir=base_dir, **atlas_kwargs, **kwargs)
         else:
-            self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
+            if not isinstance(atlas, str):
+                self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
+            else:
+                atlas_class = brainatlas_api.get_atlas_class_from_name(atlas)
+                if atlas_class is None:
+                    raise ValueError(
+                        f"Atlas name passed [{atlas}] is not a recognised atlas"
+                    )
+                else:
+                    self.atlas = generate_bgatlas_on_the_fly(
+                        atlas_class, atlas
+                    )
 
         # Setup a few rendering options
         self.verbose = verbose

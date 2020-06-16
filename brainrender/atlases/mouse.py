@@ -17,7 +17,7 @@ from brainatlas_api.bg_atlas import AllenBrain25Um
 from morphapi.morphology.morphology import Neuron
 
 import brainrender
-from brainrender.atlases.brainglobe import BrainGlobeAtlas
+from brainrender.atlases.brainglobe import BrainGlobeAtlasBase
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 from brainrender.ABA.aba_utils import (
     parse_streamline,
@@ -32,7 +32,7 @@ from brainrender.Utils.data_manipulation import (
 )
 
 
-class ABA(BrainGlobeAtlas):
+class ABA(BrainGlobeAtlasBase):
     """
         This class augments the functionality of
         BrainGlobeAtlas with methods specific to the Allen
@@ -50,7 +50,7 @@ class ABA(BrainGlobeAtlas):
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
 
     def __init__(self, base_dir=None, **kwargs):
-        BrainGlobeAtlas.__init__(self, base_dir=base_dir, **kwargs)
+        BrainGlobeAtlasBase.__init__(self, base_dir=base_dir, **kwargs)
 
         # get mouse connectivity cache and structure tree
         self.mcc = MouseConnectivityCache(
@@ -482,7 +482,7 @@ class ABA(BrainGlobeAtlas):
 
 
 class ABA25Um(ABA, AllenBrain25Um):
-    atlas_name = "allenbrain25um"
+    atlas_name = "allen_mouse_25um"
 
     resolution = 25
 
@@ -496,7 +496,7 @@ class ABA25Um(ABA, AllenBrain25Um):
 
     def __init__(self, base_dir=None, **kwargs):
         ABA.__init__(self, base_dir=base_dir, **kwargs)
-        AllenBrain25Um.__init__(self)
+        super(AllenBrain25Um, self).__init__()
 
         self.meshes_folder = self.root_dir / "meshes"
 

@@ -79,6 +79,26 @@ def test_scene_creation():
     Scene()
 
 
+def test_scene_creation_brainglobe():
+    scene = Scene(atlas="allen_mouse_25um_v0.2")
+
+    try:
+        scene.add_brain_regions
+    except:
+        raise ValueError
+
+    try:
+        scene.add_streamlines
+    except:
+        raise ValueError
+
+    scene = Scene(atlas="allen_mouse_25um_v0.2")
+    try:
+        scene.add_brain_regions
+    except:
+        raise ValueError
+
+
 def test_root(scene):
     scene.add_root()
 

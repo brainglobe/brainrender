@@ -9,26 +9,7 @@ from brainrender.Utils import actors_funcs
 from brainrender.Utils.data_io import load_mesh_from_file
 
 
-"""
-    Atlas class supporting brainglobe-api atlases in brainrender.
-    For any atlas supported by the API, create a dedicated class like:
-
-    >>> from brainatlas_api.bg_atlas import FishAtlas
-    >>> 
-    >>> 
-    >>> class BGFishAtlas(BrainGlobeAtlas, FishAtlas):
-    >>>    atlas_name = "fishatlas"
-    >>> 
-    >>>    def __init__(self, base_dir=None, **kwargs):
-    >>>       BrainGlobeAtlas.__init__(self, base_dir=base_dir, **kwargs)
-    >>>       FishAtlas.__init__(self)
-    >>>       self.meshes_folder = self.root_dir / "meshes"
-
-
-"""
-
-
-class BrainGlobeAtlas(Atlas):
+class BrainGlobeAtlasBase(Atlas):
     def __init__(self, base_dir=None, **kwargs):
         Atlas.__init__(self, base_dir=base_dir, **kwargs)
 
@@ -54,7 +35,7 @@ class BrainGlobeAtlas(Atlas):
             return True
 
     def _get_structure_mesh(self, acronym, **kwargs):
-        obj_path = self.meshfile_from_structure(acronym)
+        obj_path = self._get_from_structure(acronym, "mesh_filename")
         return load_mesh_from_file(obj_path, **kwargs)
 
     def get_brain_regions(
@@ -345,3 +326,30 @@ class BrainGlobeAtlas(Atlas):
                 for struct in structures
             ]
             return colors
+
+
+class BrainGlobeAtlas(BrainGlobeAtlasBase):
+    default_camera = None
+
+    def __init__(self, atlas):
+        BrainGlobeAtlasBase.__init__(self)
+
+        atlas = atlas()  # make sure data is downloaded
+
+        for name, attr in atlas.__dict__.items():
+            self.__setattr__(name, attr)
+
+        for attr in dir(atlas):
+            if attr.startswith("__"):
+                continue
+            try:
+                self.__setattr__(attr, atlas.__getattribute__(attr))
+            except AttributeError:
+                pass
+
+        self.meshes_folder = self.root_dir / "meshes"
+
+        # Get regions names/acronyms/ids for ease of use
+        self.structures_acronyms = self.lookup.acronym.values
+        self.structures_ids = self.lookup.id.values
+        self.structures_names = self.lookup.name.values
