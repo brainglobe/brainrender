@@ -111,7 +111,6 @@ def test_edit_actors(scene):
 
 def test_cut_with_plane(scene):
     # Add some actors
-    root = scene.actors["root"]
     scene.add_brain_regions(["STR", "TH"], alpha=0.5)
 
     # Specify position, size and orientation of the plane
@@ -130,8 +129,7 @@ def test_cut_with_plane(scene):
         plane, close_actors=True, showplane=False,
     )
 
-    sil = root.silhouette().lw(1).c("k")
-    scene.add_vtkactor(sil)
+    scene.add_mesh_silhouette(scene.root)
 
     scene.cut_actors_with_plane(["sagittal", "coronal", "horizontal"])
 

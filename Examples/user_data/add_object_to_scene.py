@@ -41,8 +41,7 @@ skull.scale([1300, 1500, 1200])
 scene.cut_actors_with_plane("sagittal", actors=skull)
 
 # Improve looks
-s1 = scene.root.silhouette().lw(3).c("k")
-s2 = skull.silhouette().lw(3).c("k")
-scene.add_vtkactor(s1, s2)
+scene.add_mesh_silhouette(scene.root, lw=3)
+scene.add_mesh_silhouette(skull, lw=3)
 
 scene.render()

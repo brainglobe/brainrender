@@ -544,6 +544,14 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         return return_list_smart(to_return)
 
+    def add_mesh_silhouette(self, *actors, lw=1, color="k"):
+        """
+            Given a list of actors it adds a colored silhouette
+            to them.
+        """
+        for actor in actors:
+            self.add_vtkactor(actor.silhouette().lw(lw).c(color))
+
     def add_from_file(self, *filepaths, **kwargs):
         """
         Add data to the scene by loading them from a file. Should handle .obj, .vtk and .nii files.

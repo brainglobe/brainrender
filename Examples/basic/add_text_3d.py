@@ -36,8 +36,8 @@ for n, letter in enumerate("BRAINRENDER"):
     act = Text(
         letter, depth=0.5, c=colors[n], pos=(x, 0, 0), justify="centered"
     )
-    sil = act.silhouette().lw(3).color("k")
-    scene.add_vtkactor(act, sil)
+
+    scene.add_add_mesh_silhouette(act, lw=3)
 
 
 scene.render()

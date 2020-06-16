@@ -22,8 +22,8 @@ scene.cut_actors_with_plane(
 )  # Set showplane to True if you want to see the plane location
 
 # Add a silhouette around each actor to emphasize the cut location
-sil = root.silhouette().lw(1).c("k")
-sil2 = [act.silhouette().lw(3).c("k") for act in th]
-scene.add_vtkactor(sil, *sil2)
+scene.add_mesh_silhouette(root)
+scene.add_mesh_silhouette(*th, lw=3)
+
 
 scene.render(camera="top")
