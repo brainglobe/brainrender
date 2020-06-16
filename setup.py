@@ -11,7 +11,7 @@ requirements = [
     "vedo>=2020.3.2",
     "k3d==2.7.4",
     "msgpack",
-    "vtk",
+    "vtk<9.0.0",
     "allensdk",
     "tqdm",
     "pyyaml>=5.3",

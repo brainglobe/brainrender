@@ -17,7 +17,7 @@ def generate_bgatlas_on_the_fly(atlas, atlas_name, *args, **kwargs):
             f"No brainrender atlas class found for brainglobe atlas {atlas_name}, using BrainGlobeAtlas."
         )
         master = BrainGlobeAtlas
-        sub = BrainGlobeAtlasBase()
+        sub = BrainGlobeAtlasBase
 
     # Create new atlas
     new_atlas = type(

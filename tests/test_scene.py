@@ -92,7 +92,7 @@ def test_scene_creation_brainglobe():
     except:
         raise ValueError
 
-    scene = Scene(atlas="allen_mouse_25um_v0.2")
+    scene = Scene(atlas="allen_human_500um_v0.1")
     try:
         scene.add_brain_regions
     except:
