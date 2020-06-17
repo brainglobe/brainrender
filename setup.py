@@ -13,7 +13,6 @@ requirements = [
     "msgpack",
     "vtk<9.0.0",
     "allensdk",
-    "track",
     "pyyaml>=5.3",
     "scikit-image",
     "brainio>=0.0.19",
