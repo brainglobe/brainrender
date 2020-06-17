@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm import tqdm
+from rich.progress import track
 import time
 from random import choices
 
@@ -82,7 +82,9 @@ def test_animated_scene():
     # ------------------------------- Create frames ------------------------------ #
     # Create frames
     prev_neurons = []
-    for step in tqdm(np.arange(N_FRAMES)):
+    for step in track(
+        np.arange(N_FRAMES), total=N_FRAMES, description="Generating frames..."
+    ):
         if step % N_frames_for_change == 0:  # change neurons every N framse
 
             # reset neurons from previous set of neurons
@@ -185,7 +187,11 @@ def test_custom_video():
     # ------------------------------- Create frames ------------------------------ #
     def frame_maker(scene=None, video=None, videomaker=None):
         prev_streamlines = []
-        for step in tqdm(np.arange(N_FRAMES)):
+        for step in track(
+            np.arange(N_FRAMES),
+            total=N_FRAMES,
+            description="Generating frames...",
+        ):
             if (
                 step % N_frames_for_change == 0
             ):  # change neurons every N framse

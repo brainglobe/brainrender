@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from rich.progress import track
 
 from vedo import shapes, merge, Mesh
 
@@ -370,7 +370,11 @@ class ABA(BrainGlobeAtlasBase):
         if isinstance(
             sl_file[0], (str, pd.DataFrame)
         ):  # we have a list of files to add
-            for slf, col in tqdm(zip(sl_file, color)):
+            for slf, col in track(
+                zip(sl_file, color),
+                total=len(sl_file),
+                description="parsing streamlines",
+            ):
                 if isinstance(slf, str):
                     streamlines = parse_streamline(
                         color=col, filepath=slf, *args, **kwargs

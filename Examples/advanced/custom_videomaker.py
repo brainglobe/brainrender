@@ -20,7 +20,7 @@ brainrender.ROOT_ALPHA = 0.1
 from brainrender.scene import Scene
 import numpy as np
 from random import choices
-from tqdm import tqdm
+from rich.progress import track
 
 
 from brainrender.Utils.camera import (
@@ -88,7 +88,9 @@ startcam = scene.plotter.moveCamera(cam1, cam2, frac[0])
 # ------------------------------- Create frames ------------------------------ #
 def frame_maker(scene=None, video=None, videomaker=None):
     prev_streamlines = []
-    for step in tqdm(np.arange(N_FRAMES)):
+    for step in track(
+        np.arange(N_FRAMES), total=N_FRAMES, description="Generating frames..."
+    ):
         if step % N_frames_for_change == 0:  # change neurons every N framse
 
             # reset neurons from previous set of neurons

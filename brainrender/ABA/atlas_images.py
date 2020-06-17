@@ -9,7 +9,7 @@ sys.path.append("./")
 
 import os
 import pandas as pd
-from tqdm import tqdm
+from rich.progress import track
 
 from allensdk.api.queries.svg_api import SvgApi
 from allensdk.api.queries.image_download_api import ImageDownloadApi
@@ -173,7 +173,11 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         curdir = os.getcwd()
         os.chdir(savedir)
 
-        for i, imgid in tqdm(enumerate(imagesids)):
+        for i, imgid in track(
+            enumerate(imagesids),
+            total=len(imagesids),
+            description="downloading iamges...",
+        ):
             if not atlas_svg and not annotated:
                 savename = str(imgid) + ".jpg"
             elif not atlas_svg and annotated:

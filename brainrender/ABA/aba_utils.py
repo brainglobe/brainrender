@@ -2,8 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 
-from tqdm import tqdm
-
+from rich.progress import track
 from vedo import shapes, merge
 
 import brainrender
@@ -402,7 +401,7 @@ def download_streamlines(eids, streamlines_folder=None):
         eids = [eids]
 
     filepaths, data = [], []
-    for eid in tqdm(eids):
+    for eid in track(eids, total=len(eids), description="downloading"):
         url = make_url_given_id(eid)
         jsonpath = os.path.join(streamlines_folder, str(eid) + ".json")
         filepaths.append(jsonpath)

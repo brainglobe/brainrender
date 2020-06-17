@@ -13,13 +13,14 @@ requirements = [
     "msgpack",
     "vtk<9.0.0",
     "allensdk",
-    "tqdm",
+    "track",
     "pyyaml>=5.3",
     "scikit-image",
     "brainio>=0.0.19",
     "sklearn",
     "morphapi",
     "requests",
+    "rich",
 ]
 
 setup(

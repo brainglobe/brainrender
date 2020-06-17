@@ -147,7 +147,7 @@ class BrainGlobeAtlasBase(Atlas):
                 actors[region] = obj
             else:
                 print(
-                    f"Something went wrong while loading mesh data for {region}"
+                    f"Something went wrong while loading mesh data for {region}, skipping."
                 )
 
         return actors

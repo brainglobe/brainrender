@@ -1,5 +1,5 @@
 # import numpy as np
-# from tqdm import tqdm
+# from rich.progress import track
 
 # from vedo import ProgressBar, shapes, merge, load
 # from vedo.mesh import Mesh as Actor
