@@ -554,13 +554,13 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         return return_list_smart(to_return)
 
-    def add_mesh_silhouette(self, *actors, lw=1, color="k"):
+    def add_mesh_silhouette(self, *actors, lw=1, color="k", **kwargs):
         """
             Given a list of actors it adds a colored silhouette
             to them.
         """
         for actor in actors:
-            self.add_vtkactor(actor.silhouette().lw(lw).c(color))
+            self.add_vtkactor(actor.silhouette(**kwargs).lw(lw).c(color))
 
     def add_from_file(self, *filepaths, **kwargs):
         """
