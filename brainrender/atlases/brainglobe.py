@@ -7,6 +7,7 @@ from brainrender.atlases.base import Atlas
 from brainrender.colors import check_colors
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.data_io import load_mesh_from_file
+from brainrender.Utils.data_manipulation import return_list_smart
 
 
 class BrainGlobeAtlasBase(Atlas):
@@ -16,24 +17,6 @@ class BrainGlobeAtlasBase(Atlas):
     # ---------------------------------------------------------------------------- #
     #                      METHODS SUPPORTING SCENE POPULATION                     #
     # ---------------------------------------------------------------------------- #
-
-    @staticmethod
-    def _check_valid_region_arg(region):
-        """
-        Check that the string passed is a valid brain region name.
-
-        :param region: string, acronym of a brain region according to the Allen Brain Atlas.
-
-        """
-        if not isinstance(region, int) and not isinstance(region, str):
-            raise ValueError(
-                "region must be a list, integer or string, not: {}".format(
-                    type(region)
-                )
-            )
-        else:
-            return True
-
     def _get_structure_mesh(self, acronym, **kwargs):
         obj_path = self._get_from_structure(acronym, "mesh_filename")
         return load_mesh_from_file(obj_path, **kwargs)
@@ -94,15 +77,13 @@ class BrainGlobeAtlasBase(Atlas):
         # loop over all brain regions
         actors = {}
         for i, region in enumerate(brain_regions):
-            self._check_valid_region_arg(region)
-
             if region in self.ignore_regions:
                 continue
             if verbose:
                 print("Rendering: ({})".format(region))
 
             # get the structure and check if we need to download the object file
-            if region not in self.structures_acronyms:
+            if region not in self.lookup.acronym.values:
                 print(
                     f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping"
                 )
@@ -214,19 +195,17 @@ class BrainGlobeAtlasBase(Atlas):
 
         """
         if not isinstance(acronyms, list):
-            self._check_valid_region_arg(acronyms)
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
-            if s["id"] in self.structures_ids:
+            if s["id"] in self.lookup.id.values:
                 return s
             else:
                 return self.get_structure_ancestors(s["acronym"]).iloc[-1]
         else:
             parents = []
             for region in acronyms:
-                self._check_valid_region_arg(region)
                 s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
 
-                if s["id"] in self.structures_ids:
+                if s["id"] in self.lookup.id.values:
                     parents.append(s)
                 parents.append(
                     self.get_structure_ancestors(s["acronym"]).iloc[-1]
@@ -272,36 +251,10 @@ class BrainGlobeAtlasBase(Atlas):
         else:
             return right
 
-    def get_hemisphere_from_point(self, point):
-        if point[2] < self._root_midpoint[2]:
-            return "left"
-        else:
-            return "right"
-
     def mirror_point_across_hemispheres(self, point):
         delta = point[2] - self._root_midpoint[2]
         point[2] = self._root_midpoint[2] - delta
         return point
-
-    def get_structure_from_coordinates(self, p0, just_acronym=True):
-        """
-        Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in.
-
-        :param p0: list of floats with XYZ coordinates.
-
-        """
-        voxel = np.round(np.array(p0) / self.resolution).astype(int)
-        try:
-            structure_id = self.annotated_volume[voxel[0], voxel[1], voxel[2]]
-        except:
-            return None
-
-        # Each voxel in the annotation volume is annotated as specifically as possible
-        structure = self.structure_tree.get_structures_by_id([structure_id])[0]
-        if structure is not None:
-            if just_acronym:
-                return structure["acronym"]
-        return structure
 
     def get_colors_from_coordinates(self, p0):
         """
@@ -309,23 +262,19 @@ class BrainGlobeAtlasBase(Atlas):
             each item is the color of the brain region each point is in
         """
         if isinstance(p0[0], (float, int)):
-            struct = self.get_structure_from_coordinates(
-                p0, just_acronym=False
-            )
-            if struct is not None:
-                return struct["rgb_triplet"]
-            else:
-                return None
-        else:
-            structures = [
-                self.get_structure_from_coordinates(p, just_acronym=False)
-                for p in p0
-            ]
-            colors = [
-                struct["rgb_triplet"] if struct is not None else None
-                for struct in structures
-            ]
-            return colors
+            p0 = [p0]
+
+        resolution = int(self.metadata["resolution"][0])
+
+        colors = []
+        for point in p0:
+            point = np.round(np.array(point) / resolution).astype(int)
+            try:
+                struct = self.structure_from_coords(point, as_acronym=True)
+            except KeyError:  # couldn't find any region
+                struct = "root"
+            colors.append(self._get_from_structure(struct, "rgb_triplet"))
+        return return_list_smart(colors)
 
 
 class BrainGlobeAtlas(BrainGlobeAtlasBase):
@@ -348,8 +297,3 @@ class BrainGlobeAtlas(BrainGlobeAtlasBase):
                 pass
 
         self.meshes_folder = self.root_dir / "meshes"
-
-        # Get regions names/acronyms/ids for ease of use
-        self.structures_acronyms = self.lookup.acronym.values
-        self.structures_ids = self.lookup.id.values
-        self.structures_names = self.lookup.name.values

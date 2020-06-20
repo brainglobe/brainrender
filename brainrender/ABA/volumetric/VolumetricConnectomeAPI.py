@@ -612,7 +612,7 @@ class VolumetricAPI(Paths):
                 "use_original_color", False
             )
             alpha = point_region_kwargs.pop("alpha", 0.3)
-            region = self.scene.get_structure_from_coordinates(p0)
+            region = self.scene.atlas.structure_from_coords(p0)
             self.scene.add_brain_regions(
                 [region],
                 use_original_color=use_original_color,

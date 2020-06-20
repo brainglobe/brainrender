@@ -887,8 +887,14 @@ class Scene:  # subclass brain render to have acces to structure trees
             point = points[np.argmin(points[:, 1]), :]
             point += np.array(offset) + default_offset
 
-            if self.atlas.get_hemisphere_from_point(point) == "left":
-                point = self.atlas.mirror_point_across_hemispheres(point)
+            try:
+                if (
+                    self.atlas.hemisphere_from_coords(point, as_string=True)
+                    == "left"
+                ):
+                    point = self.atlas.mirror_point_across_hemispheres(point)
+            except IndexError:
+                pass
 
             # Create label
             txt = Text(label, point, s=size, c=color)

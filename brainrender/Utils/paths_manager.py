@@ -15,7 +15,6 @@ default_paths = dict(
     rat_meshes="Data/Meshes/Rat",  # meshes with rat brain data, to be downloaded
     drosophila_meshes="Data/Meshes/Drosophila",  # meshes with drosophila brain data, to be downloaded
     other_meshes="Data/Meshes/Other",  # any other mesh the user might want to store
-    metadata="Data/Metadata",
     # OUTPUT Folders
     output_screenshots="Output/Screenshots",
     output_videos="Output/Videos",
@@ -59,7 +58,6 @@ class Paths:
         "output_scenes",
         "output_data",
         "user",
-        "metadata",
         "annotated_volume_fld",
         "mouse_connectivity_volumetric",
         "mouse_connectivity_volumetric_cache",

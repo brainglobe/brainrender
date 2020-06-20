@@ -485,7 +485,7 @@ class ABA(BrainGlobeAtlasBase):
 """
 
 
-class ABA25Um(ABA, AllenBrain25Um):
+class ABA25Um(AllenBrain25Um, ABA):
     atlas_name = "allen_mouse_25um"
 
     resolution = 25
@@ -499,12 +499,7 @@ class ABA25Um(ABA, AllenBrain25Um):
     ]
 
     def __init__(self, base_dir=None, **kwargs):
+        AllenBrain25Um.__init__(self)
         ABA.__init__(self, base_dir=base_dir, **kwargs)
-        super(AllenBrain25Um, self).__init__()
 
         self.meshes_folder = self.root_dir / "meshes"
-
-        # Get regions names/acronyms/ids for ease of use
-        self.structures_acronyms = self.lookup.acronym.values
-        self.structures_ids = self.lookup.id.values
-        self.structures_names = self.lookup.name.values

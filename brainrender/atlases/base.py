@@ -57,12 +57,6 @@ class Atlas(Paths):
         # A 3d image with a scalar label at each region indicating
         # which brain region each voxel corresponds to
 
-        self.regions = None
-        # list of all regions in the atlas
-        self.region_acronyms = None
-        self.structures = None
-        self.acronyms = None
-
     # ---------------------------------------------------------------------------- #
     #                             General atlas methods                            #
     # ---------------------------------------------------------------------------- #
@@ -308,7 +302,7 @@ class Atlas(Paths):
             + "'_check_valid_region_arg' method!"
         )
 
-    def get_structure_from_coordinates(self, p0, just_acronym=True):
+    def structure_from_coords(self, p0, as_acronym=True):
         """
         Given a point in the Allen Mouse Brain reference space, returns the brain region that the point is in. 
 
@@ -317,7 +311,7 @@ class Atlas(Paths):
         """
         raise NotImplementedError(
             f"Your atlas {self.atlas_name} doesn't support"
-            + "'get_structure_from_coordinates' method!"
+            + "'structure_from_coords' method!"
         )
 
     def get_colors_from_coordinates(self, p0):
@@ -330,14 +324,14 @@ class Atlas(Paths):
             + "'get_colors_from_coordinates' method!"
         )
 
-    def get_hemisphere_from_point(self, point):
+    def hemisphere_from_coords(self, point):
         """
             Given a point it checks in which hemisphere the point is.
             Depends on self._root_midpoint
         """
         raise NotImplementedError(
             f"Your atlas {self.atlas_name} doesn't support"
-            + "'get_hemisphere_from_point' method!"
+            + "'hemisphere_from_coords' method!"
         )
 
     def get_hemispere_from_point(self, p0):
