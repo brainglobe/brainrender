@@ -277,14 +277,16 @@ def test_labelled_cells(scene):
         [c[1] for c in cells],
         [c[2] for c in cells],
     )
-    cells = pd.DataFrame(
-        dict(x=x, y=y, z=z, region=regions)
-    )  # ! <- coordinates should be stored as a pandas dataframe
-
+    cells = pd.DataFrame(dict(x=x, y=y, z=z, region=regions))
     # Add cells
     scene.add_cells(cells, color="darkseagreen", res=12, radius=25)
     scene.get_cells_in_region(cells, "MOs")
     scene.add_cells(cells[:100], color_by_metadata="x")
+    scene.add_cells(
+        cells[100:200],
+        color_by_metadata="x",
+        color={x: "salmon" for x in cells.x.values},
+    )
     scene.add_cells(cells, color_by_region=True, radius=50, res=25)
 
 
