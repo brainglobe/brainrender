@@ -683,5 +683,5 @@ class VolumetricAPI(Paths):
             )
 
         # Add to scene
-        actor = self.scene.add_vtkactor(lego)
+        actor = self.scene.add_actor(lego)
         return actor

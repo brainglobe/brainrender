@@ -207,7 +207,7 @@ def test_text_3d(scene):
             letter, depth=0.5, c=colors[n], pos=(x, 0, 0), justify="centered"
         )
         sil = act.silhouette().lw(3).color("k")
-        scene.add_vtkactor(act, sil)
+        scene.add_actor(act, sil)
 
     scene.render(interactive=False)
     scene.close()
@@ -339,6 +339,6 @@ def test_screenshot(scene):
     scene.close()
 
 
-def test_add_vtkactor(scene):
+def test_add_actor(scene):
     act = scene.add_brain_regions("MOs")
-    scene.add_vtkactor(act)
+    scene.add_actor(act)

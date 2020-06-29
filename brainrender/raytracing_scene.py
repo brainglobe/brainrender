@@ -48,7 +48,7 @@ class RayScene(Scene):
 
         self.optix.setup_material("diffuse", m_matt_diffuse)
 
-    def add_vtkactor_as_mesh(self, actor, actor_name=None):
+    def add_actor_as_mesh(self, actor, actor_name=None):
         if actor is None:
             return
 
@@ -84,7 +84,7 @@ class RayScene(Scene):
 
         # add meshes
         for mesh in self.get_actors():
-            self.add_vtkactor_as_mesh(mesh)
+            self.add_actor_as_mesh(mesh)
 
         # Set up camera
         camera_params = get_camera_params(self)

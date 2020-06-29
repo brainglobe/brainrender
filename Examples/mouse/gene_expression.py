@@ -52,5 +52,5 @@ gene_actor = geapi.griddata_to_volume(data, min_quantile=90, cmap="inferno")
 # ---------------------------------- Render ---------------------------------- #
 
 scene = Scene(title=gene)
-scene.add_vtkactor(gene_actor)
+scene.add_actor(gene_actor)
 scene.render()

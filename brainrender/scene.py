@@ -369,7 +369,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
             # Show plane
             if showplane:
-                self.add_vtkactor(plane)
+                self.add_actor(plane)
 
             # Cut actors
             for actor in actors:
@@ -508,7 +508,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             self.add_cells(data, **kwargs)
 
         for actor in actors:
-            self.add_vtkactor(actor)
+            self.add_actor(actor)
 
     def add_tractography(self, *args, **kwargs):
         """
@@ -530,7 +530,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
-    def add_vtkactor(self, *actors, store=None):
+    def add_actor(self, *actors, store=None):
         """
         Add a vtk actor to the scene
 
@@ -560,7 +560,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             to them.
         """
         for actor in actors:
-            self.add_vtkactor(actor.silhouette(**kwargs).lw(lw).c(color))
+            self.add_actor(actor.silhouette(**kwargs).lw(lw).c(color))
 
     def add_from_file(self, *filepaths, **kwargs):
         """
@@ -823,13 +823,13 @@ class Scene:  # subclass brain render to have acces to structure trees
         top[1] = bounds[2] - 500
 
         if not use_line:
-            cylinder = self.add_vtkactor(
+            cylinder = self.add_actor(
                 Cylinder(
                     pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs
                 )
             )
         else:
-            cylinder = self.add_vtkactor(
+            cylinder = self.add_actor(
                 Line(top, pos, c=color, alpha=alpha, lw=radius)
             )
         return cylinder
@@ -848,7 +848,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         alpha = kwargs.pop("alpha", 1)
         font = kwargs.pop("font", "Montserrat")
 
-        txt = self.add_vtkactor(
+        txt = self.add_actor(
             Text2D(text, pos=pos, s=size, c=color, alpha=alpha, font=font)
         )
         return txt
@@ -927,7 +927,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                 new_actors.append(Sphere(pt, r=radius, c=color))
 
         # Add to scene and return
-        self.add_vtkactor(*new_actors, store=self.actors["labels"])
+        self.add_actor(*new_actors, store=self.actors["labels"])
 
         return return_list_smart(new_actors)
 
@@ -951,7 +951,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         lw = kwargs.pop("lw", 3)
 
         # Create line actor
-        act = self.add_vtkactor(Line(p0, p1, c=color, lw=lw, **kwargs))
+        act = self.add_actor(Line(p0, p1, c=color, lw=lw, **kwargs))
         return act
 
     def add_rostrocaudal_line_at_point(self, point, **kwargs):
@@ -1062,7 +1062,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                         + f" Not: {plane.__type__}"
                     )
             actors.append(plane)
-        self.add_vtkactor(*actors)
+        self.add_actor(*actors)
         return return_list_smart(actors)
 
     # ----------------------- Application specific methods ----------------------- #
@@ -1127,7 +1127,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         )
 
         # Add to scene
-        self.add_vtkactor(probe)
+        self.add_actor(probe)
         return probe, spheres
 
     # ---------------------------------------------------------------------------- #

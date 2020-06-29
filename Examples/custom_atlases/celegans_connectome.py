@@ -45,7 +45,7 @@ neurons = metadata.loc[
 # Add each neuron with the corresponding outline
 scene.add_neurons(list(neurons.neuron.values))
 for neuron in scene.actors["neurons"]:
-    scene.add_vtkactor(neuron.silhouette().lw(3).c("k"))
+    scene.add_actor(neuron.silhouette().lw(3).c("k"))
 
 # Render
 scene.render()

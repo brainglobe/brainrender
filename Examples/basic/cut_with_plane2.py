@@ -30,6 +30,6 @@ scene.cut_actors_with_plane(
 )
 
 sil = root.silhouette().lw(1).c("k")
-scene.add_vtkactor(sil)
+scene.add_actor(sil)
 
 scene.render(camera="top")
