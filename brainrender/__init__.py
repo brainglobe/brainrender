@@ -2,6 +2,7 @@ import os
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
+from brainrender.demo import demo
 import warnings
 
 __all__ = [
