@@ -34,6 +34,17 @@ To quickly check that everything worked for your installation, try creating a br
   brainrender TH STR -c
 ```
 
+## Give it a spin!
+You can also use [try](https://github.com/timofurrer/try) to quickly and painlessly try out brainrender!
+After you've installed `try`, write in your terminal:
+```
+  try brainrender
+```
+and then:
+```
+>>> from brainrender import demo
+```
+
 
 # Usage
 `brainrender` relies on brainglobe's [brainatlas-api](https://github.com/brainglobe/brainatlas-api) to fetch structural and morphological data for various brain atlases, including two mice atlases, one zebrafish atlas and one atlas of the human brain. Much of what brainrender can do works across all of these atlases. Basic functionality supported by `brainrender` inclused the display of anatomical brain region, the position of labelled cells from tracking experiments (e.g. as obtained with tools like [cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder)) and whole-cell neuronal morphological reconstructions. Click on the images below to see aexamples  of how to use brainrender:
