@@ -1,4 +1,4 @@
-from brainatlas_api.bg_atlas import FishAtlas
+from bg_atlasapi.bg_atlas import FishAtlas
 
 from brainrender.atlases.brainglobe import BrainGlobeAtlas
 

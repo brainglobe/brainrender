@@ -1,4 +1,4 @@
-# from brainatlas_api.bg_atlas import AllenHumanBrain500Um
+# from bg_atlasapi.bg_atlas import AllenHumanBrain500Um
 
 # from brainrender.atlases.brainglobe import BrainGlobeAtlas
 

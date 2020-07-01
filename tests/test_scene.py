@@ -80,7 +80,7 @@ def test_scene_creation():
 
 
 def test_scene_creation_brainglobe():
-    scene = Scene(atlas="allen_mouse_25um_v0.2")
+    scene = Scene(atlas="allen_mouse_50um")
 
     try:
         scene.add_brain_regions

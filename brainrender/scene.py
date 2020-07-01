@@ -21,7 +21,7 @@ from vedo.shapes import Cylinder, Line
 from vedo.mesh import Mesh as Actor
 import pandas as pd
 from pathlib import Path
-import brainatlas_api
+import bg_atlasapi
 
 from brainrender.colors import getColor, get_random_colors
 from brainrender.atlases.mouse import ABA25Um
@@ -100,7 +100,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             if not isinstance(atlas, str):
                 self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
             else:
-                atlas_class = brainatlas_api.get_atlas_class_from_name(atlas)
+                atlas_class = bg_atlasapi.get_atlas_class_from_name(atlas)
                 if atlas_class is None:
                     raise ValueError(
                         f"Atlas name passed [{atlas}] is not a recognised atlas"

@@ -82,7 +82,7 @@ class BrainGlobeAtlasBase(Atlas):
                 print("Rendering: ({})".format(region))
 
             # get the structure and check if we need to download the object file
-            if region not in self.lookup.acronym.values:
+            if region not in self.lookup_df.acronym.values:
                 print(
                     f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping"
                 )
@@ -195,7 +195,7 @@ class BrainGlobeAtlasBase(Atlas):
         """
         if not isinstance(acronyms, list):
             s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
-            if s["id"] in self.lookup.id.values:
+            if s["id"] in self.lookup_df.id.values:
                 return s
             else:
                 return self.get_structure_ancestors(s["acronym"]).iloc[-1]
@@ -204,7 +204,7 @@ class BrainGlobeAtlasBase(Atlas):
             for region in acronyms:
                 s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
 
-                if s["id"] in self.lookup.id.values:
+                if s["id"] in self.lookup_df.id.values:
                     parents.append(s)
                 parents.append(
                     self.get_structure_ancestors(s["acronym"]).iloc[-1]

@@ -12,7 +12,7 @@ from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
 from allensdk.api.queries.tree_search_api import TreeSearchApi
 from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
-from brainatlas_api.bg_atlas import AllenBrain25Um
+from bg_atlasapi.bg_atlas import AllenBrain25Um
 
 from morphapi.morphology.morphology import Neuron
 
