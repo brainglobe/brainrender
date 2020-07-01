@@ -28,3 +28,6 @@ def main(regions, atlas=None, cartoon=False, debug=False):
         interactive = False
 
     scene.render(interactive=interactive)
+
+    if debug:
+        scene.close()

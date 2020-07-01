@@ -15,8 +15,6 @@ def scene():
 
 def test_ibdb(scene):
     print(scene.atlas.species_info)
-    print(scene.atlas.structures_hierarchy)
-    print(scene.atlas.structures.head())
 
     # Add some brain regions in the mushroom body to the rendering
     central_complex = [

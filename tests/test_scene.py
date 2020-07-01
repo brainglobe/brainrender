@@ -57,33 +57,65 @@ def test_default():
 
 def test_scene_creation():
     Scene()
-    Scene(jupyter=True)
+
+
+def test_scene_creation_ignore_jupyter():
+    Scene(ignore_jupyter=True)
+
+
+def test_scene_creation_ignore_inset():
     Scene(display_inset=False)
+
+
+def test_scene_creation_ignore_root():
     Scene(add_root=False)
+
+
+def test_scene_creation_ignore_root_and_inset():
     s = Scene(add_root=False, display_inset=False)
     s.render(interactive=False)
     s.close()
+
+
+def test_scene_creation_default_keys():
     Scene(use_default_key_bindings=True)
+
+
+def test_scene_creation_colors():
     Scene(regions_aba_color=True)
+
+
+def test_scene_creation_regions():
     Scene(brain_regions=["MOs"])
+
+
+def test_scene_creation_camera():
     Scene(camera="sagittal")
     Scene(camera=coronal_camera)
+
+
+def test_scene_creation_title():
     Scene(title="My title")
 
+
+def test_scene_creation_notebook():
     settings.notebookBackend = "k3d"
     Scene()
     settings.notebookBackend = None
 
+
+def test_scene_creation_settings():
     brainrender.SHOW_AXES = True
     brainrender.WHOLE_SCREEN = False
     Scene()
+    brainrender.SHOW_AXES = False
 
 
 def test_scene_creation_brainglobe():
-    scene = Scene(atlas="allen_mouse_50um")
+    scene = Scene(atlas="allen_mouse_25um")
 
     try:
-        scene.add_brain_regions
+        scene.add_brain_regions("TH")
     except:
         raise ValueError
 
@@ -92,9 +124,9 @@ def test_scene_creation_brainglobe():
     except:
         raise ValueError
 
-    scene = Scene(atlas="allen_human_500um_v0.1")
+    scene = Scene(atlas="allen_human_500um")
     try:
-        scene.add_brain_regions
+        scene.add_brain_regions("TH")
     except:
         raise ValueError
 

@@ -10,7 +10,7 @@ from vedo.shapes import Tube
 from vedo.analysis import recoSurface
 
 from brainrender.scene import Scene
-from brainrender.atlases.base import Atlas
+from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
     listdir,
@@ -41,7 +41,7 @@ for more details
 """
 
 
-class Celegans(Atlas):
+class Celegans(Paths):
     atlas_name = "Celegans"
     mesh_format = "obj"  #  or obj, stl etc..
 
@@ -69,7 +69,7 @@ class Celegans(Atlas):
             :param data_folder: str, path to a folder with data for the connectome # TODO replace with downloading data
         """
         # Initialise atlas
-        Atlas.__init__(self, base_dir, **kwargs)
+        Paths.__init__(self, base_dir, **kwargs)
 
         # Get data
         if data_folder is None:

@@ -8,7 +8,7 @@ from treelib import Tree
 from vedo import load, merge, write
 
 import brainrender
-from brainrender.atlases.base import Atlas
+from brainrender.Utils.paths_manager import Paths
 from brainrender.Utils.webqueries import request
 from brainrender.Utils.data_io import load_mesh_from_file
 
@@ -31,7 +31,7 @@ from brainrender.Utils.data_io import load_mesh_from_file
 """
 
 
-class IBDB(Atlas):
+class IBDB(Paths):
 
     atlas_name = "InsectBrains"
     mesh_format = "obj"
@@ -57,7 +57,7 @@ class IBDB(Atlas):
     ):
         self.make_root = make_root
 
-        Atlas.__init__(self, base_dir=base_dir, **kwargs)
+        Paths.__init__(self, base_dir=base_dir, **kwargs)
 
         # Get a list of available species
         self.species_info = pd.DataFrame(

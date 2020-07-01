@@ -1,5 +1,5 @@
 import brainrender
-
+import inspect
 import numpy as np
 import os
 import datetime
@@ -21,15 +21,14 @@ from vedo.shapes import Cylinder, Line
 from vedo.mesh import Mesh as Actor
 import pandas as pd
 from pathlib import Path
-import bg_atlasapi
 
 from brainrender.colors import getColor, get_random_colors
-from brainrender.atlases.mouse import ABA25Um
+from brainrender.atlases.atlas import Atlas
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
     get_probe_points_from_sharptrack,
 )
-from brainrender.atlases import generate_bgatlas_on_the_fly
+
 from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
 from brainrender.Utils import actors_funcs
 from brainrender.Utils.camera import check_camera_param, set_camera
@@ -87,28 +86,28 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
             :param title: str, if a string is passed a text is added to the top of the rendering window as a title
-            :param atlas: an instance of a valid Atlas class to use to fetch anatomical data for the scene. By default
-                if not atlas is passed the allen brain atlas for the adult mouse brain is used. If a string with the atlas
+            :param atlas: str, class. Default None. If a string is passed it whould be the name of a valide
+                brainglobe_api atlas. Alternative a class object can be passed, this should support the functionality
+                expected of an atlas class. 
+                if no atlas is passed the allen brain atlas for the adult mouse brain is used. If a string with the atlas
                 name is passed it will try to load the corresponding brainglobe atlas.
             :param atlas_kwargs: dictionary used to pass extra arguments to atlas class
             :param ignore_jupyter: bool, if False brainrender auto-detects if the user is using jupyter and adjusts to it
         """
 
         if atlas is None:
-            self.atlas = ABA25Um(base_dir=base_dir, **atlas_kwargs, **kwargs)
+            self.atlas = Atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
         else:
-            if not isinstance(atlas, str):
-                self.atlas = atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
+            if isinstance(atlas, str):
+                self.atlas = Atlas(
+                    name=atlas, base_dir=base_dir, **atlas_kwargs, **kwargs
+                )
+            elif inspect.isclass(atlas):
+                self.atlas = atlas()
             else:
-                atlas_class = bg_atlasapi.get_atlas_class_from_name(atlas)
-                if atlas_class is None:
-                    raise ValueError(
-                        f"Atlas name passed [{atlas}] is not a recognised atlas"
-                    )
-                else:
-                    self.atlas = generate_bgatlas_on_the_fly(
-                        atlas_class, atlas
-                    )
+                raise ValueError(
+                    "The `atlas` argument should be None, a string with atlas name or a class"
+                )
 
         # Setup a few rendering options
         self.verbose = verbose
@@ -212,7 +211,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         if add_root:
             self.add_root(render=True)
         else:
-            self.root = None
+            self.add_root(render=False)
 
         if title is not None:
             self.add_text(title)
@@ -222,6 +221,15 @@ class Scene:  # subclass brain render to have acces to structure trees
         self.is_rendered = (
             False  # keep track of if the scene has already been rendered
         )
+
+        # Compute root bounds
+        # get the center of the root and the bounding box + update for atlas
+        self.atlas._root_midpoint = self.root.centerOfMass()
+        self.atlas._root_bounds = [
+            self.root.xbounds(),
+            self.root.ybounds(),
+            self.root.zbounds(),
+        ]
 
     # ---------------------------------------------------------------------------- #
     #                                     Utils                                    #
@@ -429,25 +437,16 @@ class Scene:  # subclass brain render to have acces to structure trees
         :param **kwargs:
 
         """
-        if not render:
-            self.root = self.atlas._get_structure_mesh(
-                "root", color=brainrender.ROOT_COLOR, alpha=0, **kwargs
-            )
-        else:
-            self.root = self.atlas._get_structure_mesh(
-                "root",
-                color=brainrender.ROOT_COLOR,
-                alpha=brainrender.ROOT_ALPHA,
-                **kwargs,
-            )
+        self.root = self.atlas._get_structure_mesh(
+            "root",
+            color=brainrender.ROOT_COLOR,
+            alpha=brainrender.ROOT_ALPHA,
+            **kwargs,
+        )
 
         if self.root is None:
             print("Could not find a root mesh")
             return None
-
-        # # get the center of the root and the bounding box + update for atlas
-        # self.atlas._root_midpoint = self.root.centerOfMass()
-        # self.atlas._root_bounds = [self.root.xbounds(), self.root.ybounds(), self.root.zbounds()]
 
         if render:
             self.actors["root"] = self.root

@@ -5,6 +5,7 @@ from brainrender.Utils.data_io import save_yaml, load_yaml
 import warnings
 
 __all__ = [
+    "DEFAULT_ATLAS",
     "BACKGROUND_COLOR",
     "DECIMATE_NEURONS",
     "DEFAULT_HDF_KEY",
@@ -123,6 +124,7 @@ if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
 
 
 # Set to make it easy to import
+DEFAULT_ATLAS = params["DEFAULT_ATLAS"]
 BACKGROUND_COLOR = params["BACKGROUND_COLOR"]
 DECIMATE_NEURONS = params["DECIMATE_NEURONS"]
 DEFAULT_HDF_KEY = params["DEFAULT_HDF_KEY"]
