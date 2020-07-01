@@ -123,7 +123,6 @@ class BrainGlobeAtlasBase(Atlas):
 
             if obj is not None:
                 actors_funcs.edit_actor(obj, **kwargs)
-
                 actors[region] = obj
             else:
                 print(

@@ -29,6 +29,11 @@ If you want the most recent version of `brainrender`'s code, you can get it dire
 pip install -U git+https://github.com/BrancoLab/BrainRender.git
 ```
 
+To quickly check that everything worked for your installation, try creating a brainrender scene directly from the terminal. 
+```
+  brainrender TH STR -c
+```
+
 
 # Usage
 `brainrender` relies on brainglobe's [brainatlas-api](https://github.com/brainglobe/brainatlas-api) to fetch structural and morphological data for various brain atlases, including two mice atlases, one zebrafish atlas and one atlas of the human brain. Much of what brainrender can do works across all of these atlases. Basic functionality supported by `brainrender` inclused the display of anatomical brain region, the position of labelled cells from tracking experiments (e.g. as obtained with tools like [cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder)) and whole-cell neuronal morphological reconstructions. Click on the images below to see aexamples  of how to use brainrender:

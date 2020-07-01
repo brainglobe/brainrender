@@ -52,4 +52,5 @@ setup(
     url="https://github.com/BrancoLab/brainrender",
     author="Federico Claudi",
     zip_safe=False,
+    entry_points={"console_scripts": ["brainrender = brainrender.cli:main"]},
 )
