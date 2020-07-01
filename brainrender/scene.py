@@ -54,7 +54,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         tracts=None,
         add_root=None,
         verbose=True,
-        jupyter=False,
+        ignore_jupyter=False,
         display_inset=None,
         base_dir=None,
         camera=None,
@@ -91,7 +91,9 @@ class Scene:  # subclass brain render to have acces to structure trees
                 if not atlas is passed the allen brain atlas for the adult mouse brain is used. If a string with the atlas
                 name is passed it will try to load the corresponding brainglobe atlas.
             :param atlas_kwargs: dictionary used to pass extra arguments to atlas class
+            :param ignore_jupyter: bool, if False brainrender auto-detects if the user is using jupyter and adjusts to it
         """
+
         if atlas is None:
             self.atlas = ABA25Um(base_dir=base_dir, **atlas_kwargs, **kwargs)
         else:
@@ -113,7 +115,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         self.regions_aba_color = regions_aba_color
 
         # Infer if we are using k3d from vedo.settings
-        if settings.notebookBackend == "k3d":
+        if settings.notebookBackend == "k3d" and not ignore_jupyter:
             self.jupyter = True
         else:
             self.jupyter = False
@@ -123,7 +125,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         else:
             self.display_inset = display_inset
 
-        if self.display_inset and jupyter:
+        if self.display_inset and self.jupyter:
             print(
                 "Setting 'display_inset' to False as this feature is not available in juputer notebooks"
             )
@@ -429,12 +431,12 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
         if not render:
             self.root = self.atlas._get_structure_mesh(
-                "root", c=brainrender.ROOT_COLOR, alpha=0, **kwargs
+                "root", color=brainrender.ROOT_COLOR, alpha=0, **kwargs
             )
         else:
             self.root = self.atlas._get_structure_mesh(
                 "root",
-                c=brainrender.ROOT_COLOR,
+                color=brainrender.ROOT_COLOR,
                 alpha=brainrender.ROOT_ALPHA,
                 **kwargs,
             )

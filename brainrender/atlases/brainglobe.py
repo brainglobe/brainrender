@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from vedo import load
 
 import brainrender
 from brainrender.atlases.base import Atlas
@@ -120,7 +119,7 @@ class BrainGlobeAtlasBase(Atlas):
                         f"Invalid hemisphere argument: {hemisphere}"
                     )
             else:
-                obj = load(obj_file, c=color, alpha=alpha)
+                obj = load_mesh_from_file(obj_file, color=color, alpha=alpha)
 
             if obj is not None:
                 actors_funcs.edit_actor(obj, **kwargs)

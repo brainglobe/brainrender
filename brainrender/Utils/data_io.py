@@ -161,9 +161,17 @@ def load_mesh_from_file(filepath, *args, **kwargs):
         raise FileNotFoundError(filepath)
 
     try:
-        actor = load(filepath, *args, **kwargs)
+        actor = load(filepath)
     except:
-        actor = Volume(load_volume_file(filepath, *args, **kwargs))
+        actor = Volume(load_volume_file(filepath))
+
+    color = kwargs.pop("color", None)
+    alpha = kwargs.pop("alpha", None)
+
+    if color is not None:
+        actor.c(color)
+    if alpha is not None:
+        actor.alpha(alpha)
 
     return actor
 
