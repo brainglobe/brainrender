@@ -36,16 +36,6 @@ To quickly check that everything worked for your installation, try creating a br
   brainrender TH STR -c
 ```
 
-## Give it a spin!
-You can also use [try](https://github.com/timofurrer/try) to quickly and painlessly try out brainrender!
-After you've installed `try`, write in your terminal:
-```
-  try brainrender
-```
-and then:
-```
->>> from brainrender import demo
-```
 
 
 # Usage
