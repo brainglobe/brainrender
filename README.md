@@ -6,12 +6,14 @@
 
 
 
-`brainrender` is a python package for the visualization of three dimensional neuroanatomical data. It can be used to render data from publicly available dataset (e.g. Allen Brain atlas) as well as user generated experimental data. 
+`brainrender` is a python package for the visualization of three dimensional neuroanatomical data. 
+It can be used to render data from publicly available dataset (e.g. Allen Brain atlas) as well as user generated experimental data. 
 The goal of brainrender is to faciliate the exploration and dissemination of neuroanatomical data by providing a user-friendly platform to create high-quality 3D renderings. 
 
 
-For more information about `brainrender` and how to use it, checkout the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1) and the many examples available [here](https://github.com/BrancoLab/BrainRender/tree/master/Examples).
-You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://fedeclaudi.github.io/br-gallery.html).
+For more information about `brainrender` and how to use it, please check the [brainrender docs](https://docs.brainrender.info/).
+You can also have a look at the [brainrender preprint](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1) and the [examples](https://docs.brainrender.info/overview/examples) and [tutorials](https://github.com/BrancoLab/BrainRender/tree/master/Examples).
+You can find interactive examples of data visualisations generated with brainrender [here](https://fedeclaudi.github.io/br-info.html) and a gallery of images created with brainrender [here](https://docs.brainrender.info/overview/gallery).
 
 
 <p align="center">
