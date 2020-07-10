@@ -3,6 +3,7 @@ import inspect
 import numpy as np
 import os
 import datetime
+from pathlib import Path
 import random
 from vedo import (
     Plotter,
@@ -20,7 +21,6 @@ from vedo import (
 from vedo.shapes import Cylinder, Line
 from vedo.mesh import Mesh as Actor
 import pandas as pd
-from pathlib import Path
 
 from brainrender.colors import getColor, get_random_colors
 from brainrender.atlases.atlas import Atlas
@@ -443,6 +443,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
+        self.root.name = "root"
 
         if self.root is None:
             print("Could not find a root mesh")
@@ -473,6 +474,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             if add_labels:
                 self.add_actor_label(actor, region, **kwargs)
 
+            actor.name = region
             self.actors["regions"][region] = actor
             actors.append(actor)
 
@@ -574,6 +576,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         actors = []
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
+            actor.name = Path(filepath).name
             self.actors["others"].append(actor)
             actors.append(actor)
 
@@ -594,6 +597,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         sphere = shapes.Sphere(
             pos=pos, r=radius, c=color, alpha=alpha, **kwargs
         )
+        sphere.name = f"sphere {pos}"
         self.actors["others"].append(sphere)
         return sphere
 
@@ -622,7 +626,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         # check that the file is of the supported types
         if filepath.suffix == csv_suffix:
             cells = pd.read_csv(filepath)
-            self.add_cells(
+            cells_actor = self.add_cells(
                 cells, color=color, radius=radius, res=res, alpha=alpha
             )
 
@@ -633,7 +637,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                     hdf_key = brainrender.DEFAULT_HDF_KEY
                 try:
                     cells = pd.read_hdf(filepath, key=hdf_key)
-                except TypeError:
+                except KeyError:
                     if hdf_key == brainrender.DEFAULT_HDF_KEY:
                         raise ValueError(
                             f"The default identifier: {brainrender.DEFAULT_HDF_KEY} "
@@ -646,13 +650,13 @@ class Scene:  # subclass brain render to have acces to structure trees
                             f"The key: {hdf_key} cannot be found in the hdf "
                             f"file. Please check the correct identifer."
                         )
-            return self.add_cells(
+            cells_actor = self.add_cells(
                 cells, color=color, radius=radius, res=res, alpha=alpha
             )
 
         elif filepath.suffix == ".pkl":
             cells = pd.read_pikle(filepath)
-            return self.add_cells(
+            cells_actor = self.add_cells(
                 cells, color=color, radius=radius, res=res, alpha=alpha
             )
         else:
@@ -660,6 +664,9 @@ class Scene:  # subclass brain render to have acces to structure trees
                 f"File format: {filepath.suffix} is not currently supported. "
                 f"Please use one of: {supported_formats}"
             )
+
+        cells_actor.name = filepath.name
+        return cells_actor
 
     def add_cells(
         self,
@@ -1068,7 +1075,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     # ----------------------- Application specific methods ----------------------- #
     def add_probe_from_sharptrack(
-        self, probe_points_file, points_kwargs={}, **kwargs
+        self, probe_points_file, points_kwargs={}, name=None, **kwargs
     ):
         """
             Visualises the position of an implanted probe in the brain. 
@@ -1126,6 +1133,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             alpha=probe_alpha,
             c=probe_color,
         )
+        probe.name = name
 
         # Add to scene
         self.add_actor(probe)

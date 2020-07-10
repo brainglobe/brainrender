@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from rich.progress import track
 from vedo import shapes, merge, Mesh
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
@@ -193,10 +194,13 @@ class ABA:
         for n, neuron in enumerate(_neurons_actors):
             if neuron["axon"] is not None:
                 neuron["axon"].c(colors["axon"][n])
+                neuron["axon"].name = "neuron-axon"
             if neuron["soma"] is not None:
                 neuron["soma"].c(colors["soma"][n])
+                neuron["soma"].name = "neuron-soma"
             if neuron["dendrites"] is not None:
                 neuron["dendrites"].c(colors["dendrites"][n])
+                neuron["dendrites"].name = "neuron-dendrites"
 
         # Return
         return return_list_smart(_neurons_actors), None
@@ -317,6 +321,9 @@ class ABA:
                         alpha=brainrender.TRACTO_ALPHA,
                     )
                 )
+                actors[-1].name = (
+                    str(t["injection-coordinates"]) + "_injection"
+                )
 
             points = [p["coord"] for p in t["path"]]
             actors.append(
@@ -328,6 +335,7 @@ class ABA:
                     res=brainrender.TRACTO_RES,
                 )
             )
+            actors[-1].name = str(t["injection-coordinates"]) + "_tractography"
 
         return actors
 
@@ -375,6 +383,7 @@ class ABA:
                     streamlines = parse_streamline(
                         color=col, data=slf, *args, **kwargs
                     )
+                streamlines.name = Path(slf).name + "_streamlines"
                 actors.extend(streamlines)
         else:
             raise ValueError(
