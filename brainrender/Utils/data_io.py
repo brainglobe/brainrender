@@ -7,7 +7,9 @@ import numpy as np
 import scipy.io as sio
 import pandas as pd
 from brainio import brainio
+from pathlib import Path
 from vedo import load, Volume
+import brainrender
 
 # ------------------------------------ OS ------------------------------------ #
 
@@ -48,6 +50,58 @@ def get_file_name(filepath):
 
 
 # ------------------------------ Load/Save data ------------------------------ #
+def load_cells_from_file(filepath, hdf_key="hdf"):
+    csv_suffix = ".csv"
+    supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
+
+    #  check that the filepath makes sense
+    filepath = Path(filepath)
+    if not filepath.exists():
+        raise FileNotFoundError(filepath)
+
+    # check that the file is of the supported types
+    if filepath.suffix == csv_suffix:
+        cells = pd.read_csv(filepath)
+
+    elif filepath.suffix in supported_formats:
+        # parse file and load cell locations
+        try:
+            # Try reading without hdf key
+            cells = pd.read_hdf(filepath)
+
+        except KeyError:
+            # Try reading with hdf key
+            if filepath.suffix in brainrender.HDF_SUFFIXES:
+                if hdf_key is None:
+                    hdf_key = brainrender.DEFAULT_HDF_KEY
+                try:
+                    cells = pd.read_hdf(filepath, key=hdf_key)
+                except KeyError:
+                    if hdf_key == brainrender.DEFAULT_HDF_KEY:
+                        raise ValueError(
+                            f"The default identifier: {brainrender.DEFAULT_HDF_KEY} "
+                            f"cannot be found in the hdf file. Please supply "
+                            f"a key using 'scene.add_cells_from_file(filepath, "
+                            f"hdf_key='key'"
+                        )
+                    else:
+                        raise ValueError(
+                            f"The key: {hdf_key} cannot be found in the hdf "
+                            f"file. Please check the correct identifer."
+                        )
+
+    elif filepath.suffix == ".pkl":
+        cells = pd.read_pikle(filepath)
+
+    else:
+        raise NotImplementedError(
+            f"File format: {filepath.suffix} is not currently supported. "
+            f"Please use one of: {supported_formats + ['.pkl']}"
+        )
+
+    return cells, filepath.name
+
+
 def load_npy_from_gz(filepath):
     f = gzip.GzipFile(filepath, "r")
     return np.load(f)

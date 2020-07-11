@@ -27,6 +27,7 @@ from brainrender.atlases.atlas import Atlas
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
     get_probe_points_from_sharptrack,
+    load_cells_from_file,
 )
 
 from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
@@ -615,57 +616,14 @@ class Scene:  # subclass brain render to have acces to structure trees
         :param alpha: float, transparency of spheres used to render the cells (Default value = 1)
 
         """
-        csv_suffix = ".csv"
-        supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
+        # Load cells
+        cells, name = load_cells_from_file(filepath, hdf_key=hdf_key)
 
-        #  check that the filepath makes sense
-        filepath = Path(filepath)
-        if not filepath.exists():
-            raise FileNotFoundError(filepath)
-
-        # check that the file is of the supported types
-        if filepath.suffix == csv_suffix:
-            cells = pd.read_csv(filepath)
-            cells_actor = self.add_cells(
-                cells, color=color, radius=radius, res=res, alpha=alpha
-            )
-
-        elif filepath.suffix in supported_formats:
-            # parse file and load cell locations
-            if filepath.suffix in brainrender.HDF_SUFFIXES:
-                if hdf_key is None:
-                    hdf_key = brainrender.DEFAULT_HDF_KEY
-                try:
-                    cells = pd.read_hdf(filepath, key=hdf_key)
-                except KeyError:
-                    if hdf_key == brainrender.DEFAULT_HDF_KEY:
-                        raise ValueError(
-                            f"The default identifier: {brainrender.DEFAULT_HDF_KEY} "
-                            f"cannot be found in the hdf file. Please supply "
-                            f"a key using 'scene.add_cells_from_file(filepath, "
-                            f"hdf_key='key'"
-                        )
-                    else:
-                        raise ValueError(
-                            f"The key: {hdf_key} cannot be found in the hdf "
-                            f"file. Please check the correct identifer."
-                        )
-            cells_actor = self.add_cells(
-                cells, color=color, radius=radius, res=res, alpha=alpha
-            )
-
-        elif filepath.suffix == ".pkl":
-            cells = pd.read_pikle(filepath)
-            cells_actor = self.add_cells(
-                cells, color=color, radius=radius, res=res, alpha=alpha
-            )
-        else:
-            raise NotImplementedError(
-                f"File format: {filepath.suffix} is not currently supported. "
-                f"Please use one of: {supported_formats}"
-            )
-
-        cells_actor.name = filepath.name
+        # Render cells
+        cells_actor = self.add_cells(
+            cells, color=color, radius=radius, res=res, alpha=alpha
+        )
+        cells_actor.name = name
         return cells_actor
 
     def add_cells(
