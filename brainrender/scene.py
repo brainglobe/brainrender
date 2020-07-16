@@ -603,7 +603,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         return sphere
 
     def add_cells_from_file(
-        self, filepath, hdf_key="hdf", color="red", radius=25, res=3, alpha=1
+        self, filepath, hdf_key="hdf", color="red", radius=25, res=7, alpha=1
     ):
         """
         Load location of cells from a file (csv and HDF) and render as spheres aligned to the root mesh.
@@ -633,7 +633,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         color_by_region=False,
         color_by_metadata=None,
         radius=25,
-        res=3,
+        res=7,
         alpha=1,
         col_names=None,
         regions=None,

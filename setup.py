@@ -25,7 +25,7 @@ requirements = [
 
 setup(
     name="brainrender",
-    version="0.4.0.1",
+    version="1.0.0.2dev",
     description="Python scripts to use Allen Brain Map data for analysis "
     "and rendering",
     long_description=long_description,
