@@ -17,7 +17,7 @@ neuron = scene.add_neurons(
         soma="red",
         dendrites="orangered",
         axon=[0.4, 0.4, 0.4],
-        neurite_radius=0.1,
+        neurite_radius=0.001,
     ),
 )
 

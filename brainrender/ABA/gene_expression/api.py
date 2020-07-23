@@ -2,6 +2,7 @@ import numpy as np
 from vedo import Volume
 import pandas as pd
 import os
+import sys
 
 from brainrender.ABA.gene_expression.ge_utils import (
     check_gene_cached,
@@ -159,6 +160,10 @@ class GeneExpressionAPI(Paths):
 
         # Load from cache
         data = load_cached_gene(cache, metric, self.grid_size)
+
+        if sys.platform == "darwin":
+            data = data.T
+
         return data
 
     def griddata_to_volume(
