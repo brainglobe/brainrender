@@ -104,7 +104,7 @@ class Scene:  # subclass brain render to have acces to structure trees
                     name=atlas, base_dir=base_dir, **atlas_kwargs, **kwargs
                 )
             elif inspect.isclass(atlas):
-                self.atlas = atlas()
+                self.atlas = atlas(**atlas_kwargs)
             else:
                 raise ValueError(
                     "The `atlas` argument should be None, a string with atlas name or a class"
@@ -225,12 +225,13 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         # Compute root bounds
         # get the center of the root and the bounding box + update for atlas
-        self.atlas._root_midpoint = self.root.centerOfMass()
-        self.atlas._root_bounds = [
-            self.root.xbounds(),
-            self.root.ybounds(),
-            self.root.zbounds(),
-        ]
+        if self.root is not None:
+            self.atlas._root_midpoint = self.root.centerOfMass()
+            self.atlas._root_bounds = [
+                self.root.xbounds(),
+                self.root.ybounds(),
+                self.root.zbounds(),
+            ]
 
     # ---------------------------------------------------------------------------- #
     #                                     Utils                                    #
@@ -444,7 +445,8 @@ class Scene:  # subclass brain render to have acces to structure trees
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
-        self.root.name = "root"
+        if self.root is not None:
+            self.root.name = "root"
 
         if self.root is None:
             print("Could not find a root mesh")
