@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from rich.progress import track
 from vedo import shapes, merge, Mesh
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
@@ -383,7 +382,6 @@ class ABA:
                     streamlines = parse_streamline(
                         color=col, data=slf, *args, **kwargs
                     )
-                streamlines.name = Path(slf).name + "_streamlines"
                 actors.extend(streamlines)
         else:
             raise ValueError(

@@ -1,0 +1,16 @@
+[report]
+omit = 
+    brainrender/ABA/volumetric/*
+    brainrender/atlases/celegans.py
+
+
+exclude_lines =
+    pragma: no cover
+    def load_npy_from_gz
+    def save_npy_to_gz
+    def save_json
+    continue
+    raise NotImplementedError
+    raise ValueError
+    raise FileNotFoundError
+    raise FileExistsError

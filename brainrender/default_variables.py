@@ -43,7 +43,7 @@ DEFAULT_VIP_REGIONS = (
 DEFAULT_VIP_COLOR = [0.8, 0.2, 0.2]  # default color of VIP regions
 
 ROOT_COLOR = [0.8, 0.8, 0.8]  # color of the overall brain model's actor
-ROOT_ALPHA = 0.1  # transparency of the overall brain model's actor'
+ROOT_ALPHA = 0.2  # transparency of the overall brain model's actor'
 
 DEFAULT_STRUCTURE_COLOR = [0.8, 0.8, 0.8]
 DEFAULT_STRUCTURE_ALPHA = 1

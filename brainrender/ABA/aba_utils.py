@@ -387,7 +387,7 @@ def make_url_given_id(expid):
     )
 
 
-def download_streamlines(eids, streamlines_folder=None):
+def download_streamlines(eids, streamlines_folder=None):  # pragma: no cover
     """
         Given a list of expeirmental IDs, it downloads the streamline data from the https://neuroinformatics.nl cache and saves them as
         json files. 
@@ -427,7 +427,9 @@ def download_streamlines(eids, streamlines_folder=None):
     return filepaths, data
 
 
-def extract_ids_from_csv(csv_file, download=False, **kwargs):
+def extract_ids_from_csv(
+    csv_file, download=False, **kwargs
+):  # pragma: no cover
     """
         Parse CSV file to extract experiments IDs and link to downloadable streamline data
     
