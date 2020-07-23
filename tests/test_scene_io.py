@@ -12,7 +12,10 @@ from brainrender.Utils.camera import (
 )
 from brainrender.colors import colorMap
 
+import pytest
 
+
+@pytest.mark.slow
 def test_animated_scene():
     # --------------------------------- Variables -------------------------------- #
     minalpha = 0.01  # transparency of background neurons
@@ -116,6 +119,7 @@ def test_animated_scene():
     scene.close()
 
 
+@pytest.mark.slow
 def test_video():
     from brainrender.animation.video import BasicVideoMaker as VideoMaker
 
@@ -130,6 +134,7 @@ def test_video():
     )  # specify how the scene rotates at each frame
 
 
+@pytest.mark.slow
 def test_custom_video():
     from brainrender.animation.video import CustomVideoMaker
 

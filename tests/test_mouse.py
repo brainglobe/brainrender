@@ -78,7 +78,7 @@ def test_neurons(scene):
         filterby="soma", filter_regions=["MOs"]
     )
 
-    neurons = mlapi.download_neurons(neurons_metadata[:5])
+    neurons = mlapi.download_neurons(neurons_metadata[:2])
     actors = scene.add_neurons(
         neurons,
         color="salmon",

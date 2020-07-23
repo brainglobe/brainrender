@@ -359,7 +359,7 @@ def test_multi_scenes():
     df.render(_interactive=False)
     df.close()
 
-    ms = MultiScene(6)
+    ms = MultiScene(3)
     ms.render(_interactive=False)
     ms.close()
 
