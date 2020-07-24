@@ -22,6 +22,7 @@ def test_get_atlas_images(imd):
     imd.get_atlasimages_by_atlasid(imd.mouse_sagittal_atlas_id)
 
 
+@pytest.mark.slow
 def test_download_imgs(imd):
     tmp_dir = TemporaryDirectory()
     imd.download_images_by_atlasid(

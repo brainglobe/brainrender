@@ -111,6 +111,7 @@ def test_scene_creation_settings():
     brainrender.SHOW_AXES = False
 
 
+@pytest.mark.slow
 def test_scene_creation_brainglobe():
     scene = Scene(atlas="allen_mouse_25um")
 
@@ -163,7 +164,7 @@ def test_edit_actors(scene):
 
 def test_cut_with_plane(scene):
     # Add some actors
-    scene.add_brain_regions(["STR", "TH"], alpha=0.5)
+    scene.add_brain_regions(["MOp"], alpha=0.5)
 
     # Specify position, size and orientation of the plane
     pos = scene.atlas._root_midpoint
@@ -291,7 +292,7 @@ def test_cells_from_file(scene):
 def test_labelled_cells(scene):
     # Gerate the coordinates of N cells across 3 regions
     _regions = ["MOs", "VISp", "ZI"]
-    N = 1000  # getting 1k cells per region, but brainrender can deal with >1M cells easily.
+    N = 100  # getting 1k cells per region, but brainrender can deal with >1M cells easily.
 
     # Render regions
     scene.add_brain_regions(_regions, alpha=0.2)
@@ -313,9 +314,9 @@ def test_labelled_cells(scene):
     # Add cells
     scene.add_cells(cells, color="darkseagreen", res=12, radius=25)
     scene.get_cells_in_region(cells, "MOs")
-    scene.add_cells(cells[:100], color_by_metadata="x")
+    scene.add_cells(cells, color_by_metadata="x")
     scene.add_cells(
-        cells[100:200],
+        cells,
         color_by_metadata="x",
         color={x: "salmon" for x in cells.x.values},
     )
@@ -350,6 +351,7 @@ def test_sharptrack(scene):
     )
 
 
+@pytest.mark.slow
 def test_export_for_web(scene):
     scene.export_for_web()
 
