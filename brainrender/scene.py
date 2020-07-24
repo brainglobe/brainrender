@@ -318,6 +318,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             )  # to deal with older instances of vedo
         return random.choices(ipts, k=N)
 
+    #TODO is this used=
     # ---------------------------- Actor interaction ----------------------------- #
     def edit_actors(self, actors, **kwargs):
         """
@@ -371,14 +372,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         for plane in planes:
             # Get the plane actor
             if isinstance(plane, str):
-                if plane == "sagittal":
-                    plane = self.atlas.get_sagittal_plane(**kwargs)
-                elif plane == "coronal":
-                    plane = self.atlas.get_coronal_plane(**kwargs)
-                elif plane == "horizontal":
-                    plane = self.atlas.get_horizontal_plane(**kwargs)
-                else:
-                    raise ValueError(f"Unrecognized plane name: {plane}")
+                plane = self.atlas.get_plane_at_point(plane=plane, **kwargs)
             else:
                 if not isinstance(plane, Plane):
                     raise ValueError(
@@ -744,10 +738,12 @@ class Scene:  # subclass brain render to have acces to structure trees
         self,
         target_region=None,
         pos=None,
-        x_offset=0,
-        y_offset=0,
-        z_offset=-500,
+        offsets=(0, 0, -500),
         use_line=False,
+        hemisphere="right",
+        color="powderblue",
+        radius=350,
+        alpha=0.5,
         **kwargs,
     ):
         """
@@ -765,11 +761,6 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param **kwargs: used to specify which hemisphere the cannula is and parameters
                 of the rendered cylinder: color, alpha, rotation axis...
         """
-        # Set some default kwargs
-        hemisphere = kwargs.pop("hemisphere", "right")
-        color = kwargs.pop("color", "powderblue")
-        radius = kwargs.pop("radius", 350)
-        alpha = kwargs.pop("alpha", 0.5)
 
         # Get coordinates of brain-side face of optic cannula
         if target_region is not None:
@@ -782,16 +773,10 @@ class Scene:  # subclass brain render to have acces to structure trees
                             passed to 'add_optic_cannula', nothing to render"
             )
             return
-        else:
-            if not len(pos) == 3:
-                raise ValueError(
-                    f"Invalid target coordinates argument, pos: {pos}"
-                )
 
         # Offset position
-        pos[0] += y_offset
-        pos[1] += z_offset
-        pos[2] += x_offset
+        for i, offset in enumerate(offsets):
+            pos[i] += offset
 
         # Get coordinates of upper face
         bounds = self.root.bounds()
@@ -810,7 +795,8 @@ class Scene:  # subclass brain render to have acces to structure trees
             )
         return cylinder
 
-    def add_text(self, text, **kwargs):
+    def add_text(self, text, pos=8,size=1.75, color="k", alpha=1,
+                 font="Montserrat"):
         """
             Adds a 2D text to the scene. Default params are to crate a large black
             text at the top of the rendering window.
@@ -818,11 +804,6 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param text: str with text to write
             :param kwargs: keyword arguments accepted by vedo.shapes.Text2D
         """
-        pos = kwargs.pop("pos", 8)
-        size = kwargs.pop("size", 1.75)
-        color = kwargs.pop("color", "k")
-        alpha = kwargs.pop("alpha", 1)
-        font = kwargs.pop("font", "Montserrat")
 
         txt = self.add_actor(
             Text2D(text, pos=pos, s=size, c=color, alpha=alpha, font=font)
@@ -907,7 +888,8 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         return return_list_smart(new_actors)
 
-    def add_line_at_point(self, point, replace_coord, bounds, **kwargs):
+    def add_line_at_point(self, point, axis, color="blackboard",
+                          lw=3, **kwargs):
         """
             Adds a line oriented on a given axis at a point
 
@@ -916,56 +898,23 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param bounds: list of two floats with lower and upper bound for line, determins the extent of the line
             :param kwargs: dictionary with arguments to specify how lines should look like
         """
+        #TODO bgspace could be used here
+        axis_dict = dict(rostrocaudal=0,
+                         dorsoventral=1,
+                         mediolateral=2)
+        replace_coord = axis_dict[axis]
+        bounds = self.atlas._root_bounds[axis]
         # Get line coords
         p0, p1 = point.copy(), point.copy()
         p0[replace_coord] = bounds[0]
         p1[replace_coord] = bounds[1]
 
-        # Get some default params
-        color = kwargs.pop("c", "blackboard")
-        color = kwargs.pop("color", color)
-        lw = kwargs.pop("lw", 3)
-
         # Create line actor
-        act = self.add_actor(Line(p0, p1, c=color, lw=lw, **kwargs))
-        return act
-
-    def add_rostrocaudal_line_at_point(self, point, **kwargs):
-        """
-            Add a line at a point oriented along the trostrocaudal axis
-
-            :param point:list or 1d np array with coordinates of point where crosshair is centered
-            :param line_kwargs: dictionary with arguments to specify how lines should look like
-        """
-        bounds = self.atlas._root_bounds[0]
-        return self.add_line_at_point(point, 0, bounds, **kwargs)
-
-    def add_dorsoventral_line_at_point(self, point, **kwargs):
-        """
-            Add a line at a point oriented along the mdorsoventralediolateral axis
-
-            :param point:list or 1d np array with coordinates of point where crosshair is centered
-            :param line_kwargs: dictionary with arguments to specify how lines should look like
-        """
-        bounds = self.atlas._root_bounds[1]
-        return self.add_line_at_point(point, 1, bounds, **kwargs)
-
-    def add_mediolateral_line_at_point(self, point, **kwargs):
-        """
-            Add a line at a point oriented along the mediolateral axis
-
-            :param point:list or 1d np array with coordinates of point where crosshair is centered
-            :param line_kwargs: dictionary with arguments to specify how lines should look like
-        """
-        bounds = self.atlas._root_bounds[2]
-        return self.add_line_at_point(point, 2, bounds, **kwargs)
+        return self.add_actor(Line(p0, p1, c=color, lw=lw, **kwargs))
 
     def add_crosshair_at_point(
         self,
         point,
-        ml=True,
-        dv=True,
-        ap=True,
         show_point=True,
         line_kwargs={},
         point_kwargs={},
@@ -975,33 +924,13 @@ class Scene:  # subclass brain render to have acces to structure trees
             centered on a given point.
 
             :param point: list or 1d np array with coordinates of point where crosshair is centered
-            :param ml: bool, if True a line oriented on the mediolateral axis is added
-            :param dv: bool, if True a line oriented on the dorsoventral axis is added
-            :param ap: bool, if True a line oriented on the anteriorposterior or rostsrocaudal axis is added
             :param show_point: bool, if True a sphere at the loation of the point is shown
             :param line_kwargs: dictionary with arguments to specify how lines should look like
             :param point_kwargs: dictionary with arguments to specify how the point should look
         """
-        actors = []
-        if ml:
-            actors.append(
-                self.add_mediolateral_line_at_point(point, **line_kwargs)
-            )
+        return [self.add_line_at_point(point, ax, **line_kwargs)
+                for ax in ["rostrocaudal", "dorsoventral", "mediolateral"]]
 
-        if dv:
-            actors.append(
-                self.add_dorsoventral_line_at_point(point, **line_kwargs)
-            )
-
-        if ap:
-            actors.append(
-                self.add_rostrocaudal_line_at_point(point, **line_kwargs)
-            )
-
-        if show_point:
-            actors.append(self.add_sphere_at_point(point, **point_kwargs))
-
-        return actors
 
     def add_plane(self, plane, **kwargs):
         """
@@ -1022,14 +951,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         actors = []
         for plane in planes:
             if isinstance(plane, str):
-                if plane == "sagittal":
-                    plane = self.atlas.get_sagittal_plane(**kwargs)
-                elif plane == "coronal":
-                    plane = self.atlas.get_coronal_plane(**kwargs)
-                elif plane == "horizontal":
-                    plane = self.atlas.get_horizontal_plane(**kwargs)
-                else:
-                    raise ValueError(f"Unrecognized plane name: {plane}")
+                plane = self.atlas.get_plane_at_point(plane, **kwargs)
             else:
                 if not isinstance(plane, Plane):
                     raise ValueError(
@@ -1042,6 +964,10 @@ class Scene:  # subclass brain render to have acces to structure trees
         return return_list_smart(actors)
 
     # ----------------------- Application specific methods ----------------------- #
+
+    # TODO this method does not fully pertain to scene, the interpolation part
+    # could be conveniently excised in a separate functio nthat can be useful
+    # even outside a scene
     def add_probe_from_sharptrack(
         self, probe_points_file, points_kwargs={}, name=None, **kwargs
     ):
@@ -1127,10 +1053,13 @@ class Scene:  # subclass brain render to have acces to structure trees
                         # actor.lighting(style='plastic',
                         # 		enabled=False)
                         actor.lighting("off")
+                #TODO generic except should be avoided
                 except:
                     pass  # Some types of actors such as Text 2D don't have this attribute!
 
     def get_actors(self):
+        #TODO if self.actors can contain both dict and list probably should
+        #be made more consistent to have only dicts?
         all_actors = []
         for k, actors in self.actors.items():
             if isinstance(actors, dict):
@@ -1187,10 +1116,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             self._get_inset()
 
         if zoom is None and not video:
-            if brainrender.WHOLE_SCREEN:
-                zoom = 1.85
-            else:
-                zoom = 1.5
+            zoom = 1.85 if brainrender.WHOLE_SCREEN else 1.5
 
         # Make mesh labels follow the camera
         if not self.jupyter:
@@ -1198,41 +1124,16 @@ class Scene:  # subclass brain render to have acces to structure trees
                 txt.followCamera(self.plotter.camera)
 
         self.is_rendered = True
-        if not self.jupyter:
-            if interactive and not video:
-                show(
-                    *self.get_actors(),
-                    interactive=False,
-                    zoom=zoom,
-                    bg=brainrender.BACKGROUND_COLOR,
-                    axes=self.plotter.axes,
-                )
-            elif video:
-                show(
-                    *self.get_actors(),
-                    interactive=False,
-                    bg=brainrender.BACKGROUND_COLOR,
-                    offscreen=True,
-                    zoom=zoom,
-                    axes=self.plotter.axes,
-                )
-            else:
-                show(
-                    *self.get_actors(),
-                    interactive=False,
-                    offscreen=True,
-                    zoom=zoom,
-                    bg=brainrender.BACKGROUND_COLOR,
-                    axes=self.plotter.axes,
-                )
 
-            if interactive and not video:
-                show(
-                    *self.get_actors(),
-                    interactive=True,
-                    bg=brainrender.BACKGROUND_COLOR,
-                    axes=self.plotter.axes,
-                )
+        args_dict = dict(interactive=interactive,
+                        zoom=zoom,
+                        bg=brainrender.BACKGROUND_COLOR,
+                        axes=self.plotter.axes)
+
+        if video:
+            args_dict["offscreen"] = True
+
+        show(*self.get_actors(), **args_dict)
 
     def close(self):
         closePlotter()
@@ -1261,16 +1162,8 @@ class Scene:  # subclass brain render to have acces to structure trees
         print(
             "Ready for exporting. Exporting scenes with many actors might require a few minutes"
         )
-        try:
-            with open(filepath, "w") as fp:
-                fp.write(plt.get_snapshot())
-        except:
-            raise ValueError(
-                "Failed to export scene for web.\n"
-                + "Try updating k3d and msgpack: \n "
-                + "pip install k3d==2.7.4\n"
-                + "pip install -U msgpack"
-            )
+        with open(filepath, "w") as fp:
+            fp.write(plt.get_snapshot())
 
         print(
             f"The brainrender scene has been exported for web. The results are saved at {filepath}"
@@ -1285,39 +1178,42 @@ class Scene:  # subclass brain render to have acces to structure trees
     # ---------------------------------------------------------------------------- #
     def keypress(self, key):
         if key == "s":
-            if not self.is_rendered:
-                print(
-                    "You need to render the scene before you can take a screenshot"
-                )
-                return
+            self.take_screenshot()
 
-            if not os.path.isdir(self.screenshots_folder) and len(
-                self.screenshots_folder
-            ):
-                try:
-                    os.mkdir(self.screenshots_folder)
-                except Exception as e:
-                    raise FileNotFoundError(
-                        "Could not crate a folder to save screenshots.\n"
-                        + f"Attempted to create a folder at {self.screenshots_folder}"
-                        + f"But got exception: {e}"
-                    )
-
-            savename = os.path.join(
-                self.screenshots_folder, self.screenshots_name
-            )
-            savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
-
-            if "." not in self.screenshots_extension:
-                savename += f".{self.screenshots_extension}"
-            else:
-                savename += self.screenshots_extension
-
-            print(f"\nSaving screenshots at {savename}\n")
-            screenshot(filename=savename, scale=self.screenshots_scale)
+        elif key == "q":
+            self.close()
 
     def take_screenshot(self):
-        self.keypress("s")
+        if not self.is_rendered:
+            print(
+                "You need to render the scene before you can take a screenshot"
+            )
+            return
+
+        if not os.path.isdir(self.screenshots_folder) and len(
+                self.screenshots_folder
+        ):
+            try:
+                os.mkdir(self.screenshots_folder)
+            except Exception as e:
+                raise FileNotFoundError(
+                    "Could not crate a folder to save screenshots.\n"
+                    + f"Attempted to create a folder at {self.screenshots_folder}"
+                    + f"But got exception: {e}"
+                )
+
+        savename = os.path.join(
+            self.screenshots_folder, self.screenshots_name
+        )
+        savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+
+        if "." not in self.screenshots_extension:
+            savename += f".{self.screenshots_extension}"
+        else:
+            savename += self.screenshots_extension
+
+        print(f"\nSaving screenshots at {savename}\n")
+        screenshot(filename=savename, scale=self.screenshots_scale)
 
 
 # ---------------------------------------------------------------------------- #

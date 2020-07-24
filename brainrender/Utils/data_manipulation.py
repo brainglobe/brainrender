@@ -22,6 +22,7 @@ def return_dict_smart(dct):
         return dct
 
 
+#TODO this function aim at handling too many scenarios, very confusing to read
 def get_coords(obj, mirror=False, mirror_ax="x"):
     """
     Takes coordinates in various format and turns them into what's expected from VTK plotter for rendering. 

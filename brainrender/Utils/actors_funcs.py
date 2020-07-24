@@ -2,7 +2,7 @@
     Collection of functions to edit actors looks and other features.
 """
 
-
+# TODO mirror around point would mean
 def mirror_actor_at_point(actor, point, axis="x"):
     """
     Mirror an actor around a point
@@ -56,38 +56,6 @@ def mirror_actor_at_point(actor, point, axis="x"):
             mirrored_actor[n] = actor
         return mirrored_actor
 
-
-def set_wireframe(actor):
-    """
-    set an actor's look to wireframe
-
-    :param actor: 
-
-    """
-    actor.wireframe(value=True)
-
-
-def set_solid(actor):
-    """
-    set an actor's look to solid
-
-    :param actor: 
-
-    """
-    actor.wireframe(value=False)
-
-
-def set_color(actor, color):
-    """
-    set an actor's look to a specific color
-
-    :param actor: 
-    :param color: 
-
-    """
-    actor.color(c=color)
-
-
 def set_line(actor, lw=None, c=None):
     """
     set an actor's look to specify the line width and color
@@ -101,40 +69,6 @@ def set_line(actor, lw=None, c=None):
         actor.lw(lineWidth=lw)
     if c is not None:
         actor.lc(lineColor=c)
-
-
-def upsample_actor(actor, fact=1):
-    """
-    Increase resolution of actor
-
-    :param actor: 
-    :param fact:  (Default value = 1)
-
-    """
-    actor.subdivide(N=fact)
-
-
-def downsample_actor(actor, fact=0.5):
-    """
-    Reduce resolution of actor
-
-    :param actor: 
-    :param fact:  (Default value = 0.5)
-
-    """
-    actor.decimate(fraction=fact)
-
-
-def smooth_actor(actor, factor=15):
-    """
-    Smooth an actor's mesh
-
-    :param actor: 
-    :param factor:  (Default value = 15)
-
-    """
-    actor.smoothLaplacian(niter=factor)
-
 
 def edit_actor(
     actor,
@@ -163,16 +97,16 @@ def edit_actor(
     """
 
     if wireframe:
-        set_wireframe(actor)
+        actor.wireframe(value=True)
     if solid:
-        set_solid(actor)
+        actor.wireframe(value=False)
     if color:
-        set_color(actor, color)
+        actor.color(c=color)
     if line:
         set_line(actor, **line_kwargs)
     if upsample:
-        upsample_actor(actor)
+        actor.subdivide(N=1)
     if downsample:
-        downsample_actor(actor)
+        actor.decimate(fraction=0.5)
     if smooth:
-        smooth_actor(actor)
+        actor.smoothLaplacian(niter=15)
