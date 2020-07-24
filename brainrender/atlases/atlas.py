@@ -15,13 +15,13 @@ class Atlas(BrainGlobeAtlas, Paths, Base, ABA):
         horizontal=[0, 1, 0],
     )
 
-    def __init__(self, name=None, *args, base_dir=None, **kwargs):
+    def __init__(self, *args, base_dir=None, **kwargs):
         # Create brainglobe atlas
+        name = kwargs.pop("atlas_name", None)
         if name is None:
-            self.atlas_name = brainrender.DEFAULT_ATLAS
-        else:
-            self.atlas_name = name
-        BrainGlobeAtlas.__init__(self, *args, **kwargs)
+            name = brainrender.DEFAULT_ATLAS
+
+        BrainGlobeAtlas.__init__(self, *args, atlas_name=name, **kwargs)
 
         # Add brainrender paths
         Paths.__init__(self, base_dir=base_dir, **kwargs)

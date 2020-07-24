@@ -97,11 +97,19 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
 
         if atlas is None:
-            self.atlas = Atlas(base_dir=base_dir, **atlas_kwargs, **kwargs)
+            self.atlas = Atlas(
+                atlas_name="allen_mouse_25um",
+                base_dir=base_dir,
+                **atlas_kwargs,
+                **kwargs,
+            )
         else:
             if isinstance(atlas, str):
                 self.atlas = Atlas(
-                    name=atlas, base_dir=base_dir, **atlas_kwargs, **kwargs
+                    atlas_name=atlas,
+                    base_dir=base_dir,
+                    **atlas_kwargs,
+                    **kwargs,
                 )
             elif inspect.isclass(atlas):
                 self.atlas = atlas(**atlas_kwargs)
