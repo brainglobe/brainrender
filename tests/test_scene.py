@@ -168,10 +168,9 @@ def test_cut_with_plane(scene):
 
     # Specify position, size and orientation of the plane
     pos = scene.atlas._root_midpoint
-    sx, sy = 15000, 15000
     norm = [0, 1, 1]
     plane = scene.atlas.get_plane_at_point(
-        pos, norm, sx, sy, color="lightblue"
+        pos, norm, color="lightblue"
     )
 
     # Cut
@@ -188,9 +187,9 @@ def test_cut_with_plane(scene):
 
 
 def test_add_plane(scene):
-    scene.add_plane("sagittal")
+    scene.add_plane(plane="sagittal")
 
-    scene.add_plane(["sagittal", "coronal", "horizontal"])
+    scene.add_plane(plane=["sagittal", "frontal", "horizontal"])
 
 
 def test_camera():
@@ -264,10 +263,8 @@ def test_crosshair(scene):
 
     # Add a point in the right hemisphere
     point = scene.atlas.get_region_CenterOfMass("TH")
-    scene.add_rostrocaudal_line_at_point(point)
     scene.add_crosshair_at_point(
         point,
-        ap=False,  # show only lines on the medio-lateral and dorso-ventral axes
         point_kwargs={
             "color": "salmon"
         },  # specify how the point at the center of the crosshair looks like
@@ -277,7 +274,6 @@ def test_crosshair(scene):
     point = scene.atlas.get_region_CenterOfMass("TH", hemisphere="left")
     scene.add_crosshair_at_point(
         point,
-        ap=False,  # show only lines on the medio-lateral and dorso-ventral axes
         point_kwargs={
             "color": "darkseagreen"
         },  # specify how the point at the center of the crosshair looks like

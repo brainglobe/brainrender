@@ -16,7 +16,7 @@ import brainrender
 
 def listdir(fld):
     """
-    List the files into a folder with the coplete file path instead of the relative file path like os.listdir.
+    List the files into a folder with the complete file path instead of the relative file path like os.listdir.
 
     :param fld: string, folder path
 
@@ -42,11 +42,6 @@ def check_file_exists(filepath, raise_error=False):
         raise FileExistsError("File {} doesn't exist".format(filepath))
     else:
         return False
-
-
-def get_file_name(filepath):
-    # Returns just the name, no complete path or extension
-    return os.path.splitext(os.path.basename(filepath))[0]
 
 
 # ------------------------------ Load/Save data ------------------------------ #
@@ -214,10 +209,13 @@ def load_mesh_from_file(filepath, *args, **kwargs):
     if not os.path.isfile(filepath):
         raise FileNotFoundError(filepath)
 
-    try:
-        actor = load(filepath)
-    except:
-        actor = Volume(load_volume_file(filepath))
+    # Having this except here is too generic and make this function
+    # a bit brittle; I would handle volumes explicitly if really necessary
+    # and not implicitly as here
+    #try:
+    actor = load(filepath)
+    #except:
+        #actor = Volume(load_volume_file(filepath))
 
     color = kwargs.pop("color", None)
     alpha = kwargs.pop("alpha", None)

@@ -179,7 +179,7 @@ class ABA:
                 if act is not None:
                     if not isinstance(act, Mesh):
                         raise ValueError(
-                            f"Neuron actor {key} is {act.__type__} but should be a vedo Mesh. Not: {act}"
+                            f"Neuron actor {key} is {type(act)} but should be a vedo Mesh. Not: {act}"
                         )
 
             if not display_axon:

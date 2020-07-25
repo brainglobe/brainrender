@@ -3,12 +3,11 @@ import numpy as np
 import pytest
 from brainrender.scene import Scene
 from brainrender.Utils.volume import (
-    load_labelled_volume,
     extract_volume_surface,
     extract_label_mesh,
 )
 from brainrender.Utils.camera import get_camera_params
-from brainrender.Utils.data_io import listdir, get_subdirs, get_file_name
+from brainrender.Utils.data_io import listdir, get_subdirs
 from brainrender.Utils.data_manipulation import get_coords, get_slice_coord
 from brainrender.colors import (
     get_random_colormap,
@@ -26,9 +25,7 @@ def scene():
 
 
 def test_volume_utils(scene):
-    path = str(scene.atlas.root_dir / "annotation.tiff")
-
-    vol = load_labelled_volume(path)
+    vol = scene.atlas.annotation
     extract_volume_surface(vol)
     extract_label_mesh(vol, 1)
 
@@ -46,8 +43,6 @@ def test_io():
     if not isinstance(listdir(fld), list):
         raise ValueError
     if not isinstance(get_subdirs(fld), list):
-        raise ValueError
-    if not isinstance(get_file_name("brainrender/scene.py"), str):
         raise ValueError
 
 
