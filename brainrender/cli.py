@@ -24,9 +24,9 @@ def main(regions, atlas=None, cartoon=False, debug=False, file=None):
         # Add silhouettes
         if cartoon:
             if isinstance(acts, list):
-                scene.add_mesh_silhouette(*acts)
+                scene.add_silhouette(*acts)
             else:
-                scene.add_mesh_silhouette(acts)
+                scene.add_silhouette(acts)
 
     # Add data from file
     if file is not None:

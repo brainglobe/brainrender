@@ -37,7 +37,7 @@ for n, letter in enumerate("BRAINRENDER"):
         letter, depth=0.5, c=colors[n], pos=(x, 0, 0), justify="centered"
     )
 
-    scene.add_add_mesh_silhouette(act, lw=3)
+    scene.add_add_silhouette(act, lw=3)
 
 
 scene.render()

@@ -41,7 +41,7 @@ skull.scale([1300, 1500, 1200])
 scene.cut_actors_with_plane("sagittal", actors=skull)
 
 # Improve looks
-scene.add_mesh_silhouette(scene.root, lw=3)
-scene.add_mesh_silhouette(skull, lw=3)
+scene.add_silhouette(scene.root, lw=3)
+scene.add_silhouette(skull, lw=3)
 
 scene.render()

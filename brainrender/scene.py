@@ -32,7 +32,11 @@ from brainrender.Utils.data_io import (
 
 from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
 from brainrender.Utils import actors_funcs
-from brainrender.Utils.camera import check_camera_param, set_camera
+from brainrender.Utils.camera import (
+    check_camera_param,
+    set_camera,
+    get_camera_params,
+)
 
 
 class Scene:  # subclass brain render to have acces to structure trees
@@ -562,7 +566,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         return return_list_smart(to_return)
 
-    def add_mesh_silhouette(self, *actors, lw=1, color="k", **kwargs):
+    def add_silhouette(self, *actors, lw=1, color="k", **kwargs):
         """
             Given a list of actors it adds a colored silhouette
             to them.
@@ -1182,6 +1186,9 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         elif key == "q":
             self.close()
+            
+        elif key == "c":
+            print(f"Camera parameters:\n{get_camera_params(scene=self)}")
 
     def take_screenshot(self):
         if not self.is_rendered:
@@ -1207,6 +1214,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         )
         savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
 
+
         if "." not in self.screenshots_extension:
             savename += f".{self.screenshots_extension}"
         else:
@@ -1214,6 +1222,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         print(f"\nSaving screenshots at {savename}\n")
         screenshot(filename=savename, scale=self.screenshots_scale)
+
 
 
 # ---------------------------------------------------------------------------- #
@@ -1314,10 +1323,16 @@ class MultiScene:
             print(
                 "Rendering {} scenes. Might take a few minutes.".format(self.N)
             )
+
+        if brainrender.WHOLE_SCREEN:
+            sz = "full"
+        else:
+            sz = "auto"
+
         mv = Plotter(
             N=self.N,
             axes=4,
-            size="auto",
+            size=sz,
             sharecam=True,
             bg=brainrender.BACKGROUND_COLOR,
         )
