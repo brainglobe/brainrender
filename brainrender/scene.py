@@ -1,5 +1,4 @@
 import brainrender
-import inspect
 import numpy as np
 import os
 import datetime
@@ -15,23 +14,25 @@ from vedo import (
     closePlotter,
     settings,
     Plane,
-    Text,
-    Sphere,
 )
 from vedo.shapes import Cylinder, Line
 from vedo.mesh import Mesh as Actor
-import pandas as pd
-
-from brainrender.colors import getColor, get_random_colors
-from brainrender.atlases.atlas import Atlas
+from brainrender.Utils.scene_utils import (
+    get_scene_atlas,
+    get_scene_camera,
+    get_scene_plotter_settings,
+    get_cells_colors_from_metadata,
+    make_actor_label,
+)
 from brainrender.Utils.data_io import (
     load_mesh_from_file,
-    get_probe_points_from_sharptrack,
     load_cells_from_file,
 )
 
-from brainrender.Utils.data_manipulation import flatten_list, return_list_smart
-from brainrender.Utils import actors_funcs
+from brainrender.Utils.data_manipulation import (
+    return_list_smart,
+    parse_sharptrack,
+)
 from brainrender.Utils.camera import (
     check_camera_param,
     set_camera,
@@ -52,13 +53,8 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     def __init__(
         self,
-        brain_regions=None,
-        regions_aba_color=False,
-        neurons=None,
-        tracts=None,
         add_root=None,
         verbose=True,
-        ignore_jupyter=False,
         display_inset=None,
         base_dir=None,
         camera=None,
@@ -73,10 +69,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
             Creates and manages a Plotter instance
 
-            :param brain_regions: list of brain regions acronyms to be added to the rendered scene (default value None)
-            :param regions_aba_color: if True, use the Allen Brain Atlas regions colors (default value None)
-            :param neurons: path to JSON or SWC file with data of neurons to be rendered [or list of files] (default value None)
-            :param tracts: list of JSON files with tractography data to be rendered (default value None)
             :param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
             :param verbose: if False less feedback is printed to screen (default value True)
             :param display_insert: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
@@ -97,45 +89,23 @@ class Scene:  # subclass brain render to have acces to structure trees
                 if no atlas is passed the allen brain atlas for the adult mouse brain is used. If a string with the atlas
                 name is passed it will try to load the corresponding brainglobe atlas.
             :param atlas_kwargs: dictionary used to pass extra arguments to atlas class
-            :param ignore_jupyter: bool, if False brainrender auto-detects if the user is using jupyter and adjusts to it
         """
-
-        if atlas is None:
-            self.atlas = Atlas(
-                atlas_name="allen_mouse_25um",
-                base_dir=base_dir,
-                **atlas_kwargs,
-                **kwargs,
-            )
-        else:
-            if isinstance(atlas, str):
-                self.atlas = Atlas(
-                    atlas_name=atlas,
-                    base_dir=base_dir,
-                    **atlas_kwargs,
-                    **kwargs,
-                )
-            elif inspect.isclass(atlas):
-                self.atlas = atlas(**atlas_kwargs)
-            else:
-                raise ValueError(
-                    "The `atlas` argument should be None, a string with atlas name or a class"
-                )
+        # Get atlas
+        self.atlas = get_scene_atlas(atlas, base_dir, atlas_kwargs, **kwargs)
 
         # Setup a few rendering options
         self.verbose = verbose
-        self.regions_aba_color = regions_aba_color
+        self.display_inset = (
+            display_inset
+            if display_inset is not None
+            else brainrender.DISPLAY_INSET
+        )
 
         # Infer if we are using k3d from vedo.settings
-        if settings.notebookBackend == "k3d" and not ignore_jupyter:
+        if settings.notebookBackend == "k3d":
             self.jupyter = True
         else:
             self.jupyter = False
-
-        if display_inset is None:
-            self.display_inset = brainrender.DISPLAY_INSET
-        else:
-            self.display_inset = display_inset
 
         if self.display_inset and self.jupyter:
             print(
@@ -143,39 +113,11 @@ class Scene:  # subclass brain render to have acces to structure trees
             )
             self.display_inset = False
 
-        if add_root is None:
-            add_root = brainrender.DISPLAY_ROOT
-
         # Camera parameters
-        if camera is None:
-            if self.atlas.default_camera is not None:
-                self.camera = check_camera_param(self.atlas.default_camera)
-            else:
-                self.camera = brainrender.CAMERA
-        else:
-            self.camera = check_camera_param(camera)
-
-        # Set up vedo plotter and actors records
-        if brainrender.WHOLE_SCREEN and not self.jupyter:
-            sz = "full"
-        elif brainrender.WHOLE_SCREEN and self.jupyter:
-            print(
-                "Setting window size to 'auto' as whole screen is not available in jupyter"
-            )
-            sz = "auto"
-        else:
-            sz = "auto"
-
-        if brainrender.SHOW_AXES:
-            axes = 1
-        else:
-            axes = 0
+        self.camera = get_scene_camera(camera, self.atlas)
 
         # Create plotter
-        self.plotter = Plotter(
-            axes=axes, size=sz, pos=brainrender.WINDOW_POS, title="brainrender"
-        )
-        self.plotter.legendBC = getColor("blackboard")
+        self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
 
         # SCreenshots and keypresses variables
         self.screenshots_folder = screenshot_kwargs.pop(
@@ -200,65 +142,25 @@ class Scene:  # subclass brain render to have acces to structure trees
             settings.useFXAA = True
 
         # Prepare store for actors added to scene
-        self.actors = {
-            "regions": {},
-            "tracts": [],
-            "neurons": [],
-            "root": None,
-            "others": [],
-            "labels": [],
-        }
-        self._actors = None  # store a copy of the actors when manipulations like slicing are done
+        self.actors = []
+        self.actors_labels = []
         self.store = {}  # in case we need to store some data
 
         # Add items to scene
-        if brain_regions is not None:
-            self.add_brain_regions(brain_regions)
-
-        if neurons is not None:
-            self.add_neurons(neurons)
-
-        if tracts is not None:
-            self.add_tractography(tracts)
-
-        if add_root:
-            self.add_root(render=True)
-        else:
-            self.add_root(render=False)
+        if add_root is None:
+            add_root = brainrender.DISPLAY_ROOT
+        self.add_root(render=add_root)
 
         if title is not None:
             self.add_text(title)
 
         # Placeholder variables
         self.inset = None  # the first time the scene is rendered create and store the inset here
-        self.is_rendered = (
-            False  # keep track of if the scene has already been rendered
-        )
-
-        # Compute root bounds
-        # get the center of the root and the bounding box + update for atlas
-        if self.root is not None:
-            self.atlas._root_midpoint = self.root.centerOfMass()
-            self.atlas._root_bounds = [
-                self.root.xbounds(),
-                self.root.ybounds(),
-                self.root.zbounds(),
-            ]
+        self.is_rendered = False  # keep track if scene has been rendered
 
     # ---------------------------------------------------------------------------- #
     #                                     Utils                                    #
     # ---------------------------------------------------------------------------- #
-    def _check_point_in_region(self, point, region_actor):
-        """
-            Checks if a point of defined coordinates is within the mesh of a given actorr
-
-            :param point: 3-tuple or list of xyz coordinates
-            :param region_actor: vedo actor
-        """
-        if not region_actor.insidePoints([point]):
-            return False
-        else:
-            return True
 
     def _get_inset(self, **kwargs):
         """
@@ -321,34 +223,6 @@ class Scene:  # subclass brain render to have acces to structure trees
                 pts
             )  # to deal with older instances of vedo
         return random.choices(ipts, k=N)
-
-    #TODO is this used=
-    # ---------------------------- Actor interaction ----------------------------- #
-    def edit_actors(self, actors, **kwargs):
-        """
-        edits a list of actors (e.g. render as wireframe or solid)
-        :param actors: list of actors
-        :param **kwargs:
-
-        """
-        if not isinstance(actors, list):
-            actors = [actors]
-
-        for actor in actors:
-            actors_funcs.edit_actor(actor, **kwargs)
-
-    def mirror_actor_hemisphere(self, actors):
-        """
-            Mirrors actors from one hemisphere to the next
-        """
-        if not isinstance(actors, list):
-            actors = [actors]
-
-        for actor in actors:
-            mirror_coord = self.atlas.get_region_CenterOfMass(
-                "root", unilateral=False
-            )[2]
-            actors_funcs.mirror_actor_at_point(actor, mirror_coord, axis="x")
 
     def cut_actors_with_plane(
         self,
@@ -432,11 +306,6 @@ class Scene:  # subclass brain render to have acces to structure trees
     #                                POPULATE SCENE                                #
     # ---------------------------------------------------------------------------- #
 
-    # ------------------------------- Atlas methods ------------------------------ #
-    # Each Atlas class overwrites some of these methods with atlas-specific methods.
-    # Different atlses will overwrite different sets of methods, therefore supporting
-    # different functionality.
-
     def add_root(self, render=True, **kwargs):
         """
         adds the root the scene (i.e. the whole brain outline)
@@ -453,13 +322,12 @@ class Scene:  # subclass brain render to have acces to structure trees
         )
         if self.root is not None:
             self.root.name = "root"
-
-        if self.root is None:
+        else:
             print("Could not find a root mesh")
             return None
 
         if render:
-            self.actors["root"] = self.root
+            self.append(self.root)
 
         return self.root
 
@@ -476,7 +344,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         actors = []
         for region, actor in allactors.items():
-            if region in self.actors["regions"].keys():
+            if region in [a.name for a in self.actors]:
                 # Avoid inserting again
                 continue
 
@@ -484,9 +352,9 @@ class Scene:  # subclass brain render to have acces to structure trees
                 self.add_actor_label(actor, region, **kwargs)
 
             actor.name = region
-            self.actors["regions"][region] = actor
             actors.append(actor)
 
+        self.actors.extend(actors)
         return return_list_smart(actors)
 
     def add_neurons(self, *args, **kwargs):
@@ -495,17 +363,16 @@ class Scene:  # subclass brain render to have acces to structure trees
         Check the atlas' method to know how it works
         """
         actors, store = self.atlas.get_neurons(*args, **kwargs)
-        if isinstance(actors, list):
-            self.actors["neurons"].extend(actors)
-        else:
-            self.actors["neurons"].append(actors)
-            actors = [actors]
 
         if store is not None:
             for n, v in store.items():
                 self.store[n] = v
 
-        return return_list_smart(actors)
+        if isinstance(actors, list):
+            self.actors.extend(actors)
+        else:
+            self.actors.append(actors)
+        return actors
 
     def add_neurons_synapses(self, *args, **kwargs):
         """
@@ -529,7 +396,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
 
         actors = self.atlas.get_tractography(*args, **kwargs)
-        self.actors["tracts"].extend(actors)
+        self.actors.extend(actors)
         return return_list_smart(actors)
 
     def add_streamlines(self, *args, **kwargs):
@@ -538,7 +405,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         Check the function definition in ABA for more details
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
-        self.actors["tracts"].extend(actors)
+        self.actors.extend(actors)
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
@@ -547,24 +414,15 @@ class Scene:  # subclass brain render to have acces to structure trees
         Add a vtk actor to the scene
 
         :param actor:
-        :param store: one of the items in self.actors to use to store the actor
-                being created. It needs to be a list
+        :param store: a list to store added actors
 
         """
-        # TODO add a check that the arguments passed are indeed vtk actors?
-
-        to_return = []
         for actor in actors:
             if store is None:
-                self.actors["others"].append(actor)
+                self.actors.append(actor)
             else:
-                if not isinstance(store, list):
-                    raise ValueError("Store should be a list")
                 store.append(actor)
-
-            to_return.append(actor)
-
-        return return_list_smart(to_return)
+        return return_list_smart(actors)
 
     def add_silhouette(self, *actors, lw=1, color="k", **kwargs):
         """
@@ -586,9 +444,8 @@ class Scene:  # subclass brain render to have acces to structure trees
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
             actor.name = Path(filepath).name
-            self.actors["others"].append(actor)
+            self.actors.append(actor)
             actors.append(actor)
-
         return return_list_smart(actors)
 
     def add_sphere_at_point(
@@ -607,7 +464,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             pos=pos, r=radius, c=color, alpha=alpha, **kwargs
         )
         sphere.name = f"sphere {pos}"
-        self.actors["others"].append(sphere)
+        self.actors.append(sphere)
         return sphere
 
     def add_cells_from_file(
@@ -665,73 +522,35 @@ class Scene:  # subclass brain render to have acces to structure trees
         :param col_names: list of strings with names of pandas dataframe columns. If passed it should be a list of 3 columns
                 which have the x, y, z coordinates. If not passed, it is assumed that the columns are ['x', 'y', 'z']
         """
-        if isinstance(coords, pd.DataFrame):
-            coords_df = coords.copy()  # keep a copy
-            if col_names is None:
-                col_names = ["x", "y", "z"]
-            else:
-                if not isinstance(col_names, (list, tuple)):
-                    raise ValueError(
-                        "Column names should be a list of 3 columns"
-                    )
-                if not len(col_names) == 3:
-                    raise ValueError(
-                        "Column names should be a list of 3 columns"
-                    )
+        coords_df = coords.copy()  # keep a copy
+        if col_names is None:
+            col_names = ["x", "y", "z"]
 
-            if regions is not None:
-                coords = self.get_cells_in_region(coords, regions)
-            coords = [
-                [x, y, z]
-                for x, y, z in zip(
-                    coords[col_names[0]].values,
-                    coords[col_names[1]].values,
-                    coords[col_names[2]].values,
-                )
-            ]
-        else:
-            raise ValueError("Unrecognized argument for cell coordinates")
+        if regions is not None:
+            coords = self.get_cells_in_region(coords, regions)
 
+        coords = [
+            [x, y, z]
+            for x, y, z in zip(
+                coords[col_names[0]].values,
+                coords[col_names[1]].values,
+                coords[col_names[2]].values,
+            )
+        ]
+
+        # Update color
         if color_by_region:
             color = self.atlas.get_colors_from_coordinates(coords)
-
         elif color_by_metadata is not None:
-            if color_by_metadata not in coords_df.columns:
-                raise ValueError(
-                    'Color_by_metadata argument should be the name of one of the columns of "coords"'
-                )
+            color = get_cells_colors_from_metadata(
+                color_by_metadata, coords_df, color
+            )
 
-            # Get a map from metadata values to colors
-            vals = list(coords_df[color_by_metadata].values)
-            if len(vals) == 0:
-                raise ValueError(
-                    f"Cant color by {color_by_metadata} as no values were found"
-                )
-            if not isinstance(
-                color, dict
-            ):  # The user didn't pass a lookup, generate random
-                base_cols = get_random_colors(n_colors=len(set(vals)))
-                cols_lookup = {v: c for v, c in zip(set(vals), base_cols)}
-            else:
-                try:
-                    for val in list(set(vals)):
-                        color[val]
-                except KeyError:
-                    raise ValueError(
-                        'While using "color_by_metadata" with a dictionary of colors passed'
-                        + ' to "color", not every metadata value was assigned a color in the dictionary'
-                        + " please make sure that the color dictionary is complete"
-                    )
-                else:
-                    cols_lookup = color
-
-            # Use the map to get a color for each cell
-            color = [cols_lookup[v] for v in vals]
-
+        # Create actors
         spheres = shapes.Spheres(
             coords, c=color, r=radius, res=res, alpha=alpha
         )
-        self.actors["others"].append(spheres)
+        self.actors.append(spheres)
 
         if verbose:
             print("Added {} cells to the scene".format(len(coords)))
@@ -743,7 +562,6 @@ class Scene:  # subclass brain render to have acces to structure trees
         target_region=None,
         pos=None,
         offsets=(0, 0, -500),
-        use_line=False,
         hemisphere="right",
         color="powderblue",
         radius=350,
@@ -787,20 +605,16 @@ class Scene:  # subclass brain render to have acces to structure trees
         top = pos.copy()
         top[1] = bounds[2] - 500
 
-        if not use_line:
-            cylinder = self.add_actor(
-                Cylinder(
-                    pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs
-                )
-            )
-        else:
-            cylinder = self.add_actor(
-                Line(top, pos, c=color, alpha=alpha, lw=radius)
-            )
+        # Create actor
+        cylinder = self.add_actor(
+            Cylinder(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs)
+        )
+
         return cylinder
 
-    def add_text(self, text, pos=8,size=1.75, color="k", alpha=1,
-                 font="Montserrat"):
+    def add_text(
+        self, text, pos=8, size=1.75, color="k", alpha=1, font="Montserrat"
+    ):
         """
             Adds a 2D text to the scene. Default params are to crate a large black
             text at the top of the rendering window.
@@ -827,73 +641,16 @@ class Scene:  # subclass brain render to have acces to structure trees
                         - xoffset, yoffset, zoffset: integers that shift the label position
                         - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
         """
-        # Check args
-        if not isinstance(actors, (tuple, list)):
-            actors = [actors]
-        if not isinstance(labels, (tuple, list)):
-            labels = [labels]
-
-        # Get text params
-        size = kwargs.pop("size", 300)
-        color = kwargs.pop("color", None)
-        radius = kwargs.pop("radius", 100)
-
-        xoffset = kwargs.pop("xoffset", 0)
-        yoffset = kwargs.pop("yoffset", 0)
-        zoffset = kwargs.pop("zoffset", 0)
-
-        if self.atlas.atlas_name == "ABA":
-            offset = [-yoffset, -zoffset, xoffset]
-            default_offset = np.array([0, -200, 100])
-        else:
-            offset = [xoffset, yoffset, zoffset]
-            default_offset = np.array([100, 0, -200])
-
-        new_actors = []
-        for n, (actor, label) in enumerate(zip(actors, labels)):
-            if not isinstance(actor, Actor):
-                raise ValueError(
-                    f"Actor must be an instance of Actor, not {type(actor)}"
-                )
-            if not isinstance(label, str):
-                raise ValueError(f"Label must be a string, not {type(label)}")
-
-            # Get label color
-            if color is None:
-                color = actor.c()
-            elif isinstance(color, (list, tuple)):
-                color = color[n]
-
-            # Get mesh's highest point
-            points = actor.points().copy()
-            point = points[np.argmin(points[:, 1]), :]
-            point += np.array(offset) + default_offset
-
-            try:
-                if (
-                    self.atlas.hemisphere_from_coords(point, as_string=True)
-                    == "left"
-                ):
-                    point = self.atlas.mirror_point_across_hemispheres(point)
-            except IndexError:
-                pass
-
-            # Create label
-            txt = Text(label, point, s=size, c=color)
-            new_actors.append(txt)
-
-            # Mark a point on Actor that corresponds to the label location
-            if radius is not None:
-                pt = actor.closestPoint(point)
-                new_actors.append(Sphere(pt, r=radius, c=color))
+        labels = make_actor_label(self.atlas, actors, labels, **kwargs)
 
         # Add to scene and return
-        self.add_actor(*new_actors, store=self.actors["labels"])
+        self.add_actor(*labels, store=self.actors_labels)
 
-        return return_list_smart(new_actors)
+        return return_list_smart(labels)
 
-    def add_line_at_point(self, point, axis, color="blackboard",
-                          lw=3, **kwargs):
+    def add_line_at_point(
+        self, point, axis, color="blackboard", lw=3, **kwargs
+    ):
         """
             Adds a line oriented on a given axis at a point
 
@@ -902,10 +659,8 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param bounds: list of two floats with lower and upper bound for line, determins the extent of the line
             :param kwargs: dictionary with arguments to specify how lines should look like
         """
-        #TODO bgspace could be used here
-        axis_dict = dict(rostrocaudal=0,
-                         dorsoventral=1,
-                         mediolateral=2)
+        # TODO bgspace could be used here
+        axis_dict = dict(rostrocaudal=0, dorsoventral=1, mediolateral=2)
         replace_coord = axis_dict[axis]
         bounds = self.atlas._root_bounds[axis]
         # Get line coords
@@ -917,11 +672,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         return self.add_actor(Line(p0, p1, c=color, lw=lw, **kwargs))
 
     def add_crosshair_at_point(
-        self,
-        point,
-        show_point=True,
-        line_kwargs={},
-        point_kwargs={},
+        self, point, show_point=True, line_kwargs={}, point_kwargs={},
     ):
         """
             Add a crosshair (set of orthogonal lines meeting at a point)
@@ -932,9 +683,10 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param line_kwargs: dictionary with arguments to specify how lines should look like
             :param point_kwargs: dictionary with arguments to specify how the point should look
         """
-        return [self.add_line_at_point(point, ax, **line_kwargs)
-                for ax in ["rostrocaudal", "dorsoventral", "mediolateral"]]
-
+        return [
+            self.add_line_at_point(point, ax, **line_kwargs)
+            for ax in ["rostrocaudal", "dorsoventral", "mediolateral"]
+        ]
 
     def add_plane(self, plane, **kwargs):
         """
@@ -969,9 +721,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
     # ----------------------- Application specific methods ----------------------- #
 
-    # TODO this method does not fully pertain to scene, the interpolation part
-    # could be conveniently excised in a separate functio nthat can be useful
-    # even outside a scene
     def add_probe_from_sharptrack(
         self, probe_points_file, points_kwargs={}, name=None, **kwargs
     ):
@@ -983,58 +732,16 @@ class Scene:  # subclass brain render to have acces to structure trees
             Code contributed by @tbslv on github. 
 
             :param probe_points_file: str, path to a .mat file with probe points coordinates
-            :param points_kwargs: dict, used to specify how probe points should look like (e.g color, alpha...)
-            :param kwargs: keyword arguments used to specify how the probe should look like (e.g. color, alpha...)
+            :param kwargs: keyword arguments used to specify how the probe and the poitns 
+                                should look like (e.g. color, alpha...)
         """
-        # Get the position of probe points and render
-        probe_points_df = get_probe_points_from_sharptrack(probe_points_file)
-
-        col_by_region = points_kwargs.pop("color_by_region", True)
-        color = points_kwargs.pop("color", "salmon")
-        radius = points_kwargs.pop("radius", 30)
-        spheres = self.add_cells(
-            probe_points_df,
-            color=color,
-            color_by_region=col_by_region,
-            res=12,
-            radius=radius,
-            **points_kwargs,
+        probe_points_df, points_params, probe = parse_sharptrack(
+            self.atlas, probe_points_file, name, **kwargs
         )
 
-        # Fit a line through the poitns [adapted from SharpTrack by @tbslv]
-        r0 = np.mean(probe_points_df.values, axis=0)
-        xyz = probe_points_df.values - r0
-        U, S, V = np.linalg.svd(xyz)
-        direction = V.T[:, 0]
+        spheres = self.add_cells(probe_points_df, **points_params)
 
-        # Find intersection with brain surface
-        root_mesh = self.atlas._get_structure_mesh("root")
-        p0 = direction * np.array([-1]) + r0
-        p1 = (
-            direction * np.array([-15000]) + r0
-        )  # end point way outside of brain, on probe trajectory though
-        pts = root_mesh.intersectWithLine(p0, p1)
-
-        # Define top/bottom coordinates to render as a cylinder
-        top_coord = pts[0]
-        length = np.sqrt(np.sum((probe_points_df.values[-1] - top_coord) ** 2))
-        bottom_coord = top_coord + direction * length
-
-        # Render probe as a cylinder
-        probe_color = kwargs.pop("color", "blackboard")
-        probe_radius = kwargs.pop("radius", 15)
-        probe_alpha = kwargs.pop("alpha", 1)
-
-        probe = Cylinder(
-            [top_coord, bottom_coord],
-            r=probe_radius,
-            alpha=probe_alpha,
-            c=probe_color,
-        )
-        probe.name = name
-
-        # Add to scene
-        self.add_actor(probe)
+        self.add_actor(spheres, probe)
         return probe, spheres
 
     # ---------------------------------------------------------------------------- #
@@ -1045,44 +752,15 @@ class Scene:  # subclass brain render to have acces to structure trees
         if brainrender.SHADER_STYLE is None:  # No style to apply
             return
 
-        # Get all actors in the scene
-        actors = self.get_actors()
-
-        for actor in actors:
+        for actor in self.actors:
             if actor is not None:
                 try:
                     if brainrender.SHADER_STYLE != "cartoon":
                         actor.lighting(style=brainrender.SHADER_STYLE)
                     else:
-                        # actor.lighting(style='plastic',
-                        # 		enabled=False)
                         actor.lighting("off")
-                #TODO generic except should be avoided
-                except:
+                except AttributeError:
                     pass  # Some types of actors such as Text 2D don't have this attribute!
-
-    def get_actors(self):
-        #TODO if self.actors can contain both dict and list probably should
-        #be made more consistent to have only dicts?
-        all_actors = []
-        for k, actors in self.actors.items():
-            if isinstance(actors, dict):
-                if len(actors) == 0:
-                    continue
-                all_actors.extend(list(actors.values()))
-            elif isinstance(actors, list):
-                if len(actors) == 0:
-                    continue
-                for act in actors:
-                    if isinstance(act, dict):
-                        all_actors.extend(flatten_list(list(act.values())))
-                    elif isinstance(act, list):
-                        all_actors.extend(act)
-                    else:
-                        all_actors.append(act)
-            else:
-                all_actors.append(actors)
-        return all_actors
 
     # ---------------------------------- Render ---------------------------------- #
     def render(
@@ -1124,20 +802,22 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         # Make mesh labels follow the camera
         if not self.jupyter:
-            for txt in self.actors["labels"]:
+            for txt in self.actors_labels:
                 txt.followCamera(self.plotter.camera)
 
         self.is_rendered = True
 
-        args_dict = dict(interactive=interactive,
-                        zoom=zoom,
-                        bg=brainrender.BACKGROUND_COLOR,
-                        axes=self.plotter.axes)
+        args_dict = dict(
+            interactive=interactive,
+            zoom=zoom,
+            bg=brainrender.BACKGROUND_COLOR,
+            axes=self.plotter.axes,
+        )
 
         if video:
             args_dict["offscreen"] = True
 
-        show(*self.get_actors(), **args_dict)
+        show(*self.actors(), **args_dict)
 
     def close(self):
         closePlotter()
@@ -1160,7 +840,6 @@ class Scene:  # subclass brain render to have acces to structure trees
         plt = Plotter()
         plt.add(self.get_actors())
         plt = plt.show(interactive=False)
-
         plt.camera[-2] = -1
 
         print(
@@ -1186,7 +865,7 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         elif key == "q":
             self.close()
-            
+
         elif key == "c":
             print(f"Camera parameters:\n{get_camera_params(scene=self)}")
 
@@ -1198,7 +877,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             return
 
         if not os.path.isdir(self.screenshots_folder) and len(
-                self.screenshots_folder
+            self.screenshots_folder
         ):
             try:
                 os.mkdir(self.screenshots_folder)
@@ -1209,11 +888,8 @@ class Scene:  # subclass brain render to have acces to structure trees
                     + f"But got exception: {e}"
                 )
 
-        savename = os.path.join(
-            self.screenshots_folder, self.screenshots_name
-        )
+        savename = os.path.join(self.screenshots_folder, self.screenshots_name)
         savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
-
 
         if "." not in self.screenshots_extension:
             savename += f".{self.screenshots_extension}"
@@ -1222,7 +898,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         print(f"\nSaving screenshots at {savename}\n")
         screenshot(filename=savename, scale=self.screenshots_scale)
-
 
 
 # ---------------------------------------------------------------------------- #
@@ -1239,21 +914,10 @@ class DualScene:
 
     def render(self, _interactive=True):
         """ """
-        # Create camera and plotter
-        if brainrender.WHOLE_SCREEN:
-            sz = "full"
-        else:
-            sz = "auto"
-
-        if brainrender.SHOW_AXES:
-            axes = 4
-        else:
-            axes = 0
-
         mv = Plotter(
             N=2,
-            axes=axes,
-            size=sz,
+            axes=4 if brainrender.SHOW_AXES else 0,
+            size="full" if brainrender.WHOLE_SCREEN else "auto",
             pos=brainrender.WINDOW_POS,
             bg=brainrender.BACKGROUND_COLOR,
             sharecam=True,
@@ -1262,12 +926,16 @@ class DualScene:
         actors = []
         for scene in self.scenes:
             scene.apply_render_style()
-            scene_actors = scene.get_actors()
-            actors.append(scene_actors)
-            mv.add(scene_actors)
+            actors.append(scene.actors)
+            mv.add(scene.actors)
 
         mv.show(
-            actors[0], at=0, zoom=1.15, axes=axes, roll=180, interactive=False
+            actors[0],
+            at=0,
+            zoom=1.15,
+            axes=4 if brainrender.SHOW_AXES else 0,
+            roll=180,
+            interactive=False,
         )
         mv.show(actors[1], at=1, interactive=False)
 
@@ -1319,20 +987,10 @@ class MultiScene:
             if scene_camera is not None:
                 set_camera(scene, scene_camera)
 
-        if self.N > 4:
-            print(
-                "Rendering {} scenes. Might take a few minutes.".format(self.N)
-            )
-
-        if brainrender.WHOLE_SCREEN:
-            sz = "full"
-        else:
-            sz = "auto"
-
         mv = Plotter(
             N=self.N,
-            axes=4,
-            size=sz,
+            axes=4 if brainrender.SHOW_AXES else 0,
+            size="full" if brainrender.WHOLE_SCREEN else "auto",
             sharecam=True,
             bg=brainrender.BACKGROUND_COLOR,
         )
@@ -1340,12 +998,11 @@ class MultiScene:
         actors = []
         for i, scene in enumerate(self.scenes):
             scene.apply_render_style()
-            scene_actors = scene.get_actors()
-            actors.append(scene_actors)
-            mv.add(scene_actors)
+            actors.append(scene.actors)
+            mv.add(scene.actors)
 
-        for i, scene_actors in enumerate(actors):
-            mv.show(scene_actors, at=i, interactive=False)
+        for i, scene.actors in enumerate(actors):
+            mv.show(scene.actors, at=i, interactive=False)
 
         print("Rendering complete")
         if _interactive:

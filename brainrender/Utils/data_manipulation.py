@@ -1,3 +1,9 @@
+import numpy as np
+
+from vedo import Cylinder
+from brainrender.Utils.data_io import get_probe_points_from_sharptrack
+
+
 def return_list_smart(lst):
     """
         If the list has length > returns the list
@@ -22,7 +28,7 @@ def return_dict_smart(dct):
         return dct
 
 
-#TODO this function aim at handling too many scenarios, very confusing to read
+# TODO this function aim at handling too many scenarios, very confusing to read
 def get_coords(obj, mirror=False, mirror_ax="x"):
     """
     Takes coordinates in various format and turns them into what's expected from VTK plotter for rendering. 
@@ -123,3 +129,59 @@ def get_slice_coord(bounds, n):
     delta = b1 - b0
 
     return b0 + delta * n
+
+
+def parse_sharptrack(
+    atlas,
+    probe_points_file,
+    name,
+    color_by_region=True,
+    color="salmon",
+    radius=30,
+    probe_color="blackboard",
+    probe_radius=15,
+    probe_alpha=1,
+):
+    """
+        Visualises the position of an implanted probe in the brain. 
+        Uses the location of points along the probe extracted with SharpTrack
+        [https://github.com/cortex-lab/allenCCF].
+        It renders the position of points along the probe and a line fit through them.
+        Code contributed by @tbslv on github. 
+    """
+
+    # Points params
+    params = dict(color_by_region=True, color="salmon", radius=30, res=12,)
+
+    # Get the position of probe points and render
+    probe_points_df = get_probe_points_from_sharptrack(probe_points_file)
+
+    # Fit a line through the points [adapted from SharpTrack by @tbslv]
+    r0 = np.mean(probe_points_df.values, axis=0)
+    xyz = probe_points_df.values - r0
+    U, S, V = np.linalg.svd(xyz)
+    direction = V.T[:, 0]
+
+    # Find intersection with brain surface
+    root_mesh = atlas._get_structure_mesh("root")
+    p0 = direction * np.array([-1]) + r0
+    p1 = (
+        direction * np.array([-15000]) + r0
+    )  # end point way outside of brain, on probe trajectory though
+    pts = root_mesh.intersectWithLine(p0, p1)
+
+    # Define top/bottom coordinates to render as a cylinder
+    top_coord = pts[0]
+    length = np.sqrt(np.sum((probe_points_df.values[-1] - top_coord) ** 2))
+    bottom_coord = top_coord + direction * length
+
+    # Render probe as a cylinder
+    probe = Cylinder(
+        [top_coord, bottom_coord],
+        r=probe_radius,
+        alpha=probe_alpha,
+        c=probe_color,
+    )
+    probe.name = name
+
+    return probe_points_df, params, probe, color
