@@ -22,8 +22,8 @@ scene.cut_actors_with_plane(
 )  # Set showplane to True if you want to see the plane location
 
 # Add a silhouette around each actor to emphasize the cut location
-scene.add_mesh_silhouette(root)
-scene.add_mesh_silhouette(*th, lw=3)
+scene.add_silhouette(root)
+scene.add_silhouette(*th, lw=3)
 
 
 scene.render(camera="top")

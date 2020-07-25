@@ -182,7 +182,7 @@ def test_cut_with_plane(scene):
         plane, close_actors=True, showplane=False,
     )
 
-    scene.add_mesh_silhouette(scene.root)
+    scene.add_silhouette(scene.root)
 
     scene.cut_actors_with_plane(["sagittal", "coronal", "horizontal"])
 

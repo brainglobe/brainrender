@@ -14,7 +14,7 @@ root = scene.actors["root"]
 th = scene.add_brain_regions("TH", alpha=0.5)
 
 # Create a black line around each actor
-scene.add_mesh_silhouette(root)
-scene.add_mesh_silhouette(th, lw=3)
+scene.add_silhouette(root)
+scene.add_silhouette(th, lw=3)
 
 scene.render()
