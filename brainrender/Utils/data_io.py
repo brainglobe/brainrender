@@ -20,18 +20,14 @@ def listdir(fld):
     :param fld: string, folder path
 
     """
-    fld = Path(fld)
-    if not fld.exists():
-        raise FileNotFoundError("Could not find directory: {}".format(fld))
-
-    return [str(f) for f in fld.glob("**/*") if f.isfile()]
+    return [str(f) for f in Path(fld).glob("**/*") if f.is_file()]
 
 
 def get_subdirs(folderpath):
     """
         Returns the subfolders in a given folder
     """
-    return [str(f) for f in folderpath.glob("**/*") if f.isdir()]
+    return [str(f) for f in Path(folderpath).glob("**/*") if f.is_dir()]
 
 
 # ------------------------------ Load/Save data ------------------------------ #
@@ -191,7 +187,7 @@ def load_mesh_from_file(filepath, *args, **kwargs):
     :param **kwargs: 
 
     """
-    actor = load(filepath)
+    actor = load(str(filepath))
     color = kwargs.pop("color", None)
     alpha = kwargs.pop("alpha", None)
 

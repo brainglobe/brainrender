@@ -7,7 +7,8 @@ import sys
 
 sys.path.append("./")
 
-import os
+from pathlib import Path
+from os import chdir
 import pandas as pd
 from rich.progress import track
 
@@ -18,8 +19,8 @@ from allensdk.api.queries.annotated_section_data_sets_api import (
 )
 from allensdk.api.queries.ontologies_api import OntologiesApi
 
-from brainrender.utils.webqueries import send_query
-from brainrender.utils.decorators import fail_on_no_connection
+from brainrender.Utils.webqueries import send_query
+from brainrender.Utils.decorators import fail_on_no_connection
 
 
 class ImageDownload(SvgApi, ImageDownloadApi):
@@ -164,11 +165,11 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         :param atlas_svg: if True fetches the images as SVG, otherwise as PNG (Default value = True)
 
         """
-        if not os.path.isdir(savedir):
-            os.mkdir(savedir)
+        savedir = Path(savedir)
+        savedir.mkdir(exist_ok=True)
 
-        curdir = os.getcwd()
-        os.chdir(savedir)
+        curdir = Path.cwd()
+        chdir(savedir)
 
         for i, imgid in track(
             enumerate(imagesids),
@@ -188,7 +189,7 @@ class ImageDownload(SvgApi, ImageDownloadApi):
                     sname + "_sect{}_img{}.".format(snames[i], i + 1) + ext
                 )
 
-            if os.path.isfile(savename):
+            if Path(savename).exists():
                 continue
 
             if not atlas_svg and not annotated:
@@ -205,10 +206,7 @@ class ImageDownload(SvgApi, ImageDownloadApi):
             else:
                 self.download_svg(imgid, file_path=savename)
 
-        os.chdir(curdir)
-        file_names = os.listdir(savedir)
-        print("Downloaded {} images".format(len(file_names)))
-        os.chdir(curdir)
+        chdir(curdir)
 
     def download_images_by_atlasid(
         self, savedir, atlasid, debug=False, **kwargs

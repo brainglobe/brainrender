@@ -13,6 +13,7 @@ scene = Scene(screenshot_kwargs=dict(folder="Docs/Media/clean_screenshots"))
 scene.add_brain_regions(["TH"], alpha=0.15)
 
 # Add VAL nucleus in wireframe style with the allen color
-scene.add_brain_regions(["VAL"], use_original_color=True, wireframe=True)
+val = scene.add_brain_regions(["VAL"], use_original_color=True)
+val.wireframe()
 
 scene.render()

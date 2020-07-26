@@ -22,7 +22,7 @@ def test_animated_scene():
     darkcolor = "lightgray"  # background neurons color
 
     N_FRAMES = 50
-    N_neurons = 10  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
+    N_neurons = 4  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
     N_neurons_in_frame = (
         2  # number of neurons to be highlighted in a given frame
     )
@@ -49,15 +49,10 @@ def test_animated_scene():
 
     # ------------------------------- Create scene ------------------------------- #
     scene = Scene(display_inset=False, use_default_key_bindings=True)
-    scene.actors["root"]
 
-    scene.add_neurons(neurons_files, neurite_radius=12, alpha=0)
-
-    # Make all neurons background
-    for neuron in scene.actors["neurons"]:
-        for mesh in neuron.values():
-            mesh.alpha(minalpha)
-            mesh.color(darkcolor)
+    neurons_actors = scene.add_neurons(
+        neurons_files, neurite_radius=12, alpha=0
+    )
 
     # Create new cameras
     cam1 = buildcam(sagittal_camera)
@@ -98,7 +93,7 @@ def test_animated_scene():
             prev_neurons = []
 
             # highlight new neurons
-            neurons = choices(scene.actors["neurons"], k=N_neurons_in_frame)
+            neurons = choices(neurons_actors, k=N_neurons_in_frame)
             for n, neuron in enumerate(neurons):
                 color = colorMap(
                     n, "Greens_r", vmin=-2, vmax=N_neurons_in_frame + 3
@@ -139,16 +134,7 @@ def test_custom_video():
     from brainrender.animation.video import CustomVideoMaker
 
     # --------------------------------- Variables -------------------------------- #
-    minalpha = 0  # transparency of background neurons
-    darkcolor = "lightgray"  # background neurons color
-
     N_FRAMES = 20
-    N_streamlines_in_frame = (
-        2  # number of streamlines to be highlighted in a given frame
-    )
-    N_frames_for_change = (
-        50  # every N frames which streamlines are shown changes
-    )
 
     # Variables to specify camera position at each frame
     zoom = np.linspace(1, 1.35, N_FRAMES)
@@ -162,16 +148,7 @@ def test_custom_video():
     scene = Scene(display_inset=True, use_default_key_bindings=True)
 
     filepaths, data = scene.atlas.download_streamlines_for_region("TH")
-    scene.add_streamlines(
-        data, color="darkseagreen", show_injection_site=False
-    )
-
     scene.add_brain_regions(["TH"], alpha=0.2)
-
-    # Make all streamlines background
-    for mesh in scene.actors["tracts"]:
-        mesh.alpha(minalpha)
-        mesh.color(darkcolor)
 
     # Create new cameras
     cam1 = buildcam(sagittal_camera)
@@ -191,32 +168,11 @@ def test_custom_video():
 
     # ------------------------------- Create frames ------------------------------ #
     def frame_maker(scene=None, video=None, videomaker=None):
-        prev_streamlines = []
         for step in track(
             np.arange(N_FRAMES),
             total=N_FRAMES,
             description="Generating frames...",
         ):
-            if (
-                step % N_frames_for_change == 0
-            ):  # change neurons every N framse
-
-                # reset neurons from previous set of neurons
-                for mesh in prev_streamlines:
-                    mesh.alpha(minalpha)
-                    mesh.color(darkcolor)
-                prev_streamlines = []
-
-                # highlight new neurons
-                streamlines = choices(
-                    scene.actors["tracts"], k=N_streamlines_in_frame
-                )
-                for n, mesh in enumerate(streamlines):
-                    # color = colorMap(n, 'Reds', vmin=-2, vmax=N_streamlines_in_frame+3)
-                    mesh.alpha(0.7)
-                    mesh.color("orangered")
-                    prev_streamlines.append(mesh)
-
             # Move scene camera between 3 cameras
             if step < 150:
                 scene.plotter.moveCamera(cam1, cam2, frac[step])

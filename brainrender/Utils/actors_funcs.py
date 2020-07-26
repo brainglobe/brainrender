@@ -1,6 +1,29 @@
+import numpy as np
+
 """ 
     Collection of functions to edit actors looks and other features.
 """
+
+
+def get_actor_bounds(actor):
+    """
+        Gets the XYZ bounds of an actor
+    """
+    bounds = actor.bounds()
+    return [
+        [bounds[0], bounds[1]],
+        [bounds[2], bounds[3]],
+        [bounds[4], bounds[5]],
+    ]
+
+
+def get_actor_midpoint(actor):
+    """ 
+        Get's the coordinates of the midpoint of an
+        actor (vedo.Mesh)
+    """
+    return [np.mean(bounds) for bounds in get_actor_bounds(actor)]
+
 
 # TODO mirror around point would mean
 def mirror_actor_at_point(actor, point, axis="x"):
@@ -56,6 +79,7 @@ def mirror_actor_at_point(actor, point, axis="x"):
             mirrored_actor[n] = actor
         return mirrored_actor
 
+
 def set_line(actor, lw=None, c=None):
     """
     set an actor's look to specify the line width and color
@@ -69,6 +93,7 @@ def set_line(actor, lw=None, c=None):
         actor.lw(lineWidth=lw)
     if c is not None:
         actor.lc(lineColor=c)
+
 
 def edit_actor(
     actor,

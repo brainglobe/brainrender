@@ -4,7 +4,7 @@ brainrender.SHADER_STYLE = "cartoon"
 
 
 from brainrender.scene import Scene
-from brainrender.atlases.ccustom_atlases.elegans import Celegans
+from brainrender.atlases.custom_atlaseselegans import Celegans
 
 # Specify path to folder with c.elegans connectome
 

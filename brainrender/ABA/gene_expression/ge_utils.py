@@ -5,9 +5,11 @@ import io
 import sys
 from brainrender.Utils.data_io import get_subdirs, listdir
 from brainrender.Utils.webqueries import request
-
+from brainrender.Utils.decorators import check_file_exists
 
 # ----------------------------------- Cache ---------------------------------- #
+
+
 def check_gene_cached(cache_folder, gene_id, exp_id):
     """ 
         A gene is saved in a folder in cache_folder
@@ -67,6 +69,7 @@ def load_cached_gene(cache, metric, grid_size):
 
 
 # --------------------------------- Open .raw -------------------------------- #
+@check_file_exists
 def read_raw(filepath, grid_size):
     """
         reads a .raw file with gene expression data 
@@ -78,10 +81,6 @@ def read_raw(filepath, grid_size):
         :param filepath: str or Path object
     """
     filepath = str(filepath)
-    if not os.path.isfile(filepath):
-        raise ValueError("File doesnt exist")
-    if not filepath.endswith(".raw"):
-        raise ValueError('Filepath should point to a ".raw" file')
 
     # Read bytes
     with open(filepath, "rb") as test:

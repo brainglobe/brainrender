@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -398,6 +398,7 @@ def download_streamlines(eids, streamlines_folder=None):  # pragma: no cover
         :param streamlines_folder: str path to the folder where the JSON files should be saved, if None the default is used (Default value = None)
 
     """
+    streamlines_folder = Path(streamlines_folder)
 
     if not isinstance(eids, (list, np.ndarray, tuple)):
         eids = [eids]
@@ -405,27 +406,30 @@ def download_streamlines(eids, streamlines_folder=None):  # pragma: no cover
     filepaths, data = [], []
     for eid in track(eids, total=len(eids), description="downloading"):
         url = make_url_given_id(eid)
-        jsonpath = os.path.join(streamlines_folder, str(eid) + ".json")
-        filepaths.append(jsonpath)
-        if not os.path.isfile(jsonpath):
+        jsonpath = streamlines_folder / f"{eid}.json"
+        filepaths.append(str(jsonpath))
+
+        if not jsonpath.exists():
             response = request(url)
 
             # Write the response content as a temporary compressed file
-            temp_path = os.path.join(streamlines_folder, "temp.gz")
-            with open(temp_path, "wb") as temp:
+            temp_path = streamlines_folder / "temp.gz"
+            with open(str(temp_path), "wb") as temp:
                 temp.write(response.content)
 
             # Open in pandas and delete temp
-            url_data = pd.read_json(temp_path, lines=True, compression="gzip")
-            os.remove(temp_path)
+            url_data = pd.read_json(
+                str(temp_path), lines=True, compression="gzip"
+            )
+            temp_path.unlink()
 
             # save json
-            url_data.to_json(jsonpath)
+            url_data.to_json(str(jsonpath))
 
             # append to lists and return
             data.append(url_data)
         else:
-            data.append(pd.read_json(jsonpath))
+            data.append(pd.read_json(str(jsonpath)))
     return filepaths, data
 
 
@@ -445,14 +449,7 @@ def extract_ids_from_csv(
         :param **kwargs: 
 
     """
-
-    try:
-        data = pd.read_csv(csv_file)
-    except:
-        raise FileNotFoundError("Could not load: {}".format(csv_file))
-    else:
-        if not download:
-            print("Found {} experiments.\n".format(len(data.id.values)))
+    data = pd.read_csv(csv_file)
 
     if not download:
         print("To download compressed data, click on the following URLs:")

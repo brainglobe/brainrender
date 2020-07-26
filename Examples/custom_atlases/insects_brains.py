@@ -4,7 +4,7 @@ brainrender.SHADER_STYLE = "cartoon"
 brainrender.ROOT_ALPHA = 0.2
 from brainrender.scene import Scene
 
-from brainrender.atlases.ccustom_atlases.insects_brains_db import (
+from brainrender.atlases.custom_atlases.insects_brains_db import (
     IBDB,
 )  # ! this class is the atlas for insects brains
 

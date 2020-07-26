@@ -14,10 +14,7 @@ def extract_volume_surface(vol, threshold=0.1, smooth=False):
     """
 
     if not isinstance(vol, Volume):
-        raise TypeError(
-            f"vol argument should be an instance of Volume not {type(vol)}"
-        )
-
+        vol = Volume(vol)
     mesh = vol.isosurface(threshold=threshold).cap()
 
     if smooth:
@@ -35,9 +32,7 @@ def extract_label_mesh(vol, lbl):
         :param lbl: float or int
     """
     if not isinstance(vol, Volume):
-        raise TypeError(
-            f"vol argument should be an instance of Volume not {vol.__type__}"
-        )
+        vol = Volume(vol)
 
     mask = vol.threshold(above=lbl - 0.1, below=lbl + 0.1)
     return extract_volume_surface(mask, threshold=lbl - 0.1)

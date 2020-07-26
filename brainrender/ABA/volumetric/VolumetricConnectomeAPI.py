@@ -1,6 +1,6 @@
 import numpy as np
 import os
-
+from pathlib import Path
 from vedo import Volume
 
 # TODO see if this can be added to setup.py
@@ -65,11 +65,12 @@ class VolumetricAPI(Paths):
         Paths.__init__(self, base_dir=base_dir, **kwargs)
 
         # Get MCM cache
-        cache_path = os.path.join(
-            self.mouse_connectivity_volumetric, "voxel_model_manifest.json"
+        cache_path = (
+            Path(self.mouse_connectivity_volumetric)
+            / "voxel_model_manifest.json"
         )
 
-        if not os.path.isfile(cache_path):
+        if not cache_path.exists():
             if not connected_to_internet():
                 raise ValueError(
                     "The first time you use this class it will need to download some data, but it seems that you're not connected to the internet."
@@ -78,7 +79,7 @@ class VolumetricAPI(Paths):
                 "Downloading volumetric data. This will take several minutes but it only needs to be done once."
             )
 
-        self.cache = VoxelModelCache(manifest_file=cache_path)
+        self.cache = VoxelModelCache(manifest_file=str(cache_path))
         self.voxel_array = None
         self.target_coords, self.source_coords = None, None
 

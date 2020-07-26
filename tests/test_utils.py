@@ -8,7 +8,7 @@ from brainrender.Utils.volume import (
 )
 from brainrender.Utils.camera import get_camera_params
 from brainrender.Utils.data_io import listdir, get_subdirs
-from brainrender.Utils.data_manipulation import get_coords, get_slice_coord
+from brainrender.Utils.data_manipulation import get_slice_coord
 from brainrender.colors import (
     get_random_colormap,
     get_n_shades_of,
@@ -41,23 +41,9 @@ def test_get_camera_params(scene):
 def test_io():
     fld = os.getcwd()
     if not isinstance(listdir(fld), list):
-        raise ValueError
+        raise ValueError(f"listdir returned: {listdir(fld)}")
     if not isinstance(get_subdirs(fld), list):
-        raise ValueError
-
-
-def test_get_coords():
-    c1 = get_coords([1, 2, 3])
-
-    c5 = get_coords([1, 2, 3], mirror_ax="x", mirror=1)
-    c6 = get_coords([1, 2, 3], mirror_ax="y", mirror=1)
-    c7 = get_coords([1, 2, 3], mirror_ax="z", mirror=1)
-
-    for c in [c1, c5, c6, c7]:
-        if not isinstance(c, (tuple, list)):
-            raise ValueError
-        if not len(c) == 3:
-            raise ValueError
+        raise ValueError(f"get_subdirs returned: {get_subdirs(fld)}")
 
 
 def test_get_slice():

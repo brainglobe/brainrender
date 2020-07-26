@@ -24,7 +24,15 @@ class Base:
     # ---------------------------------- Planes ---------------------------------- #
     # functions to create oriented planes that can be used to slice actors etc
     def get_plane_at_point(
-            self, pos=None, plane=None, color="lightgray", alpha=0.25, **kwargs
+        self,
+        pos=None,
+        norm=None,
+        plane=None,
+        sx=None,
+        sy=None,
+        color="lightgray",
+        alpha=0.25,
+        **kwargs,
     ):
         """ 
             Returns a plane going through a point at pos, oriented 
@@ -32,26 +40,37 @@ class Base:
             sx, sy. 
 
             :param pos: 3-tuple or list with x,y,z, coords of point the plane goes through
+            :param norm: 3-tuple with plane's normal vector (optional)
             :param sx, sy: int, width and height of the plane
             :param plane: "sagittal", "horizontal", or "frontal"
             :param color, alpha: plane color and transparency
         """
-        axes_pairs = dict(sagittal=(0, 1),
-                          horizontal=(2, 0),
-                          frontal=(2, 1))
+        axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 
+        # Get position
         if pos is None:
             pos = self._root_midpoint
         elif not isinstance(pos, (list, tuple)) or not len(pos) == 3:
             raise ValueError(f"Invalid pos argument: {pos}")
 
-        norm = self._space.plane_normals[plane]
-        idx_pair = axes_pairs[plane]
-        sx, sy = [float(np.diff(self._root_bounds[i])) * 1.2 for i in idx_pair]
+        # Get normal if one is not given
+        if norm is None:
+            norm = self._space.plane_normals[plane]
 
-        plane = Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha)
-        return plane
+        # Get plane width and height
+        idx_pair = (
+            axes_pairs[plane]
+            if plane is not None
+            else axes_pairs["horizontal"]
+        )
+        wh = [float(np.diff(self._root_bounds[i])) * 1.2 for i in idx_pair]
+        if sx is None:
+            sx = wh[0]
+        if sy is None:
+            sy = wh[1]
 
+        # return plane
+        return Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha)
 
     # ----------------------------------- Misc ----------------------------------- #
     def get_region_CenterOfMass(

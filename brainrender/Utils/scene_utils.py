@@ -1,6 +1,6 @@
 import numpy as np
 import inspect
-from vedo import Actor, Text, Sphere
+from vedo import Mesh, Text, Sphere
 import random
 
 from brainrender.atlases.atlas import Atlas
@@ -152,9 +152,9 @@ def make_actor_label(
 
     new_actors = []
     for n, (actor, label) in enumerate(zip(actors, labels)):
-        if not isinstance(actor, Actor):
+        if not isinstance(actor, Mesh):
             raise ValueError(
-                f"Actor must be an instance of Actor, not {type(actor)}"
+                f"Mesh must be an instance of Mesh, not {type(actor)}"
             )
         if not isinstance(label, str):
             raise ValueError(f"Label must be a string, not {type(label)}")
@@ -180,7 +180,7 @@ def make_actor_label(
         txt = Text(label, point, s=size, c=color)
         new_actors.append(txt)
 
-        # Mark a point on Actor that corresponds to the label location
+        # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
             pt = actor.closestPoint(point)
             new_actors.append(Sphere(pt, r=radius, c=color))
@@ -195,7 +195,7 @@ def get_n_random_points_in_region(atlas, region, N, hemisphere=None):
     :param region: str, acronym of the brain region.
     :param N: int, number of points to return.
     """
-    if isinstance(region, Actor):
+    if isinstance(region, Mesh):
         region_mesh = region
     else:
         if hemisphere is None:

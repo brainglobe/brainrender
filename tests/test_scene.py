@@ -60,10 +60,6 @@ def test_scene_creation():
     Scene()
 
 
-def test_scene_creation_ignore_jupyter():
-    Scene(ignore_jupyter=True)
-
-
 def test_scene_creation_ignore_inset():
     Scene(display_inset=False)
 
@@ -80,14 +76,6 @@ def test_scene_creation_ignore_root_and_inset():
 
 def test_scene_creation_default_keys():
     Scene(use_default_key_bindings=True)
-
-
-def test_scene_creation_colors():
-    Scene(regions_aba_color=True)
-
-
-def test_scene_creation_regions():
-    Scene(brain_regions=["MOs"])
 
 
 def test_scene_creation_camera():
@@ -141,26 +129,9 @@ def test_regions():
     scene = Scene(camera=coronal_camera)
     regions = ["MOs", "VISp", "ZI"]
     scene.add_brain_regions(regions, colors="green")
-    ca1 = scene.add_brain_regions("CA1", wireframe=True, add_labels=True)
+    ca1 = scene.add_brain_regions("CA1", add_labels=True)
     ca1.alpha(0.2)
     scene.close()
-
-
-def test_edit_actors(scene):
-    act = scene.add_brain_regions("MOp")
-    scene.edit_actors(
-        act,
-        wireframe=False,
-        solid=True,
-        color=True,
-        line=True,
-        line_kwargs={"c": "red"},
-        upsample=True,
-        downsample=True,
-        smooth=True,
-    )
-
-    scene.mirror_actor_hemisphere(act)
 
 
 def test_cut_with_plane(scene):
@@ -174,21 +145,17 @@ def test_cut_with_plane(scene):
 
     # Cut
     scene.cut_actors_with_plane(
-        plane, close_actors=False, showplane=True, actors=scene.actors["root"],
+        plane, close_actors=False, showplane=True, actors=scene.root,
     )
     scene.cut_actors_with_plane(
         plane, close_actors=True, showplane=False,
     )
 
-    scene.add_silhouette(scene.root)
-
-    scene.cut_actors_with_plane(["sagittal", "coronal", "horizontal"])
+    scene.cut_actors_with_plane(["sagittal", "frontal", "horizontal"])
 
 
 def test_add_plane(scene):
     scene.add_plane(plane="sagittal")
-
-    scene.add_plane(plane=["sagittal", "frontal", "horizontal"])
 
 
 def test_camera():
@@ -295,7 +262,9 @@ def test_labelled_cells(scene):
     # Get fake cell coordinates
     cells, regions = [], []  # to store x,y,z coordinates
     for region in _regions:
-        region_cells = scene.get_n_random_points_in_region(region=region, N=N)
+        region_cells = get_n_random_points_in_region(
+            scene.atlas, region=region, N=N
+        )
         if len(region_cells) != N:
             raise ValueError
         cells.extend(region_cells)
@@ -334,10 +303,10 @@ def test_add_sphere(scene):
 
 
 def test_add_optic_cannula(scene):
-    scene.add_optic_cannula("CA1")
+    scene.add_optic_cannula(target_region="CA1")
 
     p0 = scene.atlas.get_region_CenterOfMass("MOs")
-    scene.add_optic_cannula(pos=p0, use_line=True)
+    scene.add_optic_cannula(pos=p0)
 
 
 def test_sharptrack(scene):

@@ -13,7 +13,6 @@ from brainrender.scene import Scene
 scene = Scene()
 
 # Add some actors
-root = scene.actors["root"]
 th = scene.add_brain_regions(["STR", "TH"], alpha=0.5)
 
 # Cut with plane
@@ -22,7 +21,6 @@ scene.cut_actors_with_plane(
 )  # Set showplane to True if you want to see the plane location
 
 # Add a silhouette around each actor to emphasize the cut location
-scene.add_silhouette(root)
 scene.add_silhouette(*th, lw=3)
 
 

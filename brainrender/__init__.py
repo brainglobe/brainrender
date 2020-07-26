@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
@@ -54,9 +55,7 @@ settings.useFXAA = True  # necessary for rendering of semitransparent actors
 
 
 # ------------------------- reset default parameters file ------------------------- #
-params_file = os.path.join(
-    os.path.expanduser("~"), ".brainrender", "config.yaml"
-)
+params_file = Path(os.path.expanduser("~")) / ".brainrender" / "config.yaml"
 defaults = brainrender.default_variables.__dict__
 comment = (
     "# Rendering options. An explanation for each parameter can be found "
@@ -71,28 +70,27 @@ def reset_defaults():
         for key, value in defaults.items()
         if not (key.startswith("__") or key.startswith("_"))
     }
-    save_yaml(params_file, vs, append=False, topcomment=comment)
+    save_yaml(str(params_file), vs, append=False, topcomment=comment)
 
 
 # ---------------------------------------------------------------------------- #
 #                Create a config file from the default variables               #
 # ---------------------------------------------------------------------------- #
 # Get base directory
-_user_dir = os.path.expanduser("~")
-if not os.path.isdir(_user_dir):
+_user_dir = Path(os.path.expanduser("~"))
+if not _user_dir.exists():
     raise FileExistsError(
         "Could not find user base folder (to save brainrender data). Platform: {}".format(
             sys.platform
         )
     )
-_base_dir = os.path.join(_user_dir, ".brainrender")
+_base_dir = _user_dir / ".brainrender"
+_base_dir.mkdir(exist_ok=True)
 
-if not os.path.isdir(_base_dir):
-    os.mkdir(_base_dir)
 
 # Create config path
-_config_path = os.path.join(_base_dir, "config.yaml")
-if not os.path.isfile(_config_path):
+_config_path = _base_dir / "config.yaml"
+if not _config_path.exists():
     reset_defaults()
 
 
@@ -100,7 +98,7 @@ if not os.path.isfile(_config_path):
 #                                PARSE VARIABLES                               #
 # ---------------------------------------------------------------------------- #
 # Rendering options. An explanation for each parameter can be found in the documentation or in brainrender.default_variables.py
-params = load_yaml(_config_path)
+params = load_yaml(str(_config_path))
 
 # Check we have all the params
 for par in __all__:
@@ -108,7 +106,7 @@ for par in __all__:
         continue
     if par not in params.keys():
         params[par] = defaults[par]
-save_yaml(params_file, params, append=False, topcomment=comment)
+save_yaml(str(params_file), params, append=False, topcomment=comment)
 
 # ------------------------- Other vedo settings ------------------------ #
 settings.screeshotScale = params[

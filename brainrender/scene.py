@@ -35,6 +35,7 @@ from brainrender.Utils.camera import (
     set_camera,
     get_camera_params,
 )
+from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
 
 
 class Scene:  # subclass brain render to have acces to structure trees
@@ -203,7 +204,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             planes = [plane]
 
         if actors is None:
-            actors = self.get_actors()
+            actors = self.actors
         else:
             if not isinstance(actors, (list, tuple)):
                 actors = [actors]
@@ -285,12 +286,14 @@ class Scene:  # subclass brain render to have acces to structure trees
         )
         if self.root is not None:
             self.root.name = "root"
+            self.atlas._root_midpoint = get_actor_midpoint(self.root)
+            self.atlas._root_bounds = get_actor_bounds(self.root)
         else:
             print("Could not find a root mesh")
             return None
 
         if render:
-            self.append(self.root)
+            self.actors.append(self.root)
 
         return self.root
 
@@ -521,7 +524,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         return spheres
 
     def add_optic_cannula(
-        self, **kwargs,
+        self, *args, **kwargs,
     ):
         """
             Adds a cylindrical vedo actor to scene to render optic cannulas. By default
@@ -541,7 +544,9 @@ class Scene:  # subclass brain render to have acces to structure trees
         """
 
         # Compute params
-        params = make_optic_canula_cylinder(self.atlas, self.root, **kwargs)
+        params = make_optic_canula_cylinder(
+            self.atlas, self.root, *args, **kwargs
+        )
 
         # Create actor
         cylinder = self.add_actor(Cylinder(**params))
@@ -597,7 +602,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         # TODO bgspace could be used here
         axis_dict = dict(rostrocaudal=0, dorsoventral=1, mediolateral=2)
         replace_coord = axis_dict[axis]
-        bounds = self.atlas._root_bounds[axis]
+        bounds = self.atlas._root_bounds[replace_coord]
         # Get line coords
         p0, p1 = point.copy(), point.copy()
         p0[replace_coord] = bounds[0]
@@ -642,7 +647,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         actors = []
         for plane in planes:
             if isinstance(plane, str):
-                plane = self.atlas.get_plane_at_point(plane, **kwargs)
+                plane = self.atlas.get_plane_at_point(plane=plane, **kwargs)
             else:
                 if not isinstance(plane, Plane):
                     raise ValueError(
@@ -670,7 +675,7 @@ class Scene:  # subclass brain render to have acces to structure trees
             :param kwargs: keyword arguments used to specify how the probe and the poitns 
                                 should look like (e.g. color, alpha...)
         """
-        probe_points_df, points_params, probe = parse_sharptrack(
+        probe_points_df, points_params, probe, color = parse_sharptrack(
             self.atlas, probe_points_file, name, **kwargs
         )
 
@@ -752,7 +757,7 @@ class Scene:  # subclass brain render to have acces to structure trees
         if video:
             args_dict["offscreen"] = True
 
-        show(*self.actors(), **args_dict)
+        show(*self.actors, **args_dict)
 
     def close(self):
         closePlotter()
@@ -768,12 +773,12 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         # prepare settings
         settings.notebookBackend = "k3d"
-        self.jupyter = True
-        self.render()
+        # self.jupyter = True
+        # self.render()
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.get_actors())
+        plt.add(self.actors)
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 
