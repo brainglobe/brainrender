@@ -32,9 +32,7 @@ darkcolor = "lightgray"  # background neurons color
 lightcolor = "lawngreen"  # highlighted neurons color
 
 N_FRAMES = 250
-N_streamlines = (
-    -1
-)  # number of streamlines to show in total, if -1 all streamlines are shown but it might take a while to render them at first
+N_streamlines = 5  # number of streamlines to show in total, if -1 all streamlines are shown but it might take a while to render them at first
 N_streamlines_in_frame = (
     2  # number of streamlines to be highlighted in a given frame
 )

@@ -33,9 +33,7 @@ darkcolor = "lightgray"  # background neurons color
 lightcolor = "lawngreen"  # highlighted neurons color
 
 N_FRAMES = 250
-N_neurons = (
-    -1
-)  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
+N_neurons = 50  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
 N_neurons_in_frame = 8  # number of neurons to be highlighted in a given frame
 N_frames_for_change = 15  # every N frames which neurons are shown changes
 

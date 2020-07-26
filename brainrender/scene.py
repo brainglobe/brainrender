@@ -268,7 +268,8 @@ class Scene(Render):
                 self.store[n] = v
 
         if isinstance(actors, list):
-            self.actors.extend(actors)
+            for act in actors:
+                self.actors.extend(list(act.values()))
         else:
             self.actors.append(actors)
         return actors

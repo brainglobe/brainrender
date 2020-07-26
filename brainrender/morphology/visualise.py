@@ -297,6 +297,6 @@ class MorphologyScene(Scene):
                 neuron["dendrites"].c(colors["dendrites"][n])
 
         # Add to actors storage
-        self.actors.extend(_neurons_actors)
+        self.actors.extend([list(n.values()) for n in _neurons_actors])
 
         return return_list_smart(_neurons_actors)

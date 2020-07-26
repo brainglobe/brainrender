@@ -9,6 +9,6 @@ scene.add_brain_regions(["CA1"])
 scene.add_optic_cannula(target_region="CA1")
 
 p0 = scene.atlas.get_region_CenterOfMass("MOs")
-scene.add_optic_cannula(pos=p0, use_line=False)
+scene.add_optic_cannula(pos=p0)
 
 scene.render()
