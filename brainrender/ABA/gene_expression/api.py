@@ -10,7 +10,8 @@ from brainrender.ABA.gene_expression.ge_utils import (
     download_and_cache,
 )
 from brainrender.Utils.paths_manager import Paths
-from brainrender.Utils.webqueries import request, fail_on_no_connection
+from brainrender.Utils.webqueries import request
+from brainrender.Utils.decorators import fail_on_no_connection
 
 
 class GeneExpressionAPI(Paths):

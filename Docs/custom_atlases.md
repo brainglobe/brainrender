@@ -14,7 +14,7 @@ To develop a custom `Atlas` class you can use `brainrender.atlases.base.Atlas` a
 
 
 # Examples
-You can check `brainrender.atlases.insect_brains_db.py` and `brainrender.atlases.celegans.py` for two examples of custom `Atlas` classes. 
+You can check `brainrender.atlases.insect_brains_db.py` and `brainrender.atlases.ccustom_atlases.elegans.py` for two examples of custom `Atlas` classes. 
 
 
 
@@ -35,7 +35,7 @@ Check out [insects_brains.py](Examples/custom_atlases/insects_brains.py) to lear
 
 ```
 from brainrender.scene import Scene
-from brainrender.atlases.insects_brains_db import IBDB
+from brainrender.atlases.ccustom_atlases.insects_brains_db import IBDB
 
 scene = Scene(atlas=IBDB, # specify that we are using the insects brains databse atlas
     atlas_kwargs=dict(species='Schistocerca gregaria')

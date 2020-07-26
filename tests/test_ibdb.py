@@ -1,5 +1,5 @@
 import pytest
-from brainrender.atlases.insects_brains_db import IBDB
+from brainrender.atlases.ccustom_atlases.insects_brains_db import IBDB
 from brainrender.scene import Scene
 
 

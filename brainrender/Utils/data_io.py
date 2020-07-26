@@ -1,15 +1,14 @@
-import os
+from pathlib import Path
 import json
-import requests
 import yaml
 import gzip
 import numpy as np
 import scipy.io as sio
 import pandas as pd
 from brainio import brainio
-from pathlib import Path
-from vedo import load, Volume
+from vedo import load
 import brainrender
+from brainrender.Utils.decorators import check_file_exists
 
 # ------------------------------------ OS ------------------------------------ #
 
@@ -21,30 +20,22 @@ def listdir(fld):
     :param fld: string, folder path
 
     """
-    if not os.path.isdir(fld):
+    fld = Path(fld)
+    if not fld.exists():
         raise FileNotFoundError("Could not find directory: {}".format(fld))
 
-    return [os.path.join(fld, f) for f in os.listdir(fld)]
+    return [str(f) for f in fld.glob("**/*") if f.isfile()]
 
 
 def get_subdirs(folderpath):
     """
         Returns the subfolders in a given folder
     """
-    return [f.path for f in os.scandir(folderpath) if f.is_dir()]
-
-
-def check_file_exists(filepath, raise_error=False):
-    # Check if a file with the given path exists already
-    if os.path.isfile(filepath):
-        return True
-    elif raise_error:
-        raise FileExistsError("File {} doesn't exist".format(filepath))
-    else:
-        return False
+    return [str(f) for f in folderpath.glob("**/*") if f.isdir()]
 
 
 # ------------------------------ Load/Save data ------------------------------ #
+@check_file_exists
 def load_cells_from_file(filepath, hdf_key="hdf"):
     csv_suffix = ".csv"
     supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
@@ -97,6 +88,7 @@ def load_cells_from_file(filepath, hdf_key="hdf"):
     return cells, filepath.name
 
 
+@check_file_exists
 def load_npy_from_gz(filepath):
     f = gzip.GzipFile(filepath, "r")
     return np.load(f)
@@ -149,6 +141,7 @@ def save_yaml(filepath, content, append=False, topcomment=None):
         yaml.dump(content, yaml_file, default_flow_style=False, indent=4)
 
 
+@check_file_exists
 def load_json(filepath):
     """
     Load a JSON file
@@ -156,13 +149,12 @@ def load_json(filepath):
     :param filepath: path to a file
 
     """
-    if not os.path.isfile(filepath) or ".json" not in filepath.lower():
-        raise ValueError("unrecognized file path: {}".format(filepath))
     with open(filepath) as f:
         data = json.load(f)
     return data
 
 
+@check_file_exists
 def load_yaml(filepath):
     """
     Load a YAML file
@@ -170,13 +162,10 @@ def load_yaml(filepath):
     :param filepath: path to yaml file
 
     """
-    if filepath is None or not os.path.isfile(filepath):
-        raise ValueError("unrecognized file path: {}".format(filepath))
-    if "yml" not in filepath and "yaml" not in filepath:
-        raise ValueError("unrecognized file path: {}".format(filepath))
     return yaml.load(open(filepath), Loader=yaml.FullLoader)
 
 
+@check_file_exists
 def load_volume_file(filepath):
     """
     Load a volume file (e.g., .nii) and returns the data
@@ -185,8 +174,6 @@ def load_volume_file(filepath):
     :param **kwargs: 
 
     """
-    if not os.path.isfile(filepath):
-        raise FileNotFoundError(filepath)
     try:
         volume = brainio.load_any(filepath)
     except Exception as e:
@@ -195,6 +182,7 @@ def load_volume_file(filepath):
         return volume
 
 
+@check_file_exists
 def load_mesh_from_file(filepath, *args, **kwargs):
     """	
     Load a a mesh or volume from files like .obj, .stl, ...
@@ -203,20 +191,7 @@ def load_mesh_from_file(filepath, *args, **kwargs):
     :param **kwargs: 
 
     """
-    if not isinstance(filepath, str):
-        filepath = str(filepath)
-
-    if not os.path.isfile(filepath):
-        raise FileNotFoundError(filepath)
-
-    # Having this except here is too generic and make this function
-    # a bit brittle; I would handle volumes explicitly if really necessary
-    # and not implicitly as here
-    #try:
     actor = load(filepath)
-    #except:
-        #actor = Volume(load_volume_file(filepath))
-
     color = kwargs.pop("color", None)
     alpha = kwargs.pop("alpha", None)
 
@@ -228,42 +203,8 @@ def load_mesh_from_file(filepath, *args, **kwargs):
     return actor
 
 
-# ----------------------------- Internet queries ----------------------------- #
-def connected_to_internet(url="http://www.google.com/", timeout=5):
-    """
-        Check that there is an internet connection
-
-        :param url: url to use for testing (Default value = 'http://www.google.com/')
-        :param timeout:  timeout to wait for [in seconds] (Default value = 5)
-    """
-
-    try:
-        _ = requests.get(url, timeout=timeout)
-        return True
-    except requests.ConnectionError:
-        print("No internet connection available.")
-    return False
-
-
-def send_query(query_string, clean=False):
-    """
-    Send a query/request to a website
-
-    :param query_string: string with query content
-    :param clean:  (Default value = False)
-
-    """
-    response = requests.get(query_string)
-    if response.ok:
-        if not clean:
-            return response.json()["msg"]
-        else:
-            return response.json()
-    else:
-        raise ValueError("Invalide query string: {}".format(query_string))
-
-
 # ----------------------------- Data manipulation ---------------------------- #
+@check_file_exists
 def get_probe_points_from_sharptrack(points_filepath, scale_factor=10):
     """
         Loads the location of the of probe points as extracted by SharpTrack
@@ -273,13 +214,6 @@ def get_probe_points_from_sharptrack(points_filepath, scale_factor=10):
         :param scale_factor: 10, sharptrack uses a 10um reference atlas so the 
                 coordinates need to be scaled to match brainrender's
     """
-    if not os.path.isfile(points_filepath) or not points_filepath.endswith(
-        ".mat"
-    ):
-        raise ValueError(
-            f"The path to the probe points .mat file is invalid: {points_filepath}"
-        )
-
     probe_points = sio.loadmat(points_filepath)
     probe_points = probe_points["pointList"][0][0][0][0][0]
     probe_points_df = pd.DataFrame(

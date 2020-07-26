@@ -327,7 +327,6 @@ def parse_streamline(
     """
     if filepath is not None and data is None:
         data = load_json(filepath)
-        # data = {k:{int(k2):v2 for k2, v2 in v.items()} for k,v in data.items()}
     elif filepath is None and data is not None:
         pass
     else:

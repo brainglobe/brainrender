@@ -18,7 +18,8 @@ from allensdk.api.queries.annotated_section_data_sets_api import (
 )
 from allensdk.api.queries.ontologies_api import OntologiesApi
 
-from brainrender.Utils.data_io import send_query, connected_to_internet
+from brainrender.utils.webqueries import send_query
+from brainrender.utils.decorators import fail_on_no_connection
 
 
 class ImageDownload(SvgApi, ImageDownloadApi):
@@ -31,6 +32,7 @@ class ImageDownload(SvgApi, ImageDownloadApi):
     mouse3d = "Mouse, Adult, 3D Coronal"
 
     # useful tutorial: https://allensdk.readthedocs.io/en/latest/_static/examples/nb/image_download.html
+    @fail_on_no_connection
     def __init__(self):
         SvgApi.__init__(
             self
@@ -64,26 +66,21 @@ class ImageDownload(SvgApi, ImageDownloadApi):
         )
 
         # Get metadata about products
-        if connected_to_internet():
-            self.products = pd.DataFrame(
-                send_query(
-                    "http://api.brain-map.org/api/v2/data/query.json?criteria=model::Product"
-                )
+        self.products = pd.DataFrame(
+            send_query(
+                "http://api.brain-map.org/api/v2/data/query.json?criteria=model::Product"
             )
-            self.mouse_brain_reference_product_id = 12
-            self.mouse_brain_ish_data_product_id = 1
-            self.products_names = sorted(list(self.products["name"].values))
-            self.mouse_products_names = sorted(
-                list(
-                    self.products.loc[self.products.species == "Mouse"][
-                        "name"
-                    ].values
-                )
+        )
+        self.mouse_brain_reference_product_id = 12
+        self.mouse_brain_ish_data_product_id = 1
+        self.products_names = sorted(list(self.products["name"].values))
+        self.mouse_products_names = sorted(
+            list(
+                self.products.loc[self.products.species == "Mouse"][
+                    "name"
+                ].values
             )
-        else:
-            raise ConnectionError(
-                "It seems that you are not connected to the internet, you won't be able to download stuff."
-            )
+        )
 
     # UTILS
     def get_atlas_by_name(self, atlas_name):
