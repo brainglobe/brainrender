@@ -27,8 +27,6 @@ def test_default():
     brainrender.DEFAULT_SCREENSHOT_TYPE
     brainrender.DEFAULT_SCREENSHOT_SCALE
     brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND
-    brainrender.DEFAULT_VIP_REGIONS
-    brainrender.DEFAULT_VIP_COLOR
     brainrender.ROOT_COLOR
     brainrender.ROOT_ALPHA
     brainrender.DEFAULT_STRUCTURE_COLOR
