@@ -1,23 +1,16 @@
 import brainrender
-import os
-import datetime
 from pathlib import Path
 from vedo import (
     Plotter,
     shapes,
-    show,
-    screenshot,
     interactive,
     Text2D,
     closePlotter,
-    settings,
     Plane,
 )
 from vedo.shapes import Cylinder, Line
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
-    get_scene_camera,
-    get_scene_plotter_settings,
     get_cells_colors_from_metadata,
     make_actor_label,
 )
@@ -30,15 +23,12 @@ from brainrender.Utils.data_manipulation import (
     return_list_smart,
     make_optic_canula_cylinder,
 )
-from brainrender.Utils.camera import (
-    check_camera_param,
-    set_camera,
-    get_camera_params,
-)
+from brainrender.Utils.camera import set_camera
 from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
+from brainrender.render import Render
 
 
-class Scene:  # subclass brain render to have acces to structure trees
+class Scene(Render):
     """
         The code below aims to create a scene to which actors can be added or removed, changed etc..
         It also facilitates the interaction with the scene (e.g. moving the camera) and the creation of
@@ -91,53 +81,15 @@ class Scene:  # subclass brain render to have acces to structure trees
         # Get atlas
         self.atlas = get_scene_atlas(atlas, base_dir, atlas_kwargs, **kwargs)
 
-        # Setup a few rendering options
-        self.verbose = verbose
-        self.display_inset = (
-            display_inset
-            if display_inset is not None
-            else brainrender.DISPLAY_INSET
+        # Initialise Render
+        Render.__init__(
+            self,
+            verbose,
+            display_inset,
+            camera,
+            screenshot_kwargs,
+            use_default_key_bindings,
         )
-
-        # Infer if we are using k3d from vedo.settings
-        if settings.notebookBackend == "k3d":
-            self.jupyter = True
-        else:
-            self.jupyter = False
-
-        if self.display_inset and self.jupyter:
-            print(
-                "Setting 'display_inset' to False as this feature is not available in juputer notebooks"
-            )
-            self.display_inset = False
-
-        # Camera parameters
-        self.camera = get_scene_camera(camera, self.atlas)
-
-        # Create plotter
-        self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
-
-        # SCreenshots and keypresses variables
-        self.screenshots_folder = screenshot_kwargs.pop(
-            "folder", self.atlas.output_screenshots
-        )
-        self.screenshots_name = screenshot_kwargs.pop(
-            "name", brainrender.DEFAULT_SCREENSHOT_NAME
-        )
-        self.screenshots_extension = screenshot_kwargs.pop(
-            "type", brainrender.DEFAULT_SCREENSHOT_TYPE
-        )
-        self.screenshots_scale = screenshot_kwargs.pop(
-            "scale", brainrender.DEFAULT_SCREENSHOT_SCALE
-        )
-
-        if not use_default_key_bindings:
-            self.plotter.keyPressFunction = self.keypress
-            self.verbose = False
-
-        if not brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
-            settings.screenshotTransparentBackground = False
-            settings.useFXAA = True
 
         # Prepare store for actors added to scene
         self.actors = []
@@ -664,161 +616,6 @@ class Scene:  # subclass brain render to have acces to structure trees
 
         self.add_actor(spheres, probe)
         return probe, spheres
-
-    # ---------------------------------------------------------------------------- #
-    #                                   RENDERING                                  #
-    # ---------------------------------------------------------------------------- #
-    # -------------------------------- Prep render ------------------------------- #
-    def apply_render_style(self):
-        if brainrender.SHADER_STYLE is None:  # No style to apply
-            return
-
-        for actor in self.actors:
-            if actor is not None:
-                try:
-                    if brainrender.SHADER_STYLE != "cartoon":
-                        actor.lighting(style=brainrender.SHADER_STYLE)
-                    else:
-                        actor.lighting("off")
-                except AttributeError:
-                    pass  # Some types of actors such as Text 2D don't have this attribute!
-
-    # ---------------------------------- Render ---------------------------------- #
-    def render(
-        self, interactive=True, video=False, camera=None, zoom=None, **kwargs
-    ):
-        """
-        Takes care of rendering the scene
-        """
-        self.apply_render_style()
-
-        if not video:
-            if (
-                not self.jupyter
-            ):  # cameras work differently in jupyter notebooks?
-                if camera is None:
-                    camera = self.camera
-
-                if isinstance(
-                    camera, (str, dict)
-                ):  # otherwise assume that it's vtk.camera
-                    camera = check_camera_param(camera)
-
-                set_camera(self, camera)
-
-            if interactive:
-                if self.verbose and not self.jupyter:
-                    print(brainrender.INTERACTIVE_MSG)
-                elif self.jupyter:
-                    print(
-                        "The scene is ready to render in your jupyter notebook"
-                    )
-                else:
-                    print("\n\nRendering scene.\n   Press 'q' to Quit")
-
-            self._get_inset()
-
-        if zoom is None and not video:
-            zoom = 1.85 if brainrender.WHOLE_SCREEN else 1.5
-
-        # Make mesh labels follow the camera
-        if not self.jupyter:
-            for txt in self.actors_labels:
-                txt.followCamera(self.plotter.camera)
-
-        self.is_rendered = True
-
-        args_dict = dict(
-            interactive=interactive,
-            zoom=zoom,
-            bg=brainrender.BACKGROUND_COLOR,
-            axes=self.plotter.axes,
-        )
-
-        if video:
-            args_dict["offscreen"] = True
-
-        show(*self.actors, **args_dict)
-
-    def close(self):
-        closePlotter()
-
-    def export_for_web(self, filepath="brexport.html"):
-        """
-            This function is used to export a brainrender scene
-            for hosting it online. It saves an html file that can
-            be opened in a web browser to show an interactive brainrender scene
-        """
-        if not filepath.endswith(".html"):
-            raise ValueError("Filepath should point to a .html file")
-
-        # prepare settings
-        settings.notebookBackend = "k3d"
-        # self.jupyter = True
-        # self.render()
-
-        # Create new plotter and save to file
-        plt = Plotter()
-        plt.add(self.actors)
-        plt = plt.show(interactive=False)
-        plt.camera[-2] = -1
-
-        print(
-            "Ready for exporting. Exporting scenes with many actors might require a few minutes"
-        )
-        with open(filepath, "w") as fp:
-            fp.write(plt.get_snapshot())
-
-        print(
-            f"The brainrender scene has been exported for web. The results are saved at {filepath}"
-        )
-
-        # Reset settings
-        settings.notebookBackend = None
-        self.jupyter = False
-
-    # ---------------------------------------------------------------------------- #
-    #                               USER INTERACTION                               #
-    # ---------------------------------------------------------------------------- #
-    def keypress(self, key):
-        if key == "s":
-            self.take_screenshot()
-
-        elif key == "q":
-            self.close()
-
-        elif key == "c":
-            print(f"Camera parameters:\n{get_camera_params(scene=self)}")
-
-    def take_screenshot(self):
-        if not self.is_rendered:
-            print(
-                "You need to render the scene before you can take a screenshot"
-            )
-            return
-
-        if not os.path.isdir(self.screenshots_folder) and len(
-            self.screenshots_folder
-        ):
-            try:
-                os.mkdir(self.screenshots_folder)
-            except Exception as e:
-                raise FileNotFoundError(
-                    "Could not crate a folder to save screenshots.\n"
-                    + f"Attempted to create a folder at {self.screenshots_folder}"
-                    + f"But got exception: {e}"
-                )
-
-        savename = os.path.join(self.screenshots_folder, self.screenshots_name)
-        savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
-
-        if "." not in self.screenshots_extension:
-            savename += f".{self.screenshots_extension}"
-        else:
-            savename += self.screenshots_extension
-
-        print(f"\nSaving screenshots at {savename}\n")
-        screenshot(filename=savename, scale=self.screenshots_scale)
 
 
 # ---------------------------------------------------------------------------- #
