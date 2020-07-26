@@ -129,3 +129,23 @@ def make_optic_canula_cylinder(
 
     # Create actor
     return dict(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs)
+
+
+def get_cells_in_region(atlas, cells, region):
+    """
+        Selects the cells that are in a list of user provided 
+        brain regions from a dataframe of cell locations
+
+        :param cells: pd.DataFrame of cells x,y,z coordinates
+    """
+    if isinstance(region, list):
+        region_list = []
+        for reg in region:
+            region_list.extend(
+                list(atlas.get_structure_descendants(reg)["acronym"].values)
+            )
+    else:
+        region_list = list(
+            atlas.get_structure_descendants(region)["acronym"].values
+        )
+    return cells[cells.region.isin(region_list)]

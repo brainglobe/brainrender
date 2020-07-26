@@ -7,6 +7,7 @@ from brainrender.scene import Scene, DualScene, MultiScene
 from brainrender.Utils.camera import coronal_camera
 from brainrender.colors import makePalette
 from brainrender.Utils.scene_utils import get_n_random_points_in_region
+from brainrender.Utils.data_manipulation import get_cells_in_region
 
 
 @pytest.fixture
@@ -47,8 +48,6 @@ def test_default():
     brainrender.INJECTION_DEFAULT_COLOR
     brainrender.STREAMLINES_RESOLUTION
     brainrender.SHADER_STYLE
-    brainrender.DECIMATE_NEURONS
-    brainrender.SMOOTH_NEURONS
     brainrender.VERBOSE
     brainrender.HDF_SUFFIXES
     brainrender.DEFAULT_HDF_KEY
@@ -277,7 +276,7 @@ def test_labelled_cells(scene):
     cells = pd.DataFrame(dict(x=x, y=y, z=z, region=regions))
     # Add cells
     scene.add_cells(cells, color="darkseagreen", res=12, radius=25)
-    scene.get_cells_in_region(cells, "MOs")
+    get_cells_in_region(scene.atlas, cells, "MOs")
     scene.add_cells(cells, color_by_metadata="x")
     scene.add_cells(
         cells,

@@ -37,14 +37,8 @@ SCREENSHOT_TRANSPARENT_BACKGROUND = (
 """ --------------------------------------------------------------------------------- """
 # BRAIN REGIONS RENDERING OPTIONS
 """ --------------------------------------------------------------------------------- """
-DEFAULT_VIP_REGIONS = (
-    []
-)  # list of acronyms of regions that must have different colors by default
-DEFAULT_VIP_COLOR = [0.8, 0.2, 0.2]  # default color of VIP regions
-
 ROOT_COLOR = [0.8, 0.8, 0.8]  # color of the overall brain model's actor
 ROOT_ALPHA = 0.2  # transparency of the overall brain model's actor'
-
 DEFAULT_STRUCTURE_COLOR = [0.8, 0.8, 0.8]
 DEFAULT_STRUCTURE_ALPHA = 1
 
@@ -72,16 +66,9 @@ NEURON_RESOLUTION = 16  # resolution of actors used to render the neuron,
 NEURON_ALPHA = 0.85  # transparency of the neurons actors
 
 """ --------------------------------------------------------------------------------- """
-# OTHER RENDERING VARIABLES
+# OTHER VARIABLES
 """ --------------------------------------------------------------------------------- """
-SHADER_STYLE = "plastic"  # affects the look of rendered brain regions, valeus can be: [metallic, plastic, shiny, glossy] and can be changed in interactive mode
-DECIMATE_NEURONS = False
-SMOOTH_NEURONS = True
-
-
-""" --------------------------------------------------------------------------------- """
-# DEBUG VARIABLES
-""" --------------------------------------------------------------------------------- """
+SHADER_STYLE = "plastic"  # affects the look of rendered brain regions: [metallic, plastic, shiny, glossy]
 VERBOSE = True  # if True print useful messages during use
 
 """ --------------------------------------------------------------------------------- """

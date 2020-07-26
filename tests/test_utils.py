@@ -2,10 +2,7 @@ import os
 import numpy as np
 import pytest
 from brainrender.scene import Scene
-from brainrender.Utils.volume import (
-    extract_volume_surface,
-    extract_label_mesh,
-)
+
 from brainrender.Utils.camera import get_camera_params
 from brainrender.Utils.data_io import listdir, get_subdirs
 from brainrender.Utils.data_manipulation import get_slice_coord
@@ -22,12 +19,6 @@ from brainrender.colors import (
 @pytest.fixture
 def scene():
     return Scene()
-
-
-def test_volume_utils(scene):
-    vol = scene.atlas.annotation
-    extract_volume_surface(vol)
-    extract_label_mesh(vol, 1)
 
 
 def test_get_camera_params(scene):

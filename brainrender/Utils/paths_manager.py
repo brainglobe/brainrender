@@ -1,8 +1,6 @@
 import sys
 import os
 
-from brainrender.Utils.data_io import save_json
-
 """
     Class to create and store paths to a number of folders uesed to save/load data
 """
@@ -10,61 +8,24 @@ from brainrender.Utils.data_io import save_json
 
 # Default paths for Data Folders (store stuff like object meshes, neurons morphology data etc)
 default_paths = dict(
-    # BRAIN REGIONS MESHES
-    mouse_meshes="Data/Meshes/Mouse",  # allen brain atlas .obj meshes file, downloaded through allen API
-    rat_meshes="Data/Meshes/Rat",  # meshes with rat brain data, to be downloaded
-    drosophila_meshes="Data/Meshes/Drosophila",  # meshes with drosophila brain data, to be downloaded
-    other_meshes="Data/Meshes/Other",  # any other mesh the user might want to store
     # OUTPUT Folders
     output_screenshots="Output/Screenshots",
     output_videos="Output/Videos",
-    output_scenes="Output/Scenes",
     output_data="Output/Data",
-    # User folder
-    user="User",
-    # ----------------------- Folder for allen brain atlas ----------------------- #
-    # NEURONS MORPHOLOGY
-    morphology_allen="Data/Morphology/Allen",  # .swc files with neurons morphology downloaded through allen API
-    morphology_cache="Data/Morphology/cache",
-    morphology_mouselight="Data/Morphology/MouseLight",  # .swc and .json files from mouse light dataset
     # Allen caches
     mouse_connectivity_cache="Data/ABA/MCC",
-    mouse_celltype_cache="Data/ABA/MCTC",
     annotated_volume_fld="Data/ABA",
     mouse_connectivity_volumetric="Data/ABA/Volumetric",
     mouse_connectivity_volumetric_cache="Data/ABA/Volumetric/cache",
     gene_expression_cache="Data/ABA/Volumetric/GeneExpressionCache",
     # Streamlines cache
     streamlines_cache="Data/Streamlines",
-    # ------------------- Folders for the insect brain db atlas ------------------ #
     ibdb_meshes_folder="Data/InsectsDBs",
-    # -------------------------- Folders for zfish atlas ------------------------- #
-    zfish_meshes_folder="Data/Zfish",
 )
 
 
 class Paths:
-    _folders = [
-        "mouse_meshes",
-        "other_meshes",
-        "morphology_allen",
-        "morphology_cache",
-        "morphology_mouselight",
-        "mouse_connectivity_cache",
-        "mouse_celltype_cache",
-        "streamlines_cache",
-        "output_screenshots",
-        "output_videos",
-        "output_scenes",
-        "output_data",
-        "user",
-        "annotated_volume_fld",
-        "mouse_connectivity_volumetric",
-        "mouse_connectivity_volumetric_cache",
-        "gene_expression_cache",
-        "ibdb_meshes_folder",
-        "zfish_meshes_folder",
-    ]
+    _folders = list(default_paths.keys())
 
     def __init__(self, base_dir=None, **kwargs):
         """
@@ -102,10 +63,3 @@ class Paths:
                 print("Creating folder at: {}".format(path))
                 os.makedirs(path)
             self.__setattr__(fld_name, path)
-
-        # Make a file for morphology cache metadata
-        self.morphology_cache_metadata = os.path.join(
-            self.morphology_cache, "metadata.json"
-        )
-        if not os.path.isfile(self.morphology_cache_metadata):
-            save_json(self.morphology_cache_metadata, {})

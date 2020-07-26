@@ -247,25 +247,6 @@ class Scene:  # subclass brain render to have acces to structure trees
         else:
             return to_return
 
-    # ------------------------------ Cells functions ----------------------------- #
-    def get_cells_in_region(self, cells, region):
-        """
-            Selects the cells that are in a list of user provided regions from a dataframe of cell locations
-
-            :param cells: pd.DataFrame of cells x,y,z coordinates
-        """
-        if isinstance(region, list):
-            region_list = []
-            for reg in region:
-                region_list.extend(
-                    list(self.get_structure_descendants(reg)["acronym"].values)
-                )
-        else:
-            region_list = list(
-                self.atlas.get_structure_descendants(region)["acronym"].values
-            )
-        return cells[cells.region.isin(region_list)]
-
     # ---------------------------------------------------------------------------- #
     #                                POPULATE SCENE                                #
     # ---------------------------------------------------------------------------- #
