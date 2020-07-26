@@ -218,7 +218,7 @@ class Render:
             )
             return
 
-        self.screenshots_folder.mkdir(exists_ok=True)
+        self.screenshots_folder.mkdir(exist_ok=True)
 
         savename = str(self.screenshots_folder / self.screenshots_name)
         savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'

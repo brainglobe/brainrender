@@ -14,6 +14,7 @@ from brainrender.colors import (
     colorMap,
     check_colors,
 )
+from brainrender.Utils.actors_funcs import edit_actor
 
 
 @pytest.fixture
@@ -70,3 +71,20 @@ def test_colors():
 
     check_colors(cols)
     check_colors(c)
+
+
+def test_edit_actors(scene):
+    actor = scene.add_brain_regions("TH")
+
+    edit_actor(
+        actor,
+        wireframe=True,
+        color="red",
+        line=True,
+        line_kwargs={"lw": 2},
+        upsample=True,
+        downsample=False,
+    )
+    edit_actor(
+        actor, solid=True, downsample=True, smooth=True,
+    )

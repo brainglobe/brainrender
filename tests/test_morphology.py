@@ -3,7 +3,6 @@ import brainrender
 
 brainrender.SHADER_STYLE = "cartoon"
 from brainrender.morphology.visualise import MorphologyScene
-from brainrender.morphology.utils import edit_neurons
 
 
 @pytest.fixture
@@ -62,18 +61,3 @@ def test_render_options(scene):
         display_dendrites=False,
         neurite_radius=None,
     )
-
-
-def test_edit_actors(scene):
-    act = scene.add_neurons(
-        "Examples/example_files/neuron4.swc", neurite_radius=None,
-    )
-
-    edit_neurons(
-        act,
-        color_neurites=True,
-        soma_color="red",
-        dendrites_color="blue",
-        axon_color="green",
-    )
-    edit_neurons(act, mirror=True, mirror_coord=500)
