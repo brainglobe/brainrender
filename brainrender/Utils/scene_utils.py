@@ -18,9 +18,7 @@ def get_scene_atlas(atlas, base_dir, atlas_kwargs={}, **kwargs):
         atlas = brainrender.DEFAULT_ATLAS
 
     if isinstance(atlas, str):
-        return Atlas(
-            atlas_name=atlas, base_dir=base_dir, **atlas_kwargs, **kwargs,
-        )
+        return Atlas(atlas, base_dir=base_dir, **atlas_kwargs, **kwargs,)
     elif inspect.isclass(atlas):
         return atlas(**atlas_kwargs)
     else:
