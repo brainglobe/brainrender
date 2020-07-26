@@ -1,9 +1,7 @@
 import brainrender
-import numpy as np
 import os
 import datetime
 from pathlib import Path
-import random
 from vedo import (
     Plotter,
     shapes,
@@ -16,7 +14,6 @@ from vedo import (
     Plane,
 )
 from vedo.shapes import Cylinder, Line
-from vedo.mesh import Mesh as Actor
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
     get_scene_camera,
@@ -28,10 +25,10 @@ from brainrender.Utils.data_io import (
     load_mesh_from_file,
     load_cells_from_file,
 )
-
+from brainrender.ABA.aba_utils import parse_sharptrack
 from brainrender.Utils.data_manipulation import (
     return_list_smart,
-    parse_sharptrack,
+    make_optic_canula_cylinder,
 )
 from brainrender.Utils.camera import (
     check_camera_param,
@@ -189,40 +186,6 @@ class Scene:  # subclass brain render to have acces to structure trees
             self.plotter.showInset(
                 self.inset, pos=(0.95, 0.1), draggable=False
             )
-
-    def get_n_random_points_in_region(self, region, N, hemisphere=None):
-        """
-        Gets N random points inside (or on the surface) of the mesh defining a brain region.
-
-        :param region: str, acronym of the brain region.
-        :param N: int, number of points to return.
-        """
-        if isinstance(region, Actor):
-            region_mesh = region
-        else:
-            if hemisphere is None:
-                region_mesh = self.atlas._get_structure_mesh(region)
-            else:
-                region_mesh = self.atlas.get_region_unilateral(
-                    region, hemisphere=hemisphere
-                )
-            if region_mesh is None:
-                return None
-
-        region_bounds = region_mesh.bounds()
-
-        X = np.random.randint(region_bounds[0], region_bounds[1], size=10000)
-        Y = np.random.randint(region_bounds[2], region_bounds[3], size=10000)
-        Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
-        pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
-
-        try:
-            ipts = region_mesh.insidePoints(pts).points()
-        except:
-            ipts = region_mesh.insidePoints(
-                pts
-            )  # to deal with older instances of vedo
-        return random.choices(ipts, k=N)
 
     def cut_actors_with_plane(
         self,
@@ -558,20 +521,13 @@ class Scene:  # subclass brain render to have acces to structure trees
         return spheres
 
     def add_optic_cannula(
-        self,
-        target_region=None,
-        pos=None,
-        offsets=(0, 0, -500),
-        hemisphere="right",
-        color="powderblue",
-        radius=350,
-        alpha=0.5,
-        **kwargs,
+        self, **kwargs,
     ):
         """
-            Adds a cylindrical vtk actor to scene to render optic cannulas. By default
+            Adds a cylindrical vedo actor to scene to render optic cannulas. By default
             this is a semi-transparent blue cylinder centered on the center of mass of
-            a specified target region and oriented vertically.
+            a specified target region and oriented vertically. Parameters are specified 
+            as keyword arguments.
 
             :param target_region: str, acronym of target region to extract coordinates
                 of implanted fiber. By defualt the fiber will be centered on the center
@@ -584,32 +540,11 @@ class Scene:  # subclass brain render to have acces to structure trees
                 of the rendered cylinder: color, alpha, rotation axis...
         """
 
-        # Get coordinates of brain-side face of optic cannula
-        if target_region is not None:
-            pos = self.atlas.get_region_CenterOfMass(
-                target_region, unilateral=True, hemisphere=hemisphere
-            )
-        elif pos is None:
-            print(
-                "No 'pos' or 'target_region' arguments were \
-                            passed to 'add_optic_cannula', nothing to render"
-            )
-            return
-
-        # Offset position
-        for i, offset in enumerate(offsets):
-            pos[i] += offset
-
-        # Get coordinates of upper face
-        bounds = self.root.bounds()
-        top = pos.copy()
-        top[1] = bounds[2] - 500
+        # Compute params
+        params = make_optic_canula_cylinder(self.atlas, self.root, **kwargs)
 
         # Create actor
-        cylinder = self.add_actor(
-            Cylinder(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs)
-        )
-
+        cylinder = self.add_actor(Cylinder(**params))
         return cylinder
 
     def add_text(

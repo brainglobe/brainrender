@@ -1,6 +1,7 @@
 import numpy as np
 import inspect
 from vedo import Actor, Text, Sphere
+import random
 
 from brainrender.atlases.atlas import Atlas
 import brainrender
@@ -185,3 +186,38 @@ def make_actor_label(
             new_actors.append(Sphere(pt, r=radius, c=color))
 
     return new_actors
+
+
+def get_n_random_points_in_region(atlas, region, N, hemisphere=None):
+    """
+    Gets N random points inside (or on the surface) of the mesh defining a brain region.
+
+    :param region: str, acronym of the brain region.
+    :param N: int, number of points to return.
+    """
+    if isinstance(region, Actor):
+        region_mesh = region
+    else:
+        if hemisphere is None:
+            region_mesh = atlas._get_structure_mesh(region)
+        else:
+            region_mesh = atlas.get_region_unilateral(
+                region, hemisphere=hemisphere
+            )
+        if region_mesh is None:
+            return None
+
+    region_bounds = region_mesh.bounds()
+
+    X = np.random.randint(region_bounds[0], region_bounds[1], size=10000)
+    Y = np.random.randint(region_bounds[2], region_bounds[3], size=10000)
+    Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
+    pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
+
+    try:
+        ipts = region_mesh.insidePoints(pts).points()
+    except:
+        ipts = region_mesh.insidePoints(
+            pts
+        )  # to deal with older instances of vedo
+    return random.choices(ipts, k=N)

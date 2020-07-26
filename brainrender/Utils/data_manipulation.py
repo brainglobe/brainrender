@@ -1,7 +1,6 @@
-import numpy as np
-
-from vedo import Cylinder
-from brainrender.Utils.data_io import get_probe_points_from_sharptrack
+# ---------------------------------------------------------------------------- #
+#                                PYTHON OBJECTS                                #
+# ---------------------------------------------------------------------------- #
 
 
 def return_list_smart(lst):
@@ -26,6 +25,27 @@ def return_dict_smart(dct):
         return None
     else:
         return dct
+
+
+def is_any_item_in_list(L1, L2):
+    """
+    Checks if an item in a list is in another  list
+
+    :param L1: 
+    :param L2: 
+
+    """
+    # checks if any item of L1 is also in L2 and returns false otherwise
+    inboth = [i for i in L1 if i in L2]
+    if inboth:
+        return True
+    else:
+        return False
+
+
+# ---------------------------------------------------------------------------- #
+#                             BRAINRENDER SPECIFIC                             #
+# ---------------------------------------------------------------------------- #
 
 
 # TODO this function aim at handling too many scenarios, very confusing to read
@@ -70,38 +90,6 @@ def get_coords(obj, mirror=False, mirror_ax="x"):
         return z, y, x
 
 
-def flatten_list(lst):
-    """
-    Flattens a list of lists
-    
-    :param lst: list
-
-    """
-    flatten = []
-    for item in lst:
-        if isinstance(item, list):
-            flatten.extend(item)
-        else:
-            flatten.append(item)
-    return flatten
-
-
-def is_any_item_in_list(L1, L2):
-    """
-    Checks if an item in a list is in another  list
-
-    :param L1: 
-    :param L2: 
-
-    """
-    # checks if any item of L1 is also in L2 and returns false otherwise
-    inboth = [i for i in L1 if i in L2]
-    if inboth:
-        return True
-    else:
-        return False
-
-
 def get_slice_coord(bounds, n):
     """
     Given the bounds of an actor, return the point that
@@ -131,57 +119,55 @@ def get_slice_coord(bounds, n):
     return b0 + delta * n
 
 
-def parse_sharptrack(
+def make_optic_canula_cylinder(
     atlas,
-    probe_points_file,
-    name,
-    color_by_region=True,
-    color="salmon",
-    radius=30,
-    probe_color="blackboard",
-    probe_radius=15,
-    probe_alpha=1,
+    root,
+    target_region,
+    pos=None,
+    offsets=(0, 0, -500),
+    hemisphere="right",
+    color="powderblue",
+    radius=350,
+    alpha=0.5,
+    **kwargs,
 ):
+
     """
-        Visualises the position of an implanted probe in the brain. 
-        Uses the location of points along the probe extracted with SharpTrack
-        [https://github.com/cortex-lab/allenCCF].
-        It renders the position of points along the probe and a line fit through them.
-        Code contributed by @tbslv on github. 
+        Creates a cylindrical vedo actor to scene to render optic cannulas. By default
+        this is a semi-transparent blue cylinder centered on the center of mass of
+        a specified target region and oriented vertically.
+
+        :param target_region: str, acronym of target region to extract coordinates
+            of implanted fiber. By defualt the fiber will be centered on the center
+            of mass of the target region but the offset arguments can be used to
+            fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
+        :param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
+        :param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
+            the implanted cannula.
+        :param **kwargs: used to specify which hemisphere the cannula is and parameters
+            of the rendered cylinder: color, alpha, rotation axis...
     """
 
-    # Points params
-    params = dict(color_by_region=True, color="salmon", radius=30, res=12,)
+    # Get coordinates of brain-side face of optic cannula
+    if target_region is not None:
+        pos = atlas.get_region_CenterOfMass(
+            target_region, unilateral=True, hemisphere=hemisphere
+        )
+    elif pos is None:
+        print(
+            "No 'pos' or 'target_region' arguments were \
+                        passed to 'add_optic_cannula', nothing to render"
+        )
+        return
 
-    # Get the position of probe points and render
-    probe_points_df = get_probe_points_from_sharptrack(probe_points_file)
+    # Offset position
+    for i, offset in enumerate(offsets):
+        pos[i] += offset
 
-    # Fit a line through the points [adapted from SharpTrack by @tbslv]
-    r0 = np.mean(probe_points_df.values, axis=0)
-    xyz = probe_points_df.values - r0
-    U, S, V = np.linalg.svd(xyz)
-    direction = V.T[:, 0]
+    # Get coordinates of upper face
+    bounds = root.bounds()
+    top = pos.copy()
+    top[1] = bounds[2] - 500
 
-    # Find intersection with brain surface
-    root_mesh = atlas._get_structure_mesh("root")
-    p0 = direction * np.array([-1]) + r0
-    p1 = (
-        direction * np.array([-15000]) + r0
-    )  # end point way outside of brain, on probe trajectory though
-    pts = root_mesh.intersectWithLine(p0, p1)
-
-    # Define top/bottom coordinates to render as a cylinder
-    top_coord = pts[0]
-    length = np.sqrt(np.sum((probe_points_df.values[-1] - top_coord) ** 2))
-    bottom_coord = top_coord + direction * length
-
-    # Render probe as a cylinder
-    probe = Cylinder(
-        [top_coord, bottom_coord],
-        r=probe_radius,
-        alpha=probe_alpha,
-        c=probe_color,
-    )
-    probe.name = name
-
-    return probe_points_df, params, probe, color
+    # Create actor
+    return dict(pos=[top, pos], c=color, r=radius, alpha=alpha, **kwargs)

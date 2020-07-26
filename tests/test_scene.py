@@ -6,6 +6,7 @@ import brainrender
 from brainrender.scene import Scene, DualScene, MultiScene
 from brainrender.Utils.camera import coronal_camera
 from brainrender.colors import makePalette
+from brainrender.Utils.scene_utils import get_n_random_points_in_region
 
 
 @pytest.fixture
@@ -169,9 +170,7 @@ def test_cut_with_plane(scene):
     # Specify position, size and orientation of the plane
     pos = scene.atlas._root_midpoint
     norm = [0, 1, 1]
-    plane = scene.atlas.get_plane_at_point(
-        pos, norm, color="lightblue"
-    )
+    plane = scene.atlas.get_plane_at_point(pos, norm, color="lightblue")
 
     # Cut
     scene.cut_actors_with_plane(
@@ -320,10 +319,10 @@ def test_labelled_cells(scene):
 
 
 def test_get_random_points(scene):
-    scene.get_n_random_points_in_region("MOs", 100)
-    scene.get_n_random_points_in_region("MOp", 100, hemisphere="right")
+    get_n_random_points_in_region(scene.atlas, "MOs", 100)
+    get_n_random_points_in_region(scene.atlas, "MOp", 100, hemisphere="right")
     ca1 = scene.add_brain_regions("CA1")
-    scene.get_n_random_points_in_region(ca1, 100)
+    get_n_random_points_in_region(scene.atlas, ca1, 100)
 
 
 def test_add_from_file(scene):

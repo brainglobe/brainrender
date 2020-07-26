@@ -7,6 +7,7 @@ import brainrender
 
 brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
+from brainrender.Utils.scene_utils import get_n_random_points_in_region
 
 # Create a scene
 scene = Scene()  # specify that you want a view from the top
@@ -22,7 +23,9 @@ scene.add_brain_regions(regions, alpha=0.2)
 # Get fake cell coordinates
 cells = []  # to store x,y,z coordinates
 for region in regions:
-    region_cells = scene.get_n_random_points_in_region(region=region, N=N)
+    region_cells = get_n_random_points_in_region(
+        scene.atlas, region=region, N=N
+    )
     cells.extend(region_cells)
 x, y, z = [c[0] for c in cells], [c[1] for c in cells], [c[2] for c in cells]
 cells = pd.DataFrame(
