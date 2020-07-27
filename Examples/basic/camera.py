@@ -7,13 +7,15 @@ brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
 
 # Create a scene
-scene = Scene(camera="top")  # specify that you want a view from the top
+scene = Scene(
+    camera="top", title="camera"
+)  # specify that you want a view from the top
 
 # render
 scene.render()
 
 # Now render but with a different view
-scene.render(camera="sagittal", zoom=1)
+scene.render(camera="sagittal", zoom=1, title="camera")
 
 # Now render but with specific camera parameters
 bespoke_camera = dict(

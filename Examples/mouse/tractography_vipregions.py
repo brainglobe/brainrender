@@ -11,7 +11,7 @@ from brainrender.atlases.mouse import ABA
 
 
 # Create a scene
-scene = Scene()
+scene = Scene(title="tractography")
 
 # Get the center of mass of the region of interest
 p0 = scene.atlas.get_region_CenterOfMass("ZI")
@@ -22,6 +22,8 @@ tract = analyzer.get_projection_tracts_to_target(p0=p0)
 
 # Add the brain regions and the projections to it
 scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
-scene.add_tractography(tract, color_by="target_region", VIP_regions=['SCm'], VIP_color='green')
+scene.add_tractography(
+    tract, color_by="target_region", VIP_regions=["SCm"], VIP_color="green"
+)
 
 scene.render()

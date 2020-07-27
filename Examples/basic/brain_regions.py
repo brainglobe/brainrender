@@ -7,7 +7,7 @@ brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
 
 # Create a scene
-scene = Scene(screenshot_kwargs=dict(folder="Docs/Media/clean_screenshots"))
+scene = Scene(title="brain regions")
 
 # Add the whole thalamus in gray
 scene.add_brain_regions(["TH"], alpha=0.15)

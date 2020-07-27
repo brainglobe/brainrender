@@ -7,6 +7,7 @@ from vedo import (
     Text2D,
     closePlotter,
     Plane,
+    Mesh,
 )
 from vedo.shapes import Cylinder, Line
 from brainrender.Utils.scene_utils import (
@@ -243,7 +244,7 @@ class Scene(Render):
 
         actors = []
         for region, actor in allactors.items():
-            if region in [a.name for a in self.actors]:
+            if region in [a.name for a in self.actors if isinstance(a, Mesh)]:
                 # Avoid inserting again
                 continue
 

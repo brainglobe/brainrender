@@ -10,7 +10,7 @@ brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
 
 # Create a scene
-scene = Scene()
+scene = Scene(title="labels")
 
 # add_brain_regions can be used to add labels directly
 scene.add_brain_regions("VAL", add_labels=True)

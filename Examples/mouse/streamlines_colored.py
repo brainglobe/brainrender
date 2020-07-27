@@ -10,7 +10,7 @@ from brainrender.colors import makePalette
 
 
 # Start by creating a scene with the allen brain atlas atlas
-scene = Scene()
+scene = Scene(title="streamlines")
 
 
 # Download streamlines data for injections in the CA1 field of the hippocampus

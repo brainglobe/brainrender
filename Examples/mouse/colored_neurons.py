@@ -37,7 +37,7 @@ neurons = mlapi.download_neurons(
 colors = makePalette(len(neurons), "salmon", "lightgreen")
 
 # Create scene
-scene = Scene(add_root=True, display_inset=False)
+scene = Scene(add_root=True, display_inset=False, title="neurons")
 
 # Add each neuron with it's color
 scene.add_neurons(neurons, alpha=0.8, neurite_radius=8, color=colors)

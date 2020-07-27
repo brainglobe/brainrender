@@ -4,7 +4,7 @@
 
 from brainrender.scene import Scene
 
-scene = Scene()
+scene = Scene(title="crosshair")
 scene.add_brain_regions("TH", use_original_color=False, alpha=0.4)
 
 # Add a point in the right hemisphere

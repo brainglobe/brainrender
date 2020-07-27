@@ -11,7 +11,9 @@ from brainrender.scene import Scene
 from brainrender.Utils.scene_utils import get_n_random_points_in_region
 
 # Create a scene
-scene = Scene()  # specify that you want a view from the top
+scene = Scene(
+    title="labelled cells"
+)  # specify that you want a view from the top
 
 
 # Gerate the coordinates of N cells across 3 regions

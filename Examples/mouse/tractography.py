@@ -10,7 +10,7 @@ from brainrender.atlases.mouse import ABA
 
 
 # Create a scene
-scene = Scene()
+scene = Scene(title="tractography")
 
 # Get the center of mass of the region of interest
 p0 = scene.atlas.get_region_CenterOfMass("ZI")

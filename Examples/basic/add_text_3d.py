@@ -11,9 +11,31 @@ from brainrender.colors import makePalette
 from vedo import Text
 
 
+camera = dict(
+    {
+        "position": (4.58173814842751, 1.3170832519052862, 28.807539941401348),
+        "focal": (5.63320729136467, 0.0, 0.13752250373363495),
+        "viewup": (
+            0.008857944291024357,
+            0.9989221022772287,
+            -0.04556501294830602,
+        ),
+        "distance": 28.719508970857582,
+        "clipping": (27.608253763329618, 30.187623512524752),
+        "orientation": (
+            2.62851947276041,
+            2.1003738639279446,
+            0.41150325521778314,
+        ),
+    }
+)
+
 # Crate a scene
 scene = Scene(
-    add_root=False, display_inset=False, use_default_key_bindings=False
+    add_root=False,
+    display_inset=False,
+    use_default_key_bindings=False,
+    camera=camera,
 )
 
 
@@ -32,12 +54,18 @@ for n, letter in enumerate("BRAINRENDER"):
     else:
         x += 1
 
-    # Add letter and silhouette to the scne
+    # Add letter and silhouette to the scene
+    print(colors[n])
     act = Text(
-        letter, depth=0.5, c=colors[n], pos=(x, 0, 0), justify="centered"
+        letter,
+        depth=0.5,
+        c=colors[n],
+        pos=(x, 0, 0),
+        justify="centered",
+        alpha=1,
     )
 
-    scene.add_add_silhouette(act, lw=3)
+    scene.add_silhouette(act, lw=3)
 
 
 scene.render()

@@ -10,7 +10,7 @@ brainrender.SHADER_STYLE = "cartoon"
 from brainrender.scene import Scene
 
 
-scene = Scene()
+scene = Scene(title="cut with plane")
 
 # Add some actors
 th = scene.add_brain_regions(["STR", "TH"], alpha=0.5)
