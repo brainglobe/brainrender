@@ -1,6 +1,7 @@
 from vedo import settings as vedosettings
 from vedo import Plotter, show, closePlotter, screenshot
 import datetime
+import warnings
 
 from pathlib import Path
 import brainrender
@@ -216,6 +217,11 @@ class Render:
                 "You need to render the scene before you can take a screenshot"
             )
             return
+
+        if brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
+            warnings.warn(
+                "BRAINRENDER - settings: screenshots are set to have transparent background. Set the parameter 'SCREENSHOT_TRANSPARENT_BACKGROUND' to False if you'd prefer a not transparent background"
+            )
 
         self.screenshots_folder.mkdir(exist_ok=True)
 

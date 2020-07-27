@@ -112,9 +112,6 @@ settings.screeshotScale = params[
 if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
     settings.screenshotTransparentBackground = True  # vedo for transparent bg
     settings.useFXAA = False  # This needs to be false for transparent bg
-    warnings.warn(
-        "BRAINRENDER - settings: screenshots are set to have transparent background. Set the parameter 'SCREENSHOT_TRANSPARENT_BACKGROUND' to False if you'd prefer a not transparent background"
-    )
 
 
 # Set to make it easy to import

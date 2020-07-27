@@ -20,7 +20,7 @@ requirements = [
     "morphapi>=0.1.1.3",
     "requests",
     "rich",
-    "bg-atlasapi>=0.0.5rc0",
+    "bg-atlasapi>=0.0.6rc0",
 ]
 
 setup(
