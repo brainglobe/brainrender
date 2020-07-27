@@ -58,12 +58,11 @@ neurons_files = ml_api.download_neurons(neurons_metadata[:N_neurons])
 
 # ------------------------------- Create scene ------------------------------- #
 scene = Scene(display_inset=False, use_default_key_bindings=True)
-root = scene.actors["root"]
 
-scene.add_neurons(neurons_files, neurite_radius=12, alpha=0)
+neurons = scene.add_neurons(neurons_files, neurite_radius=12, alpha=0)
 
 # Make all neurons background
-for neuron in scene.actors["neurons"]:
+for neuron in neurons:
     for mesh in neuron.values():
         mesh.alpha(minalpha)
         mesh.color(darkcolor)
@@ -113,7 +112,7 @@ for step in track(
         prev_neurons = []
 
         # highlight new neurons
-        neurons = choices(scene.actors["neurons"], k=N_neurons_in_frame)
+        neurons = choices(neurons, k=N_neurons_in_frame)
         for n, neuron in enumerate(neurons):
             color = colorMap(
                 n, "Greens_r", vmin=-2, vmax=N_neurons_in_frame + 3

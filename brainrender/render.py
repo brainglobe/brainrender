@@ -160,8 +160,7 @@ class Render:
 
         if video:
             args_dict["offscreen"] = True
-
-        show(*self.actors, **args_dict)
+        show(*self.actors, *self.actors_labels, **args_dict)
 
     def close(self):
         closePlotter()

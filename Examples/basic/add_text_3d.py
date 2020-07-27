@@ -55,7 +55,6 @@ for n, letter in enumerate("BRAINRENDER"):
         x += 1
 
     # Add letter and silhouette to the scene
-    print(colors[n])
     act = Text(
         letter,
         depth=0.5,

@@ -48,15 +48,16 @@ frac[150:] = np.linspace(1, 0, len(frac[150:]))
 
 # ------------------------------- Create scene ------------------------------- #
 scene = Scene(display_inset=True, use_default_key_bindings=True)
-root = scene.actors["root"]
 
 filepaths, data = scene.atlas.download_streamlines_for_region("TH")
-scene.add_streamlines(data, color="darkseagreen", show_injection_site=False)
+tracts = scene.add_streamlines(
+    data, color="darkseagreen", show_injection_site=False
+)
 
 scene.add_brain_regions(["TH"], alpha=0.2)
 
 # Make all streamlines background
-for mesh in scene.actors["tracts"]:
+for mesh in tracts:
     mesh.alpha(minalpha)
     mesh.color(darkcolor)
 
@@ -96,7 +97,7 @@ for step in track(
         prev_streamlines = []
 
         # highlight new neurons
-        streamlines = choices(scene.actors["tracts"], k=N_streamlines_in_frame)
+        streamlines = choices(tracts, k=N_streamlines_in_frame)
         for n, mesh in enumerate(streamlines):
             # color = colorMap(n, 'Reds', vmin=-2, vmax=N_streamlines_in_frame+3)
             mesh.alpha(0.7)

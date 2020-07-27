@@ -20,6 +20,9 @@ brexport.html
 # *.mp4
 # *.jpg
 
+screenshots/*
+atlas_images/*
+
 # Output folder where screnshots etx. are saved
 Output/Data/*
 Output/Scenes/*

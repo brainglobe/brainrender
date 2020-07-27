@@ -184,11 +184,17 @@ class Scene(Render):
             for actor in actors:
                 if actor is None:
                     continue
-                actor = actor.cutWithPlane(
-                    origin=plane.center,
-                    normal=plane.normal,
-                    returnCut=returncut,
-                )
+
+                try:
+                    actor = actor.cutWithPlane(
+                        origin=plane.center,
+                        normal=plane.normal,
+                        returnCut=returncut,
+                    )
+                except AttributeError:
+                    # some rendered objects can't be cut (e.g.text 2d)
+                    continue
+
                 if returncut:
                     to_return.append(actor)
 
