@@ -285,7 +285,7 @@ class ABA:
                 ]
             else:
                 inj_structures = [
-                    self.get_structure_parent(t["structure-abbrev"])["acronym"]
+                    self.get_structure_ancestors(t["structure-abbrev"])[-1]
                 ]
 
             if (

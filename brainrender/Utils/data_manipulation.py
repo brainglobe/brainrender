@@ -141,11 +141,7 @@ def get_cells_in_region(atlas, cells, region):
     if isinstance(region, list):
         region_list = []
         for reg in region:
-            region_list.extend(
-                list(atlas.get_structure_descendants(reg)["acronym"].values)
-            )
+            region_list.extend(list(atlas.get_structure_descendants(reg)))
     else:
-        region_list = list(
-            atlas.get_structure_descendants(region)["acronym"].values
-        )
+        region_list = list(atlas.get_structure_descendants(region))
     return cells[cells.region.isin(region_list)]
