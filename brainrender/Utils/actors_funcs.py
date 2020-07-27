@@ -7,7 +7,7 @@ import numpy as np
 
 def get_actor_bounds(actor):
     """
-        Gets the XYZ bounds of an actor
+        Gets the AP-DV-ML bounds of an actor
     """
     bounds = actor.bounds()
     return [

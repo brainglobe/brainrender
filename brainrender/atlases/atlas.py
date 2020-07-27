@@ -1,6 +1,5 @@
 from vedo import Mesh, Plane
 import numpy as np
-import pandas as pd
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
 
 import brainrender
@@ -246,81 +245,6 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
     # ---------------------------------------------------------------------------- #
-
-    # ! most of this code should be moved to brainglobe
-
-    def get_structure_ancestors(
-        self, regions, ancestors=True, descendants=False
-    ):
-        """
-        Get's the ancestors of the region(s) passed as arguments
-
-        :param regions: str, list of str with acronums of regions of interest
-        :param ancestors: if True, returns the ancestors of the region  (Default value = True)
-        :param descendants: if True, returns the descendants of the region (Default value = False)
-
-        """
-
-        if not isinstance(regions, list):
-            struct_id = self.structure_tree.get_structures_by_acronym(
-                [regions]
-            )[0]["id"]
-            return pd.DataFrame(
-                self.tree_search.get_tree(
-                    "Structure",
-                    struct_id,
-                    ancestors=ancestors,
-                    descendants=descendants,
-                )
-            )
-        else:
-            ancestors = []
-            for region in regions:
-                struct_id = self.structure_tree.get_structures_by_acronym(
-                    [region]
-                )[0]["id"]
-                ancestors.append(
-                    pd.DataFrame(
-                        self.tree_search.get_tree(
-                            "Structure",
-                            struct_id,
-                            ancestors=ancestors,
-                            descendants=descendants,
-                        )
-                    )
-                )
-            return ancestors
-
-    def get_structure_descendants(self, regions):
-        return self.get_structure_ancestors(
-            regions, ancestors=False, descendants=True
-        )
-
-    def get_structure_parent(self, acronyms):
-        """
-        Gets the parent of a brain region (or list of regions) from the hierarchical structure of the
-        Allen Brain Atals.
-
-        :param acronyms: list of acronyms of brain regions.
-
-        """
-        if not isinstance(acronyms, list):
-            s = self.structure_tree.get_structures_by_acronym([acronyms])[0]
-            if s["id"] in self.lookup_df.id.values:
-                return s
-            else:
-                return self.get_structure_ancestors(s["acronym"]).iloc[-1]
-        else:
-            parents = []
-            for region in acronyms:
-                s = self.structure_tree.get_structures_by_acronym(acronyms)[0]
-
-                if s["id"] in self.lookup_df.id.values:
-                    parents.append(s)
-                parents.append(
-                    self.get_structure_ancestors(s["acronym"]).iloc[-1]
-                )
-            return parents
 
     def get_region_unilateral(
         self, region, hemisphere="both", color=None, alpha=None

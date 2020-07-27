@@ -511,8 +511,8 @@ def parse_sharptrack(
 
     # Fit a line through the points [adapted from SharpTrack by @tbslv]
     r0 = np.mean(probe_points_df.values, axis=0)
-    xyz = probe_points_df.values - r0
-    U, S, V = np.linalg.svd(xyz)
+    coords = probe_points_df.values - r0
+    U, S, V = np.linalg.svd(coords)
     direction = V.T[:, 0]
 
     # Find intersection with brain surface

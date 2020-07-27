@@ -476,7 +476,7 @@ class Scene(Render):
             :param target_region: str, acronym of target region to extract coordinates
                 of implanted fiber. By defualt the fiber will be centered on the center
                 of mass of the target region but the offset arguments can be used to
-                fine tune the position. Alternative pass a 'pos' argument with XYZ coords.
+                fine tune the position. Alternative pass a 'pos' argument with AP-DV-ML coords.
             :param pos: list or tuple or np.array with X,Y,Z coordinates. Must have length = 3.
             :param x_offset, y_offset, z_offset: int, used to fine tune the coordinates of 
                 the implanted cannula.
