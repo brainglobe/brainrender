@@ -1,7 +1,32 @@
+import numpy as np
+
 """ 
     Collection of functions to edit actors looks and other features.
 """
-def mirror_actor_at_point(actor, point, axis='x'):
+
+
+def get_actor_bounds(actor):
+    """
+        Gets the AP-DV-ML bounds of an actor
+    """
+    bounds = actor.bounds()
+    return [
+        [bounds[0], bounds[1]],
+        [bounds[2], bounds[3]],
+        [bounds[4], bounds[5]],
+    ]
+
+
+def get_actor_midpoint(actor):
+    """ 
+        Get's the coordinates of the midpoint of an
+        actor (vedo.Mesh)
+    """
+    return [np.mean(bounds) for bounds in get_actor_bounds(actor)]
+
+
+# TODO mirror around point would mean
+def mirror_actor_at_point(actor, point, axis="x"):
     """
     Mirror an actor around a point
 
@@ -12,60 +37,48 @@ def mirror_actor_at_point(actor, point, axis='x'):
     """
     if not isinstance(actor, dict):
         coords = actor.points()
-        if axis == 'x':
-            shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
-        elif axis == 'y':
-            shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
-        elif axis == 'z':
-            shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
-        
+        if axis == "x":
+            shifted_coords = [
+                [c[0], c[1], point + (point - c[2])] for c in coords
+            ]
+        elif axis == "y":
+            shifted_coords = [
+                [c[0], point + (point - c[1]), c[2]] for c in coords
+            ]
+        elif axis == "z":
+            shifted_coords = [
+                [point + (point - c[0]), c[1], c[2]] for c in coords
+            ]
+
         actor.points(shifted_coords)
-        actor = actor.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+        actor = actor.mirror(
+            axis="n"
+        )  # to make sure that the mirrored actor looks correctly
         return actor
     else:
         mirrored_actor = {}
         for n, a in actor.items():
             coords = a.points()
-            if axis == 'x':
-                shifted_coords = [[c[0], c[1], point + (point-c[2])] for c in coords]
-            elif axis == 'y':
-                shifted_coords = [[c[0], point + (point-c[1]), c[2]] for c in coords]
-            elif axis == 'z':
-                shifted_coords = [[point + (point-c[0]), c[1], c[2]] for c in coords]
-            
+            if axis == "x":
+                shifted_coords = [
+                    [c[0], c[1], point + (point - c[2])] for c in coords
+                ]
+            elif axis == "y":
+                shifted_coords = [
+                    [c[0], point + (point - c[1]), c[2]] for c in coords
+                ]
+            elif axis == "z":
+                shifted_coords = [
+                    [point + (point - c[0]), c[1], c[2]] for c in coords
+                ]
+
             a.points(shifted_coords)
-            a = a.mirror(axis='n') # to make sure that the mirrored actor looks correctly
+            a = a.mirror(
+                axis="n"
+            )  # to make sure that the mirrored actor looks correctly
             mirrored_actor[n] = actor
         return mirrored_actor
-        
 
-def set_wireframe(actor):
-    """
-    set an actor's look to wireframe
-
-    :param actor: 
-
-    """
-    actor.wireframe(value=True)
-
-def set_solid(actor):
-    """
-    set an actor's look to solid
-
-    :param actor: 
-
-    """
-    actor.wireframe(value=False)
-
-def set_color(actor, color):
-    """
-    set an actor's look to a specific color
-
-    :param actor: 
-    :param color: 
-
-    """
-    actor.color(c=color)
 
 def set_line(actor, lw=None, c=None):
     """
@@ -81,40 +94,18 @@ def set_line(actor, lw=None, c=None):
     if c is not None:
         actor.lc(lineColor=c)
 
-def upsample_actor(actor, fact=1):
-    """
-    Increase resolution of actor
 
-    :param actor: 
-    :param fact:  (Default value = 1)
-
-    """
-    actor.subdivide(N=fact)
-
-def downsample_actor(actor, fact=0.5):
-    """
-    Reduce resolution of actor
-
-    :param actor: 
-    :param fact:  (Default value = 0.5)
-
-    """
-    actor.decimate(fraction=fact)
-
-def smooth_actor(actor, factor=15):
-    """
-    Smooth an actor's mesh
-
-    :param actor: 
-    :param factor:  (Default value = 15)
-
-    """
-    actor.smoothLaplacian(niter=factor)
-
-def edit_actor(actor, 
-    wireframe=False, solid=False, 
-    color=False, line=False, line_kwargs={}, 
-    upsample=False, downsample=False, smooth=False):
+def edit_actor(
+    actor,
+    wireframe=False,
+    solid=False,
+    color=False,
+    line=False,
+    line_kwargs={},
+    upsample=False,
+    downsample=False,
+    smooth=False,
+):
     """
     Apply a set of functions to edit an actor's look. 
 
@@ -131,16 +122,16 @@ def edit_actor(actor,
     """
 
     if wireframe:
-        set_wireframe(actor)
+        actor.wireframe(value=True)
     if solid:
-        set_solid(actor)
+        actor.wireframe(value=False)
     if color:
-        set_color(actor, color)
+        actor.color(c=color)
     if line:
         set_line(actor, **line_kwargs)
     if upsample:
-        upsample_actor(actor)
+        actor.subdivide(N=1)
     if downsample:
-        downsample_actor(actor)
+        actor.decimate(fraction=0.5)
     if smooth:
-        smooth_actor(actor)
+        actor.smoothLaplacian(niter=15)

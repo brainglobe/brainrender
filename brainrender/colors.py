@@ -1,8 +1,8 @@
 import numpy as np
 import random
-import vtk 
-import itertools
-# The following code and colors list is from vtkplotter.color : https://github.com/marcomusy/vtkplotter/blob/master/vtkplotter/colors.py
+import vtk
+
+# The following code and colors list is from vedo.color : https://github.com/marcomusy/vedo/blob/master/vedo/colors.py
 # The code is copied here just to make it easier to look up and change colros
 try:
     import matplotlib
@@ -18,7 +18,7 @@ except:
 # basic color schemes
 #########################################################
 # from matplotlib
-colors = {  
+colors = {
     "aliceblue": "#F0F8FF",
     "antiquewhite": "#FAEBD7",
     "aqua": "#00FFFF",
@@ -161,7 +161,7 @@ colors = {
 }
 
 # color nicknames
-color_nicks = {  
+color_nicks = {
     "a": "aqua",
     "b": "blue",
     "bb": "blackboard",
@@ -197,47 +197,168 @@ color_nicks = {
 
 # available colormap names from matplotlib:
 _mapscales_cmaps = (
-    "Accent",    "Accent_r",    "Blues",     "Blues_r",
-    "BrBG",      "BrBG_r",      "BuGn",      "BuGn_r",
-    "BuPu",      "BuPu_r",      "CMRmap",    "CMRmap_r",
-    "Dark2",     "Dark2_r",     "GnBu",      "GnBu_r",
-    "Greens",    "Greens_r",    "Greys",     "Greys_r",
-    "OrRd",      "OrRd_r",      "Oranges",   "Oranges_r",
-    "PRGn",      "PRGn_r",      "Paired",    "Paired_r",
-    "Pastel1",   "Pastel1_r",   "Pastel2",   "Pastel2_r",
-    "PiYG",      "PiYG_r",      "PuBu",      "PuBuGn",
-    "PuBuGn_r",  "PuBu_r",      "PuOr",      "PuOr_r",
-    "PuRd",      "PuRd_r",      "Purples",   "Purples_r",
-    "RdBu",      "RdBu_r",      "RdGy",      "RdGy_r",
-    "RdPu",      "RdPu_r",      "RdYlBu",    "RdYlBu_r",
-    "RdYlGn",    "RdYlGn_r",    "Reds",      "Reds_r",
-    "Set1",      "Set1_r",      "Set2",      "Set2_r",
-    "Set3",      "Set3_r",      "Spectral",  "Spectral_r",
-    "Wistia",    "Wistia_r",    "YlGn",      "YlGnBu",
-    "YlGnBu_r",  "YlGn_r",      "YlOrBr",    "YlOrBr_r",
-    "YlOrRd",    "YlOrRd_r",    "afmhot",    "afmhot_r",
-    "autumn",    "autumn_r",    "binary",    "binary_r",
-    "bone",      "bone_r",      "brg",       "brg_r",
-    "bwr",       "bwr_r",       "cividis",   "cividis_r",
-    "cool",      "cool_r",      "coolwarm",  "coolwarm_r",
-    "copper",    "copper_r",    "cubehelix", "cubehelix_r",
-    "flag",      "flag_r",      "gist_earth","gist_earth_r",
-    "gist_gray", "gist_gray_r", "gist_heat", "gist_heat_r",
-    "gist_ncar", "gist_ncar_r", "gist_rainbow", "gist_rainbow_r",
-    "gist_stern","gist_stern_r","gist_yarg",  "gist_yarg_r",
-    "gnuplot",   "gnuplot2",    "gnuplot2_r", "gnuplot_r",
-    "gray_r",      "hot",        "hot_r",
-    "hsv",       "hsv_r",       "inferno",    "inferno_r",
-    "jet",       "jet_r",       "magma",      "magma_r",
-    "nipy_spectral", "nipy_spectral_r", "ocean", "ocean_r",
-    "pink_r",      "plasma",     "plasma_r",
-    "prism",     "prism_r",     "rainbow",    "rainbow_r",
-    "seismic",   "seismic_r",   "spring",     "spring_r",
-    "summer",    "summer_r",    "tab10",      "tab10_r",
-    "tab20",     "tab20_r",     "tab20b",     "tab20b_r",
-    "tab20c",    "tab20c_r",    "terrain",    "terrain_r",
-    "twilight",  "twilight_r",  "twilight_shifted", "twilight_shifted_r",
-    "viridis",   "viridis_r",   "winter",     "winter_r"
+    "Accent",
+    "Accent_r",
+    "Blues",
+    "Blues_r",
+    "BrBG",
+    "BrBG_r",
+    "BuGn",
+    "BuGn_r",
+    "BuPu",
+    "BuPu_r",
+    "CMRmap",
+    "CMRmap_r",
+    "Dark2",
+    "Dark2_r",
+    "GnBu",
+    "GnBu_r",
+    "Greens",
+    "Greens_r",
+    "Greys",
+    "Greys_r",
+    "OrRd",
+    "OrRd_r",
+    "Oranges",
+    "Oranges_r",
+    "PRGn",
+    "PRGn_r",
+    "Paired",
+    "Paired_r",
+    "Pastel1",
+    "Pastel1_r",
+    "Pastel2",
+    "Pastel2_r",
+    "PiYG",
+    "PiYG_r",
+    "PuBu",
+    "PuBuGn",
+    "PuBuGn_r",
+    "PuBu_r",
+    "PuOr",
+    "PuOr_r",
+    "PuRd",
+    "PuRd_r",
+    "Purples",
+    "Purples_r",
+    "RdBu",
+    "RdBu_r",
+    "RdGy",
+    "RdGy_r",
+    "RdPu",
+    "RdPu_r",
+    "RdYlBu",
+    "RdYlBu_r",
+    "RdYlGn",
+    "RdYlGn_r",
+    "Reds",
+    "Reds_r",
+    "Set1",
+    "Set1_r",
+    "Set2",
+    "Set2_r",
+    "Set3",
+    "Set3_r",
+    "Spectral",
+    "Spectral_r",
+    "Wistia",
+    "Wistia_r",
+    "YlGn",
+    "YlGnBu",
+    "YlGnBu_r",
+    "YlGn_r",
+    "YlOrBr",
+    "YlOrBr_r",
+    "YlOrRd",
+    "YlOrRd_r",
+    "afmhot",
+    "afmhot_r",
+    "autumn",
+    "autumn_r",
+    "binary",
+    "binary_r",
+    "bone",
+    "bone_r",
+    "brg",
+    "brg_r",
+    "bwr",
+    "bwr_r",
+    "cividis",
+    "cividis_r",
+    "cool",
+    "cool_r",
+    "coolwarm",
+    "coolwarm_r",
+    "copper",
+    "copper_r",
+    "cubehelix",
+    "cubehelix_r",
+    "flag",
+    "flag_r",
+    "gist_earth",
+    "gist_earth_r",
+    "gist_gray",
+    "gist_gray_r",
+    "gist_heat",
+    "gist_heat_r",
+    "gist_ncar",
+    "gist_ncar_r",
+    "gist_rainbow",
+    "gist_rainbow_r",
+    "gist_stern",
+    "gist_stern_r",
+    "gist_yarg",
+    "gist_yarg_r",
+    "gnuplot",
+    "gnuplot2",
+    "gnuplot2_r",
+    "gnuplot_r",
+    "gray_r",
+    "hot",
+    "hot_r",
+    "hsv",
+    "hsv_r",
+    "inferno",
+    "inferno_r",
+    "jet",
+    "jet_r",
+    "magma",
+    "magma_r",
+    "nipy_spectral",
+    "nipy_spectral_r",
+    "ocean",
+    "ocean_r",
+    "pink_r",
+    "plasma",
+    "plasma_r",
+    "prism",
+    "prism_r",
+    "rainbow",
+    "rainbow_r",
+    "seismic",
+    "seismic_r",
+    "spring",
+    "spring_r",
+    "summer",
+    "summer_r",
+    "tab10",
+    "tab10_r",
+    "tab20",
+    "tab20_r",
+    "tab20b",
+    "tab20b_r",
+    "tab20c",
+    "tab20c_r",
+    "terrain",
+    "terrain_r",
+    "twilight",
+    "twilight_r",
+    "twilight_shifted",
+    "twilight_shifted_r",
+    "viridis",
+    "viridis_r",
+    "winter",
+    "winter_r",
 )
 
 # default sets of colors
@@ -267,25 +388,28 @@ colors2 = [
     (0.1, 0.3, 0.2),
 ]
 
+
 def get_random_colormap():
     return random.choice(_mapscales_cmaps)
-    
+
+
 def get_n_shades_of(shade, n):
     """
-
-    :param shade: 
-    :param n: 
+    :param shade:  color
+    :param n: numnber of colors
 
     """
-    shades = [k for k,v in colors.items() if shade in k]
-    if not shades: raise ValueError("Could not find shades for {}".format(shade))
+    shades = [k for k, v in colors.items() if shade in k]
+    if not shades:
+        raise ValueError("Could not find shades for {}".format(shade))
     else:
         return random.choices(shades, k=n)
+
 
 def _isSequence(arg):
     """
 
-    :param arg: 
+    :param arg:   item to check
 
     """
     # Check if input is iterable.
@@ -387,7 +511,7 @@ def getColorName(c):
     """Find the name of a color.
     |colorpalette| |colorpalette.py|_
 
-    :param c: 
+    :param c: c 
 
     """
     c = np.array(getColor(c))  # reformat to rgb
@@ -405,7 +529,7 @@ def getColorName(c):
 def hsv2rgb(hsv):
     """Convert HSV to RGB color.
 
-    :param hsv: 
+    :param hsv: gsv 
 
     """
     ma = vtk.vtkMath()
@@ -415,7 +539,7 @@ def hsv2rgb(hsv):
 def rgb2hsv(rgb):
     """Convert RGB to HSV color.
 
-    :param rgb: 
+    :param rgb: rgb 
 
     """
     ma = vtk.vtkMath()
@@ -425,10 +549,14 @@ def rgb2hsv(rgb):
 def rgb2int(rgb_tuple):
     """
 
-    :param rgb_tuple: 
+    :param rgb_tuple: rgb 
 
     """
-    rgb = (int(rgb_tuple[0] * 255), int(rgb_tuple[1] * 255), int(rgb_tuple[2] * 255))
+    rgb = (
+        int(rgb_tuple[0] * 255),
+        int(rgb_tuple[1] * 255),
+        int(rgb_tuple[2] * 255),
+    )
     return 65536 * rgb[0] + 256 * rgb[1] + rgb[2]
 
 
@@ -449,18 +577,24 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
     .. tip:: Can also use directly a matplotlib color map:
         :Example:
             .. code-block:: python
-                from vtkplotter import colorMap
+                from vedo import colorMap
                 import matplotlib.cm as cm
                 print( colorMap(0.2, cm.flag, 0, 1) )
                 (1.0, 0.809016994374948, 0.6173258487801733)
 
     """
     if not _mapscales:
-        print("-------------------------------------------------------------------")
-        print("WARNING : cannot import matplotlib.cm (colormaps will show up gray).")
+        print(
+            "-------------------------------------------------------------------"
+        )
+        print(
+            "WARNING : cannot import matplotlib.cm (colormaps will show up gray)."
+        )
         print("Try e.g.: sudo apt-get install python3-matplotlib")
         print("     or : pip install matplotlib")
-        print("     or : build your own map (see example in basic/mesh_custom.py).")
+        print(
+            "     or : build your own map (see example in basic/mesh_custom.py)."
+        )
         return (0.5, 0.5, 0.5)
 
     if isinstance(name, matplotlib.colors.LinearSegmentedColormap):
@@ -495,20 +629,24 @@ def colorMap(value, name="jet", vmin=None, vmax=None):
 def makePalette(N, *colors):
     """Generate N colors starting from `color1` to `color2`
     by linear interpolation HSV in or RGB spaces.
-    Adapted from vtkplotter makePalette function
+    Adapted from vedo makePalette function
 
     :param int: N: number of output colors.
     :param colors: input colors, any number of colors with 0 < ncolors <= N is okay.
     """
     if not isinstance(N, (float, int)):
-        raise ValueError(f'The first argument N should be an integer, not {type(N)}.')
+        raise ValueError(
+            f"The first argument N should be an integer, not {type(N)}."
+        )
     N = int(N)
 
     N_input_colors = len(colors)
     if not N_input_colors:
-        raise ValueError('No colors where passed to makePalette')
-    if N_input_colors > N: 
-        raise ValueError('More input colors than out colors (N) where passed to makePalette')
+        raise ValueError("No colors where passed to makePalette")
+    if N_input_colors > N:
+        raise ValueError(
+            "More input colors than out colors (N) where passed to makePalette"
+        )
 
     if N_input_colors == 1:
         return [np.array(getColor(colors[0])) for n in np.arange(N)]
@@ -516,9 +654,12 @@ def makePalette(N, *colors):
         return colors
     else:
         # Get how many colors for each pair of colors we are interpolating over
-        fractions = [N // N_input_colors + (1 if x < N % N_input_colors else 0)  for x in range (N_input_colors)]
+        fractions = [
+            N // N_input_colors + (1 if x < N % N_input_colors else 0)
+            for x in range(N_input_colors)
+        ]
 
-        # Get pairs of colors 
+        # Get pairs of colors
         cs = [np.array(getColor(col)) for col in colors]
         cs += [cs[-1]]
 
@@ -529,13 +670,16 @@ def makePalette(N, *colors):
                 c = c1 * (1 - f) + c2 * f
                 cols.append(c)
             output.extend(cols)
-            
+
         if len(output) != N:
             if len(output) > N:
                 return output[:N]
             else:
-                raise ValueError(f'Expected number of output colors was {N} but we got {len(output)} instead')
+                raise ValueError(
+                    f"Expected number of output colors was {N} but we got {len(output)} instead"
+                )
         return output
+
 
 def get_random_colors(n_colors=1):
     """
@@ -543,8 +687,10 @@ def get_random_colors(n_colors=1):
     :param n_colors:  (Default value = 1)
 
     """
-    if not isinstance(n_colors, np.int): raise ValueError("n_colors should be an integer")
-    if n_colors <= 0: raise ValueError("n_colors should be bigger or equal to 0")
+    if not isinstance(n_colors, np.int):
+        raise ValueError("n_colors should be an integer")
+    if n_colors <= 0:
+        raise ValueError("n_colors should be bigger or equal to 0")
 
     if n_colors == 1:
         return random.choice(list(colors.keys()))
@@ -555,7 +701,7 @@ def get_random_colors(n_colors=1):
 def check_colors(color):
     """
 
-    :param color: 
+    :param color: color 
 
     """
     if isinstance(color, list):

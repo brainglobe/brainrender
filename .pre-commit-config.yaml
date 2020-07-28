@@ -1,0 +1,13 @@
+repos:
+-   repo: https://github.com/python/black
+    rev: 19.10b0
+    hooks:
+    - id: black
+      pass_filenames: true
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+    - id: flake8
+      pass_filenames: true
+      # this seems to need to be here in addition to setup.cfg
+      exclude: __init__.py

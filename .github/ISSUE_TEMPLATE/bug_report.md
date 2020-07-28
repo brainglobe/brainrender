@@ -11,7 +11,7 @@ assignees: FedeClaudi
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-First tell us which version of `brainrender` and `vtkplotter` you're using and something about your system (e.g. OS etc). 
+First tell us which version of `brainrender` and `vedo` you're using and something about your system (e.g. OS etc). 
 
 Then tell us the steps to reproduce the behavior:
 1. Go to '...'

@@ -1,0 +1,23 @@
+[report]
+omit = 
+    brainrender/ABA/volumetric/*
+    brainrender/atlases/custom_atlases/celegans.py
+    brainrender/atlases/custom_atlases/insects_brains_db.py
+
+
+exclude_lines =
+    pragma: no cover
+    def load_npy_from_gz
+    def save_npy_to_gz
+    def save_json
+    def getColor(rgb=None, hsv=None)
+    def hsv2rgb(hsv)
+    def rgb2hsv(rgb)
+    def rgb2int(rgb_tuple)
+    def colorMap
+    def check_colors(color)
+    continue
+    raise NotImplementedError
+    raise ValueError
+    raise FileNotFoundError
+    raise FileExistsError

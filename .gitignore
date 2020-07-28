@@ -1,4 +1,5 @@
 # Ignored file types
+brexport.html
 *.ckpt
 *.vscode
 *.json
@@ -18,6 +19,9 @@
 # *.png
 # *.mp4
 # *.jpg
+
+screenshots/*
+atlas_images/*
 
 # Output folder where screnshots etx. are saved
 Output/Data/*

@@ -8,24 +8,26 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 requirements = [
     "numpy",
     "pandas",
-    "vtkplotter>=2020.3.0",
-    "k3d",
+    "vedo>=2020.3.3",
+    "k3d==2.7.4",
     "msgpack",
-    "vtk",
+    "vtk<9.0.0",
     "allensdk",
-    "tqdm",
     "pyyaml>=5.3",
     "scikit-image",
-    "brainio>=0.0.9",
+    "brainio>=0.0.19",
     "sklearn",
-    "morphapi",
+    "morphapi>=0.1.1.3",
+    "requests",
+    "rich",
+    "bg-atlasapi>=0.0.7",
 ]
 
 setup(
     name="brainrender",
-    version="0.4.0.1",
+    version="1.0.0.4dev",
     description="Python scripts to use Allen Brain Map data for analysis "
-                "and rendering",
+    "and rendering",
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=requirements,
@@ -34,15 +36,21 @@ setup(
         "dev": [
             "pytest-cov",
             "pytest",
+            "pytest-sugar",
             "coveralls",
             "coverage<=4.5.4",
-        ]
+            "pre-commit",
+            "opencv-python",
+            "jupyter",
+        ],
     },
     python_requires=">=3.6, <3.8",
-    packages=find_namespace_packages(exclude=(
-        "Installation", "Meshes", "Metadata", "Screenshots")),
+    packages=find_namespace_packages(
+        exclude=("Installation", "Meshes", "Metadata", "Screenshots")
+    ),
     include_package_data=True,
     url="https://github.com/BrancoLab/brainrender",
     author="Federico Claudi",
     zip_safe=False,
+    entry_points={"console_scripts": ["brainrender = brainrender.cli:main"]},
 )
