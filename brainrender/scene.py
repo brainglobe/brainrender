@@ -278,7 +278,7 @@ class Scene(Render):
             for act in actors:
                 self.actors.extend(list(act.values()))
         else:
-            self.actors.append(actors)
+            self.actors.append(list(actors.values()))
         return actors
 
     def add_neurons_synapses(self, *args, **kwargs):
