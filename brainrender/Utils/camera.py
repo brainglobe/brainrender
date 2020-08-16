@@ -8,6 +8,15 @@ sagittal_camera = dict(
     clipping=[9826.898, 43920.235],
 )
 
+sagittal_camera2 = dict(
+    position=(10705.845660949382, 7435.678067378925, -36936.3695486442),
+    focal=(6779.790352916297, 3916.3916231239214, 5711.389387062087),
+    viewup=(-0.0050579179155257475, -0.9965615097647067, -0.08270172139591858),
+    distance=42972.44034956088,
+    clipping=(30461.81976236306, 58824.38622122339),
+)
+
+
 coronal_camera = dict(
     position=[-54546.708, 526.426, 6171.914],
     focal=[6587.835, 3849.085, 5688.164],
@@ -35,6 +44,7 @@ three_quarters_camera = dict(
 
 cameras = dict(
     sagittal=sagittal_camera,
+    sagittal2=sagittal_camera2,
     coronal=coronal_camera,
     top=top_camera,
     three_quarters=three_quarters_camera,
