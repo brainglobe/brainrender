@@ -24,7 +24,6 @@ def test_default():
     brainrender.WINDOW_POS
     brainrender.CAMERA
     brainrender.DEFAULT_SCREENSHOT_NAME
-    brainrender.DEFAULT_SCREENSHOT_TYPE
     brainrender.DEFAULT_SCREENSHOT_SCALE
     brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND
     brainrender.ROOT_COLOR

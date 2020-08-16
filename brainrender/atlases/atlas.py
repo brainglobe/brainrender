@@ -19,7 +19,9 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
 
     def __init__(self, atlas_name, *args, base_dir=None, **kwargs):
         # Create brainglobe atlas
-        BrainGlobeAtlas.__init__(self, *args, atlas_name=atlas_name, **kwargs)
+        BrainGlobeAtlas.__init__(
+            self, *args, atlas_name=atlas_name, print_authors=False, **kwargs
+        )
 
         # Add brainrender paths
         Paths.__init__(self, base_dir=base_dir, **kwargs)

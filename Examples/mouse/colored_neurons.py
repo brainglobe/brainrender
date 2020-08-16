@@ -32,7 +32,6 @@ neurons = mlapi.download_neurons(
 
 
 # ----------------------------- Rendering neurons ---------------------------- #
-
 # Create a custom colormap between 3 colors
 colors = makePalette(len(neurons), "salmon", "lightgreen")
 
