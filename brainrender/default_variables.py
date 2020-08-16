@@ -28,7 +28,6 @@ CAMERA = "three_quarters"  # Default camera settings (orientation etc. see brain
 # SCREENSHOTS AND EXPORT OPTIONS
 """ --------------------------------------------------------------------------------- """
 DEFAULT_SCREENSHOT_NAME = "screenshot"  # screenshots will have this name and the time at which they were taken
-DEFAULT_SCREENSHOT_TYPE = ".png"  # png, svg or jpg supported
 DEFAULT_SCREENSHOT_SCALE = 1  # values >1 yield higher resolution screenshots
 SCREENSHOT_TRANSPARENT_BACKGROUND = (
     True  # If true the screenshots are saved with a transparent background

@@ -41,7 +41,6 @@ class Render:
             :param screenshot_kwargs: pass a dictionary with keys:
                         - 'folder' -> str, path to folder where to save screenshots
                         - 'name' -> str, filename to prepend to screenshots files
-                        - 'format' -> str, 'png', 'svg' or 'jpg'
                         - scale -> float, values > 1 yield higher resultion screenshots
             :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
@@ -78,9 +77,6 @@ class Render:
         )
         self.screenshots_name = screenshot_kwargs.pop(
             "name", brainrender.DEFAULT_SCREENSHOT_NAME
-        )
-        self.screenshots_extension = screenshot_kwargs.pop(
-            "type", brainrender.DEFAULT_SCREENSHOT_TYPE
         )
         self.screenshots_scale = screenshot_kwargs.pop(
             "scale", brainrender.DEFAULT_SCREENSHOT_SCALE
@@ -228,10 +224,6 @@ class Render:
         savename = str(self.screenshots_folder / self.screenshots_name)
         savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
 
-        if "." not in self.screenshots_extension:
-            savename += f".{self.screenshots_extension}"
-        else:
-            savename += self.screenshots_extension
-
-        print(f"\nSaving screenshots at {savename}\n")
+        print(f"\nSaving screenshot at {savename}\n")
         screenshot(filename=savename, scale=self.screenshots_scale)
+        return savename
