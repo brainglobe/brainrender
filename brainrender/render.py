@@ -218,7 +218,9 @@ class Render:
         self.screenshots_folder.mkdir(exist_ok=True)
 
         savename = str(self.screenshots_folder / self.screenshots_name)
-        savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+        savename += (
+            f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}' + ".png"
+        )
 
         print(f"\nSaving screenshot at {savename}\n")
         self.plotter.screenshot(filename=savename)
