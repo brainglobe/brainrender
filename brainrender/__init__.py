@@ -5,6 +5,7 @@ import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
 import warnings
 
+
 __all__ = [
     "DEFAULT_ATLAS",
     "BACKGROUND_COLOR",
