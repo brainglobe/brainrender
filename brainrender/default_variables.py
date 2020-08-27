@@ -18,6 +18,7 @@ BACKGROUND_COLOR = (
 SHOW_AXES = (
     False  # If true a triad of orthogonal axes is used to show orientation
 )
+AXES_STYLE = 1  # style of vedo axes
 WINDOW_POS = (
     10,
     10,

@@ -60,7 +60,11 @@ def get_scene_plotter_settings(jupyter):
         sz = "auto"
 
     if brainrender.SHOW_AXES:
-        axes = 1
+        if brainrender.AXES_STYLE != 7:
+            axes = brainrender.AXES_STYLE
+        else:
+            # we need to make our custom axes in Render
+            axes = 0
     else:
         axes = 0
 

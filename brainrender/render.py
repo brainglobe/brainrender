@@ -1,5 +1,8 @@
 from vedo import settings as vedosettings
-from vedo import Plotter, show, closePlotter
+from vedo import Plotter, show, closePlotter  # , buildRulerAxes
+
+# from vedo.addons import computeVisibleBounds
+
 import datetime
 import warnings
 
@@ -69,6 +72,8 @@ class Render:
 
         # Create vedo plotter
         self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
+        if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
+            self.make_custom_axes()
 
         # SCreenshots and keypresses variables
         self.screenshots_folder = Path(
@@ -85,6 +90,14 @@ class Render:
         if not brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
             vedosettings.screenshotTransparentBackground = False
             vedosettings.useFXAA = True
+
+    def make_custom_axes(self):
+        """
+            When using `ruler` axes (vedy style 7), we need to 
+            customize them a little bit, this function takes care of it. 
+        """
+        # a = 1
+        return
 
     def apply_render_style(self):
         if brainrender.SHADER_STYLE is None:  # No style to apply
