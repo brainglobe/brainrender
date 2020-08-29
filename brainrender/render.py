@@ -1,11 +1,9 @@
 from vedo import settings as vedosettings
-from vedo import Plotter, show, closePlotter  # , buildRulerAxes
-
-# from vedo.addons import computeVisibleBounds
+from vedo import Plotter, show, closePlotter, buildRulerAxes
 
 import datetime
 import warnings
-
+import numpy as np
 from pathlib import Path
 import brainrender
 from brainrender.Utils.scene_utils import (
@@ -73,7 +71,9 @@ class Render:
         # Create vedo plotter
         self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
         if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
-            self.make_custom_axes()
+            self.make_custom_axes = True  # to be made at render
+        else:
+            self.make_custom_axes = False
 
         # SCreenshots and keypresses variables
         self.screenshots_folder = Path(
@@ -91,12 +91,37 @@ class Render:
             vedosettings.screenshotTransparentBackground = False
             vedosettings.useFXAA = True
 
-    def make_custom_axes(self):
+    def _make_custom_axes(self):
         """
             When using `ruler` axes (vedy style 7), we need to 
             customize them a little bit, this function takes care of it. 
         """
-        # a = 1
+        # Get plotter and axes color
+        plt = self.plotter
+        c = (0.9, 0.9, 0.9)
+        if np.sum(plt.renderer.GetBackground()) > 1.5:
+            c = (0.1, 0.1, 0.1)
+
+        bounds = [
+            item for sublist in self.atlas._root_bounds for item in sublist
+        ]
+        rulax = buildRulerAxes(
+            bounds,
+            c=c,
+            units="μm",
+            xtitle="AP - ",
+            ytitle="DV - ",
+            ztitle="ML - ",
+            precision=1,
+            labelRotation=0,
+            axisRotation=90,
+            xycross=False,
+        )
+        rulax.UseBoundsOff()
+        rulax.PickableOff()
+        plt.renderer.AddActor(rulax)
+        plt.axes_instances[0] = rulax
+
         return
 
     def apply_render_style(self):
@@ -148,7 +173,7 @@ class Render:
             self._get_inset()
 
         if zoom is None and not video:
-            zoom = 1.85 if brainrender.WHOLE_SCREEN else 1.5
+            zoom = 1.2 if brainrender.WHOLE_SCREEN else 1.5
 
         # Make mesh labels follow the camera
         if not self.jupyter:
@@ -166,6 +191,11 @@ class Render:
 
         if video:
             args_dict["offscreen"] = True
+
+        if self.make_custom_axes:
+            self._make_custom_axes()
+            self.make_custom_axes = False
+
         show(*self.actors, *self.actors_labels, **args_dict)
 
     def close(self):
