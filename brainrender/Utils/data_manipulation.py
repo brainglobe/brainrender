@@ -3,6 +3,13 @@
 # ---------------------------------------------------------------------------- #
 
 
+def flatten(lst):
+    """
+        Flattens a nested list
+    """
+    return [item for sublist in lst for item in sublist]
+
+
 def return_list_smart(lst):
     """
         If the list has length > returns the list

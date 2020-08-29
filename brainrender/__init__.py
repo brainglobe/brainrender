@@ -104,10 +104,6 @@ for par in __all__:
 save_yaml(str(params_file), params, append=False, topcomment=comment)
 
 # ------------------------- Other vedo settings ------------------------ #
-settings.screeshotScale = params[
-    "DEFAULT_SCREENSHOT_SCALE"
-]  # Improves resolution of saved screenshots
-
 if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
     settings.screenshotTransparentBackground = True  # vedo for transparent bg
     settings.useFXAA = False  # This needs to be false for transparent bg

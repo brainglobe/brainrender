@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from brainrender.scene import Scene
 
-from brainrender.Utils.camera import get_camera_params
+from brainrender.Utils.camera import get_camera_params, set_camera
 from brainrender.Utils.data_io import listdir, get_subdirs
 from brainrender.Utils.data_manipulation import get_slice_coord
 from brainrender.colors import (
@@ -28,6 +28,15 @@ def test_get_camera_params(scene):
 
     if not isinstance(get_camera_params(camera=scene.plotter.camera), dict):
         raise ValueError
+
+    camera_dict = get_camera_params(scene)
+
+    try:
+        set_camera(scene, camera_dict)
+    except ValueError as e:
+        raise ValueError(
+            f"Failed to produce a camera params dict that can be used to set camera:\n {e}"
+        )
 
 
 def test_io():

@@ -8,7 +8,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 requirements = [
     "numpy",
     "pandas",
-    "vedo>=2020.3.3",
+    "vedo>=2020.4.0",
     "k3d==2.7.4",
     "msgpack",
     "vtk<9.0.0",

@@ -10,6 +10,7 @@ from brainrender.Utils import actors_funcs
 from brainrender.Utils.data_manipulation import (
     return_list_smart,
     return_dict_smart,
+    flatten,
 )
 from brainrender.colors import check_colors
 
@@ -137,7 +138,7 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
 
     def get_brain_regions(
         self,
-        brain_regions,
+        *brain_regions,
         add_labels=False,
         colors=None,
         use_original_color=True,
@@ -165,9 +166,9 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
         if alpha is None:
             alpha = brainrender.DEFAULT_STRUCTURE_ALPHA
 
-        # check that we have a list
-        if not isinstance(brain_regions, list):
-            brain_regions = [brain_regions]
+        # Flatten brain regions argument
+        if isinstance(brain_regions[0], list):
+            brain_regions = flatten(brain_regions)
 
         # check the colors input is correct
         if colors is not None:
