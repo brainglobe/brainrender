@@ -71,7 +71,7 @@ class Render:
         # Create vedo plotter
         self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
         if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
-            self.make_custom_axes = True # to be made at render
+            self.make_custom_axes = True  # to be made at render
         else:
             self.make_custom_axes = False
 
@@ -102,17 +102,21 @@ class Render:
         if np.sum(plt.renderer.GetBackground()) > 1.5:
             c = (0.1, 0.1, 0.1)
 
-        bounds = [item for sublist in self.atlas._root_bounds for item in sublist]
-        rulax = buildRulerAxes(bounds, 
-                                c=c,
-                                units='μm',
-                               xtitle='AP - ',
-                               ytitle='DV - ',
-                               ztitle='ML - ',
-                               precision=1, 
-                               labelRotation=0,
-                               axisRotation=90,
-                               xycross=False)
+        bounds = [
+            item for sublist in self.atlas._root_bounds for item in sublist
+        ]
+        rulax = buildRulerAxes(
+            bounds,
+            c=c,
+            units="μm",
+            xtitle="AP - ",
+            ytitle="DV - ",
+            ztitle="ML - ",
+            precision=1,
+            labelRotation=0,
+            axisRotation=90,
+            xycross=False,
+        )
         rulax.UseBoundsOff()
         rulax.PickableOff()
         plt.renderer.AddActor(rulax)
@@ -187,7 +191,7 @@ class Render:
 
         if video:
             args_dict["offscreen"] = True
-        
+
         if self.make_custom_axes:
             self._make_custom_axes()
             self.make_custom_axes = False

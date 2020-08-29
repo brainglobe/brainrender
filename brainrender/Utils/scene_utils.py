@@ -63,16 +63,14 @@ def get_scene_plotter_settings(jupyter):
         if brainrender.AXES_STYLE == 1:
             # make custom axes dict
             axes = dict(
-                axesLineWidth=3, 
-                tipSize=0.01, 
-                xtitle = 'AP (μm)',
-                ytitle = 'DV (μm)',
-                ztitle = 'ML (μm)',
-                textScale=.8, 
-
-                xTitleRotation = 0,
+                axesLineWidth=3,
+                tipSize=0.01,
+                xtitle="AP (μm)",
+                ytitle="DV (μm)",
+                ztitle="ML (μm)",
+                textScale=0.8,
+                xTitleRotation=0,
                 xFlipText=True,
-      
             )
         elif brainrender.AXES_STYLE != 7:
             axes = brainrender.AXES_STYLE
