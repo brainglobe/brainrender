@@ -13,6 +13,12 @@ from brainrender.colors import (
 )
 
 
+def get_brain_surface_point(p0, root_mesh, axis=1):
+    """
+        Given a point 
+    """
+
+
 def parse_neurons_colors(neurons, color):
     """
         Prepares the color info to render neurons

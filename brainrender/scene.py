@@ -8,6 +8,7 @@ from vedo import (
     closePlotter,
     Plane,
     Mesh,
+    Ruler,
 )
 from vedo.shapes import Cylinder, Line
 from brainrender.Utils.scene_utils import (
@@ -599,6 +600,37 @@ class Scene(Render):
             actors.append(plane)
         self.add_actor(*actors)
         return return_list_smart(actors)
+
+    def add_ruler_from_surface(self, p0, axis=1):
+        """
+            Given a point, this function adds a ruler object showing
+            the distance of that point from the brain surface along a
+            given axis.
+
+            :param p0: np.array with point coordinates
+            :param axis: int, index of the axis along
+                    which to measure distance
+        """
+        # Get point on brain surface
+        p1 = p0.copy()
+        p1[axis] = 0  # zero the choosen coordinate
+
+        pts = self.root.intersectWithLine(p0, p1)
+        surface_point = pts[0]
+
+        # create ruler
+        return self.add_actor(
+            Ruler(
+                surface_point,
+                p0,
+                unitScale=0.01,
+                units="mm",
+                precision=4,
+                s=200,
+                axisRotation=0,
+                tickAngle=70,
+            )
+        )
 
     # ----------------------- Application specific methods ----------------------- #
 

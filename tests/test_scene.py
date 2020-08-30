@@ -336,3 +336,8 @@ def test_screenshot(scene):
 def test_add_actor(scene):
     act = scene.add_brain_regions("MOs")
     scene.add_actor(act)
+
+
+def test_add_ruler_from_surface(scene):
+    p0 = scene.atlas.get_region_CenterOfMass("TH")
+    scene.add_ruler_from_surface(p0)
