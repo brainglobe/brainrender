@@ -1,5 +1,7 @@
-from vedo import Mesh, Plane
+from vedo import Mesh, Plane, merge
+from morphapi.morphology.morphology import Neuron
 import numpy as np
+import os
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
 
 import brainrender
@@ -13,6 +15,8 @@ from brainrender.Utils.data_manipulation import (
     flatten,
 )
 from brainrender.colors import check_colors
+from brainrender.Utils.atlases_utils import parse_neurons_colors
+from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 
 
 class Atlas(BrainGlobeAtlas, Paths, ABA):
@@ -244,6 +248,136 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
                 )
 
         return actors
+
+    def get_neurons(
+        self,
+        neurons,
+        color=None,
+        display_axon=True,
+        display_dendrites=True,
+        alpha=1,
+        neurite_radius=None,
+        soma_radius=None,
+        use_cache=True,
+    ):
+        """
+        Gets rendered morphological data of neurons reconstructions
+        Accepts neurons argument as:
+            - file(s) with morphological data
+            - vedo mesh actor(s) of entire neurons reconstructions
+            - dictionary or list of dictionary with actors for different neuron parts
+
+        :param neurons: str, list, dict. File(s) with neurons data or list of rendered neurons.
+        :param display_axon, display_dendrites: if set to False the corresponding neurite is not rendered
+        :param color: default None. Can be:
+                - None: each neuron is given a random color
+                - color: rbg, hex etc. If a single color is passed all neurons will have that color
+                - cmap: str with name of a colormap: neurons are colored based on their sequential order and cmap
+                - dict: a dictionary specifying a color for soma, dendrites and axon actors, will be the same for all neurons
+                - list: a list of length = number of neurons with either a single color for each neuron
+                        or a dictionary of colors for each neuron
+        :param alpha: float in range 0,1. Neurons transparency
+        :param neurite_radius: float > 0 , radius of tube actor representing neurites
+        :param use_cache: bool, if True a cache is used to avoid having to crate a neuron's mesh anew, otherwise a new mesh is created
+        """
+
+        if not isinstance(neurons, (list, tuple)):
+            neurons = [neurons]
+
+        # ---------------------------------- Render ---------------------------------- #
+        _neurons_actors = []
+        for neuron in neurons:
+            neuron_actors = {"soma": None, "dendrites": None, "axon": None}
+
+            # Deal with neuron as filepath
+            if isinstance(neuron, str):
+                if os.path.isfile(neuron):
+                    if neuron.endswith(".swc"):
+                        neuron_actors, _ = get_neuron_actors_with_morphapi(
+                            swcfile=neuron,
+                            neurite_radius=neurite_radius,
+                            soma_radius=soma_radius,
+                            use_cache=use_cache,
+                        )
+                    else:
+                        raise NotImplementedError(
+                            "Currently we can only parse morphological reconstructions from swc files"
+                        )
+                else:
+                    raise ValueError(
+                        f"Passed neruon {neuron} is not a valid input. Maybe the file doesn't exist?"
+                    )
+
+            # Deal with neuron as single actor
+            elif isinstance(neuron, Mesh):
+                # A single actor was passed, maybe it's the entire neuron
+                neuron_actors["soma"] = neuron  # store it as soma
+                pass
+
+            # Deal with neuron as dictionary of actor
+            elif isinstance(neuron, dict):
+                neuron_actors["soma"] = neuron.pop("soma", None)
+                neuron_actors["axon"] = neuron.pop("axon", None)
+
+                # Get dendrites actors
+                if (
+                    "apical_dendrites" in neuron.keys()
+                    or "basal_dendrites" in neuron.keys()
+                ):
+                    if "apical_dendrites" not in neuron.keys():
+                        neuron_actors["dendrites"] = neuron["basal_dendrites"]
+                    elif "basal_dendrites" not in neuron.keys():
+                        neuron_actors["dendrites"] = neuron["apical_dendrites"]
+                    else:
+                        neuron_actors["dendrites"] = merge(
+                            neuron["apical_dendrites"],
+                            neuron["basal_dendrites"],
+                        )
+                else:
+                    neuron_actors["dendrites"] = neuron.pop("dendrites", None)
+
+            # Deal with neuron as instance of Neuron from morphapi
+            elif isinstance(neuron, Neuron):
+                neuron_actors, _ = get_neuron_actors_with_morphapi(
+                    neuron=neuron,
+                    neurite_radius=neurite_radius,
+                    use_cache=use_cache,
+                )
+            # Deal with other inputs
+            else:
+                raise ValueError(
+                    f"Passed neuron {neuron} is not a valid input"
+                )
+
+            # Check that we don't have anything weird in neuron_actors
+            for key, act in neuron_actors.items():
+                if act is not None:
+                    if not isinstance(act, Mesh):
+                        raise ValueError(
+                            f"Neuron actor {key} is {type(act)} but should be a vedo Mesh. Not: {act}"
+                        )
+
+            if not display_axon:
+                neuron_actors["axon"] = None
+            if not display_dendrites:
+                neuron_actors["dendrites"] = None
+            _neurons_actors.append(neuron_actors)
+
+        # Color actors
+        colors = parse_neurons_colors(neurons, color)
+        for n, neuron in enumerate(_neurons_actors):
+            if neuron["axon"] is not None:
+                neuron["axon"].c(colors["axon"][n])
+                neuron["axon"].name = "neuron-axon"
+            if neuron["soma"] is not None:
+                neuron["soma"].c(colors["soma"][n])
+                neuron["soma"].name = "neuron-soma"
+            if neuron["dendrites"] is not None:
+                neuron["dendrites"].c(colors["dendrites"][n])
+                neuron["dendrites"].name = "neuron-dendrites"
+
+        # Return
+        return return_list_smart(_neurons_actors), None
 
     # ---------------------------------------------------------------------------- #
     #                                     UTILS                                    #
