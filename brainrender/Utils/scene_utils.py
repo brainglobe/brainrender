@@ -53,8 +53,9 @@ def get_scene_plotter_settings(jupyter, atlas):
     atlas_shape = np.array(atlas.metadata["shape"]) * np.array(
         atlas.metadata["resolution"]
     )
+
     z_ticks = [
-        (-v, str(np.abs(v)))
+        (-v, str(np.abs(v).astype(np.int32)))
         for v in np.arange(
             0,
             atlas_shape[ax_idx],
@@ -84,7 +85,7 @@ def get_scene_plotter_settings(jupyter, atlas):
                 textScale=0.8,
                 xTitleRotation=0,
                 xFlipText=True,
-                # zrange = np.array([-atlas_shape[2], 0]),
+                zrange=np.array([-atlas_shape[2], 0]),
                 zValuesAndLabels=z_ticks,
             )
         elif brainrender.AXES_STYLE != 7:
