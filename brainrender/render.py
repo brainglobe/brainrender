@@ -22,8 +22,14 @@ from brainrender.Utils.camera import (
     of all actors added a scene. 
 """
 
+mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+
 
 class Render:
+    _axes_order_corrected = (
+        False  # at first render the axes orders is corrected
+    )
+
     def __init__(
         self,
         verbose,
@@ -69,7 +75,11 @@ class Render:
         self.camera = get_scene_camera(camera, self.atlas)
 
         # Create vedo plotter
-        self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
+
+        self.plotter = Plotter(
+            **get_scene_plotter_settings(self.jupyter, self.atlas)
+        )
+
         if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
             self.make_custom_axes = True  # to be made at render
         else:
@@ -96,6 +106,10 @@ class Render:
             When using `ruler` axes (vedy style 7), we need to 
             customize them a little bit, this function takes care of it. 
         """
+        raise NotImplementedError(
+            "Currently ony AXES_STYLE=1 is supported, sorry"
+        )
+
         # Get plotter and axes color
         plt = self.plotter
         c = (0.9, 0.9, 0.9)
@@ -111,7 +125,7 @@ class Render:
             units="μm",
             xtitle="AP - ",
             ytitle="DV - ",
-            ztitle="ML - ",
+            ztitle="LR - ",
             precision=1,
             labelRotation=0,
             axisRotation=90,
@@ -123,6 +137,25 @@ class Render:
         plt.axes_instances[0] = rulax
 
         return
+
+    def _correct_axes(self):
+        """
+            When the scene is first rendered, a transform matrix
+            is applied to each actor's points to correct orientation
+            mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+        """
+        self._axes_order_corrected = True
+
+        # adjust transform matrix to match root bounds
+        # atlas_shape = np.array(self.atlas.metadata['shape']) * np.array(self.atlas.metadata['resolution'])
+        # mtx[2, -1] = atlas_shape[2]
+
+        # Flip every actor's orientation
+        for actor in self.actors:
+            try:
+                actor.applyTransform(mtx).reverse()
+            except AttributeError:
+                pass  # it's just for stuff like 2d text etc
 
     def apply_render_style(self):
         if brainrender.SHADER_STYLE is None:  # No style to apply
@@ -195,6 +228,10 @@ class Render:
         if self.make_custom_axes:
             self._make_custom_axes()
             self.make_custom_axes = False
+
+        # Correct axes orientations
+        if not self._axes_order_corrected:
+            self._correct_axes()
 
         show(*self.actors, *self.actors_labels, **args_dict)
 

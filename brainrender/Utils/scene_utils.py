@@ -44,10 +44,22 @@ def get_scene_camera(camera, atlas):
         return check_camera_param(camera)
 
 
-def get_scene_plotter_settings(jupyter):
+def get_scene_plotter_settings(jupyter, atlas):
     """
         Gets settings for vedo Plotter
+
     """
+    atlas_shape = np.array(atlas.metadata["shape"]) * np.array(
+        atlas.metadata["resolution"]
+    )
+    z_ticks = [
+        (-v, str(np.abs(v)))
+        for v in np.arange(
+            0,
+            atlas_shape[2],
+            atlas_shape[2] / atlas.metadata["resolution"][2] * 5,
+        )
+    ]
 
     if brainrender.WHOLE_SCREEN and not jupyter:
         sz = "full"
@@ -64,15 +76,20 @@ def get_scene_plotter_settings(jupyter):
             # make custom axes dict
             axes = dict(
                 axesLineWidth=3,
-                tipSize=0.01,
+                tipSize=0,
                 xtitle="AP (μm)",
                 ytitle="DV (μm)",
-                ztitle="ML (μm)",
+                ztitle="LR (μm)",
                 textScale=0.8,
                 xTitleRotation=0,
                 xFlipText=True,
+                # zrange = np.array([-atlas_shape[2], 0]),
+                zValuesAndLabels=z_ticks,
             )
         elif brainrender.AXES_STYLE != 7:
+            raise NotImplementedError(
+                "Currently only AXES_STYLE=1 is supported, sorry"
+            )
             axes = brainrender.AXES_STYLE
         else:
             # we need to make our custom axes in Render
