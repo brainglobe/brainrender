@@ -95,9 +95,13 @@ class ImageDownload(SvgApi, ImageDownloadApi):
             raise ValueError(
                 "Available atlases: {}".format(self.atlases_names)
             )
-        return self.atlases.loc[self.atlases["name"] == atlas_name].id.values[
-            0
-        ]
+        return int(
+            self.atlases.loc[self.atlases["name"] == atlas_name].id.values[0]
+        )
+
+    def get_atlas_dataset_id_by_name(self, atlas_name):
+        atlas = self.get_atlas_by_name(atlas_name)
+        return self.get_atlasimages_by_atlasid(atlas)["data_set_id"].values[0]
 
     def get_products_by_species(self, species):
         """

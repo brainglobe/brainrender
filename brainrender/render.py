@@ -146,10 +146,6 @@ class Render:
         """
         self._axes_order_corrected = True
 
-        # adjust transform matrix to match root bounds
-        # atlas_shape = np.array(self.atlas.metadata['shape']) * np.array(self.atlas.metadata['resolution'])
-        # mtx[2, -1] = atlas_shape[2]
-
         # Flip every actor's orientation
         for actor in self.actors:
             try:
