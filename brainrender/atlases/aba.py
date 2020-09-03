@@ -1,14 +1,8 @@
-import os
 import numpy as np
 import pandas as pd
 from rich.progress import track
 from vedo import shapes
-from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
-from allensdk.api.queries.ontologies_api import OntologiesApi
-from allensdk.api.queries.reference_space_api import ReferenceSpaceApi
 from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
-from allensdk.api.queries.tree_search_api import TreeSearchApi
-from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
 import brainrender
 from brainrender.ABA.aba_utils import (
@@ -30,7 +24,6 @@ class ABA:
     """
 
     atlas_name = "ABA"
-    resolution = 25
 
     excluded_regions = ["fiber tracts"]
 
@@ -38,33 +31,8 @@ class ABA:
     base_url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_NNN.json.gz"
 
     def __init__(self):
-        # get mouse connectivity cache and structure tree
-        self.mcc = MouseConnectivityCache(
-            manifest_file=os.path.join(
-                self.mouse_connectivity_cache, "manifest.json"
-            )
-        )
-        self.structure_tree = self.mcc.get_structure_tree()
-
-        # get ontologies API and brain structures sets
-        self.oapi = OntologiesApi()
-
-        # get reference space
-        self.space = ReferenceSpaceApi()
-        self.spacecache = ReferenceSpaceCache(
-            manifest=os.path.join(
-                self.annotated_volume_fld, "manifest.json"
-            ),  # downloaded files are stored relative to here
-            resolution=int(self.resolution[0]),
-            reference_space_key="annotation/ccf_2017",  # use the latest version of the CCF
-        )
-        self.annotated_volume, _ = self.spacecache.get_annotation_volume()
-
         # mouse connectivity API [used for tractography]
         self.mca = MouseConnectivityApi()
-
-        # Get tree search api
-        self.tree_search = TreeSearchApi()
 
     # ------------------------- Scene population methods ------------------------- #
 

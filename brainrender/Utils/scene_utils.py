@@ -49,6 +49,7 @@ def get_scene_plotter_settings(jupyter, atlas):
         Gets settings for vedo Plotter
 
     """
+    ax_idx = atlas.space.axes_order.index("frontal")
     atlas_shape = np.array(atlas.metadata["shape"]) * np.array(
         atlas.metadata["resolution"]
     )
@@ -56,8 +57,8 @@ def get_scene_plotter_settings(jupyter, atlas):
         (-v, str(np.abs(v)))
         for v in np.arange(
             0,
-            atlas_shape[2],
-            atlas_shape[2] / atlas.metadata["resolution"][2] * 5,
+            atlas_shape[ax_idx],
+            atlas_shape[ax_idx] / atlas.metadata["resolution"][ax_idx] * 5,
         )
     ]
 

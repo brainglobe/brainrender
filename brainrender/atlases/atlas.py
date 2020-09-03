@@ -75,7 +75,12 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
 
         # Get normal if one is not given
         if norm is None:
-            norm = self._space.plane_normals[plane]
+            try:
+                norm = self.space.plane_normals[plane]
+            except KeyError:
+                raise ValueError(
+                    f"Could not find normals for plane {plane}. Atlas space {self.space} provides these normals: {self.spacel.plane_normals}"
+                )
 
         # Get plane width and height
         idx_pair = (
