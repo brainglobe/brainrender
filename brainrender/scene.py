@@ -225,16 +225,23 @@ class Scene(Render):
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
+
         if self.root is not None:
             self.root.name = "root"
             self.atlas._root_midpoint = get_actor_midpoint(self.root)
             self.atlas._root_bounds = get_actor_bounds(self.root)
+
         else:
             print("Could not find a root mesh")
             return None
 
         if render:
             self.actors.append(self.root)
+        elif brainrender.SHOW_AXES:
+            # if showing axes, add a transparent root
+            # so that scene has right scale
+            root = self.root.clone().alpha(0)
+            self.actors.append(root)
 
         return self.root
 
