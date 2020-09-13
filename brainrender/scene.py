@@ -110,6 +110,33 @@ class Scene(Render):
         self.inset = None  # the first time the scene is rendered create and store the inset here
         self.is_rendered = False  # keep track if scene has been rendered
 
+    def __str__(self):
+        return f"A `brainrender.scene.Scene` with {len(self)} actors."
+
+    def __repr__(self):
+        return f"A `brainrender.scene.Scene` with {len(self)} actors."
+
+    def __add__(self, other):
+        if isinstance(other, Mesh):
+            self.add_actor(other)
+        elif isinstance(other, (Path, str)):
+            self.add_from_file(str(other))
+        else:
+            raise ValueError(f"Can't add object {other} to scene")
+
+    def __iadd__(self, other):
+        self.__add__(other)
+        return self
+
+    def __len__(self):
+        return len(self.actors)
+
+    def __getitem__(self, index):
+        return self.actors[index]
+
+    def __del__(self):
+        self.close()
+
     # ---------------------------------------------------------------------------- #
     #                                     Utils                                    #
     # ---------------------------------------------------------------------------- #
@@ -502,7 +529,7 @@ class Scene(Render):
         return cylinder
 
     def add_text(
-        self, text, pos=8, size=1.75, color="k", alpha=1, font="Montserrat"
+        self, text, pos=8, size=2.5, color="k", alpha=1, font="Montserrat"
     ):
         """
             Adds a 2D text to the scene. Default params are to crate a large black

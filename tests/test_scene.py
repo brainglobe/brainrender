@@ -53,7 +53,19 @@ def test_default():
 
 
 def test_scene_creation():
-    Scene()
+    s = Scene()
+    print(s)
+    s
+
+
+def test_scene_addition():
+    scene = Scene()
+
+    scene + "Examples/example_files/root.obj"
+
+    scene + scene.root
+
+    scene += scene.root
 
 
 def test_scene_creation_ignore_inset():
