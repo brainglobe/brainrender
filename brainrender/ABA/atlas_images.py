@@ -12,12 +12,20 @@ from os import chdir
 import pandas as pd
 from rich.progress import track
 
-from allensdk.api.queries.svg_api import SvgApi
-from allensdk.api.queries.image_download_api import ImageDownloadApi
-from allensdk.api.queries.annotated_section_data_sets_api import (
-    AnnotatedSectionDataSetsApi,
-)
-from allensdk.api.queries.ontologies_api import OntologiesApi
+try:
+    from allensdk.api.queries.svg_api import SvgApi
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "You need to install allensdk for this to work: `pip install allensdk`"
+    )
+else:
+    from allensdk.api.queries.image_download_api import ImageDownloadApi
+    from allensdk.api.queries.annotated_section_data_sets_api import (
+        AnnotatedSectionDataSetsApi,
+    )
+    from allensdk.api.queries.ontologies_api import OntologiesApi
+
+    allensdk_installed = True
 
 from brainrender.Utils.webqueries import send_query
 from brainrender.Utils.decorators import fail_on_no_connection

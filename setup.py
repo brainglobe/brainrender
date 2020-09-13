@@ -11,16 +11,13 @@ requirements = [
     "vedo>=2020.4.0",
     "k3d==2.7.4",
     "msgpack",
-    "vtk<9.0.0",
-    "allensdk",
     "pyyaml>=5.3",
-    "scikit-image",
     "brainio>=0.0.19",
-    "sklearn",
-    "morphapi>=0.1.1.3",
+    "morphapi>=0.1.1.8",
     "requests",
     "rich",
     "bg-atlasapi>=0.0.7",
+    "tables",
 ]
 
 setup(
@@ -42,9 +39,10 @@ setup(
             "pre-commit",
             "opencv-python",
             "jupyter",
+            "allensdk",
         ],
     },
-    python_requires=">=3.6, <3.8",
+    python_requires=">=3.6",
     packages=find_namespace_packages(
         exclude=("Installation", "Meshes", "Metadata", "Screenshots")
     ),

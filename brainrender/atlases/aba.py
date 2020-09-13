@@ -2,7 +2,15 @@ import numpy as np
 import pandas as pd
 from rich.progress import track
 from vedo import shapes
-from allensdk.api.queries.mouse_connectivity_api import MouseConnectivityApi
+
+try:
+    from allensdk.api.queries.mouse_connectivity_api import (
+        MouseConnectivityApi,
+    )
+
+    allen_sdk_installed = True
+except ModuleNotFoundError:
+    allen_sdk_installed = False
 
 import brainrender
 from brainrender.ABA.aba_utils import (
@@ -32,7 +40,10 @@ class ABA:
 
     def __init__(self):
         # mouse connectivity API [used for tractography]
-        self.mca = MouseConnectivityApi()
+        if allen_sdk_installed:
+            self.mca = MouseConnectivityApi()
+        else:
+            self.mca = None
 
     # ------------------------- Scene population methods ------------------------- #
 
@@ -231,6 +242,11 @@ class ABA:
         :param **kwargs: 
         """
 
+        if self.mca is None:
+            raise ModuleNotFoundError(
+                'You need allen sdk to use this functino: "pip install allensdk"'
+            )
+
         # check args
         if p0 is None:
             raise ValueError("Please pass coordinates")
@@ -263,6 +279,11 @@ class ABA:
             :param **kwargs: arguments for ABA.experiments_source_search
 
         """
+        if self.mca is None:
+            raise ModuleNotFoundError(
+                'You need allen sdk to use this functino: "pip install allensdk"'
+            )
+
         # Get experiments whose injections were targeted to the region
         region_experiments = experiments_source_search(
             self.mca, region, *args, **kwargs
