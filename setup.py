@@ -18,6 +18,7 @@ requirements = [
     "rich",
     "bg-atlasapi>=0.0.7",
     "tables",
+    "accepts",
 ]
 
 setup(
