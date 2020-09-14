@@ -1,10 +1,13 @@
 import numpy as np
+from vedo import Mesh
+from accepts import accepts
 
 """ 
     Collection of functions to edit actors looks and other features.
 """
 
 
+@accepts(Mesh)
 def get_actor_bounds(actor):
     """
         Gets the AP-DV-ML bounds of an actor
@@ -17,6 +20,7 @@ def get_actor_bounds(actor):
     ]
 
 
+@accepts(Mesh)
 def get_actor_midpoint(actor):
     """ 
         Get's the coordinates of the midpoint of an
@@ -26,6 +30,7 @@ def get_actor_midpoint(actor):
 
 
 # TODO mirror around point would mean
+@accepts(Mesh, (list, np.ndarray, float), str)
 def mirror_actor_at_point(actor, point, axis="x"):
     """
     Mirror an actor around a point
@@ -80,6 +85,7 @@ def mirror_actor_at_point(actor, point, axis="x"):
         return mirrored_actor
 
 
+@accepts(Mesh, (int, float), (type(None), str))
 def set_line(actor, lw=None, c=None):
     """
     set an actor's look to specify the line width and color

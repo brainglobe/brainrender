@@ -1,6 +1,5 @@
 from vedo import settings as vedosettings
 from vedo import Plotter, show, closePlotter, buildRulerAxes
-
 import datetime
 import warnings
 import numpy as np

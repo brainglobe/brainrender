@@ -1,4 +1,5 @@
 import vtk
+from accepts import accepts
 
 sagittal_camera = dict(
     position=[5532.562, 8057.256, 66760.941],
@@ -51,6 +52,7 @@ cameras = dict(
 )
 
 
+@accepts((str, dict, list))
 def check_camera_param(camera):
     if isinstance(camera, str):
         if camera not in cameras.keys():

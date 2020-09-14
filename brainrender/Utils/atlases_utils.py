@@ -1,5 +1,5 @@
 import numpy as np
-
+from accepts import accepts
 from brainrender.colors import (
     getColor,
     colorMap,
@@ -8,6 +8,7 @@ from brainrender.colors import (
 )
 
 
+@accepts((str, list, dict), (type(None), str, list, np.ndarray, dict, tuple))
 def parse_neurons_colors(neurons, color):
     """
         Prepares the color info to render neurons
