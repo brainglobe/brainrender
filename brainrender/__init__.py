@@ -6,7 +6,7 @@ from brainrender.Utils.data_io import save_yaml, load_yaml
 import warnings
 
 import pyinspect
-
+pyinspect.install_traceback()
 
 __all__ = [
     "DEFAULT_ATLAS",
