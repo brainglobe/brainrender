@@ -34,7 +34,7 @@ While brainrender doesn't come with a GUI, one is being developed by BrainGlobe.
 # Usage
 `brainrender` relies on brainglobe's [brainatlas-api](https://github.com/brainglobe/brainatlas-api) to fetch structural and morphological data for various brain atlases, including two mice atlases, one zebrafish atlas and one atlas of the human brain. Much of what brainrender can do works across all of these atlases. 
 
-Basic functionality supported by `brainrender` inclused the display of anatomical brain regions, the position of labelled cells (e.g. as obtained with tools like [cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder)) and whole-cell neuronal morphological reconstructions. Click on the images below to see aexamples  of how to use brainrender:
+Basic functionality supported by `brainrender` includes the display of anatomical brain regions, the position of labelled cells (e.g. as obtained with tools like [cellfinder](https://github.com/SainsburyWellcomeCentre/cellfinder)) and whole-cell neuronal morphological reconstructions. Click on the images below to see aexamples  of how to use brainrender:
 
 
 
