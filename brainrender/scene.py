@@ -334,13 +334,21 @@ class Scene(Render):
 
         if isinstance(actors, list):
             for act in actors:
-                act.name = "neuron"
-                act._br_class = "neuron"
+                if isinstance(act, dict):
+                    for _act in act.values():
+                        if _act is not None:
+                            _act.name = "neuron"
+                            _act._br_class = "neuron"
+                else:
+                    act.name = "neuron"
+                    act._br_class = "neuron"
                 self.actors.extend(list(act.values()))
         else:
-            actors.name = "neuron"
-            actors._br_class = "neuron"
-            self.actors.append(list(actors.values()))
+
+            for act in list(actors.values()):
+                act.name = "neuron"
+                act._br_class = "neuron"
+            self.actors.extend(list(actors.values()))
         return actors
 
     def add_neurons_synapses(self, *args, **kwargs):
