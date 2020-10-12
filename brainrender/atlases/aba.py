@@ -225,6 +225,7 @@ class ABA:
                     streamlines = parse_streamline(
                         color=col, data=slf, *args, **kwargs
                     )
+
                 actors.extend(streamlines)
         else:
             raise ValueError(
