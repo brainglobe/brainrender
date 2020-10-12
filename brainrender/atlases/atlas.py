@@ -30,9 +30,6 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
 
         # Add brainrender paths
         Paths.__init__(self, base_dir=base_dir, **kwargs)
-        self.meshes_folder = (
-            None  # where the .obj mesh for each region is saved
-        )
 
         # If it's a mouse atlas, add extra functionality
         if "Mus musculus" == self.metadata["species"]:

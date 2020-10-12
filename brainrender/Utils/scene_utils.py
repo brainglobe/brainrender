@@ -53,9 +53,10 @@ def get_scene_plotter_settings(jupyter, atlas):
     if brainrender.WHOLE_SCREEN and not jupyter:
         sz = "full"
     elif brainrender.WHOLE_SCREEN and jupyter:
-        print(
-            "Setting window size to 'auto' as whole screen is not available in jupyter"
-        )
+        if atlas.verbose:
+            print(
+                "Setting window size to 'auto' as whole screen is not available in jupyter"
+            )
         sz = "auto"
     else:
         sz = "auto"

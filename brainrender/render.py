@@ -14,6 +14,8 @@ from brainrender.Utils.camera import (
     set_camera,
     get_camera_params,
 )
+from rich import print
+from pyinspect._colors import mocassin, orange
 
 """
     The render class expands scene.Scene's functionality
@@ -64,10 +66,11 @@ class Render:
             self.jupyter = False
 
         if self.display_inset and self.jupyter:
-            print(
-                "Setting 'display_inset' to False as this feature is not \
-                            available in juputer notebooks"
-            )
+            if self.verbose:
+                print(
+                    "Setting 'display_inset' to False as this feature is not \
+                                available in juputer notebooks"
+                )
             self.display_inset = False
 
         # Camera parameters
@@ -188,15 +191,15 @@ class Render:
 
                 set_camera(self, camera)
 
-            if interactive:
-                if self.verbose and not self.jupyter:
-                    print(brainrender.INTERACTIVE_MSG)
+            if interactive and self.verbose:
+                if not self.jupyter:
+                    print(
+                        f"\n\n[{mocassin}]Rendering scene.\n   Press [{orange}]'q'[/{orange}] to Quit"
+                    )
                 elif self.jupyter:
                     print(
-                        "The scene is ready to render in your jupyter notebook"
+                        f"[{mocassin}]The scene is ready to render in your jupyter notebook"
                     )
-                else:
-                    print("\n\nRendering scene.\n   Press 'q' to Quit")
 
             self._get_inset()
 
@@ -251,15 +254,17 @@ class Render:
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 
-        print(
-            "Ready for exporting. Exporting scenes with many actors might require a few minutes"
-        )
+        if self.verbose:
+            print(
+                "Ready for exporting. Exporting scenes with many actors might require a few minutes"
+            )
         with open(filepath, "w") as fp:
             fp.write(plt.get_snapshot())
 
-        print(
-            f"The brainrender scene has been exported for web. The results are saved at {filepath}"
-        )
+        if self.verbose:
+            print(
+                f"The brainrender scene has been exported for web. The results are saved at {filepath}"
+            )
 
         # Reset settings
         vedosettings.notebookBackend = None
