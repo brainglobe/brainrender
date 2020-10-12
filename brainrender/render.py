@@ -79,7 +79,9 @@ class Render:
         # Create vedo plotter
 
         self.plotter = Plotter(
-            **get_scene_plotter_settings(self.jupyter, self.atlas)
+            **get_scene_plotter_settings(
+                self.jupyter, self.atlas, self.verbose
+            )
         )
 
         if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:

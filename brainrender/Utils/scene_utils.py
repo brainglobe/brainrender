@@ -44,7 +44,7 @@ def get_scene_camera(camera, atlas):
         return check_camera_param(camera)
 
 
-def get_scene_plotter_settings(jupyter, atlas):
+def get_scene_plotter_settings(jupyter, atlas, verbose):
     """
         Gets settings for vedo Plotter
 
@@ -53,7 +53,7 @@ def get_scene_plotter_settings(jupyter, atlas):
     if brainrender.WHOLE_SCREEN and not jupyter:
         sz = "full"
     elif brainrender.WHOLE_SCREEN and jupyter:
-        if atlas.verbose:
+        if verbose:
             print(
                 "Setting window size to 'auto' as whole screen is not available in jupyter"
             )
