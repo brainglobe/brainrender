@@ -8,7 +8,6 @@ from vedo import (
     closePlotter,
     Plane,
     Mesh,
-    Ruler,
 )
 from vedo.shapes import Cylinder, Line
 import pyinspect as pi
@@ -30,6 +29,7 @@ from brainrender.Utils.data_manipulation import (
 from brainrender.Utils.camera import set_camera
 from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
 from brainrender.render import Render
+from brainrender.Utils.ruler import ruler
 
 
 class Scene(Render):
@@ -429,7 +429,7 @@ class Scene(Render):
         actors = []
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
-            actor.name = Path(filepath).nam
+            actor.name = Path(filepath).name
             actor._br_class = Path(filepath).name
             self.actors.append(actor)
             actors.append(actor)
@@ -711,19 +711,9 @@ class Scene(Render):
         surface_point = pts[0]
 
         # create ruler
-        ruler = Ruler(
-            surface_point,
-            p0,
-            unitScale=0.01,
-            units="mm",
-            precision=4,
-            s=200,
-            axisRotation=0,
-            tickAngle=70,
+        return self.add_actor(
+            ruler(surface_point, p0, unit_scale=0.01, units="mm",)
         )
-        ruler.name = f"Ruler through {p0}"
-        ruler._br_class = "ruler"
-        return self.add_actor()
 
     # ----------------------- Application specific methods ----------------------- #
 

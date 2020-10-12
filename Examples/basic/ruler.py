@@ -3,9 +3,11 @@
     the distance between two points.
 """
 
+
 from brainrender.scene import Scene
 import brainrender
-from vedo import Ruler
+from brainrender import ruler
+
 
 brainrender.SHOW_AXES = True
 
@@ -26,19 +28,14 @@ p2 = scene.atlas.get_region_CenterOfMass("HY")
 """
     Brainrender units are in micrometers. To display the distance
     measure instead we will divide by a factor of 1000 using 
-    the unitScale argument.
+    the unit_scale argument.
 """
-rul = Ruler(
-    p2,
-    p1,  # Vedo Ruler
-    unitScale=0.01,
-    units="mm",
-    precision=4,
-    s=200,
-    axisRotation=0,
-    tickAngle=70,
-)
-scene.add_actor(rul)
+
+# Add a ruler form the brain surface
+scene.add_ruler_from_surface(p2)
+
+# Add a ruler between the two regions
+scene.add_actor(ruler(p1, p2, unit_scale=0.01, units="mm"))
 
 # render
 scene.render()

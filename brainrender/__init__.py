@@ -3,9 +3,11 @@ from pathlib import Path
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
+from brainrender.Utils.ruler import ruler
 import warnings
 
 import pyinspect
+
 pyinspect.install_traceback()
 
 __all__ = [

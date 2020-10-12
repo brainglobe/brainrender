@@ -3,6 +3,7 @@ from morphapi.morphology.morphology import Neuron
 import numpy as np
 import os
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
+from pyinspect.classes import Enhanced
 
 import brainrender
 from brainrender.Utils.paths_manager import Paths
@@ -19,7 +20,7 @@ from brainrender.Utils.atlases_utils import parse_neurons_colors
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
 
 
-class Atlas(BrainGlobeAtlas, Paths, ABA):
+class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
     default_camera = None
 
     def __init__(self, atlas_name, *args, base_dir=None, **kwargs):
@@ -30,6 +31,8 @@ class Atlas(BrainGlobeAtlas, Paths, ABA):
 
         # Add brainrender paths
         Paths.__init__(self, base_dir=base_dir, **kwargs)
+
+        Enhanced.__init__(self)
 
         # If it's a mouse atlas, add extra functionality
         if "Mus musculus" == self.metadata["species"]:

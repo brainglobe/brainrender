@@ -4,6 +4,8 @@ import datetime
 import warnings
 import numpy as np
 from pathlib import Path
+from pyinspect.classes import Enhanced
+
 import brainrender
 from brainrender.Utils.scene_utils import (
     get_scene_camera,
@@ -26,7 +28,7 @@ from pyinspect._colors import mocassin, orange
 mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
-class Render:
+class Render(Enhanced):
     _axes_order_corrected = (
         False  # at first render the axes orders is corrected
     )
@@ -52,6 +54,8 @@ class Render:
             :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
         """
+        Enhanced.__init__(self)
+
         # Setup a few rendering options
         self.verbose = verbose
         self.display_inset = (
