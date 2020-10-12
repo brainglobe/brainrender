@@ -796,8 +796,7 @@ class MultiScene:
         for i, scene.actors in enumerate(actors):
             mv.show(scene.actors, at=i, interactive=False)
 
-        if self.verbose:
-            print("Rendering complete")
+        print("Rendering complete")
         if _interactive:
             interactive()
 

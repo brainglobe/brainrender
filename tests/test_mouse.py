@@ -66,6 +66,7 @@ def test_streamlines_download(scene):
 
 
 def test_streamlines_colored(scene):
+
     filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
     colors = makePalette(len(data), "salmon", "lightgreen")
     scene.add_streamlines(data, color=colors, show_injection_site=False)

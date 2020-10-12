@@ -15,7 +15,6 @@ requirements = [
     "brainio>=0.0.19",
     "morphapi>=0.1.1.8",
     "requests",
-    "rich",
     "bg-atlasapi>=0.0.7",
     "tables",
     "accepts",
