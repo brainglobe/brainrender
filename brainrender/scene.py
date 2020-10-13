@@ -346,6 +346,8 @@ class Scene(Render):
         else:
 
             for act in list(actors.values()):
+                if act is None:
+                    continue
                 act.name = "neuron"
                 act._br_class = "neuron"
             self.actors.extend(list(actors.values()))

@@ -67,6 +67,10 @@ def test_scene_addition():
 
     scene += scene.root
 
+    # test report
+
+    scene.list_actors()
+
 
 def test_scene_creation_ignore_inset():
     Scene(display_inset=False)

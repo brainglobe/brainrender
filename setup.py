@@ -8,17 +8,17 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 requirements = [
     "numpy",
     "pandas",
-    "vedo>=2020.4.0",
+    "vedo>=2020.4.1 ",
     "k3d==2.7.4",
     "msgpack",
     "pyyaml>=5.3",
     "brainio>=0.0.19",
     "morphapi>=0.1.1.8",
     "requests",
-    "bg-atlasapi>=0.0.7",
+    "bg-atlasapi>=1.0.0",
     "tables",
     "accepts",
-    "pyinspect",
+    "pyinspect>=0.0.8",
 ]
 
 setup(
