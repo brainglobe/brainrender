@@ -407,8 +407,6 @@ class Scene(Render):
 
         """
         for actor in actors:
-            actor._br_class = "actor"
-            actor.name = "actor"
             if store is None:
                 self.actors.append(actor)
             else:
@@ -424,6 +422,7 @@ class Scene(Render):
             sil = actor.silhouette(**kwargs).lw(lw).c(color)
             sil.name = "silhouette"
             sil._br_class = "silhouette"
+            sil._original_mesh = actor
             self.add_actor(sil)
 
     def add_from_file(self, *filepaths, **kwargs):

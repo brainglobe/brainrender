@@ -155,11 +155,24 @@ class Render(Enhanced):
         self._axes_order_corrected = True
 
         # Flip every actor's orientation
+        _silhouettes = []
         for actor in self.actors:
-            try:
-                actor.applyTransform(mtx).reverse()
-            except AttributeError:
-                pass  # it's just for stuff like 2d text etc
+            if actor.name != "silhouette":
+                try:
+                    actor.applyTransform(mtx).reverse()
+                except AttributeError:
+                    pass
+            else:
+                """
+                    Silhouettes don't transform properly,
+                    we need to re-generate them
+                """
+                _silhouettes.append(actor)
+
+        for sil in _silhouettes:
+            self.actors.pop(self.actors.index(sil))
+            self.add_silhouette(sil._original_mesh)
+            del sil
 
     def apply_render_style(self):
         if brainrender.SHADER_STYLE is None:  # No style to apply
