@@ -10,6 +10,8 @@ from vedo import (
     Mesh,
 )
 from vedo.shapes import Cylinder, Line
+import pyinspect as pi
+from pyinspect._colors import orange, mocassin, salmon
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
     get_cells_colors_from_metadata,
@@ -27,6 +29,7 @@ from brainrender.Utils.data_manipulation import (
 from brainrender.Utils.camera import set_camera
 from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
 from brainrender.render import Render
+from brainrender.Utils.ruler import ruler
 
 
 class Scene(Render):
@@ -108,6 +111,33 @@ class Scene(Render):
         # Placeholder variables
         self.inset = None  # the first time the scene is rendered create and store the inset here
         self.is_rendered = False  # keep track if scene has been rendered
+
+    def __str__(self):
+        return f"A `brainrender.scene.Scene` with {len(self)} actors."
+
+    def __repr__(self):
+        return f"A `brainrender.scene.Scene` with {len(self)} actors."
+
+    def __add__(self, other):
+        if isinstance(other, Mesh):
+            self.add_actor(other)
+        elif isinstance(other, (Path, str)):
+            self.add_from_file(str(other))
+        else:
+            raise ValueError(f"Can't add object {other} to scene")
+
+    def __iadd__(self, other):
+        self.__add__(other)
+        return self
+
+    def __len__(self):
+        return len(self.actors)
+
+    def __getitem__(self, index):
+        return self.actors[index]
+
+    def __del__(self):
+        self.close()
 
     # ---------------------------------------------------------------------------- #
     #                                     Utils                                    #
@@ -206,6 +236,25 @@ class Scene(Render):
         else:
             return to_return
 
+    def list_actors(self):
+        actors = pi.Report("Scene actors", accent=salmon)
+        for act in self.actors:
+            try:
+                name = act.name
+            except AttributeError:
+                pass
+
+            try:
+                br_class = act._br_class
+            except AttributeError:
+                raise ValueError(
+                    f'Actor {name} doesnt have a "br_class" attribute!'
+                )
+
+            actors.add(f"[{orange}]- {name}[{mocassin}] (type: {br_class})")
+
+        actors.print()
+
     # ---------------------------------------------------------------------------- #
     #                                POPULATE SCENE                                #
     # ---------------------------------------------------------------------------- #
@@ -224,16 +273,24 @@ class Scene(Render):
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
+
         if self.root is not None:
             self.root.name = "root"
+            self.root._br_class = "root"
             self.atlas._root_midpoint = get_actor_midpoint(self.root)
             self.atlas._root_bounds = get_actor_bounds(self.root)
+
         else:
             print("Could not find a root mesh")
             return None
 
         if render:
             self.actors.append(self.root)
+        elif brainrender.SHOW_AXES:
+            # if showing axes, add a transparent root
+            # so that scene has right scale
+            root = self.root.clone().alpha(0)
+            self.actors.append(root)
 
         return self.root
 
@@ -258,6 +315,7 @@ class Scene(Render):
                 self.add_actor_label(actor, region, **kwargs)
 
             actor.name = region
+            actor._br_class = "brain region"
             actors.append(actor)
 
         self.actors.extend(actors)
@@ -276,9 +334,23 @@ class Scene(Render):
 
         if isinstance(actors, list):
             for act in actors:
+                if isinstance(act, dict):
+                    for _act in act.values():
+                        if _act is not None:
+                            _act.name = "neuron"
+                            _act._br_class = "neuron"
+                else:
+                    act.name = "neuron"
+                    act._br_class = "neuron"
                 self.actors.extend(list(act.values()))
         else:
-            self.actors.append(list(actors.values()))
+
+            for act in list(actors.values()):
+                if act is None:
+                    continue
+                act.name = "neuron"
+                act._br_class = "neuron"
+            self.actors.extend(list(actors.values()))
         return actors
 
     def add_neurons_synapses(self, *args, **kwargs):
@@ -294,6 +366,8 @@ class Scene(Render):
             self.add_cells(data, **kwargs)
 
         for actor in actors:
+            actor.name = "synapse"
+            actor._br_class = "synapse"
             self.add_actor(actor)
 
     def add_tractography(self, *args, **kwargs):
@@ -303,6 +377,11 @@ class Scene(Render):
         """
 
         actors = self.atlas.get_tractography(*args, **kwargs)
+
+        for actor in actors:
+            actor.name = "tractography"
+            actor._br_class = "tractography"
+
         self.actors.extend(actors)
         return return_list_smart(actors)
 
@@ -313,6 +392,11 @@ class Scene(Render):
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         self.actors.extend(actors)
+
+        for act in actors:
+            act.name = "streamlines"
+            act._br_class = "streamlines"
+
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
@@ -337,7 +421,11 @@ class Scene(Render):
             to them.
         """
         for actor in actors:
-            self.add_actor(actor.silhouette(**kwargs).lw(lw).c(color))
+            sil = actor.silhouette(**kwargs).lw(lw).c(color)
+            sil.name = "silhouette"
+            sil._br_class = "silhouette"
+            sil._original_mesh = actor
+            self.add_actor(sil)
 
     def add_from_file(self, *filepaths, **kwargs):
         """
@@ -351,6 +439,7 @@ class Scene(Render):
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
             actor.name = Path(filepath).name
+            actor._br_class = Path(filepath).name
             self.actors.append(actor)
             actors.append(actor)
         return return_list_smart(actors)
@@ -371,6 +460,7 @@ class Scene(Render):
             pos=pos, r=radius, c=color, alpha=alpha, **kwargs
         )
         sphere.name = f"sphere {pos}"
+        sphere._br_class = "sphere"
         self.actors.append(sphere)
         return sphere
 
@@ -396,6 +486,7 @@ class Scene(Render):
             cells, color=color, radius=radius, res=res, alpha=alpha
         )
         cells_actor.name = name
+        cells_actor._br_class = name
         return cells_actor
 
     def add_cells(
@@ -457,6 +548,8 @@ class Scene(Render):
         spheres = shapes.Spheres(
             coords, c=color, r=radius, res=res, alpha=alpha
         )
+        spheres.name = "cells"
+        spheres._br_class = "cells"
         self.actors.append(spheres)
 
         if verbose:
@@ -491,10 +584,12 @@ class Scene(Render):
 
         # Create actor
         cylinder = self.add_actor(Cylinder(**params))
+        cylinder.name = "optic cannula"
+        cylinder._br_class = "optic cannula"
         return cylinder
 
     def add_text(
-        self, text, pos=8, size=1.75, color="k", alpha=1, font="Montserrat"
+        self, text, pos=8, size=2.5, color="k", alpha=1, font="Montserrat"
     ):
         """
             Adds a 2D text to the scene. Default params are to crate a large black
@@ -550,7 +645,10 @@ class Scene(Render):
         p1[replace_coord] = bounds[1]
 
         # Create line actor
-        return self.add_actor(Line(p0, p1, c=color, lw=lw, **kwargs))
+        line = Line(p0, p1, c=color, lw=lw, **kwargs)
+        line.name = f"line through {point}"
+        line._br_class = "line"
+        return self.add_actor(line)
 
     def add_crosshair_at_point(
         self, point, show_point=True, line_kwargs={}, point_kwargs={},
@@ -596,9 +694,35 @@ class Scene(Render):
                         + "a string with the name of predefined planes."
                         + f" Not: {plane.__type__}"
                     )
+
+            plane.name = "plane"
+            plane._br_class = "plane"
             actors.append(plane)
+
         self.add_actor(*actors)
         return return_list_smart(actors)
+
+    def add_ruler_from_surface(self, p0, axis=1):
+        """
+            Given a point, this function adds a ruler object showing
+            the distance of that point from the brain surface along a
+            given axis.
+
+            :param p0: np.array with point coordinates
+            :param axis: int, index of the axis along
+                    which to measure distance
+        """
+        # Get point on brain surface
+        p1 = p0.copy()
+        p1[axis] = 0  # zero the choosen coordinate
+
+        pts = self.root.intersectWithLine(p0, p1)
+        surface_point = pts[0]
+
+        # create ruler
+        return self.add_actor(
+            ruler(surface_point, p0, unit_scale=0.01, units="mm",)
+        )
 
     # ----------------------- Application specific methods ----------------------- #
 
@@ -621,6 +745,11 @@ class Scene(Render):
         )
 
         spheres = self.add_cells(probe_points_df, **points_params)
+
+        probe.name = "probe"
+        probe._br_class = "probe"
+        spheres.name = "spheres"
+        spheres._br_class = "spheres"
 
         self.add_actor(spheres, probe)
         return probe, spheres

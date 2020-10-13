@@ -16,8 +16,9 @@ BACKGROUND_COLOR = (
     "white"  # Secify the color of the background window (see colors.py)
 )
 SHOW_AXES = (
-    False  # If true a triad of orthogonal axes is used to show orientation
+    True  # If true a triad of orthogonal axes is used to show orientation
 )
+AXES_STYLE = 1  # style of vedo axes
 WINDOW_POS = (
     10,
     10,

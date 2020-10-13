@@ -9,10 +9,10 @@ from brainio import brainio
 from vedo import load
 import brainrender
 from brainrender.Utils.decorators import check_file_exists
+from accepts import accepts
 
 # ------------------------------------ OS ------------------------------------ #
-
-
+@accepts((str, Path))
 def listdir(fld):
     """
     List the files into a folder with the complete file path instead of the relative file path like os.listdir.
@@ -23,6 +23,7 @@ def listdir(fld):
     return [str(f) for f in Path(fld).glob("**/*") if f.is_file()]
 
 
+@accepts((str, Path))
 def get_subdirs(folderpath):
     """
         Returns the subfolders in a given folder
@@ -32,6 +33,7 @@ def get_subdirs(folderpath):
 
 # ------------------------------ Load/Save data ------------------------------ #
 @check_file_exists
+@accepts((str, Path), str)
 def load_cells_from_file(filepath, hdf_key="hdf"):
     csv_suffix = ".csv"
     supported_formats = brainrender.HDF_SUFFIXES + [csv_suffix]
@@ -85,17 +87,20 @@ def load_cells_from_file(filepath, hdf_key="hdf"):
 
 
 @check_file_exists
+@accepts((str, Path))
 def load_npy_from_gz(filepath):
     f = gzip.GzipFile(filepath, "r")
     return np.load(f)
 
 
+@accepts((str, Path))
 def save_npy_to_gz(filepath, data):
     f = gzip.GzipFile(filepath, "w")
     np.save(f, data)
     f.close()
 
 
+@accepts((str, Path), dict, bool, (type(None), str, dict))
 def save_yaml(filepath, content, append=False, topcomment=None):
     """
     Saves content to a yaml file
@@ -119,6 +124,7 @@ def save_yaml(filepath, content, append=False, topcomment=None):
 
 
 @check_file_exists
+@accepts((str, Path))
 def load_json(filepath):
     """
     Load a JSON file
@@ -132,6 +138,7 @@ def load_json(filepath):
 
 
 @check_file_exists
+@accepts((str, Path))
 def load_yaml(filepath):
     """
     Load a YAML file
@@ -143,6 +150,7 @@ def load_yaml(filepath):
 
 
 @check_file_exists
+@accepts((str, Path))
 def load_volume_file(filepath):
     """
     Load a volume file (e.g., .nii) and returns the data
@@ -182,6 +190,7 @@ def load_mesh_from_file(filepath, *args, **kwargs):
 
 # ----------------------------- Data manipulation ---------------------------- #
 @check_file_exists
+@accepts((str, Path), (int, float))
 def get_probe_points_from_sharptrack(points_filepath, scale_factor=10):
     """
         Loads the location of the of probe points as extracted by SharpTrack

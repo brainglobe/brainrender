@@ -14,7 +14,7 @@ def get_neuron_actors_with_morphapi(
         raise ValueError("No input passed")
 
     if swcfile is not None:
-        neuron = Neuron(swc_file=swcfile)
+        neuron = Neuron(data_file=swcfile)
 
     if neurite_radius is None:
         neurite_radius = DEFAULT_NEURITE_RADIUS

@@ -1,4 +1,5 @@
 import vtk
+from accepts import accepts
 
 sagittal_camera = dict(
     position=[5532.562, 8057.256, 66760.941],
@@ -51,6 +52,7 @@ cameras = dict(
 )
 
 
+@accepts((str, dict, list))
 def check_camera_param(camera):
     if isinstance(camera, str):
         if camera not in cameras.keys():
@@ -155,18 +157,16 @@ def get_camera_params(scene=None, camera=None):
     if scene is not None:
         if not scene.is_rendered:
             scene.render(interactive=False)
-            scene.close()
         cam = scene.plotter.camera
     else:
         cam = camera
 
     params = dict(
         position=cam.GetPosition(),
-        focal_point=cam.GetFocalPoint(),
-        view_up=cam.GetViewUp(),
+        focal=cam.GetFocalPoint(),
+        viewup=cam.GetViewUp(),
         distance=cam.GetDistance(),
-        clipping_range=cam.GetClippingRange(),
+        clipping=cam.GetClippingRange(),
         orientation=cam.GetOrientation(),
     )
-
     return params

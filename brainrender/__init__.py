@@ -3,7 +3,12 @@ from pathlib import Path
 import sys
 import brainrender.default_variables
 from brainrender.Utils.data_io import save_yaml, load_yaml
+from brainrender.Utils.ruler import ruler
 import warnings
+
+import pyinspect
+
+pyinspect.install_traceback()
 
 __all__ = [
     "DEFAULT_ATLAS",
@@ -36,6 +41,7 @@ __all__ = [
     "CAMERA",
     "DEFAULT_SCREENSHOT_NAME",
     "SCREENSHOT_TRANSPARENT_BACKGROUND",
+    "AXES_STYLE",
 ]
 
 
@@ -103,16 +109,13 @@ for par in __all__:
 save_yaml(str(params_file), params, append=False, topcomment=comment)
 
 # ------------------------- Other vedo settings ------------------------ #
-settings.screeshotScale = params[
-    "DEFAULT_SCREENSHOT_SCALE"
-]  # Improves resolution of saved screenshots
-
 if params["SCREENSHOT_TRANSPARENT_BACKGROUND"]:
     settings.screenshotTransparentBackground = True  # vedo for transparent bg
     settings.useFXAA = False  # This needs to be false for transparent bg
 
 
 # Set to make it easy to import
+AXES_STYLE = params["AXES_STYLE"]
 DEFAULT_ATLAS = params["DEFAULT_ATLAS"]
 BACKGROUND_COLOR = params["BACKGROUND_COLOR"]
 DEFAULT_HDF_KEY = params["DEFAULT_HDF_KEY"]

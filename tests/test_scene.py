@@ -24,7 +24,6 @@ def test_default():
     brainrender.WINDOW_POS
     brainrender.CAMERA
     brainrender.DEFAULT_SCREENSHOT_NAME
-    brainrender.DEFAULT_SCREENSHOT_TYPE
     brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND
     brainrender.ROOT_COLOR
     brainrender.ROOT_ALPHA
@@ -48,12 +47,29 @@ def test_default():
     brainrender.VERBOSE
     brainrender.HDF_SUFFIXES
     brainrender.DEFAULT_HDF_KEY
+    brainrender.AXES_STYLE
 
     brainrender.reset_defaults()
 
 
 def test_scene_creation():
-    Scene()
+    s = Scene()
+    print(s)
+    s
+
+
+def test_scene_addition():
+    scene = Scene()
+
+    scene + "Examples/example_files/root.obj"
+
+    scene + scene.root
+
+    scene += scene.root
+
+    # test report
+
+    scene.list_actors()
 
 
 def test_scene_creation_ignore_inset():
@@ -336,3 +352,8 @@ def test_screenshot(scene):
 def test_add_actor(scene):
     act = scene.add_brain_regions("MOs")
     scene.add_actor(act)
+
+
+def test_add_ruler_from_surface(scene):
+    p0 = scene.atlas.get_region_CenterOfMass("TH")
+    scene.add_ruler_from_surface(p0)

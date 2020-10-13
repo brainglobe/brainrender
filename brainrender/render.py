@@ -1,9 +1,11 @@
 from vedo import settings as vedosettings
-from vedo import Plotter, show, closePlotter
+from vedo import Plotter, show, closePlotter, buildRulerAxes
 import datetime
 import warnings
-
+import numpy as np
 from pathlib import Path
+from pyinspect.classes import Enhanced
+
 import brainrender
 from brainrender.Utils.scene_utils import (
     get_scene_camera,
@@ -14,6 +16,8 @@ from brainrender.Utils.camera import (
     set_camera,
     get_camera_params,
 )
+from rich import print
+from pyinspect._colors import mocassin, orange
 
 """
     The render class expands scene.Scene's functionality
@@ -21,8 +25,14 @@ from brainrender.Utils.camera import (
     of all actors added a scene. 
 """
 
+mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
-class Render:
+
+class Render(Enhanced):
+    _axes_order_corrected = (
+        False  # at first render the axes orders is corrected
+    )
+
     def __init__(
         self,
         verbose,
@@ -44,6 +54,8 @@ class Render:
             :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
         """
+        Enhanced.__init__(self)
+
         # Setup a few rendering options
         self.verbose = verbose
         self.display_inset = (
@@ -58,17 +70,28 @@ class Render:
             self.jupyter = False
 
         if self.display_inset and self.jupyter:
-            print(
-                "Setting 'display_inset' to False as this feature is not \
-                            available in juputer notebooks"
-            )
+            if self.verbose:
+                print(
+                    "Setting 'display_inset' to False as this feature is not \
+                                available in juputer notebooks"
+                )
             self.display_inset = False
 
         # Camera parameters
         self.camera = get_scene_camera(camera, self.atlas)
 
         # Create vedo plotter
-        self.plotter = Plotter(**get_scene_plotter_settings(self.jupyter))
+
+        self.plotter = Plotter(
+            **get_scene_plotter_settings(
+                self.jupyter, self.atlas, self.verbose
+            )
+        )
+
+        if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
+            self.make_custom_axes = True  # to be made at render
+        else:
+            self.make_custom_axes = False
 
         # SCreenshots and keypresses variables
         self.screenshots_folder = Path(
@@ -85,6 +108,71 @@ class Render:
         if not brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
             vedosettings.screenshotTransparentBackground = False
             vedosettings.useFXAA = True
+
+    def _make_custom_axes(self):
+        """
+            When using `ruler` axes (vedy style 7), we need to 
+            customize them a little bit, this function takes care of it. 
+        """
+        raise NotImplementedError(
+            "Currently ony AXES_STYLE=1 is supported, sorry"
+        )
+
+        # Get plotter and axes color
+        plt = self.plotter
+        c = (0.9, 0.9, 0.9)
+        if np.sum(plt.renderer.GetBackground()) > 1.5:
+            c = (0.1, 0.1, 0.1)
+
+        bounds = [
+            item for sublist in self.atlas._root_bounds for item in sublist
+        ]
+        rulax = buildRulerAxes(
+            bounds,
+            c=c,
+            units="μm",
+            xtitle="AP - ",
+            ytitle="DV - ",
+            ztitle="LR - ",
+            precision=1,
+            labelRotation=0,
+            axisRotation=90,
+            xycross=False,
+        )
+        rulax.UseBoundsOff()
+        rulax.PickableOff()
+        plt.renderer.AddActor(rulax)
+        plt.axes_instances[0] = rulax
+
+        return
+
+    def _correct_axes(self):
+        """
+            When the scene is first rendered, a transform matrix
+            is applied to each actor's points to correct orientation
+            mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+        """
+        self._axes_order_corrected = True
+
+        # Flip every actor's orientation
+        _silhouettes = []
+        for actor in self.actors:
+            if actor.name != "silhouette":
+                try:
+                    actor.applyTransform(mtx).reverse()
+                except AttributeError:
+                    pass
+            else:
+                """
+                    Silhouettes don't transform properly,
+                    we need to re-generate them
+                """
+                _silhouettes.append(actor)
+
+        for sil in _silhouettes:
+            self.actors.pop(self.actors.index(sil))
+            self.add_silhouette(sil._original_mesh)
+            del sil
 
     def apply_render_style(self):
         if brainrender.SHADER_STYLE is None:  # No style to apply
@@ -122,20 +210,20 @@ class Render:
 
                 set_camera(self, camera)
 
-            if interactive:
-                if self.verbose and not self.jupyter:
-                    print(brainrender.INTERACTIVE_MSG)
+            if interactive and self.verbose:
+                if not self.jupyter:
+                    print(
+                        f"\n\n[{mocassin}]Rendering scene.\n   Press [{orange}]'q'[/{orange}] to Quit"
+                    )
                 elif self.jupyter:
                     print(
-                        "The scene is ready to render in your jupyter notebook"
+                        f"[{mocassin}]The scene is ready to render in your jupyter notebook"
                     )
-                else:
-                    print("\n\nRendering scene.\n   Press 'q' to Quit")
 
             self._get_inset()
 
         if zoom is None and not video:
-            zoom = 1.85 if brainrender.WHOLE_SCREEN else 1.5
+            zoom = 1.2 if brainrender.WHOLE_SCREEN else 1.5
 
         # Make mesh labels follow the camera
         if not self.jupyter:
@@ -153,6 +241,15 @@ class Render:
 
         if video:
             args_dict["offscreen"] = True
+
+        if self.make_custom_axes:
+            self._make_custom_axes()
+            self.make_custom_axes = False
+
+        # Correct axes orientations
+        if not self._axes_order_corrected:
+            self._correct_axes()
+
         show(*self.actors, *self.actors_labels, **args_dict)
 
     def close(self):
@@ -176,15 +273,17 @@ class Render:
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 
-        print(
-            "Ready for exporting. Exporting scenes with many actors might require a few minutes"
-        )
+        if self.verbose:
+            print(
+                "Ready for exporting. Exporting scenes with many actors might require a few minutes"
+            )
         with open(filepath, "w") as fp:
             fp.write(plt.get_snapshot())
 
-        print(
-            f"The brainrender scene has been exported for web. The results are saved at {filepath}"
-        )
+        if self.verbose:
+            print(
+                f"The brainrender scene has been exported for web. The results are saved at {filepath}"
+            )
 
         # Reset settings
         vedosettings.notebookBackend = None
@@ -218,7 +317,9 @@ class Render:
         self.screenshots_folder.mkdir(exist_ok=True)
 
         savename = str(self.screenshots_folder / self.screenshots_name)
-        savename += f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
+        savename += (
+            f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}' + ".png"
+        )
 
         print(f"\nSaving screenshot at {savename}\n")
         self.plotter.screenshot(filename=savename)

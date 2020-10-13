@@ -1,8 +1,19 @@
+from accepts import accepts
+
 # ---------------------------------------------------------------------------- #
 #                                PYTHON OBJECTS                                #
 # ---------------------------------------------------------------------------- #
 
 
+@accepts((list, tuple))
+def flatten(lst):
+    """
+        Flattens a nested list
+    """
+    return [item for sublist in lst for item in sublist]
+
+
+@accepts((list, tuple))
 def return_list_smart(lst):
     """
         If the list has length > returns the list
@@ -17,6 +28,7 @@ def return_list_smart(lst):
         return None
 
 
+@accepts(dict)
 def return_dict_smart(dct):
     keys = list(dct.keys())
     if len(keys) == 1:
@@ -27,6 +39,7 @@ def return_dict_smart(dct):
         return dct
 
 
+@accepts((list, dict), (list, dict))
 def is_any_item_in_list(L1, L2):
     """
     Checks if an item in a list is in another  list

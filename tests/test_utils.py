@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from brainrender.scene import Scene
 
-from brainrender.Utils.camera import get_camera_params
+from brainrender.Utils.camera import get_camera_params, set_camera
 from brainrender.Utils.data_io import listdir, get_subdirs
 from brainrender.Utils.data_manipulation import get_slice_coord
 from brainrender.colors import (
@@ -15,11 +15,36 @@ from brainrender.colors import (
     check_colors,
 )
 from brainrender.Utils.actors_funcs import edit_actor
+from brainrender.Utils.ruler import ruler
 
 
 @pytest.fixture
 def scene():
     return Scene()
+
+
+def test_ruler(scene):
+    # add brain regions
+    mos, hy = scene.add_brain_regions(["MOs", "HY"], alpha=0.2)
+    mos.wireframe()
+    hy.wireframe()
+
+    # Get center of mass of the two regions
+    p1 = scene.atlas.get_region_CenterOfMass("MOs")
+    p2 = scene.atlas.get_region_CenterOfMass("HY")
+
+    # Use the ruler class to display the distance between the two points
+    """
+        Brainrender units are in micrometers. To display the distance
+        measure instead we will divide by a factor of 1000 using 
+        the unit_scale argument.
+    """
+
+    # Add a ruler form the brain surface
+    scene.add_ruler_from_surface(p2)
+
+    # Add a ruler between the two regions
+    scene.add_actor(ruler(p1, p2, unit_scale=0.01, units="mm"))
 
 
 def test_get_camera_params(scene):
@@ -28,6 +53,15 @@ def test_get_camera_params(scene):
 
     if not isinstance(get_camera_params(camera=scene.plotter.camera), dict):
         raise ValueError
+
+    camera_dict = get_camera_params(scene)
+
+    try:
+        set_camera(scene, camera_dict)
+    except ValueError as e:
+        raise ValueError(
+            f"Failed to produce a camera params dict that can be used to set camera:\n {e}"
+        )
 
 
 def test_io():
