@@ -702,7 +702,7 @@ class Scene(Render):
         self.add_actor(*actors)
         return return_list_smart(actors)
 
-    def add_ruler_from_surface(self, p0, axis=1):
+    def add_ruler_from_surface(self, p0, unit_scale=1, axis=1):
         """
             Given a point, this function adds a ruler object showing
             the distance of that point from the brain surface along a
@@ -721,7 +721,7 @@ class Scene(Render):
 
         # create ruler
         return self.add_actor(
-            ruler(surface_point, p0, unit_scale=0.01, units="mm",)
+            ruler(surface_point, p0, unit_scale=unit_scale, units="mm",)
         )
 
     # ----------------------- Application specific methods ----------------------- #
