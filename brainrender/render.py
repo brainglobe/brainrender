@@ -157,7 +157,13 @@ class Render(Enhanced):
         # Flip every actor's orientation
         _silhouettes = []
         for actor in self.actors:
-            if actor.name != "silhouette":
+            try:
+                _name = actor.name
+            except AttributeError:
+                """ not all scene objects will have a name """
+                continue
+
+            if _name != "silhouette":
                 try:
                     actor.applyTransform(mtx).reverse()
                 except AttributeError:
