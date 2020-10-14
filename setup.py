@@ -48,7 +48,7 @@ setup(
         exclude=("Installation", "Meshes", "Metadata", "Screenshots")
     ),
     include_package_data=True,
-    url="https://github.com/BrancoLab/brainrender",
+    url="https://github.com/brainglobe/brainrender",
     author="Federico Claudi",
     zip_safe=False,
     entry_points={"console_scripts": ["brainrender = brainrender.cli:main"]},
