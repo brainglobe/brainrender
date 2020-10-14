@@ -76,13 +76,7 @@ def get_scene_plotter_settings(jupyter, atlas, verbose):
 
                 z_ticks = [
                     (-v, str(np.abs(v).astype(np.int32)))
-                    for v in np.arange(
-                        0,
-                        atlas_shape[ax_idx],
-                        atlas_shape[ax_idx]
-                        / atlas.metadata["resolution"][ax_idx]
-                        * 5,
-                    )
+                    for v in np.linspace(0, atlas_shape[ax_idx], 10,)
                 ]
 
                 # make custom axes dict

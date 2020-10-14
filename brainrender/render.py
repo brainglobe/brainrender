@@ -81,7 +81,6 @@ class Render(Enhanced):
         self.camera = get_scene_camera(camera, self.atlas)
 
         # Create vedo plotter
-
         self.plotter = Plotter(
             **get_scene_plotter_settings(
                 self.jupyter, self.atlas, self.verbose
