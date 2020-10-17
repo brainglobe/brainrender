@@ -304,6 +304,12 @@ class Render(Enhanced):
 
     def take_screenshot(self, screenshots_folder=None,
                         screenshot_name=None, scale=None):
+        """
+        :param screenshots_folder: folder where the screenshot will be saved
+        :param screenshot_name: name of the saved file
+        :param scale: int, upsampling factor over screen resolution. Increase to export
+        higher quality images
+        """
 
         if screenshots_folder is None:
             screenshots_folder = Path(
