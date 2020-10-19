@@ -49,8 +49,9 @@ class Render(Enhanced):
             :param display_inset: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
             :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
             :param screenshot_kwargs: pass a dictionary with keys:
-                        - 'folder' -> str, path to folder where to save screenshots
-                        - 'name' -> str, filename to prepend to screenshots files
+                        - "folder" -> str, path to folder where to save screenshots
+                        - "name" -> str, filename to prepend to screenshots files
+                        - "format" -> str, format of the screenshot
             :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
                             a custom function that can be used to take screenshots with the parameter above. 
         """
@@ -92,13 +93,7 @@ class Render(Enhanced):
         else:
             self.make_custom_axes = False
 
-        # SCreenshots and keypresses variables
-        self.screenshots_folder = Path(
-            screenshot_kwargs.pop("folder", self.atlas.output_screenshots)
-        )
-        self.screenshots_name = screenshot_kwargs.pop(
-            "name", brainrender.DEFAULT_SCREENSHOT_NAME
-        )
+        self.screenshot_kwargs = screenshot_kwargs
 
         if not use_default_key_bindings:
             self.plotter.keyPressFunction = self.keypress
@@ -307,7 +302,27 @@ class Render(Enhanced):
         elif key == "c":
             print(f"Camera parameters:\n{get_camera_params(scene=self)}")
 
-    def take_screenshot(self):
+    def take_screenshot(self, screenshots_folder=None,
+                        screenshot_name=None, scale=None):
+        """
+        :param screenshots_folder: folder where the screenshot will be saved
+        :param screenshot_name: name of the saved file
+        :param scale: int, upsampling factor over screen resolution. Increase to export
+        higher quality images
+        """
+
+        if screenshots_folder is None:
+            screenshots_folder = Path(
+                self.screenshot_kwargs.get("folder",
+                                           brainrender.DEFAULT_SCREENSHOT_FOLDER))
+        screenshots_folder.mkdir(exist_ok=True)
+
+        if screenshot_name is None:
+            name = self.screenshot_kwargs.get("name", "screenshot")
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            file_format = self.screenshot_kwargs.get("format", ".png")
+            screenshot_name = f"{name}_{timestamp}.{file_format}"
+
         if not self.is_rendered:
             print(
                 "You need to render the scene before you can take a screenshot"
@@ -319,13 +334,7 @@ class Render(Enhanced):
                 "BRAINRENDER - settings: screenshots are set to have transparent background. Set the parameter 'SCREENSHOT_TRANSPARENT_BACKGROUND' to False if you'd prefer a not transparent background"
             )
 
-        self.screenshots_folder.mkdir(exist_ok=True)
-
-        savename = str(self.screenshots_folder / self.screenshots_name)
-        savename += (
-            f'_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}' + ".png"
-        )
-
-        print(f"\nSaving screenshot at {savename}\n")
-        self.plotter.screenshot(filename=savename)
+        savename = str(screenshots_folder / screenshot_name)
+        print(f"\nSaving new screenshot at {savename}\n")
+        self.plotter.screenshot(filename=savename, scale=scale)
         return savename
