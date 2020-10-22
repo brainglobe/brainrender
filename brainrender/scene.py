@@ -356,19 +356,25 @@ class Scene(Render):
         # Add actors to scene
         to_return = []
         for actor, name, br_class in zip(actors, names, br_classes):
-            try:
-                act = Actor(actor, name=name, br_class=br_class)
-            except Exception:  # doesn't work for annotations
-                act = actor
-                act.name = name
-                act.br_class = br_class
-                act._is_transformed = False
+            if not isinstance(actor, (list, tuple)):
+                actor = [actor]
 
-            if store is None:
-                self.actors.append(act)
-            else:
-                store.append(act)
-            to_return.append(act)
+            for act in actor:
+                if act is None:
+                    continue
+
+                try:
+                    act = Actor(actor, name=name, br_class=br_class)
+                except Exception:  # doesn't work for annotations
+                    act.name = name
+                    act.br_class = br_class
+                    act._is_transformed = False
+
+                if store is None:
+                    self.actors.append(act)
+                else:
+                    store.append(act)
+                to_return.append(act)
 
         return return_list_smart(to_return)
 
@@ -475,7 +481,10 @@ class Scene(Render):
         """
 
         actors = self.atlas.get_tractography(*args, **kwargs)
-        self.add_actor(actors, name="tractography", br_class="tractography")
+        for act in actors:
+            self.add_actor(
+                actors, name="tractography", br_class="tractography"
+            )
         return return_list_smart(actors)
 
     def add_streamlines(self, *args, **kwargs):
@@ -484,7 +493,8 @@ class Scene(Render):
         Check the function definition in ABA for more details
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
-        self.add_actor(actors, name="streamlines", br_class="streamlines")
+        for act in actors:
+            self.add_actor(actors, name="streamlines", br_class="streamlines")
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
@@ -512,7 +522,7 @@ class Scene(Render):
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
             name = Path(filepath).name
-            self.actors.append(actor, name=name, br_class=name)
+            self.add_actor(actor, name=name, br_class=name)
             actors.append(actor)
         return return_list_smart(actors)
 
@@ -533,7 +543,7 @@ class Scene(Render):
         )
         self.add_actor(
             sphere,
-            name=f"sphere [{orange}]at {pos.astype(np.int32)}",
+            name=f"sphere [{orange}]at {np.array(pos).astype(np.int32)}",
             br_class="sphere",
         )
         return sphere
@@ -621,7 +631,7 @@ class Scene(Render):
         spheres = shapes.Spheres(
             coords, c=color, r=radius, res=res, alpha=alpha
         )
-        self.actors.append(spheres, name="cells", br_class="cells")
+        self.add_actor(spheres, name="cells", br_class="cells")
 
         if verbose:
             print("Added {} cells to the scene".format(len(coords)))
