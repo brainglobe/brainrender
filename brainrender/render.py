@@ -29,9 +29,7 @@ mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
 class Render(Enhanced):
-    _axes_order_corrected = (
-        False  # at first render the axes orders is corrected
-    )
+    transform_applied = False
 
     def __init__(
         self,
@@ -146,7 +144,7 @@ class Render(Enhanced):
             is applied to each actor's points to correct orientation
             mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
         """
-        self._axes_order_corrected = True
+        self.transform_applied = True
 
         # Flip every actor's orientation
         _silhouettes = []
@@ -159,7 +157,10 @@ class Render(Enhanced):
 
             if _name != "silhouette":
                 try:
-                    actor.applyTransform(mtx).reverse()
+                    if not actor._is_transformed:
+                        actor.applyTransform(mtx).reverse()
+                        actor._is_transformed = True
+
                 except AttributeError:
                     pass
             else:
@@ -247,8 +248,7 @@ class Render(Enhanced):
             self.make_custom_axes = False
 
         # Correct axes orientations
-        if not self._axes_order_corrected:
-            self._correct_axes()
+        # self._correct_axes()
 
         show(*self.actors, *self.actors_labels, **args_dict)
 
@@ -302,8 +302,9 @@ class Render(Enhanced):
         elif key == "c":
             print(f"Camera parameters:\n{get_camera_params(scene=self)}")
 
-    def take_screenshot(self, screenshots_folder=None,
-                        screenshot_name=None, scale=None):
+    def take_screenshot(
+        self, screenshots_folder=None, screenshot_name=None, scale=None
+    ):
         """
         :param screenshots_folder: folder where the screenshot will be saved
         :param screenshot_name: name of the saved file
@@ -313,8 +314,10 @@ class Render(Enhanced):
 
         if screenshots_folder is None:
             screenshots_folder = Path(
-                self.screenshot_kwargs.get("folder",
-                                           brainrender.DEFAULT_SCREENSHOT_FOLDER))
+                self.screenshot_kwargs.get(
+                    "folder", brainrender.DEFAULT_SCREENSHOT_FOLDER
+                )
+            )
         screenshots_folder.mkdir(exist_ok=True)
 
         if screenshot_name is None:

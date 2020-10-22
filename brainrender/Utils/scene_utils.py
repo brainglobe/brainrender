@@ -9,6 +9,35 @@ from brainrender.Utils.camera import check_camera_param
 from brainrender.colors import get_random_colors
 
 
+def parse_add_actors_inputs(actors, name, br_class):
+    n = len(actors)
+    if name is not None:
+        if isinstance(name, str):
+            names = [name for i in range(n)]
+        elif len(name) != len(actors):
+            raise ValueError(
+                f"Expected {n} actor names but got {len(name)} while adding actors to scene"
+            )
+        else:
+            names = name
+    else:
+        names = [None for i in range(n)]
+
+    if br_class is not None:
+        if isinstance(br_class, str):
+            br_classes = [br_class for i in range(n)]
+        elif len(br_class) != len(actors):
+            raise ValueError(
+                f"Expected {n} actor names but got {len(br_class)} while adding actors to scene"
+            )
+        else:
+            br_classes = br_class
+    else:
+        br_classes = [None for i in range(n)]
+
+    return actors, names, br_classes
+
+
 def get_scene_atlas(atlas, base_dir, atlas_kwargs={}, **kwargs):
     """
         Return an instance of an Atlas class. 

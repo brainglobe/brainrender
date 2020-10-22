@@ -132,8 +132,8 @@ def make_optic_canula_cylinder(
         return
 
     # Offset position
-    for i, offset in enumerate(offsets):
-        pos[i] += offset
+    # for i, offset in enumerate(offsets):
+    #     pos[i] += offset
 
     # Get coordinates of upper face
     bounds = root.bounds()
