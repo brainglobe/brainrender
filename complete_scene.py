@@ -6,6 +6,7 @@
 from brainrender.scene import Scene
 import brainrender
 from brainrender import ruler
+from rich import print
 
 brainrender.SHADER_STYLE = "cartoon"
 brainrender.SHOW_AXES = True
@@ -58,4 +59,5 @@ scene.add_plane("sagittal")
 
 # final render
 scene.list_actors(extensive=True)
+print(ca1)
 scene.render()

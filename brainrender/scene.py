@@ -10,10 +10,12 @@ from vedo import (
     Plane,
     Mesh,
 )
-from vedo.shapes import Cylinder, Line
+
 import pyinspect as pi
 from pyinspect._colors import dimorange, orange, mocassin, salmon
 from rich import print
+from rich.console import Console
+from io import StringIO
 
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
@@ -55,14 +57,38 @@ class Actor(Mesh):
             self.br_class = br_class
             self._is_transformed = False
 
-    # def __repr__(self):
-    #     raise NotImplementedError
+    def __repr__(self):
+        return f"brainrender.Actor: {self.name}-{self.br_class}"
 
-    # def __str__(self):
-    #     raise NotImplementedError
+    def __str__(self):
+        buf = StringIO()
+        _console = Console(file=buf, force_jupyter=False)
+        _console.print(self)
 
-    # def __rich_console__(self, *args):
-    #     raise NotImplementedError
+        return buf.getvalue()
+
+    def __rich_console__(self, *args):
+        rep = pi.Report(
+            title=f"[b]brainrender.Actor: {self.name}-{self.br_class}",
+            color=salmon,
+            accent=orange,
+        )
+
+        rep.add(f"[b {orange}]name:[/b {orange}][{mocassin}] {self.name}")
+        rep.add(f"[b {orange}]type:[/b {orange}][{mocassin}] {self.br_class}")
+        rep.line()
+        rep.add(
+            f"[{orange}]center of mass:[/{orange}][{mocassin}] {self.centerOfMass().astype(np.int32)}"
+        )
+        rep.add(
+            f"[{orange}]number of vertices:[/{orange}][{mocassin}] {len(self.points())}"
+        )
+        rep.add(
+            f"[{orange}]dimensions:[/{orange}][{mocassin}] {np.array(self.bounds()).astype(np.int32)}"
+        )
+        rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.color()}")
+
+        yield rep
 
 
 class Scene(Render):
@@ -418,11 +444,11 @@ class Scene(Render):
 
         if isinstance(actors, list):
             for act in actors:
-                self.actors.extend(
+                self.add_actor(
                     list(act.values()), name="neuron", br_class="neuron"
                 )
         else:
-            self.actors.extend(
+            self.add_actor(
                 list(actors.values()), name="neuron", br_class="neuron"
             )
         return actors
@@ -449,9 +475,7 @@ class Scene(Render):
         """
 
         actors = self.atlas.get_tractography(*args, **kwargs)
-        self.actors.extend(
-            actors, name="tractography", br_class="tractography"
-        )
+        self.add_actor(actors, name="tractography", br_class="tractography")
         return return_list_smart(actors)
 
     def add_streamlines(self, *args, **kwargs):
@@ -460,10 +484,8 @@ class Scene(Render):
         Check the function definition in ABA for more details
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
-        self.actors.extend(actors)
-        return return_list_smart(
-            actors, name="streamlines", br_class="streamlines"
-        )
+        self.add_actor(actors, name="streamlines", br_class="streamlines")
+        return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
 
@@ -633,7 +655,9 @@ class Scene(Render):
 
         # Create actor
         cylinder = self.add_actor(
-            Cylinder(**params), name="optic cannula", br_class="optic cannula"
+            shapes.Cylinder(**params),
+            name="optic cannula",
+            br_class="optic cannula",
         )
         return cylinder
 
@@ -701,7 +725,7 @@ class Scene(Render):
         p1[replace_coord] = bounds[1]
 
         # Create line actor
-        line = Line(p0, p1, c=color, lw=lw, **kwargs)
+        line = shapes.Line(p0, p1, c=color, lw=lw, **kwargs)
         return self.add_actor(
             line,
             name=f"line through {point.astype(np.int32)}",
