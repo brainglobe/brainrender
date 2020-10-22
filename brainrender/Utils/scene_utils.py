@@ -245,12 +245,20 @@ def make_actor_label(
 
         # Create label
         txt = Text(label, point, s=size, c=color)
+        txt._original_actor = actor
+        txt._label = label
+        txt._kwargs = dict(
+            size=300, color=None, radius=100, xoffset=0, yoffset=0, zoffset=0,
+        )
+
         new_actors.append(txt)
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
             pt = actor.closestPoint(point)
-            new_actors.append(Sphere(pt, r=radius, c=color))
+            sphere = Sphere(pt, r=radius, c=color)
+            sphere.ancor = pt
+            new_actors.append(sphere)
 
     return new_actors
 

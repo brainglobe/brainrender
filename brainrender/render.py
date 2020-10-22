@@ -147,21 +147,28 @@ class Render(Enhanced):
         self.transform_applied = True
 
         # Flip every actor's orientation
-        _silhouettes = []
-        for actor in self.actors:
+        _silhouettes, _labels = [], []
+        for actor in self.actors + self.actors_labels:
             try:
                 _name = actor.name
             except AttributeError:
                 """ not all scene objects will have a name """
                 continue
 
-            if _name != "silhouette":
+            if "label" in _name:
+                """
+                    Labels don't transform properly,
+                    we need to re-generate them
+                """
+                _labels.append(actor)
+            elif _name != "silhouette":
                 try:
                     if not actor._is_transformed:
                         actor.applyTransform(mtx).reverse()
                         actor._is_transformed = True
 
                 except AttributeError:
+                    print(f"Skipped {_name}")
                     pass
             else:
                 """
@@ -169,6 +176,14 @@ class Render(Enhanced):
                     we need to re-generate them
                 """
                 _silhouettes.append(actor)
+
+        for lab in _labels:
+            self.actors_labels.pop(self.actors_labels.index(lab))
+
+            # if lab.name == 'label text':
+            #     self.add_actor_label(lab._original_actor, lab._label, **lab._kwargs)
+            # else:
+            #     print(lab.name)
 
         for sil in _silhouettes:
             self.actors.pop(self.actors.index(sil))

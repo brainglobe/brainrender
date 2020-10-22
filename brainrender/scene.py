@@ -1,6 +1,5 @@
 import brainrender
 from pathlib import Path
-import numpy as np
 from vedo import (
     Plotter,
     shapes,
@@ -10,12 +9,10 @@ from vedo import (
     Plane,
     Mesh,
 )
-
+import numpy as np
 import pyinspect as pi
 from pyinspect._colors import dimorange, orange, mocassin, salmon
 from rich import print
-from rich.console import Console
-from io import StringIO
 
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
@@ -36,59 +33,7 @@ from brainrender.Utils.camera import set_camera
 from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
 from brainrender.render import Render
 from brainrender.Utils.ruler import ruler
-
-
-class Actor(Mesh):
-    _skip = ["Ruler", "silhouette"]
-
-    def __init__(self, mesh, name=None, br_class=None):
-        try:
-            if mesh.name not in self._skip:
-                Mesh.__init__(self, inputobj=[mesh.points(), mesh.faces()])
-            else:
-                raise AttributeError
-        except AttributeError:
-            raise ValueError(f"Failed to create Actor from {str(type(mesh))}")
-        else:
-            self.c(mesh.c())
-            self.alpha(mesh.alpha())
-
-            self.name = name
-            self.br_class = br_class
-            self._is_transformed = False
-
-    def __repr__(self):
-        return f"brainrender.Actor: {self.name}-{self.br_class}"
-
-    def __str__(self):
-        buf = StringIO()
-        _console = Console(file=buf, force_jupyter=False)
-        _console.print(self)
-
-        return buf.getvalue()
-
-    def __rich_console__(self, *args):
-        rep = pi.Report(
-            title=f"[b]brainrender.Actor: {self.name}-{self.br_class}",
-            color=salmon,
-            accent=orange,
-        )
-
-        rep.add(f"[b {orange}]name:[/b {orange}][{mocassin}] {self.name}")
-        rep.add(f"[b {orange}]type:[/b {orange}][{mocassin}] {self.br_class}")
-        rep.line()
-        rep.add(
-            f"[{orange}]center of mass:[/{orange}][{mocassin}] {self.centerOfMass().astype(np.int32)}"
-        )
-        rep.add(
-            f"[{orange}]number of vertices:[/{orange}][{mocassin}] {len(self.points())}"
-        )
-        rep.add(
-            f"[{orange}]dimensions:[/{orange}][{mocassin}] {np.array(self.bounds()).astype(np.int32)}"
-        )
-        rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.color()}")
-
-        yield rep
+from brainrender.actor import Actor
 
 
 class Scene(Render):
@@ -305,7 +250,8 @@ class Scene(Render):
         actors = pi.Report(
             "Scene actors", accent=salmon, dim=orange, color=orange
         )
-        for act in self.actors:
+
+        for act in self.actors + self.actors_labels:
             try:
                 name = f"[b]{act.name}"
 
@@ -364,7 +310,7 @@ class Scene(Render):
                     continue
 
                 try:
-                    act = Actor(actor, name=name, br_class=br_class)
+                    act = Actor(act, name=name, br_class=br_class)
                 except Exception:  # doesn't work for annotations
                     act.name = name
                     act.br_class = br_class
@@ -705,10 +651,20 @@ class Scene(Render):
         labels = make_actor_label(self.atlas, actors, labels, **kwargs)
 
         # Add to scene and return
-        if isinstance(actors, (tuple, list)):
-            name = [f"{actor.name} label" for actor in actors]
+        if isinstance(labels, (tuple, list)):
+            name = [
+                "label point"
+                if isinstance(actor, shapes.Sphere)
+                else "label text"
+                for actor in labels
+            ]
         else:
-            name = f"{actors.name} label"
+            name = (
+                "label point"
+                if isinstance(labels, shapes.Sphere)
+                else "label text"
+            )
+
         self.add_actor(
             *labels, store=self.actors_labels, name=name, br_class="label"
         )
