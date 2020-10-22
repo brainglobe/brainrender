@@ -248,7 +248,12 @@ def make_actor_label(
         txt._original_actor = actor
         txt._label = label
         txt._kwargs = dict(
-            size=300, color=None, radius=100, xoffset=0, yoffset=0, zoffset=0,
+            size=size,
+            color=color,
+            radius=radius,
+            xoffset=xoffset,
+            yoffset=yoffset,
+            zoffset=zoffset,
         )
 
         new_actors.append(txt)

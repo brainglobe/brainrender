@@ -5,6 +5,15 @@ from accepts import accepts
 # ---------------------------------------------------------------------------- #
 
 
+def listify(obj):
+    if isinstance(obj, list):
+        return obj
+    elif isinstance(obj, tuple):
+        return list(obj)
+    else:
+        return [obj]
+
+
 @accepts((list, tuple))
 def flatten(lst):
     """

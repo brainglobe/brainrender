@@ -5,9 +5,14 @@ from rich.console import Console
 from pyinspect._colors import orange, mocassin, salmon
 import numpy as np
 
+from brainrender.Utils.scene_utils import make_actor_label
+
 
 class Actor(Mesh):
     _skip = ["Ruler", "silhouette"]
+
+    _needs_label = False
+    _is_transformed = False
 
     def __init__(self, mesh, name=None, br_class=None):
         try:
@@ -23,12 +28,6 @@ class Actor(Mesh):
 
             self.name = name
             self.br_class = br_class
-            self._is_transformed = False
-
-            if name == "label text":
-                self._original_actor = mesh._original_actor
-                self._label = mesh._label
-                self._kwargs = mesh._kwargs
 
     def __repr__(self):
         return f"brainrender.Actor: {self.name}-{self.br_class}"
@@ -60,3 +59,10 @@ class Actor(Mesh):
         rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.color()}")
 
         yield rep
+
+    def make_label(self, atlas):
+        labels = make_actor_label(
+            atlas, self, self._label_str, **self._label_kwargs
+        )
+        self._needs_label = False
+        return labels

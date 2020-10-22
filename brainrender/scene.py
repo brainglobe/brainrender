@@ -18,7 +18,6 @@ import sys
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
     get_cells_colors_from_metadata,
-    make_actor_label,
     parse_add_actors_inputs,
 )
 from brainrender.Utils.data_io import (
@@ -29,6 +28,7 @@ from brainrender.ABA.aba_utils import parse_sharptrack
 from brainrender.Utils.data_manipulation import (
     return_list_smart,
     make_optic_canula_cylinder,
+    listify,
 )
 from brainrender.Utils.camera import set_camera
 from brainrender.Utils.actors_funcs import get_actor_midpoint, get_actor_bounds
@@ -191,19 +191,8 @@ class Scene(Render):
                 + "after having rendered the scene at lest once, this might give unpredicable results."
                 + "\nIt's advised to perform all cuts before the first call to `render`"
             )
-        # Check arguments
-        if isinstance(plane, (list, tuple)):
-            planes = plane.copy()
-        else:
-            planes = [plane]
-
-        if actors is None:
-            actors = self.actors
-        else:
-            if not isinstance(actors, (list, tuple)):
-                actors = [actors]
-
         # Loop over each plane
+        planes = listify(plane).copy()
         to_return = []
         for plane in planes:
             # Get the plane actor
@@ -222,7 +211,7 @@ class Scene(Render):
                 self.add_actor(plane)
 
             # Cut actors
-            for actor in actors:
+            for actor in listify(actors):
                 if actor is None:
                     continue
 
@@ -290,7 +279,9 @@ class Scene(Render):
     #                                POPULATE SCENE                                #
     # ---------------------------------------------------------------------------- #
 
-    def add_actor(self, *actors, name=None, br_class=None, store=None):
+    def add_actor(
+        self, *actors, name=None, br_class=None, store=None, simple=False
+    ):
         """
         Add a vtk actor to the scene
 
@@ -306,14 +297,13 @@ class Scene(Render):
         # Add actors to scene
         to_return = []
         for actor, name, br_class in zip(actors, names, br_classes):
-            if not isinstance(actor, (list, tuple)):
-                actor = [actor]
-
-            for act in actor:
+            for act in listify(actor):
                 if act is None:
                     continue
 
                 try:
+                    if simple:
+                        raise ValueError  # avoid transforming into an Actor
                     act = Actor(act, name=name, br_class=br_class)
                 except Exception:  # doesn't work for annotations
                     act.name = name
@@ -398,12 +388,12 @@ class Scene(Render):
             for n, v in store.items():
                 self.store[n] = v
 
-        if isinstance(actors, list):
-            for act in actors:
-                self.add_actor(
-                    list(act.values()), name="neuron", br_class="neuron"
-                )
+        for act in listify:
+            self.add_actor(
+                list(act.values()), name="neuron", br_class="neuron"
+            )
         else:
+
             self.add_actor(
                 list(actors.values()), name="neuron", br_class="neuron"
             )
@@ -641,8 +631,8 @@ class Scene(Render):
 
     def add_actor_label(self, actors, labels, **kwargs):
         """
-            Adds a 2D text ancored to a point on the actor's mesh
-            to label what the actor is
+            Prepares an actor label. Labels are only created when
+            `Scene.render` is called. 
 
             :param kwargs: key word arguments can be passed to determine 
                     text appearance and location:
@@ -652,28 +642,10 @@ class Scene(Render):
                         - xoffset, yoffset, zoffset: integers that shift the label position
                         - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
         """
-        labels = make_actor_label(self.atlas, actors, labels, **kwargs)
-
-        # Add to scene and return
-        if isinstance(labels, (tuple, list)):
-            name = [
-                "label point"
-                if isinstance(actor, shapes.Sphere)
-                else "label text"
-                for actor in labels
-            ]
-        else:
-            name = (
-                "label point"
-                if isinstance(labels, shapes.Sphere)
-                else "label text"
-            )
-
-        self.add_actor(
-            *labels, store=self.actors_labels, name=name, br_class="label"
-        )
-
-        return return_list_smart(labels)
+        for actor, label in zip(listify(actors), listify(labels)):
+            actor._needs_label = True
+            actor._label_str = label
+            actor._label_kwargs = kwargs
 
     def add_line_at_point(
         self, point, axis, color="blackboard", lw=3, **kwargs
@@ -737,11 +709,7 @@ class Scene(Render):
                 + "\nIt's advised to perform add all planes before the first call to `render`"
             )
 
-        if isinstance(plane, (list, tuple)):
-            planes = plane.copy()
-        else:
-            planes = [plane]
-
+        planes = listify(plane).copy()
         actors = []
         for plane in planes:
             if isinstance(plane, str):

@@ -147,8 +147,8 @@ class Render(Enhanced):
         self.transform_applied = True
 
         # Flip every actor's orientation
-        _silhouettes, _labels = [], []
-        for actor in self.actors + self.actors_labels:
+        _silhouettes = []
+        for actor in self.actors:
             try:
                 _name = actor.name
 
@@ -158,20 +158,13 @@ class Render(Enhanced):
                 """ not all scene objects will have a name """
                 continue
 
-            if "label" in _name:
-                """
-                    Labels don't transform properly,
-                    we need to re-generate them
-                """
-                _labels.append(actor)
-            elif _name != "silhouette":
+            if _name != "silhouette":
                 try:
                     if not actor._is_transformed:
                         actor.applyTransform(mtx).reverse()
                         actor._is_transformed = True
 
                 except AttributeError:
-                    print(f"Skipped {_name}")
                     pass
             else:
                 """
@@ -180,14 +173,15 @@ class Render(Enhanced):
                 """
                 _silhouettes.append(actor)
 
-        for lab in _labels:
-            self.actors_labels.pop(self.actors_labels.index(lab))
+        # Make labels
+        for actor in self.actors:
+            try:
+                if actor._needs_label:
+                    self.actors_labels.extend(actor.make_label(self.atlas))
+            except AttributeError:
+                pass
 
-            # if lab.name == 'label text':
-            #     self.add_actor_label(lab._original_actor, lab._label, **lab._kwargs)
-            # else:
-            #     print(lab.name)
-
+        # Update silhouettes
         for sil in _silhouettes:
             self.actors.pop(self.actors.index(sil))
             self.add_silhouette(sil._original_mesh)
@@ -197,7 +191,7 @@ class Render(Enhanced):
         if brainrender.SHADER_STYLE is None:  # No style to apply
             return
 
-        for actor in self.actors:
+        for actor in self.actors + self.actors_labels:
             if actor is not None:
                 try:
                     if brainrender.SHADER_STYLE != "cartoon":
@@ -213,7 +207,6 @@ class Render(Enhanced):
         """
         Takes care of rendering the scene
         """
-        self.apply_render_style()
 
         if not video:
             if (
@@ -244,13 +237,6 @@ class Render(Enhanced):
         if zoom is None and not video:
             zoom = 1.2 if brainrender.WHOLE_SCREEN else 1.5
 
-        # Make mesh labels follow the camera
-        if not self.jupyter:
-            for txt in self.actors_labels:
-                txt.followCamera(self.plotter.camera)
-
-        self.is_rendered = True
-
         args_dict = dict(
             interactive=interactive,
             zoom=zoom,
@@ -268,6 +254,13 @@ class Render(Enhanced):
         # Correct axes orientations
         self._correct_axes()
 
+        # Make mesh labels follow the camera
+        if not self.jupyter:
+            for txt in self.actors_labels:
+                txt.followCamera(self.plotter.camera)
+        self.apply_render_style()
+
+        self.is_rendered = True
         show(*self.actors, *self.actors_labels, **args_dict)
 
     def close(self):
