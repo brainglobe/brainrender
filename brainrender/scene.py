@@ -434,7 +434,9 @@ class Scene(Render):
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         for act in actors:
-            self.add_actor(actors, name="streamlines", br_class="streamlines")
+            self.add_actor(
+                actors, name="streamlines", br_class="streamlines", simple=True
+            )
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
