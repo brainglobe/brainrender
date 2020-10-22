@@ -388,7 +388,7 @@ class Scene(Render):
             for n, v in store.items():
                 self.store[n] = v
 
-        for act in listify:
+        for act in listify(actors):
             self.add_actor(
                 list(act.values()), name="neuron", br_class="neuron"
             )
