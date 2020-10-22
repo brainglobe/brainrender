@@ -167,7 +167,6 @@ class Scene(Render):
 
                 self.inset = self.root.clone().scale(0.5)
                 self.root = None
-                self.actors["root"] = None
             else:
                 self.inset = self.root.clone().scale(0.5)
 
@@ -193,6 +192,7 @@ class Scene(Render):
             )
         # Loop over each plane
         planes = listify(plane).copy()
+
         to_return = []
         for plane in planes:
             # Get the plane actor
@@ -211,6 +211,9 @@ class Scene(Render):
                 self.add_actor(plane)
 
             # Cut actors
+            if actors is None:
+                actors = self.actors.copy()
+
             for actor in listify(actors):
                 if actor is None:
                     continue
@@ -326,6 +329,7 @@ class Scene(Render):
         :param **kwargs:
 
         """
+
         self.root = self.atlas._get_structure_mesh(
             "root",
             color=brainrender.ROOT_COLOR,
@@ -342,13 +346,12 @@ class Scene(Render):
             return None
 
         if render:
-            self.add_actor(self.root, name="root", br_class="root")
-
+            self.root = self.add_actor(self.root, name="root", br_class="root")
         elif brainrender.SHOW_AXES:
             # if showing axes, add a transparent root
             # so that scene has right scale
             root = self.root.clone().alpha(0)
-            self.add_actor(root, name="root", br_class="root")
+            self.root = self.add_actor(root, name="root", br_class="root")
 
         return self.root
 
