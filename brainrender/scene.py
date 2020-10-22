@@ -392,14 +392,12 @@ class Scene(Render):
                 self.store[n] = v
 
         for act in listify(actors):
-            self.add_actor(
-                list(act.values()), name="neuron", br_class="neuron"
-            )
-        else:
-
-            self.add_actor(
-                list(actors.values()), name="neuron", br_class="neuron"
-            )
+            if isinstance(act, dict):
+                self.add_actor(
+                    list(act.values()), name="neuron", br_class="neuron"
+                )
+            else:
+                self.add_actor(list(actors), name="neuron", br_class="neuron")
         return actors
 
     def add_neurons_synapses(self, *args, **kwargs):
