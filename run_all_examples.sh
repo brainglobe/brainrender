@@ -1,5 +1,8 @@
 for entry in "examples"/*
 do
-  echo "running $entry"
-  python $entry
+  for f in $entry/*
+  do
+    echo "running $f"
+    python $f
+  done
 done
