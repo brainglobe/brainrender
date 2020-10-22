@@ -13,8 +13,8 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
     gap1 = ((midpoint - p1) * 0.8) + p1
     gap2 = ((midpoint - p2) * 0.8) + p2
 
-    actors.append(Line(p1, gap1, lw=2))
-    actors.append(Line(gap2, p2, lw=2))
+    actors.append(Line(p1, gap1, lw=200))
+    actors.append(Line(gap2, p2, lw=200))
 
     # Add label
     if units is None:
@@ -31,5 +31,5 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
 
     acts = merge(*actors).c((0.3, 0.3, 0.3)).alpha(1).lw(2)
     acts.name = "Ruler"
-    acts._bg_class = "Ruler"
+    acts.bg_class = "Ruler"
     return acts

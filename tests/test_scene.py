@@ -143,6 +143,9 @@ def test_regions():
     scene.add_brain_regions(regions, colors="green")
     ca1 = scene.add_brain_regions("CA1", add_labels=True)
     ca1.alpha(0.2)
+
+    print(ca1)
+
     scene.close()
 
 

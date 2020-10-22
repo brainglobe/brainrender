@@ -29,9 +29,7 @@ mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
 class Render(Enhanced):
-    _axes_order_corrected = (
-        False  # at first render the axes orders is corrected
-    )
+    transform_applied = False
 
     def __init__(
         self,
@@ -146,20 +144,26 @@ class Render(Enhanced):
             is applied to each actor's points to correct orientation
             mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
         """
-        self._axes_order_corrected = True
+        self.transform_applied = True
 
         # Flip every actor's orientation
         _silhouettes = []
         for actor in self.actors:
             try:
                 _name = actor.name
+
+                if _name is None:
+                    _name = ""
             except AttributeError:
                 """ not all scene objects will have a name """
                 continue
 
             if _name != "silhouette":
                 try:
-                    actor.applyTransform(mtx).reverse()
+                    if not actor._is_transformed:
+                        actor.applyTransform(mtx).reverse()
+                        actor._is_transformed = True
+
                 except AttributeError:
                     pass
             else:
@@ -169,6 +173,15 @@ class Render(Enhanced):
                 """
                 _silhouettes.append(actor)
 
+        # Make labels
+        for actor in self.actors:
+            try:
+                if actor._needs_label:
+                    self.actors_labels.extend(actor.make_label(self.atlas))
+            except AttributeError:
+                pass
+
+        # Update silhouettes
         for sil in _silhouettes:
             self.actors.pop(self.actors.index(sil))
             self.add_silhouette(sil._original_mesh)
@@ -178,7 +191,7 @@ class Render(Enhanced):
         if brainrender.SHADER_STYLE is None:  # No style to apply
             return
 
-        for actor in self.actors:
+        for actor in self.actors + self.actors_labels:
             if actor is not None:
                 try:
                     if brainrender.SHADER_STYLE != "cartoon":
@@ -194,7 +207,6 @@ class Render(Enhanced):
         """
         Takes care of rendering the scene
         """
-        self.apply_render_style()
 
         if not video:
             if (
@@ -225,13 +237,6 @@ class Render(Enhanced):
         if zoom is None and not video:
             zoom = 1.2 if brainrender.WHOLE_SCREEN else 1.5
 
-        # Make mesh labels follow the camera
-        if not self.jupyter:
-            for txt in self.actors_labels:
-                txt.followCamera(self.plotter.camera)
-
-        self.is_rendered = True
-
         args_dict = dict(
             interactive=interactive,
             zoom=zoom,
@@ -247,9 +252,15 @@ class Render(Enhanced):
             self.make_custom_axes = False
 
         # Correct axes orientations
-        if not self._axes_order_corrected:
-            self._correct_axes()
+        self._correct_axes()
 
+        # Make mesh labels follow the camera
+        if not self.jupyter:
+            for txt in self.actors_labels:
+                txt.followCamera(self.plotter.camera)
+        self.apply_render_style()
+
+        self.is_rendered = True
         show(*self.actors, *self.actors_labels, **args_dict)
 
     def close(self):
@@ -302,8 +313,9 @@ class Render(Enhanced):
         elif key == "c":
             print(f"Camera parameters:\n{get_camera_params(scene=self)}")
 
-    def take_screenshot(self, screenshots_folder=None,
-                        screenshot_name=None, scale=None):
+    def take_screenshot(
+        self, screenshots_folder=None, screenshot_name=None, scale=None
+    ):
         """
         :param screenshots_folder: folder where the screenshot will be saved
         :param screenshot_name: name of the saved file
@@ -313,8 +325,10 @@ class Render(Enhanced):
 
         if screenshots_folder is None:
             screenshots_folder = Path(
-                self.screenshot_kwargs.get("folder",
-                                           brainrender.DEFAULT_SCREENSHOT_FOLDER))
+                self.screenshot_kwargs.get(
+                    "folder", brainrender.DEFAULT_SCREENSHOT_FOLDER
+                )
+            )
         screenshots_folder.mkdir(exist_ok=True)
 
         if screenshot_name is None:
