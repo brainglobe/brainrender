@@ -423,7 +423,10 @@ class Scene(Render):
         actors = self.atlas.get_tractography(*args, **kwargs)
         for act in actors:
             self.add_actor(
-                actors, name="tractography", br_class="tractography"
+                actors,
+                name="tractography",
+                br_class="tractography",
+                simple=True,
             )
         return return_list_smart(actors)
 
