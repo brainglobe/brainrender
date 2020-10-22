@@ -12,7 +12,8 @@ from vedo import (
 import numpy as np
 import pyinspect as pi
 from pyinspect._colors import dimorange, orange, mocassin, salmon
-from rich import print
+from rich import print as rprint
+import sys
 
 from brainrender.Utils.scene_utils import (
     get_scene_atlas,
@@ -185,7 +186,7 @@ class Scene(Render):
         **kwargs,
     ):
         if self.transform_applied:
-            print(
+            rprint(
                 f"[b {salmon}]Warning: [/b {salmon}][{mocassin}]you're attempting to cut actors with a plane "
                 + "after having rendered the scene at lest once, this might give unpredicable results."
                 + "\nIt's advised to perform all cuts before the first call to `render`"
@@ -280,7 +281,10 @@ class Scene(Render):
                     f"[b {mocassin}]- {name}[/b][{dimorange}] (type: [{orange}]{br_class}[/{orange}]) | is transformed: [blue]{act._is_transformed}"
                 )
 
-        actors.print()
+        if "win" not in sys.platform:
+            actors.print()
+        else:
+            print(pi.utils.stringify(actors, maxlen=-1))
 
     # ---------------------------------------------------------------------------- #
     #                                POPULATE SCENE                                #
@@ -727,7 +731,7 @@ class Scene(Render):
                 or an instance of the Plane class from vedo.shapes
         """
         if self.transform_applied:
-            print(
+            rprint(
                 f"[b {salmon}]Warning: [/b {salmon}][{mocassin}]you're attempting to add a plane "
                 + "after having rendered the scene at lest once, this might give unpredicable results."
                 + "\nIt's advised to perform add all planes before the first call to `render`"

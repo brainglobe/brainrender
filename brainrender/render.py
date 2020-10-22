@@ -151,6 +151,9 @@ class Render(Enhanced):
         for actor in self.actors + self.actors_labels:
             try:
                 _name = actor.name
+
+                if _name is None:
+                    _name = ""
             except AttributeError:
                 """ not all scene objects will have a name """
                 continue
