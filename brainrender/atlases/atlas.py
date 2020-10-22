@@ -414,11 +414,15 @@ class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
         com = (
             bilateralmesh.centerOfMass()
         )  # this will always give a point that is on the midline
-        right = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1))
+        right = bilateralmesh.cutWithPlane(origin=com, normal=(0, 0, 1)).c(
+            color
+        )
 
         # left is the mirror right # WIP
         com = self.get_region_CenterOfMass("root", unilateral=False)[2]
-        left = actors_funcs.mirror_actor_at_point(right.clone(), com, axis="x")
+        left = actors_funcs.mirror_actor_at_point(
+            right.clone(), com, axis="x"
+        ).c(color)
 
         if hemisphere == "both":
             return left, right

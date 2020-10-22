@@ -248,7 +248,7 @@ class Render(Enhanced):
             self.make_custom_axes = False
 
         # Correct axes orientations
-        # self._correct_axes()
+        self._correct_axes()
 
         show(*self.actors, *self.actors_labels, **args_dict)
 

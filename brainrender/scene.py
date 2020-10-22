@@ -37,24 +37,23 @@ from brainrender.Utils.ruler import ruler
 
 
 class Actor(Mesh):
-    _skip_types = [
-        "<class 'vtkRenderingAnnotationPython.vtkCornerAnnotation'>"
-    ]
+    _skip = ["Ruler", "silhouette"]
 
     def __init__(self, mesh, name=None, br_class=None):
-        # if str(type(mesh)) in self._skip_types:
-        #     mesh.name = mesh.name if name is None else name
-        #     mesh.br_class = str(type(mesh)) if br_class is None else br_class
+        try:
+            if mesh.name not in self._skip:
+                Mesh.__init__(self, inputobj=[mesh.points(), mesh.faces()])
+            else:
+                raise AttributeError
+        except AttributeError:
+            raise ValueError(f"Failed to create Actor from {str(type(mesh))}")
+        else:
+            self.c(mesh.c())
+            self.alpha(mesh.alpha())
 
-        #     self = mesh
-        # else:
-        Mesh.__init__(self, inputobj=mesh)
-        self.c(mesh.c())
-        self.alpha(mesh.alpha())
-
-        self.name = name
-        self.br_class = br_class
-        self._is_transformed = False
+            self.name = name
+            self.br_class = br_class
+            self._is_transformed = False
 
     # def __repr__(self):
     #     raise NotImplementedError
@@ -302,12 +301,11 @@ class Scene(Render):
 
             if not extensive:
                 actors.add(
-                    f"[b {mocassin}]- {name}[/b][{dimorange}] (type: {br_class})"
+                    f"[b {mocassin}]- {name}[/b][{dimorange}] (type: [{orange}]{br_class}[/{orange}])"
                 )
             else:
                 actors.add(
-                    f"[b {mocassin}]- {name}[/b][{dimorange}] (type: {br_class}) | is transformed: {act._is_transformed}"
-                    + f" color: {act.color}"
+                    f"[b {mocassin}]- {name}[/b][{dimorange}] (type: [{orange}]{br_class}[/{orange}]) | is transformed: [blue]{act._is_transformed}"
                 )
 
         actors.print()
@@ -334,10 +332,11 @@ class Scene(Render):
         for actor, name, br_class in zip(actors, names, br_classes):
             try:
                 act = Actor(actor, name=name, br_class=br_class)
-            except RuntimeError:  # doesn't work for annotations
+            except Exception:  # doesn't work for annotations
                 act = actor
                 act.name = name
                 act.br_class = br_class
+                act._is_transformed = False
 
             if store is None:
                 self.actors.append(act)
@@ -475,6 +474,7 @@ class Scene(Render):
         """
         for actor in actors:
             sil = actor.silhouette(**kwargs).lw(lw).c(color)
+            sil.name = "silhouette"
             sil = self.add_actor(sil, name="silhouette", br_class="silhouette")
             sil._original_mesh = actor
 

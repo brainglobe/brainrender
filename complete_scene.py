@@ -34,13 +34,13 @@ hy = scene.add_brain_regions("HY")
 scene.cut_actors_with_plane("sagittal", actors=hy)
 
 # Fake render
-# scene.render(interactive=False)
+scene.render(interactive=False)
 
 # Add more regions and silhouettes
 ca1 = scene.add_brain_regions("CA1")
 scene.add_silhouette(ca1)
 
-visp = scene.add_brain_regions("VISp", add_labels=True).lw(1).alpha(0.3)
+visp = scene.add_brain_regions("VISp", add_labels=False).lw(1).alpha(0.3)
 scene.add_sphere_at_point(
     scene.atlas.get_region_CenterOfMass("VISp"), radius=200
 )
@@ -49,7 +49,7 @@ scene.add_sphere_at_point(p3, radius=200)
 
 
 # add labels
-scene.add_actor_label(ca1, "CA1")
+# scene.add_actor_label(ca1, "CA1")
 
 # Add some random stuff
 scene.add_optic_cannula("VISp")
@@ -57,5 +57,5 @@ scene.add_plane("sagittal")
 
 
 # final render
-scene.list_actors()
+scene.list_actors(extensive=True)
 scene.render()
