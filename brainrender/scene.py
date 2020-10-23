@@ -347,6 +347,8 @@ class Scene(Render):
             # so that scene has right scale
             root.alpha(0)
             self.root = self.add_actor(root, name="root", br_class="root")
+        else:
+            self.root = root.alpha(0)
 
         return self.root
 
