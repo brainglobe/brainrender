@@ -19,6 +19,7 @@ def flatten(lst):
     """
         Flattens a nested list
     """
+    lst = [listify(item) for item in lst]
     return [item for sublist in lst for item in sublist]
 
 
