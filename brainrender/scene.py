@@ -167,7 +167,6 @@ class Scene(Render):
 
                 self.inset = self.root.mesh.clone().scale(0.5)
                 self.root = None
-                self.actors["root"] = None
             else:
                 self.inset = self.root.mesh.clone().scale(0.5)
 
@@ -211,6 +210,9 @@ class Scene(Render):
                 self.add_actor(plane)
 
             # Cut actors
+            if actors is None:
+                actors = self.actors.copy()
+
             for actor in listify(actors):
                 if actor is None:
                     continue
@@ -388,13 +390,19 @@ class Scene(Render):
             for n, v in store.items():
                 self.store[n] = v
 
+        to_return = []
         for act in listify(actors):
-            self.add_actor(
-                list(act.values()), name="neuron", br_class="neuron"
-            )
-        else:
-            self.add_actor(list(actors), name="neuron", br_class="neuron")
-        return actors
+            if isinstance(act, dict):
+                act = self.add_actor(
+                    list(act.values()), name="neuron", br_class="neuron"
+                )
+                to_return.append(act)
+            else:
+                act = self.add_actor(
+                    list(actors), name="neuron", br_class="neuron"
+                )
+                to_return.append(act)
+        return to_return
 
     def add_neurons_synapses(self, *args, **kwargs):
         """
