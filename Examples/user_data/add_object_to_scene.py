@@ -20,28 +20,27 @@ scene = Scene()
 
 # Load skull from file
 skull = scene.add_from_file("Examples/example_files/skull.stl")
-skull.c("ivory").alpha(1)
+skull.mesh.c("ivory").alpha(1)
 
 # Align skull and brain (scene.root)
-skull_com = skull.centerOfMass()
-root_com = scene.root.centerOfMass()
+skull_com = skull.mesh.centerOfMass()
+root_com = scene.root.mesh.centerOfMass()
 
-skull.origin(skull.centerOfMass())
-skull.rotateY(90).rotateX(180)
-skull.x(root_com[0] - skull_com[0])
-skull.y(root_com[1] - skull_com[1])
-skull.z(root_com[2] - skull_com[2])
-skull.x(3500)
-skull.rotateZ(-25)
-skull.y(7800)
-skull.scale([1300, 1500, 1200])
+skull.mesh.origin(skull.mesh.centerOfMass())
+skull.mesh.rotateY(90).rotateX(180)
+skull.mesh.x(root_com[0] - skull_com[0])
+skull.mesh.y(root_com[1] - skull_com[1])
+skull.mesh.z(root_com[2] - skull_com[2])
+skull.mesh.x(3500)
+skull.mesh.rotateZ(-25)
+skull.mesh.y(7800)
+skull.mesh.scale([1300, 1500, 1200])
 
 
 # Cut skull actor to show brain inside
 scene.cut_actors_with_plane("sagittal", actors=skull)
 
 # Improve looks
-scene.add_silhouette(scene.root, lw=3)
-scene.add_silhouette(skull, lw=3)
+scene.add_silhouette(scene.root, skull, lw=3)
 
 scene.render()

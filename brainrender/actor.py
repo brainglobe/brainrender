@@ -12,22 +12,13 @@ class Actor(Mesh):
     _skip = ["Ruler", "silhouette"]
 
     _needs_label = False
+    _needs_silhouette = False
     _is_transformed = False
 
     def __init__(self, mesh, name=None, br_class=None):
-        try:
-            if mesh.name not in self._skip:
-                Mesh.__init__(self, inputobj=[mesh.points(), mesh.faces()])
-            else:
-                raise AttributeError
-        except AttributeError:
-            raise ValueError(f"Failed to create Actor from {str(type(mesh))}")
-        else:
-            self.c(mesh.c())
-            self.alpha(mesh.alpha())
-
-            self.name = name
-            self.br_class = br_class
+        self.mesh = mesh
+        self.name = name
+        self.br_class = br_class
 
     def __repr__(self):
         return f"brainrender.Actor: {self.name}-{self.br_class}"
@@ -48,17 +39,21 @@ class Actor(Mesh):
         rep.add(f"[b {orange}]type:[/b {orange}][{mocassin}] {self.br_class}")
         rep.line()
         rep.add(
-            f"[{orange}]center of mass:[/{orange}][{mocassin}] {self.centerOfMass().astype(np.int32)}"
+            f"[{orange}]center of mass:[/{orange}][{mocassin}] {self.mesh.centerOfMass().astype(np.int32)}"
         )
         rep.add(
-            f"[{orange}]number of vertices:[/{orange}][{mocassin}] {len(self.points())}"
+            f"[{orange}]number of vertices:[/{orange}][{mocassin}] {len(self.mesh.points())}"
         )
         rep.add(
-            f"[{orange}]dimensions:[/{orange}][{mocassin}] {np.array(self.bounds()).astype(np.int32)}"
+            f"[{orange}]dimensions:[/{orange}][{mocassin}] {np.array(self.mesh.bounds()).astype(np.int32)}"
         )
-        rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.color()}")
+        rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.mesh.color()}")
 
         yield rep
+
+    @classmethod
+    def make_actor(cls, mesh, name, br_class):
+        return cls(mesh, name=name, br_class=br_class)
 
     def make_label(self, atlas):
         labels = make_actor_label(
@@ -66,3 +61,16 @@ class Actor(Mesh):
         )
         self._needs_label = False
         return labels
+
+    def make_silhouette(self):
+        lw = self._silhouette_kwargs["lw"]
+        color = self._silhouette_kwargs["color"]
+        sil = self.mesh.silhouette().lw(lw).c(color)
+
+        name = f"{self.name} silhouette"
+        sil = Actor.make_actor(sil, name, "silhoette")
+        sil._is_transformed = True
+
+        self._needs_silhouette = False
+
+        return sil

@@ -14,7 +14,7 @@ scene = Scene(title="Adding actors")
 scene + "Examples/example_files/root.obj"  # or scene += some_actor
 
 # or using the scene class `add_actor` method
-scene.add_actor(scene.root.clone().color("r"))
+scene.add_actor(scene.root.mesh.clone().color("r"))
 
 
 # You can check how many actors there are in a scene with

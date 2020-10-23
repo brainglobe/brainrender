@@ -165,10 +165,10 @@ class Scene(Render):
                     print("Could not find root object")
                     return
 
-                self.inset = self.root.clone().scale(0.5)
+                self.inset = self.root.mesh.clone().scale(0.5)
                 self.root = None
             else:
-                self.inset = self.root.clone().scale(0.5)
+                self.inset = self.root.mesh.clone().scale(0.5)
 
             self.inset.alpha(1)
             self.plotter.showInset(
@@ -192,7 +192,6 @@ class Scene(Render):
             )
         # Loop over each plane
         planes = listify(plane).copy()
-
         to_return = []
         for plane in planes:
             # Get the plane actor
@@ -219,7 +218,7 @@ class Scene(Render):
                     continue
 
                 try:
-                    actor = actor.cutWithPlane(
+                    actor.mesh = actor.mesh.cutWithPlane(
                         origin=plane.center,
                         normal=plane.normal,
                         returnCut=returncut,
@@ -282,9 +281,7 @@ class Scene(Render):
     #                                POPULATE SCENE                                #
     # ---------------------------------------------------------------------------- #
 
-    def add_actor(
-        self, *actors, name=None, br_class=None, store=None, simple=False
-    ):
+    def add_actor(self, *actors, name=None, br_class=None, store=None):
         """
         Add a vtk actor to the scene
 
@@ -305,8 +302,6 @@ class Scene(Render):
                     continue
 
                 try:
-                    if simple:
-                        raise ValueError  # avoid transforming into an Actor
                     act = Actor(act, name=name, br_class=br_class)
                 except Exception:  # doesn't work for annotations
                     act.name = name
@@ -329,29 +324,31 @@ class Scene(Render):
         :param **kwargs:
 
         """
-
-        self.root = self.atlas._get_structure_mesh(
+        root = self.atlas._get_structure_mesh(
             "root",
             color=brainrender.ROOT_COLOR,
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
 
-        if self.root is not None:
-            self.atlas._root_midpoint = get_actor_midpoint(self.root)
-            self.atlas._root_bounds = get_actor_bounds(self.root)
+        if root is not None:
+            self.atlas._root_midpoint = get_actor_midpoint(root)
+            self.atlas._root_bounds = get_actor_bounds(root)
 
         else:
             print("Could not find a root mesh")
             return None
 
         if render:
-            self.root = self.add_actor(self.root, name="root", br_class="root")
+            self.root = self.add_actor(root, name="root", br_class="root")
+
         elif brainrender.SHOW_AXES:
             # if showing axes, add a transparent root
             # so that scene has right scale
-            root = self.root.clone().alpha(0)
+            root.alpha(0)
             self.root = self.add_actor(root, name="root", br_class="root")
+        else:
+            self.root = root.alpha(0)
 
         return self.root
 
@@ -429,10 +426,7 @@ class Scene(Render):
         actors = self.atlas.get_tractography(*args, **kwargs)
         for act in actors:
             self.add_actor(
-                actors,
-                name="tractography",
-                br_class="tractography",
-                simple=True,
+                actors, name="tractography", br_class="tractography"
             )
         return return_list_smart(actors)
 
@@ -443,23 +437,24 @@ class Scene(Render):
         """
         actors = self.atlas.get_streamlines(*args, **kwargs)
         for act in actors:
-            self.add_actor(
-                actors, name="streamlines", br_class="streamlines", simple=True
-            )
+            self.add_actor(actors, name="streamlines", br_class="streamlines")
         return return_list_smart(actors)
 
     # -------------------------- General actors/elements ------------------------- #
 
-    def add_silhouette(self, *actors, lw=1, color="k", **kwargs):
+    def add_silhouette(self, *actors, lw=1, color="k"):
         """
-            Given a list of actors it adds a colored silhouette
-            to them.
+            Add a silhouette around a given Actor. 
+            Note, this function doesn't actually create the silhouette, 
+            that's done after the actor is rendered.
+
+            :param actors: instances of Actor class
+            :param lw: float, line weight, width of silhouette
+            :oaram color: color of silhouette line
         """
-        for actor in actors:
-            sil = actor.silhouette(**kwargs).lw(lw).c(color)
-            sil.name = "silhouette"
-            sil = self.add_actor(sil, name="silhouette", br_class="silhouette")
-            sil._original_mesh = actor
+        for act in actors:
+            act._needs_silhouette = True
+            act._silhouette_kwargs = dict(lw=lw, color=color,)
 
     def add_from_file(self, *filepaths, **kwargs):
         """
@@ -473,8 +468,8 @@ class Scene(Render):
         for filepath in filepaths:
             actor = load_mesh_from_file(filepath, **kwargs)
             name = Path(filepath).name
-            self.add_actor(actor, name=name, br_class=name)
-            actors.append(actor)
+            act = self.add_actor(actor, name=name, br_class=name)
+            actors.append(act)
         return return_list_smart(actors)
 
     def add_sphere_at_point(
@@ -492,7 +487,7 @@ class Scene(Render):
         sphere = shapes.Sphere(
             pos=pos, r=radius, c=color, alpha=alpha, **kwargs
         )
-        self.add_actor(
+        sphere = self.add_actor(
             sphere,
             name=f"sphere [{orange}]at {np.array(pos).astype(np.int32)}",
             br_class="sphere",
@@ -581,7 +576,7 @@ class Scene(Render):
         spheres = shapes.Spheres(
             coords, c=color, r=radius, res=res, alpha=alpha
         )
-        self.add_actor(spheres, name="cells", br_class="cells")
+        spheres = self.add_actor(spheres, name="cells", br_class="cells")
 
         if verbose:
             print("Added {} cells to the scene".format(len(coords)))
@@ -751,7 +746,7 @@ class Scene(Render):
         p1 = p0.copy()
         p1[axis] = 0  # zero the choosen coordinate
 
-        pts = self.root.intersectWithLine(p0, p1)
+        pts = self.root.mesh.intersectWithLine(p0, p1)
         surface_point = pts[0]
 
         # create ruler
