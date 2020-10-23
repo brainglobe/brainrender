@@ -520,7 +520,6 @@ class Scene(Render):
         cells_actor = self.add_cells(
             cells, color=color, radius=radius, res=res, alpha=alpha
         )
-        cells_actor = Actor(cells_actor, name, name)
         return cells_actor
 
     def add_cells(
