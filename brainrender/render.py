@@ -161,7 +161,7 @@ class Render(Enhanced):
             if _name != "silhouette":
                 try:
                     if not actor._is_transformed:
-                        actor.applyTransform(mtx).reverse()
+                        actor.mesh.applyTransform(mtx).reverse()
                         actor._is_transformed = True
 
                 except AttributeError:
@@ -195,9 +195,9 @@ class Render(Enhanced):
             if actor is not None:
                 try:
                     if brainrender.SHADER_STYLE != "cartoon":
-                        actor.lighting(style=brainrender.SHADER_STYLE)
+                        actor.mesh.lighting(style=brainrender.SHADER_STYLE)
                     else:
-                        actor.lighting("off")
+                        actor.mesh.lighting("off")
                 except AttributeError:
                     pass  # Some types of actors such as Text 2D don't have this attribute!
 
@@ -261,7 +261,8 @@ class Render(Enhanced):
         self.apply_render_style()
 
         self.is_rendered = True
-        show(*self.actors, *self.actors_labels, **args_dict)
+        to_render = [a.mesh for a in self.actors + self.actors_labels]
+        show(*to_render, **args_dict)
 
     def close(self):
         closePlotter()

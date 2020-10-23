@@ -165,11 +165,11 @@ class Scene(Render):
                     print("Could not find root object")
                     return
 
-                self.inset = self.root.clone().scale(0.5)
+                self.inset = self.root.mesh.clone().scale(0.5)
                 self.root = None
                 self.actors["root"] = None
             else:
-                self.inset = self.root.clone().scale(0.5)
+                self.inset = self.root.mesh.clone().scale(0.5)
 
             self.inset.alpha(1)
             self.plotter.showInset(
@@ -216,7 +216,7 @@ class Scene(Render):
                     continue
 
                 try:
-                    actor = actor.cutWithPlane(
+                    actor.mesh = actor.mesh.cutWithPlane(
                         origin=plane.center,
                         normal=plane.normal,
                         returnCut=returncut,
@@ -326,29 +326,29 @@ class Scene(Render):
         :param **kwargs:
 
         """
-        self.root = self.atlas._get_structure_mesh(
+        root = self.atlas._get_structure_mesh(
             "root",
             color=brainrender.ROOT_COLOR,
             alpha=brainrender.ROOT_ALPHA,
             **kwargs,
         )
 
-        if self.root is not None:
-            self.atlas._root_midpoint = get_actor_midpoint(self.root)
-            self.atlas._root_bounds = get_actor_bounds(self.root)
+        if root is not None:
+            self.atlas._root_midpoint = get_actor_midpoint(root)
+            self.atlas._root_bounds = get_actor_bounds(root)
 
         else:
             print("Could not find a root mesh")
             return None
 
         if render:
-            self.add_actor(self.root, name="root", br_class="root")
+            self.root = self.add_actor(root, name="root", br_class="root")
 
         elif brainrender.SHOW_AXES:
             # if showing axes, add a transparent root
             # so that scene has right scale
-            root = self.root.clone().alpha(0)
-            self.add_actor(root, name="root", br_class="root")
+            root.alpha(0)
+            self.root = self.add_actor(root, name="root", br_class="root")
 
         return self.root
 
@@ -393,10 +393,7 @@ class Scene(Render):
                 list(act.values()), name="neuron", br_class="neuron"
             )
         else:
-
-            self.add_actor(
-                list(actors.values()), name="neuron", br_class="neuron"
-            )
+            self.add_actor(list(actors), name="neuron", br_class="neuron")
         return actors
 
     def add_neurons_synapses(self, *args, **kwargs):

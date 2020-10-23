@@ -12,22 +12,13 @@ class Actor(Mesh):
     _skip = ["Ruler", "silhouette"]
 
     _needs_label = False
+    _needs_silhouette = False
     _is_transformed = False
 
     def __init__(self, mesh, name=None, br_class=None):
-        try:
-            if mesh.name not in self._skip:
-                Mesh.__init__(self, inputobj=[mesh.points(), mesh.faces()])
-            else:
-                raise AttributeError
-        except AttributeError:
-            raise ValueError(f"Failed to create Actor from {str(type(mesh))}")
-        else:
-            self.c(mesh.c())
-            self.alpha(mesh.alpha())
-
-            self.name = name
-            self.br_class = br_class
+        self.mesh = mesh
+        self.name = name
+        self.br_class = br_class
 
     def __repr__(self):
         return f"brainrender.Actor: {self.name}-{self.br_class}"
