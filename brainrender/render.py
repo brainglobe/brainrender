@@ -16,6 +16,7 @@ from brainrender.Utils.camera import (
     set_camera,
     get_camera_params,
 )
+from brainrender.Utils.data_manipulation import flatten
 from rich import print
 from pyinspect._colors import mocassin, orange
 
@@ -147,7 +148,6 @@ class Render(Enhanced):
         self.transform_applied = True
 
         # Flip every actor's orientation
-        _silhouettes = []
         for actor in self.actors:
             try:
                 _name = actor.name
@@ -158,20 +158,14 @@ class Render(Enhanced):
                 """ not all scene objects will have a name """
                 continue
 
-            if _name != "silhouette":
-                try:
-                    if not actor._is_transformed:
-                        actor.applyTransform(mtx).reverse()
-                        actor._is_transformed = True
+            # Transform the actors that need to be transform
+            try:
+                if not actor._is_transformed:
+                    actor.mesh.applyTransform(mtx).reverse()
+                    actor._is_transformed = True
 
-                except AttributeError:
-                    pass
-            else:
-                """
-                    Silhouettes don't transform properly,
-                    we need to re-generate them
-                """
-                _silhouettes.append(actor)
+            except AttributeError:
+                pass
 
         # Make labels
         for actor in self.actors:
@@ -181,11 +175,15 @@ class Render(Enhanced):
             except AttributeError:
                 pass
 
-        # Update silhouettes
-        for sil in _silhouettes:
-            self.actors.pop(self.actors.index(sil))
-            self.add_silhouette(sil._original_mesh)
-            del sil
+        # Make silhouettes
+        silhouettes = []
+        for actor in self.actors:
+            try:
+                if actor._needs_silhouette:
+                    silhouettes.append(actor.make_silhouette())
+            except AttributeError:
+                pass
+        self.actors.extend(silhouettes)
 
     def apply_render_style(self):
         if brainrender.SHADER_STYLE is None:  # No style to apply
@@ -195,9 +193,9 @@ class Render(Enhanced):
             if actor is not None:
                 try:
                     if brainrender.SHADER_STYLE != "cartoon":
-                        actor.lighting(style=brainrender.SHADER_STYLE)
+                        actor.mesh.lighting(style=brainrender.SHADER_STYLE)
                     else:
-                        actor.lighting("off")
+                        actor.mesh.lighting("off")
                 except AttributeError:
                     pass  # Some types of actors such as Text 2D don't have this attribute!
 
@@ -261,7 +259,10 @@ class Render(Enhanced):
         self.apply_render_style()
 
         self.is_rendered = True
-        show(*self.actors, *self.actors_labels, **args_dict)
+        to_render = [
+            a.mesh for a in flatten(self.actors) + flatten(self.actors_labels)
+        ]
+        show(*to_render, **args_dict)
 
     def close(self):
         closePlotter()
