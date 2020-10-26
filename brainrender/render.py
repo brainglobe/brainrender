@@ -336,7 +336,7 @@ class Render(Enhanced):
             name = self.screenshot_kwargs.get("name", "screenshot")
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             file_format = self.screenshot_kwargs.get("format", ".png")
-            screenshot_name = f"{name}_{timestamp}.{file_format}"
+            screenshot_name = f"{name}_{timestamp}{file_format}"
 
         if not self.is_rendered:
             print(
