@@ -37,7 +37,6 @@ class Atlas(BrainGlobeAtlas):
             # Get mesh
             obj_file = str(self.meshfile_from_structure(region))
             mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
-            # Todo get for hemisphere only
 
             # Get color
             if color is None:

@@ -40,6 +40,11 @@ def test_brain_regions():
     noone = scene.add_brain_region("what is this")
     assert noone is None
 
+    a1 = scene.add_brain_region("TH", hemisphere="left")
+    a2 = scene.add_brain_region("CA1", hemisphere="right")
+    assert isinstance(a1, Actor)
+    assert isinstance(a2, Actor)
+
 
 def test_add_from_files():
     scene = Scene()

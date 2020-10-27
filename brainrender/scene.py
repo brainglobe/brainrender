@@ -78,11 +78,20 @@ class Scene(Render):
         self.actors.extend(actors)
         return return_list_smart(actors)
 
-    def add_brain_region(self, *regions, alpha=1, color=None, silhouette=True):
+    def add_brain_region(
+        self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"
+    ):
         regions = self.atlas.get("region", *regions, alpha=alpha, color=color)
-        regions = listify(regions)
+        regions = listify(regions) or []
 
-        if silhouette and regions is not None:
+        if hemisphere == "right":
+            plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, -1))
+        elif hemisphere == "left":
+            plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, 1))
+        if hemisphere in ("left", "right"):
+            self.slice(plane, actors=regions, close_actors=True)
+
+        if silhouette and regions:
             self.add_silhouette(*regions)
 
         return self.add(*regions)
