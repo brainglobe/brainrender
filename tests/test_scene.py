@@ -12,10 +12,9 @@ def test_scene_creation():
     scene = Scene(atlas_name="mpin_zfish_1um")
     assert isinstance(scene.root, Actor)
 
-    noinset = Scene(inset=False)
+    noinset = Scene(inset=False, title="TEST")
     noinset.root
-
-    Scene(title="BR")
+    noinset.render(interactive=False)
 
 
 def test_scene_specials():

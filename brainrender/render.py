@@ -86,7 +86,7 @@ class Render:
         self.transform_applied = True
 
         # Flip every actor's orientation
-        for actor in self.actors + self.labels:
+        for actor in self.clean_actors + self.labels:
             if not actor._is_transformed:
                 actor.mesh.applyTransform(mtx).reverse()
                 actor._is_transformed = True
@@ -98,7 +98,7 @@ class Render:
                 self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
-        for actor in self.actors:
+        for actor in self.clean_actors:
             if settings.SHADER_STYLE != "cartoon":
                 actor.mesh.lighting(style=settings.SHADER_STYLE)
             else:

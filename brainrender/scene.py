@@ -7,7 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Plane, Sphere
+from vedo import Mesh, Plane, Sphere, Text2D
 import pyinspect as pi
 from rich import print
 from pyinspect._colors import mocassin, orange, dimorange, salmon
@@ -57,6 +57,13 @@ class Scene(Render):
             inset  # the inset will be created when the scene is first rendered
         )
 
+        if title:
+            self.add(
+                Text2D(title, pos=8, s=2.5, c="k", alpha=1, font="Montserrat"),
+                name="title",
+                br_class="title",
+            )
+
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
@@ -87,10 +94,12 @@ class Scene(Render):
         for item, name, _class in zip(items, listify(names), listify(classes)):
             if item is None:
                 continue
-
             if isinstance(item, Mesh):
                 actors.append(Actor(item, name=name, br_class=_class))
-
+            elif pi.utils._class_name(item) == "vtkCornerAnnotation":
+                actors.append(
+                    Actor(item, name=name, br_class=_class, is_text=True)
+                )
             elif isinstance(item, Actor):
                 actors.append(item)
 
@@ -154,7 +163,7 @@ class Scene(Render):
         if isinstance(plane, str):
             plane = self.atlas.get_plane(plane=plane)
 
-        actors = actors or self.actors.copy()
+        actors = actors or self.clean_actors.copy()
         for actor in listify(actors):
             actor.mesh = actor.mesh.cutWithPlane(
                 origin=plane.center, normal=plane.normal,
@@ -181,3 +190,10 @@ class Scene(Render):
     @property
     def renderables(self):
         return [a.mesh for a in self.actors + self.labels]
+
+    @property
+    def clean_actors(self):
+        """
+            returns only ators that are not Text objects and similar
+        """
+        return [a for a in self.actors if not a.is_text]

@@ -12,10 +12,11 @@ class Actor(object):
     _needs_silhouette = False
     _is_transformed = False
 
-    def __init__(self, mesh, name=None, br_class=None):
+    def __init__(self, mesh, name=None, br_class=None, is_text=False):
         self.mesh = mesh
         self.name = name
         self.br_class = br_class
+        self.is_text = is_text
 
     def __getattr__(self, attr):
         """
