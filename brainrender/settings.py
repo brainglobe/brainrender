@@ -6,5 +6,6 @@ DEFAULT_CAMERA = "three_quarters"  # Default camera settings (orientation etc. s
 ROOT_COLOR = [0.8, 0.8, 0.8]  # color of the overall brain model's actor
 ROOT_ALPHA = 0.2  # transparency of the overall brain model's actor'
 SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metallic, plastic, shiny, glossy]
+SCREENSHOT_SCALE = 1
 HDF_SUFFIXES = [".h5", ".hdf", ".hdf5", ".he5"]
 DEFAULT_HDF_KEY = "hdf"

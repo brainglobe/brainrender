@@ -1,5 +1,7 @@
 from brainrender import Scene
 from brainrender.actor import Actor
+import pytest
+import shutil
 
 
 def test_scene_creation():
@@ -84,3 +86,12 @@ def test_scene_slice():
     plane = s.atlas.get_plane(pos=[1999, 1312, 3421], norm=[1, -1, 2])
     s.slice(plane, actors=th)
     ret = s.slice(plane, actors=[th, s.root],)
+
+
+@pytest.mark.parametrize(
+    "name, scale", [("test", 2), (None, None), (None, 1), ("test2", None)]
+)
+def test_scene_screenshot(name, scale):
+    s = Scene(screenshots_folder="tests/screenshots")
+    s.screenshot(name=name, scale=scale)
+    shutil.rmtree("tests/screenshots")

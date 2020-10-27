@@ -7,7 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Plane
+from vedo import Mesh, Plane, Sphere
 import pyinspect as pi
 from rich import print
 from pyinspect._colors import mocassin, orange, dimorange, salmon
@@ -24,8 +24,23 @@ class Scene(Render):
     actors = []  # stores all actors in the scene
     labels = []  # stores all `labels` actors in scene
 
-    def __init__(self, root=True, atlas_name=None, inset=True, title=None):
+    def __init__(
+        self,
+        root=True,
+        atlas_name=None,
+        inset=True,
+        title=None,
+        screenshots_folder=None,
+    ):
         self.atlas = Atlas(atlas_name=atlas_name)
+
+        self.screenshots_folder = (
+            Path(screenshots_folder)
+            if screenshots_folder is not None
+            else Path().cwd()
+        )
+        self.screenshots_folder.mkdir(exist_ok=True)
+
         Render.__init__(self)
 
         if root:
@@ -77,6 +92,13 @@ class Scene(Render):
 
         self.actors.extend(actors)
         return return_list_smart(actors)
+
+    def add_point(self, pos, radius=100, color="blackboard", alpha=1, res=25):
+        self.add(
+            Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res),
+            names="point",
+            classes="point",
+        )
 
     def add_brain_region(
         self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"

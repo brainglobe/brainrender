@@ -1,5 +1,6 @@
 from vedo import Plotter, show, closePlotter
 import numpy as np
+from datetime import datetime
 
 from brainrender import settings
 from .camera import (
@@ -32,6 +33,7 @@ mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 class Render:
     transform_applied = False
+    is_rendered = False
 
     def __init__(self):
         self.plotter = Plotter(
@@ -134,15 +136,28 @@ class Render:
     def export(self):  # as HTML
         pass
 
-    def screenshot(self):
-        pass
+    def screenshot(self, name=None, scale=None):
+        if not self.is_rendered:
+            self.render(interactive=False)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        name = name or f"brainrender_screenshot_{timestamp}"
+        if ".png" not in name:
+            name += ".png"
+
+        scale = scale or settings.SCREENSHOT_SCALE
+
+        print(f"\nSaving new screenshot at {name}\n")
+        savepath = str(self.screenshots_folder / name)
+        self.plotter.screenshot(filename=savepath, scale=scale)
+        return savepath
 
     # ---------------------------------------------------------------------------- #
     #                               USER INTERACTION                               #
     # ---------------------------------------------------------------------------- #
     def keypress(self, key):
         if key == "s":
-            self.take_screenshot()
+            self.screenshot()
 
         elif key == "q" or key == "Esc":
             self.close()
