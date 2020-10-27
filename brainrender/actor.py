@@ -1,5 +1,4 @@
 import pyinspect as pi
-from vedo import Mesh
 from io import StringIO
 from rich.console import Console
 from pyinspect._colors import orange, mocassin, salmon
@@ -8,7 +7,7 @@ import numpy as np
 from brainrender.Utils.scene_utils import make_actor_label
 
 
-class Actor(Mesh):
+class Actor(object):
     _skip = ["Ruler", "silhouette"]
 
     _needs_label = False
@@ -19,6 +18,18 @@ class Actor(Mesh):
         self.mesh = mesh
         self.name = name
         self.br_class = br_class
+
+    def __getattr__(self, attr):
+        """
+            If an unknown attribute is called, try `self.mesh.attr`
+        """
+        if attr == "__rich__":
+            return None
+        print(attr)
+        if hasattr(self.__dict__["mesh"], attr):
+            return getattr(self.__dict__["mesh"], attr)
+        else:
+            raise AttributeError(f"{self} doesn not have attribute {attr}")
 
     def __repr__(self):
         return f"brainrender.Actor: {self.name}-{self.br_class}"

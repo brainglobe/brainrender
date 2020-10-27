@@ -134,7 +134,7 @@ def edit_actor(
     if color:
         actor.color(c=color)
     if line:
-        set_line(actor, **line_kwargs)
+        set_line(actor.mesh, **line_kwargs)
     if upsample:
         actor.subdivide(N=1)
     if downsample:

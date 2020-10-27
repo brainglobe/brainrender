@@ -4,7 +4,7 @@ import numpy as np
 import os
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
 from pyinspect.classes import Enhanced
-
+import inspect
 import brainrender
 from brainrender.Utils.paths_manager import Paths
 from brainrender.atlases.aba import ABA
@@ -18,6 +18,25 @@ from brainrender.Utils.data_manipulation import (
 from brainrender.colors import check_colors
 from brainrender.Utils.atlases_utils import parse_neurons_colors
 from brainrender.morphology.utils import get_neuron_actors_with_morphapi
+from brainrender.actor import Actor
+
+
+def get_scene_atlas(atlas, base_dir, atlas_kwargs={}, **kwargs):
+    """
+        Return an instance of an Atlas class. 
+
+    """
+    if atlas is None:
+        atlas = brainrender.DEFAULT_ATLAS
+
+    if isinstance(atlas, str):
+        return Atlas(atlas, base_dir=base_dir, **atlas_kwargs, **kwargs,)
+    elif inspect.isclass(atlas):
+        return atlas(**atlas_kwargs)
+    else:
+        raise ValueError(
+            "The `atlas` argument should be None, a string with atlas name or a class"
+        )
 
 
 class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
@@ -289,9 +308,16 @@ class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
         if not isinstance(neurons, (list, tuple)):
             neurons = [neurons]
 
+        clean_neurons = []
+        for n in neurons:
+            if isinstance(n, (tuple, list)):
+                clean_neurons.extend(list(n))
+            else:
+                clean_neurons.append(n)
+
         # ---------------------------------- Render ---------------------------------- #
         _neurons_actors = []
-        for neuron in neurons:
+        for neuron in clean_neurons:
             neuron_actors = {"soma": None, "dendrites": None, "axon": None}
 
             # Deal with neuron as filepath
@@ -314,7 +340,7 @@ class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
                     )
 
             # Deal with neuron as single actor
-            elif isinstance(neuron, Mesh):
+            elif isinstance(neuron, (Actor, Mesh)):
                 # A single actor was passed, maybe it's the entire neuron
                 neuron_actors["soma"] = neuron  # store it as soma
                 pass
@@ -357,7 +383,7 @@ class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
             # Check that we don't have anything weird in neuron_actors
             for key, act in neuron_actors.items():
                 if act is not None:
-                    if not isinstance(act, Mesh):
+                    if not isinstance(act, (Actor, Mesh)):
                         raise ValueError(
                             f"Neuron actor {key} is {type(act)} but should be a vedo Mesh. Not: {act}"
                         )

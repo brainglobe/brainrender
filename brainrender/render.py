@@ -102,6 +102,14 @@ class Render(Enhanced):
             vedosettings.screenshotTransparentBackground = False
             vedosettings.useFXAA = True
 
+    @property
+    def to_render(self):
+        return [
+            a.mesh
+            for a in flatten(self.actors) + flatten(self.actors_labels)
+            if a.mesh is not None
+        ]
+
     def _make_custom_axes(self):
         """
             When using `ruler` axes (vedy style 7), we need to 
@@ -137,7 +145,7 @@ class Render(Enhanced):
         plt.renderer.AddActor(rulax)
         plt.axes_instances[0] = rulax
 
-        return
+        return plt
 
     def _correct_axes(self):
         """
@@ -246,7 +254,7 @@ class Render(Enhanced):
             args_dict["offscreen"] = True
 
         if self.make_custom_axes:
-            self._make_custom_axes()
+            self.plotter = self._make_custom_axes()
             self.make_custom_axes = False
 
         # Correct axes orientations
@@ -259,10 +267,7 @@ class Render(Enhanced):
         self.apply_render_style()
 
         self.is_rendered = True
-        to_render = [
-            a.mesh for a in flatten(self.actors) + flatten(self.actors_labels)
-        ]
-        show(*to_render, **args_dict)
+        show(*self.to_render, **args_dict)
 
     def close(self):
         closePlotter()
@@ -281,7 +286,7 @@ class Render(Enhanced):
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.actors)
+        plt.add(self.to_render)
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 

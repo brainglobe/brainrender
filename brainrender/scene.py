@@ -7,7 +7,6 @@ from vedo import (
     Text2D,
     closePlotter,
     Plane,
-    Mesh,
 )
 import numpy as np
 import pyinspect as pi
@@ -15,8 +14,8 @@ from pyinspect._colors import dimorange, orange, mocassin, salmon
 from rich import print as rprint
 import sys
 
+from brainrender.atlases.atlas import get_scene_atlas
 from brainrender.Utils.scene_utils import (
-    get_scene_atlas,
     get_cells_colors_from_metadata,
     parse_add_actors_inputs,
 )
@@ -124,7 +123,7 @@ class Scene(Render):
         return f"A `brainrender.scene.Scene` with {len(self)} actors."
 
     def __add__(self, other):
-        if isinstance(other, Mesh):
+        if isinstance(other, Actor):
             self.add_actor(other)
         elif isinstance(other, (Path, str)):
             self.add_from_file(str(other))
@@ -813,7 +812,7 @@ class DualScene:
         for scene in self.scenes:
             scene.apply_render_style()
             actors.append(scene.actors)
-            mv.add(scene.actors)
+            mv.add([act.mesh for act in scene.actors])
 
         mv.show(
             actors[0],
@@ -884,8 +883,8 @@ class MultiScene:
         actors = []
         for i, scene in enumerate(self.scenes):
             scene.apply_render_style()
-            actors.append(scene.actors)
-            mv.add(scene.actors)
+            actors.append(scene.to_render)
+            mv.add(scene.to_render)
 
         for i, scene.actors in enumerate(actors):
             mv.show(scene.actors, at=i, interactive=False)

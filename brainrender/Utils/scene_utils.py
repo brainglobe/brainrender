@@ -1,9 +1,7 @@
 import numpy as np
-import inspect
 from vedo import Mesh, Text, Sphere
 import random
 
-from brainrender.atlases.atlas import Atlas
 import brainrender
 from brainrender.Utils.camera import check_camera_param
 from brainrender.colors import get_random_colors
@@ -36,24 +34,6 @@ def parse_add_actors_inputs(actors, name, br_class):
         br_classes = [None for i in range(n)]
 
     return actors, names, br_classes
-
-
-def get_scene_atlas(atlas, base_dir, atlas_kwargs={}, **kwargs):
-    """
-        Return an instance of an Atlas class. 
-
-    """
-    if atlas is None:
-        atlas = brainrender.DEFAULT_ATLAS
-
-    if isinstance(atlas, str):
-        return Atlas(atlas, base_dir=base_dir, **atlas_kwargs, **kwargs,)
-    elif inspect.isclass(atlas):
-        return atlas(**atlas_kwargs)
-    else:
-        raise ValueError(
-            "The `atlas` argument should be None, a string with atlas name or a class"
-        )
 
 
 def get_scene_camera(camera, atlas):

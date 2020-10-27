@@ -1,8 +1,4 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0  # Use the ref you want to point at
-    hooks:
-      - id: check-added-large-files
 -   repo: https://github.com/python/black
     rev: 19.10b0
     hooks:

@@ -306,7 +306,7 @@ def test_get_random_points(scene):
     get_n_random_points_in_region(scene.atlas, "MOs", 100)
     get_n_random_points_in_region(scene.atlas, "MOp", 100, hemisphere="right")
     ca1 = scene.add_brain_regions("CA1")
-    get_n_random_points_in_region(scene.atlas, ca1, 100)
+    get_n_random_points_in_region(scene.atlas, ca1.mesh, 100)
 
 
 def test_add_from_file(scene):

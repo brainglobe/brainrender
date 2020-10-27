@@ -10,7 +10,6 @@ from brainrender.Utils.camera import (
     sagittal_camera,
     top_camera,
 )
-from brainrender.colors import colorMap
 
 import pytest
 
@@ -18,8 +17,6 @@ import pytest
 @pytest.mark.slow
 def test_animated_scene():
     # --------------------------------- Variables -------------------------------- #
-    minalpha = 0.01  # transparency of background neurons
-    darkcolor = "lightgray"  # background neurons color
 
     N_FRAMES = 50
     N_neurons = 4  # number of neurons to show in total, if -1 all neurons are shown but it might take a while to render them at first
@@ -86,21 +83,11 @@ def test_animated_scene():
         if step % N_frames_for_change == 0:  # change neurons every N framse
 
             # reset neurons from previous set of neurons
-            for neuron in prev_neurons:
-                for component, actor in neuron.items():
-                    actor.alpha(minalpha)
-                    actor.color(darkcolor)
             prev_neurons = []
 
             # highlight new neurons
             neurons = choices(neurons_actors, k=N_neurons_in_frame)
             for n, neuron in enumerate(neurons):
-                color = colorMap(
-                    n, "Greens_r", vmin=-2, vmax=N_neurons_in_frame + 3
-                )
-                for component, actor in neuron.items():
-                    actor.alpha(1)
-                    actor.color(color)
                 prev_neurons.append(neuron)
 
         # Move scene camera between 3 cameras
