@@ -39,7 +39,7 @@ def get_scene_atlas(atlas, base_dir, atlas_kwargs={}, **kwargs):
         )
 
 
-class Atlas(BrainGlobeAtlas, Paths, ABA, Enhanced):
+class Atlas(BrainGlobeAtlas, ABA):
     default_camera = None
 
     def __init__(self, atlas_name, *args, base_dir=None, **kwargs):

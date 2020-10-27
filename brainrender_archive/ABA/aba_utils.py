@@ -10,172 +10,17 @@ from brainrender.Utils.data_io import (
     load_json,
     get_probe_points_from_sharptrack,
 )
-from brainrender.Utils.data_manipulation import is_any_item_in_list
 from brainrender.Utils.webqueries import request
-from brainrender.colors import check_colors
 
 """ 
     Code to support atlases.mouse.ABA
 """
 
-
-# ---------------------------------------------------------------------------- #
-#                                 TRACTOGRAPHY                                 #
-# ---------------------------------------------------------------------------- #
-def parse_tractography_colors(
-    tractography,
-    include_all_inj_regions,
-    color=None,
-    color_by="manual",
-    VIP_regions=[],
-    VIP_color=None,
-    others_color="salmon",
-):
-    """
-        parses color arguments to render tracrography data
-
-        :param tractography: list of dictionaries with tractography data
-        :param color: color of rendered tractography data
-        :param color_by: str, specifies which criteria to use to color the tractography (Default value = "manual")
-            Options:
-                - manual: the user needs to provide a color or list of colors
-                - target_region: tracts are colored according to the region where the injection was done.
-                        if VIP_regions is passed, then only tracts for the VIP regions are colored
-
-        :param VIP_regions: list of brain regions with VIP treatement (Default value = [])
-        :param VIP_color: str, color to use for VIP data (Default value = None)
-        :param include_all_inj_regions: bool (Default value = False)
-        :param others_color: str, color for not VIP data (Default value = "white")
-    """
-    # check coloring mode used and prepare a list COLORS to use for coloring stuff
-    if color_by == "manual":
-        # check color argument
-        if color is None:
-            color = brainrender.TRACT_DEFAULT_COLOR
-            COLORS = [color for i in range(len(tractography))]
-        elif isinstance(color, list):
-            if not len(color) == len(tractography):
-                raise ValueError(
-                    "If a list of colors is passed, it must have the same number of items as the number of tractography traces"
-                )
-            else:
-                for col in color:
-                    if not check_colors(col):
-                        raise ValueError(
-                            "Color variable passed to tractography is invalid: {}".format(
-                                col
-                            )
-                        )
-
-                COLORS = color
-        else:
-            if not check_colors(color):
-                raise ValueError(
-                    "Color variable passed to tractography is invalid: {}".format(
-                        color
-                    )
-                )
-            else:
-                COLORS = [color for i in range(len(tractography))]
-
-    elif color_by == "target_region":
-        if VIP_color is not None:
-            if not check_colors(VIP_color) or not check_colors(others_color):
-                raise ValueError("Invalid VIP or other color passed")
-            try:
-                if include_all_inj_regions:
-                    COLORS = [
-                        VIP_color
-                        if is_any_item_in_list(
-                            [
-                                x["abbreviation"]
-                                for x in t["injection-structures"]
-                            ],
-                            VIP_regions,
-                        )
-                        else others_color
-                        for t in tractography
-                    ]
-                else:
-                    COLORS = [
-                        VIP_color
-                        if t["structure-abbrev"] in VIP_regions
-                        else others_color
-                        for t in tractography
-                    ]
-            except:
-                raise ValueError(
-                    "Something went wrong while getting colors for tractography"
-                )
-        else:
-            COLORS = [None for t in tractography]  # will be filled up later
-
-    else:
-        raise ValueError(
-            "Unrecognised 'color_by' argument {}".format(color_by)
-        )
-
-    return COLORS
-
-
-def experiments_source_search(mca, SOI, *args, source=True, **kwargs):
-    """
-        Returns data about experiments whose injection was in the SOI, structure of interest
-        :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
-        :param *args: 
-        :param source:  (Default value = True)
-        :param **kwargs: 
-        """
-    """
-            list of possible kwargs
-                injection_structures : list of integers or strings
-                    Integer Structure.id or String Structure.acronym.
-                target_domain : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                injection_hemisphere : string, optional
-                    'right' or 'left', Defaults to both hemispheres.
-                target_hemisphere : string, optional
-                    'right' or 'left', Defaults to both hemispheres.
-                transgenic_lines : list of integers or strings, optional
-                    Integer TransgenicLine.id or String TransgenicLine.name. Specify ID 0 to exclude all TransgenicLines.
-                injection_domain : list of integers or strings, optional
-                    Integer Structure.id or String Structure.acronym.
-                primary_structure_only : boolean, optional
-                product_ids : list of integers, optional
-                    Integer Product.id
-                start_row : integer, optional
-                    For paging purposes. Defaults to 0.
-                num_rows : integer, optional
-                    For paging purposes. Defaults to 2000.
-        """
-    transgenic_id = kwargs.pop(
-        "transgenic_id", 0
-    )  # id = 0 means use only wild type
-    primary_structure_only = kwargs.pop("primary_structure_only", True)
-
-    if not isinstance(SOI, list):
-        SOI = [SOI]
-
-    if source:
-        injection_structures = SOI
-        target_domain = None
-    else:
-        injection_structures = None
-        target_domain = SOI
-
-    return pd.DataFrame(
-        mca.experiment_source_search(
-            injection_structures=injection_structures,
-            target_domain=target_domain,
-            transgenic_lines=transgenic_id,
-            primary_structure_only=primary_structure_only,
-        )
-    )
-
-
 # ---------------------------------------------------------------------------- #
 #                                  STREAMLINES                                 #
 # ---------------------------------------------------------------------------- #
+
+
 def parse_streamline(
     *args,
     filepath=None,
