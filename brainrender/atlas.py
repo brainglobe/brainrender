@@ -1,4 +1,6 @@
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
+from vedo import Plane
+import numpy as np
 
 from brainrender import settings
 from .actor import Actor
@@ -49,3 +51,62 @@ class Atlas(BrainGlobeAtlas):
             actors.append(actor)
 
         return return_list_smart(actors)
+
+    def get_plane(
+        self,
+        pos=None,
+        norm=None,
+        plane=None,
+        sx=None,
+        sy=None,
+        color="lightgray",
+        alpha=0.25,
+        **kwargs,
+    ):
+        """ 
+            Returns a plane going through a point at pos, oriented 
+            orthogonally to the vector norm and of width and height
+            sx, sy. 
+
+            :param pos: 3-tuple or list with x,y,z, coords of point the plane goes through
+            :param norm: 3-tuple with plane's normal vector (optional)
+            :param sx, sy: int, width and height of the plane
+            :param plane: "sagittal", "horizontal", or "frontal"
+            :param color, alpha: plane color and transparency
+        """
+        axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
+
+        pos = pos or self.root.centerOfMass()
+        try:
+            norm = norm or self.space.plane_normals[plane]
+        except KeyError:
+            raise ValueError(
+                f"Could not find normals for plane {plane}. Atlas space provides these normals: {self.space.plane_normals}"
+            )
+
+            # Get plane width and height
+        idx_pair = (
+            axes_pairs[plane]
+            if plane is not None
+            else axes_pairs["horizontal"]
+        )
+
+        bounds = self.root.bounds()
+        root_bounds = [
+            [bounds[0], bounds[1]],
+            [bounds[2], bounds[3]],
+            [bounds[4], bounds[5]],
+        ]
+
+        wh = [float(np.diff(root_bounds[i])) for i in idx_pair]
+        if sx is None:
+            sx = wh[0]
+        if sy is None:
+            sy = wh[1]
+
+        # return plane
+        return Actor(
+            Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha),
+            name=f"Plane at {pos} norm: {norm}",
+            br_class="plane",
+        )

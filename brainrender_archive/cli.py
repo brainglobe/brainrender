@@ -19,7 +19,7 @@ def main(regions, atlas=None, cartoon=False, debug=False, file=None):
 
     # Add brain regions
     if regions is not None and len(regions) > 0:
-        acts = scene.add_brain_regions(list(regions))
+        acts = scene.add_brain_region(list(regions))
 
         # Add silhouettes
         if cartoon:

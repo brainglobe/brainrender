@@ -10,10 +10,10 @@ from brainrender.scene import Scene
 scene = Scene(title="brain regions")
 
 # Add the whole thalamus in gray
-scene.add_brain_regions(["TH"], alpha=0.15)
+scene.add_brain_region(["TH"], alpha=0.15)
 
 # Add VAL nucleus in wireframe style with the allen color
-val = scene.add_brain_regions(["VAL"], use_original_color=True)
+val = scene.add_brain_region(["VAL"], use_original_color=True)
 val.wireframe()
 
 scene.render()

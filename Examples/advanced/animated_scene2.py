@@ -54,7 +54,7 @@ tracts = scene.add_streamlines(
     data, color="darkseagreen", show_injection_site=False
 )
 
-scene.add_brain_regions(["TH"], alpha=0.2)
+scene.add_brain_region(["TH"], alpha=0.2)
 
 # Make all streamlines background
 for mesh in tracts:

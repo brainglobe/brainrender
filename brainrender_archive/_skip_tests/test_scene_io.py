@@ -135,7 +135,7 @@ def test_custom_video():
     scene = Scene(display_inset=True, use_default_key_bindings=True)
 
     filepaths, data = scene.atlas.download_streamlines_for_region("TH")
-    scene.add_brain_regions(["TH"], alpha=0.2)
+    scene.add_brain_region(["TH"], alpha=0.2)
 
     # Create new cameras
     cam1 = buildcam(sagittal_camera)

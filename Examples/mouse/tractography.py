@@ -17,7 +17,7 @@ p0 = scene.atlas.get_region_CenterOfMass("ZI")
 tract = scene.atlas.get_projection_tracts_to_target(p0=p0)
 
 # Add the brain regions and the projections to it
-scene.add_brain_regions(["ZI"], alpha=0.4, use_original_color=True)
+scene.add_brain_region(["ZI"], alpha=0.4, use_original_color=True)
 scene.add_tractography(tract, color_by="target_region")
 
 scene.render()

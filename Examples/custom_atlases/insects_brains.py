@@ -50,6 +50,6 @@ central_complex = [
     "PB",
 ]
 
-scene.add_brain_regions(central_complex, alpha=1)
+scene.add_brain_region(central_complex, alpha=1)
 
 scene.render()

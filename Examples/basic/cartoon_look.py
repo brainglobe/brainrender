@@ -9,7 +9,7 @@ brainrender.SHADER_STYLE = "cartoon"  # gives actors a flat shading
 from brainrender.scene import Scene
 
 scene = Scene(title="cartoon look")
-th = scene.add_brain_regions("TH", alpha=0.5)
+th = scene.add_brain_region("TH", alpha=0.5)
 
 # Create a black line around each actor
 scene.add_silhouette(scene.root)

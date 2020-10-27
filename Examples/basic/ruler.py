@@ -15,7 +15,7 @@ brainrender.SHOW_AXES = True
 scene = Scene()
 
 # add brain regions
-mos, hy = scene.add_brain_regions(["MOs", "HY"], alpha=0.2)
+mos, hy = scene.add_brain_region(["MOs", "HY"], alpha=0.2)
 mos.wireframe()
 hy.wireframe()
 

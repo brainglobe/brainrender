@@ -351,7 +351,7 @@ class Scene(Render):
 
         return self.root
 
-    def add_brain_regions(self, *args, **kwargs):
+    def add_brain_region(self, *args, **kwargs):
         """
             Adds brain regions meshes to scene.
             Check the atlas' method to know how it works

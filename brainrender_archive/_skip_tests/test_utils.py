@@ -25,7 +25,7 @@ def scene():
 
 def test_ruler(scene):
     # add brain regions
-    mos, hy = scene.add_brain_regions(["MOs", "HY"], alpha=0.2)
+    mos, hy = scene.add_brain_region(["MOs", "HY"], alpha=0.2)
     mos.wireframe()
     hy.wireframe()
 
@@ -108,7 +108,7 @@ def test_colors():
 
 
 def test_edit_actors(scene):
-    actor = scene.add_brain_regions("TH")
+    actor = scene.add_brain_region("TH")
 
     edit_actor(
         actor,

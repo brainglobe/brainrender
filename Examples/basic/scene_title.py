@@ -10,5 +10,5 @@ scene = Scene(title="The thalamus.")
 
 # You can use scene.add_text to add other text elsewhere in the scene.
 
-scene.add_brain_regions(["TH"], alpha=0.4)
+scene.add_brain_region(["TH"], alpha=0.4)
 scene.render(camera="sagittal")

@@ -107,7 +107,14 @@ class Atlas(BrainGlobeAtlas, ABA):
             if plane is not None
             else axes_pairs["horizontal"]
         )
-        wh = [float(np.diff(self._root_bounds[i])) * 1.2 for i in idx_pair]
+
+        bounds = self.root.bounds()
+        root_bounds = [
+            [bounds[0], bounds[1]],
+            [bounds[2], bounds[3]],
+            [bounds[4], bounds[5]],
+        ]
+        wh = [float(np.diff(root_bounds[i])) * 1.2 for i in idx_pair]
         if sx is None:
             sx = wh[0]
         if sy is None:

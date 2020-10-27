@@ -29,33 +29,53 @@ def test_scene_specials():
 
 def test_brain_regions():
     scene = Scene()
-    th = scene.add_brain_regions("TH")
+    th = scene.add_brain_region("TH")
     assert scene.actors[-1] == th
     assert isinstance(th, Actor)
 
-    regs = scene.add_brain_regions("MOs", "CA1")
+    regs = scene.add_brain_region("MOs", "CA1")
     assert isinstance(regs, list)
     assert len(regs) == 2
 
-    noone = scene.add_brain_regions("what is this")
+    noone = scene.add_brain_region("what is this")
     assert noone is None
 
 
 def test_add_from_files():
     scene = Scene()
-    obj = scene.add("tests/files/CC_134_1_ch1inj.obj")
+    obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
+    obj = scene.add("tests/files/CC_134_1_ch1inj.obj", alpha=0.2)
     assert isinstance(obj, Actor)
 
 
 def test_labels():
     scene = Scene()
-    th = scene.add_brain_regions("TH")
+    th = scene.add_brain_region("TH")
     scene.add_label(th, "TH")
     scene.render(interactive=False)
 
 
 def test_scene_render():
     scene = Scene()
-    scene.add_brain_regions("TH")
+    scene.add_brain_region("TH")
 
     scene.render(interactive=False, zoom=1.4)
+
+
+def test_scene_slice():
+    s = Scene()
+    s.add_brain_region("TH")
+
+    s.slice("frontal")
+
+    ret = s.slice("frontal",)
+    assert ret is None
+
+    s.slice("sagittal", close_actors=True)
+
+    s = Scene()
+    th = s.add_brain_region("TH")
+
+    plane = s.atlas.get_plane(pos=[1999, 1312, 3421], norm=[1, -1, 2])
+    s.slice(plane, actors=th)
+    ret = s.slice(plane, actors=[th, s.root],)

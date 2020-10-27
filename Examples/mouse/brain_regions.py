@@ -13,9 +13,9 @@ scene = Scene(
 )
 
 # Add the whole thalamus in gray
-scene.add_brain_regions(["TH"], alpha=0.15)
+scene.add_brain_region(["TH"], alpha=0.15)
 
 # Add VAL nucleus in wireframe style with the allen color
-scene.add_brain_regions(["VAL"], use_original_color=True, wireframe=True)
+scene.add_brain_region(["VAL"], use_original_color=True, wireframe=True)
 
 scene.render()

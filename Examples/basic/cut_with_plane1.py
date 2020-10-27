@@ -13,7 +13,7 @@ from brainrender.scene import Scene
 scene = Scene(title="cut with plane")
 
 # Add some actors
-th = scene.add_brain_regions(["STR", "TH"], alpha=0.5)
+th = scene.add_brain_region(["STR", "TH"], alpha=0.5)
 
 # Cut with plane
 scene.cut_actors_with_plane(

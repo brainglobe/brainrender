@@ -12,7 +12,7 @@ from brainrender.scene import Scene
 scene = Scene()
 
 # Add the whole thalamus in gray
-scene.add_brain_regions(["TH"], alpha=0.15)
+scene.add_brain_region(["TH"], alpha=0.15)
 
 
 scene.export_for_web()  # <- you can pass a  filepath to specify where to save the scene

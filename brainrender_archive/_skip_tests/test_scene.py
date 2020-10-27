@@ -117,7 +117,7 @@ def test_scene_creation_brainglobe():
     scene = Scene(atlas="allen_mouse_25um")
 
     try:
-        scene.add_brain_regions("TH")
+        scene.add_brain_region("TH")
     except:
         raise ValueError
 
@@ -128,7 +128,7 @@ def test_scene_creation_brainglobe():
 
     scene = Scene(atlas="allen_human_500um")
     try:
-        scene.add_brain_regions("TH")
+        scene.add_brain_region("TH")
     except:
         raise ValueError
 
@@ -140,8 +140,8 @@ def test_root(scene):
 def test_regions():
     scene = Scene(camera=coronal_camera)
     regions = ["MOs", "VISp", "ZI"]
-    scene.add_brain_regions(regions, colors="green")
-    ca1 = scene.add_brain_regions("CA1", add_labels=True)
+    scene.add_brain_region(regions, colors="green")
+    ca1 = scene.add_brain_region("CA1", add_labels=True)
     ca1.alpha(0.2)
 
     print(ca1)
@@ -151,7 +151,7 @@ def test_regions():
 
 def test_cut_with_plane(scene):
     # Add some actors
-    scene.add_brain_regions(["MOp"], alpha=0.5)
+    scene.add_brain_region(["MOp"], alpha=0.5)
 
     # Specify position, size and orientation of the plane
     pos = scene.atlas._root_midpoint
@@ -227,11 +227,11 @@ def test_text_3d(scene):
 
 
 def text_actor_labels(scene):
-    # add_brain_regions can be used to add labels directly
-    scene.add_brain_regions("VAL", add_labels=True)
+    # add_brain_region can be used to add labels directly
+    scene.add_brain_region("VAL", add_labels=True)
 
     # you can also use scene.add_actor_label
-    mos = scene.add_brain_regions("MOs")
+    mos = scene.add_brain_region("MOs")
 
     # Add another label, this time make it gray and shift it slightly
     scene.add_actor_label(
@@ -240,7 +240,7 @@ def text_actor_labels(scene):
 
 
 def test_crosshair(scene):
-    scene.add_brain_regions(["TH"], use_original_color=False, alpha=0.4)
+    scene.add_brain_region(["TH"], use_original_color=False, alpha=0.4)
 
     # Add a point in the right hemisphere
     point = scene.atlas.get_region_CenterOfMass("TH")
@@ -272,7 +272,7 @@ def test_labelled_cells(scene):
     N = 100  # getting 1k cells per region, but brainrender can deal with >1M cells easily.
 
     # Render regions
-    scene.add_brain_regions(_regions, alpha=0.2)
+    scene.add_brain_region(_regions, alpha=0.2)
 
     # Get fake cell coordinates
     cells, regions = [], []  # to store x,y,z coordinates
@@ -305,7 +305,7 @@ def test_labelled_cells(scene):
 def test_get_random_points(scene):
     get_n_random_points_in_region(scene.atlas, "MOs", 100)
     get_n_random_points_in_region(scene.atlas, "MOp", 100, hemisphere="right")
-    ca1 = scene.add_brain_regions("CA1")
+    ca1 = scene.add_brain_region("CA1")
     get_n_random_points_in_region(scene.atlas, ca1.mesh, 100)
 
 
@@ -353,7 +353,7 @@ def test_screenshot(scene):
 
 
 def test_add_actor(scene):
-    act = scene.add_brain_regions("MOs")
+    act = scene.add_brain_region("MOs")
     scene.add_actor(act)
 
 

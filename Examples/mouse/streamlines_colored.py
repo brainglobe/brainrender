@@ -17,7 +17,7 @@ scene = Scene(title="streamlines")
 filepaths, data = scene.atlas.download_streamlines_for_region("CA1")
 
 
-scene.add_brain_regions(["CA1"], use_original_color=True, alpha=0.2)
+scene.add_brain_region(["CA1"], use_original_color=True, alpha=0.2)
 
 # you can pass either the filepaths or the data
 colors = makePalette(len(data), "salmon", "lightgreen")

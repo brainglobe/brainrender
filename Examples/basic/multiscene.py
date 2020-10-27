@@ -7,13 +7,13 @@ from brainrender.scene import MultiScene, Scene
 
 # Create 3 scenes
 scene1 = Scene()
-scene1.add_brain_regions("MOs")
+scene1.add_brain_region("MOs")
 
 scene2 = Scene(add_root=False)
-scene2.add_brain_regions(["TH", "VAL"])
+scene2.add_brain_region(["TH", "VAL"])
 
 scene3 = Scene()
-scene3.add_brain_regions("CA1")
+scene3.add_brain_region("CA1")
 
 
 # Create and render a multiscene

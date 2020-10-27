@@ -16,7 +16,7 @@ scene = Scene(
     screenshot_kwargs=screenshot_params
 )  # use screenshot_params to specify where the screenshots will be saved
 
-scene.add_brain_regions(["TH"])
+scene.add_brain_region(["TH"])
 
 # render
 scene.render(

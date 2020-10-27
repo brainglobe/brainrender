@@ -31,6 +31,8 @@ mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
 class Render:
+    transform_applied = False
+
     def __init__(self):
         self.plotter = Plotter(
             size="full" if settings.WHOLE_SCREEN else "auto",

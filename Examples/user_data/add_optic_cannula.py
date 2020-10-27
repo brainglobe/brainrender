@@ -4,7 +4,7 @@ from brainrender.scene import Scene
 
 scene = Scene()
 
-scene.add_brain_regions(["CA1"])
+scene.add_brain_region(["CA1"])
 
 scene.add_optic_cannula(target_region="CA1")
 

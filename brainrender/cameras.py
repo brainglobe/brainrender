@@ -15,7 +15,7 @@ sagittal_camera2 = dict(
 )
 
 
-coronal_camera = dict(
+frontal_camera = dict(
     position=[-54546.708, 526.426, 6171.914],
     focal=[6587.835, 3849.085, 5688.164],
     viewup=[0.054, -0.999, -0.002],
@@ -43,7 +43,7 @@ three_quarters_camera = dict(
 cameras = dict(
     sagittal=sagittal_camera,
     sagittal2=sagittal_camera2,
-    coronal=coronal_camera,
+    frontal=frontal_camera,
     top=top_camera,
     three_quarters=three_quarters_camera,
 )

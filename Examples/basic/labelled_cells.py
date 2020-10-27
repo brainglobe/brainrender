@@ -20,7 +20,7 @@ regions = ["MOs", "VISp", "ZI"]
 N = 1000  # getting 1k cells per region, but brainrender can deal with >1M cells easily.
 
 # Render regions
-scene.add_brain_regions(regions, alpha=0.2)
+scene.add_brain_region(regions, alpha=0.2)
 
 # Get fake cell coordinates
 cells = []  # to store x,y,z coordinates

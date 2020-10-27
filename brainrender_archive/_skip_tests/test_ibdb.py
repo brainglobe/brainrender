@@ -33,9 +33,9 @@ def test_ibdb(scene):
         "PB",
     ]
 
-    scene.add_brain_regions(central_complex, alpha=1)
-    scene.add_brain_regions("PB", colors="red", use_original_color=False)
-    scene.add_brain_regions("PB", colors=["red"], use_original_color=False)
+    scene.add_brain_region(central_complex, alpha=1)
+    scene.add_brain_region("PB", colors="red", use_original_color=False)
+    scene.add_brain_region("PB", colors=["red"], use_original_color=False)
 
 
 def test_root(scene):
