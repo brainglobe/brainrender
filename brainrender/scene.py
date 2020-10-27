@@ -53,7 +53,9 @@ class Scene(Render):
             )
         self.atlas.root = self.root  # give atlas access to root
 
-        # todo title, inset
+        self.inset = (
+            inset  # the inset will be created when the scene is first rendered
+        )
 
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
@@ -65,7 +67,16 @@ class Scene(Render):
         self.close()
 
     def _get_inset(self):
-        pass
+        inset = self.root.mesh.clone()
+        inset.scale(0.5).alpha(1)
+        self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
+
+        if settings.SHADER_STYLE == "cartoon":
+            self.plotter.showInset(
+                inset.silhouette().lw(0.5).c("k"),
+                pos=(0.95, 0.1),
+                draggable=False,
+            )
 
     def add(self, *items, names=None, classes=None, **kwargs):
         names = names or ["Actor" for a in items]
