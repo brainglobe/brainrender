@@ -56,3 +56,26 @@ def set_camera(scene, camera):
     else:
         scene.plotter.camera = camera
     return camera
+
+
+def get_camera_params(scene=None, camera=None):
+    """
+        Given an active brainrender scene, it return
+        the camera parameters. 
+    """
+    if scene is not None:
+        if not scene.is_rendered:
+            scene.render(interactive=False)
+        cam = scene.plotter.camera
+    else:
+        cam = camera
+
+    params = dict(
+        position=cam.GetPosition(),
+        focal=cam.GetFocalPoint(),
+        viewup=cam.GetViewUp(),
+        distance=cam.GetDistance(),
+        clipping=cam.GetClippingRange(),
+        orientation=cam.GetOrientation(),
+    )
+    return params

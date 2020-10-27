@@ -20,5 +20,6 @@ def load_mesh_from_file(filepath, color=None, alpha=None):
     :param **kwargs: 
 
     """
-    actor = load(str(filepath)).c(color).alpha(alpha)
+    actor = load(str(filepath))
+    actor.c(color).alpha(alpha)
     return actor

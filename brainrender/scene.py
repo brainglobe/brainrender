@@ -31,38 +31,21 @@ class Scene(Render):
             self.root = self.add_brain_regions(
                 "root", alpha=settings.ROOT_ALPHA, color=settings.ROOT_COLOR
             )
+        else:
+            self.root = self.atlas.get(
+                "region", "root", alpha=0, color=settings.ROOT_COLOR
+            )
 
         # todo title, inset
 
     def __str__(self):
-        return f"A `brainrender.scene.Scene` with {len(self)} actors."
+        return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
     def __repr__(self):
-        return f"A `brainrender.scene.Scene` with {len(self)} actors."
-
-    def __add__(self, other):
-        if isinstance(other, Actor):
-            self.add(other)
-        elif isinstance(other, (Path, str)):
-            self.add_from_file(str(other))
-        else:
-            raise ValueError(f"Can't add object {other} to scene")
-
-    def __iadd__(self, other):
-        self.__add__(other)
-        return self
-
-    def __len__(self):
-        return len(self.actors)
-
-    def __getitem__(self, index):
-        return self.actors[index]
+        return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
     def __del__(self):
         self.close()
-
-    def _get_root(self):
-        pass
 
     def _get_inset(self):
         pass
