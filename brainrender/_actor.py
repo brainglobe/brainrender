@@ -12,7 +12,7 @@ def make_actor_label(
     color=None,
     radius=100,
     xoffset=0,
-    yoffset=0,
+    yoffset=-500,
     zoffset=0,
 ):
     """
@@ -57,8 +57,6 @@ def make_actor_label(
 
         # Create label
         txt = Text(label, point, s=size, c=color)
-        txt._original_actor = actor
-        txt._label = label
         txt._kwargs = dict(
             size=size,
             color=color,

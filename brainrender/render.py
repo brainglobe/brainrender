@@ -35,7 +35,7 @@ class Render:
         self.plotter = Plotter(
             size="full" if settings.WHOLE_SCREEN else "auto",
             axes=self._make_axes(),
-            pos=(10, 10),
+            pos=(0, 0),
             title="brainrender",
         )
 
@@ -82,7 +82,7 @@ class Render:
         self.transform_applied = True
 
         # Flip every actor's orientation
-        for actor in self.actors:
+        for actor in self.actors + self.labels:
             if not actor._is_transformed:
                 actor.mesh.applyTransform(mtx).reverse()
                 actor._is_transformed = True
@@ -114,7 +114,8 @@ class Render:
         # Apply style
         self._apply_style()
 
-        # TODO get inset
+        if self.inset:
+            self._get_inset()
 
         # render
         show(

@@ -36,7 +36,9 @@ class Scene(Render):
                 "region", "root", alpha=0, color=settings.ROOT_COLOR
             )
 
-        # todo title, inset
+        self.inset = (
+            inset  # the inset will be created when the scene is first rendered
+        )
 
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
@@ -48,9 +50,11 @@ class Scene(Render):
         self.close()
 
     def _get_inset(self):
-        pass
+        inset = self.root.mesh.clone()
+        inset.scale(0.5).alpha(1)
+        self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
 
-    def add(self, *items, names=None, classes=None):
+    def add(self, *items, names=None, classes=None, **kwargs):
         names = names or ["Actor" for a in items]
         classes = classes or ["None" for a in items]
 
@@ -65,7 +69,7 @@ class Scene(Render):
             elif isinstance(item, Actor):
                 actors.append(item)
             elif isinstance(item, (str, Path)):
-                mesh = load_mesh_from_file(item)
+                mesh = load_mesh_from_file(item, **kwargs)
                 actors.append(Actor(mesh, name=name, br_class=_class))
             else:
                 raise ValueError(f"Unrecognized argument: {item}")

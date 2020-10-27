@@ -39,12 +39,14 @@ def test_brain_regions():
 
     noone = scene.add_brain_regions("what is this")
     assert noone is None
+    del scene
 
 
 def test_add_from_files():
     scene = Scene()
-    obj = scene.add("tests/files/CC_134_1_ch1inj.obj")
+    obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
     assert isinstance(obj, Actor)
+    del scene
 
 
 def test_labels():
@@ -52,6 +54,7 @@ def test_labels():
     th = scene.add_brain_regions("TH")
     scene.add_label(th, "TH")
     scene.render(interactive=False)
+    del scene
 
 
 def test_scene_render():
@@ -59,3 +62,25 @@ def test_scene_render():
     scene.add_brain_regions("TH")
 
     scene.render(interactive=False, zoom=1.4)
+
+    scene.render(
+        interactive=False,
+        camera=dict(
+            position=(
+                10705.845660949382,
+                7435.678067378925,
+                -36936.3695486442,
+            ),
+            focal=(6779.790352916297, 3916.3916231239214, 5711.389387062087),
+            viewup=(
+                -0.0050579179155257475,
+                -0.9965615097647067,
+                -0.08270172139591858,
+            ),
+            distance=42972.44034956088,
+            clipping=(30461.81976236306, 58824.38622122339),
+        ),
+    )
+
+    scene.render(interactive=False, camera="sagittal")
+    del scene
