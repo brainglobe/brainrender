@@ -4,7 +4,7 @@ from rich.console import Console
 from pyinspect._colors import orange, mocassin, salmon
 import numpy as np
 
-# from brainrender.Utils.scene_utils import make_actor_label
+from ._actor import make_actor_label
 
 
 class Actor(object):
@@ -42,12 +42,14 @@ class Actor(object):
     def make_actor(cls, mesh, name, br_class):
         return cls(mesh, name=name, br_class=br_class)
 
-    # def make_label(self, atlas):s
-    #     labels = make_actor_label(
-    #         atlas, self, self._label_str, **self._label_kwargs
-    #     )
-    #     self._needs_label = False
-    #     return labels
+    def make_label(self, atlas):
+        labels = make_actor_label(
+            atlas, self, self._label_str, **self._label_kwargs
+        )
+        self._needs_label = False
+
+        lbls = [Actor.make_actor(l, self.name, "label") for l in labels]
+        return lbls
 
     def make_silhouette(self):
         lw = self._silhouette_kwargs["lw"]
@@ -55,7 +57,7 @@ class Actor(object):
         sil = self.mesh.silhouette().lw(lw).c(color)
 
         name = f"{self.name} silhouette"
-        sil = Actor.make_actor(sil, name, "silhoette")
+        sil = Actor.make_actor(sil, name, "silhouette")
         sil._is_transformed = True
 
         self._needs_silhouette = False

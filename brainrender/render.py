@@ -87,7 +87,11 @@ class Render:
                 actor.mesh.applyTransform(mtx).reverse()
                 actor._is_transformed = True
 
-        # TODO labels and silhouettes
+            if actor._needs_silhouette:
+                self.actors.append(actor.make_silhouette())
+
+            if actor._needs_label:
+                self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
         for actor in self.actors:

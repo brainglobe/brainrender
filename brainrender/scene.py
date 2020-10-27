@@ -73,9 +73,28 @@ class Scene(Render):
         self.actors.extend(actors)
         return return_list_smart(actors)
 
-    def add_brain_regions(self, *regions, alpha=1, color=None):
+    def add_brain_regions(
+        self, *regions, alpha=1, color=None, silhouette=True
+    ):
         regions = self.atlas.get("region", *regions, alpha=alpha, color=color)
-        return self.add(*listify(regions))
+        regions = listify(regions)
+
+        if silhouette and regions is not None:
+            self.add_silhouette(*regions)
+
+        return self.add(*regions)
+
+    def add_silhouette(self, *actors, lw=2, color="k"):
+        for actor in actors:
+            if actor is None:
+                continue
+            actor._needs_silhouette = True
+            actor._silhouette_kwargs = dict(lw=lw, color=color,)
+
+    def add_label(self, actor, label, **kwargs):
+        actor._needs_label = True
+        actor._label_str = label
+        actor._label_kwargs = kwargs
 
     @property
     def content(self):

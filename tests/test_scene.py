@@ -45,3 +45,17 @@ def test_add_from_files():
     scene = Scene()
     obj = scene.add("tests/files/CC_134_1_ch1inj.obj")
     assert isinstance(obj, Actor)
+
+
+def test_labels():
+    scene = Scene()
+    th = scene.add_brain_regions("TH")
+    scene.add_label(th, "TH")
+    scene.render(interactive=False)
+
+
+def test_scene_render():
+    scene = Scene()
+    scene.add_brain_regions("TH")
+
+    scene.render(interactive=False, zoom=1.4)
