@@ -1,8 +1,17 @@
 import numpy as np
-from vedo import Spheres
+from vedo import Spheres, Sphere
 from pathlib import Path
 
 from ..actor import Actor
+
+
+class Point(Actor):
+    def __init__(
+        self, pos, radius=100, color="blackboard", alpha=1, res=25, name=None
+    ):
+        mesh = Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res)
+        name = name or "Point"
+        Actor.__init__(self, mesh, name=name, br_class="Point")
 
 
 class Points(Actor):

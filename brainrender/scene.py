@@ -7,7 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Plane, Sphere, Text2D
+from vedo import Mesh, Plane, Text2D
 from vedo import settings as vedo_settings
 import pyinspect as pi
 from rich import print
@@ -119,13 +119,6 @@ class Scene(Render):
 
         self.actors.extend(actors)
         return return_list_smart(actors)
-
-    def add_point(self, pos, radius=100, color="blackboard", alpha=1, res=25):
-        self.add(
-            Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res),
-            names="point",
-            classes="point",
-        )
 
     def add_brain_region(
         self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"

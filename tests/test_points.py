@@ -1,6 +1,7 @@
 from brainrender import Scene
-from brainrender.actors import Points
+from brainrender.actors import Points, Point
 import numpy as np
+from brainrender.actor import Actor
 
 import pytest
 
@@ -15,6 +16,14 @@ def test_points_working():
 
     s.add(act)
     s.add(act2)
+
+    point = Point([100, 233, 422])
+    s.add(point)
+    assert isinstance(point, Actor)
+    assert isinstance(act, Actor)
+    assert isinstance(act2, Actor)
+    assert isinstance(act3, Actor)
+    assert point.name == "Point"
 
     s.render(interactive=False)
     del s
