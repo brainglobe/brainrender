@@ -1,49 +1,63 @@
-sagittal_camera = dict(
-    position=[5532.562, 8057.256, 66760.941],
-    focal=[6587.835, 3849.085, 5688.164],
-    viewup=[0.045, -0.997, 0.061],
-    distance=24893.917,
-    clipping=[9826.898, 43920.235],
-)
+sagittal_camera = {
+    "position": (5976, 6290, 29737),
+    "focal": (6588, 3849, -5688),
+    "viewup": (0, -1, 0),
+    "distance": 35514,
+    "clipping": (24098, 49971),
+    "orientation": (4, 1, 177),
+}
 
-sagittal_camera2 = dict(
-    position=(10705.845660949382, 7435.678067378925, -36936.3695486442),
-    focal=(6779.790352916297, 3916.3916231239214, 5711.389387062087),
-    viewup=(-0.0050579179155257475, -0.9965615097647067, -0.08270172139591858),
-    distance=42972.44034956088,
-    clipping=(30461.81976236306, 58824.38622122339),
-)
-
-
-frontal_camera = dict(
-    position=[-54546.708, 526.426, 6171.914],
-    focal=[6587.835, 3849.085, 5688.164],
-    viewup=[0.054, -0.999, -0.002],
-    distance=61226.68,
-    clipping=[47007.899, 79272.88],
-)
-
-top_camera = dict(
-    position=[1482.128, -57162.314, 5190.803],
-    focal=[6587.835, 3849.085, 5688.164],
-    viewup=[-0.996, 0.083, 0.016],
-    distance=61226.68,
-    clipping=[52067.13, 72904.35],
-)
+sagittal_camera2 = {
+    "position": (9782, 1795, -40999),
+    "focal": (6588, 3849, -5688),
+    "viewup": (0, -1, 0),
+    "distance": "35514",
+    "clipping": (23256, 51031),
+    "orientation": (-3, -175, -179),
+}
 
 
-three_quarters_camera = dict(
-    position=[-27271.044, -18212.523, 51683.47],
-    focal=[6587.835, 3849.085, 5688.164],
-    viewup=[0.341, -0.921, -0.19],
-    distance=61226.68,
-    clipping=[42904.747, 84437.903],
-)
+frontal_camera = {
+    "position": (-28926, 3609, -5802),
+    "focal": (6588, 3849, -5688),
+    "viewup": (0, -1, 0),
+    "distance": 35514,
+    "clipping": (21933, 52696),
+    "orientation": (0, 90, -180),
+}
+
+top_camera = {
+    "position": (5854, -31645, -4865),
+    "focal": (6587, 3850, -5803),
+    "viewup": (-1, 0, 0),
+    "distance": "35514",
+    "clipping": (27222, 46030),
+    "orientation": (-88, 38, -51),
+}
+
+top_side_camera = {
+    "position": (4405, -31597, -5411),
+    "focal": (6588, 3849, -5688),
+    "viewup": (0, 0, -1),
+    "distance": 35514,
+    "clipping": (26892, 46454),
+    "orientation": (-86, 83, -97),
+}
+
+three_quarters_camera = {
+    "position": (-28926, 3609, -5802),
+    "focal": (6588, 3849, -5688),
+    "viewup": (0, -1, 0),
+    "distance": 35514,
+    "clipping": (21933, 52696),
+    "orientation": (0, 90, -180),
+}
 
 cameras = dict(
     sagittal=sagittal_camera,
     sagittal2=sagittal_camera2,
     frontal=frontal_camera,
     top=top_camera,
+    top_side=top_side_camera,
     three_quarters=three_quarters_camera,
 )

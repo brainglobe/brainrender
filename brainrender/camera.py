@@ -63,6 +63,13 @@ def get_camera_params(scene=None, camera=None):
         Given an active brainrender scene, it return
         the camera parameters. 
     """
+
+    def clean(val):
+        if isinstance(val, tuple):
+            return tuple((round(v) for v in val))
+        else:
+            return round(val)
+
     if scene is not None:
         if not scene.is_rendered:
             scene.render(interactive=False)
@@ -71,11 +78,11 @@ def get_camera_params(scene=None, camera=None):
         cam = camera
 
     params = dict(
-        position=cam.GetPosition(),
-        focal=cam.GetFocalPoint(),
-        viewup=cam.GetViewUp(),
-        distance=cam.GetDistance(),
-        clipping=cam.GetClippingRange(),
-        orientation=cam.GetOrientation(),
+        position=clean(cam.GetPosition()),
+        focal=clean(cam.GetFocalPoint()),
+        viewup=clean(cam.GetViewUp()),
+        distance=clean(cam.GetDistance()),
+        clipping=clean(cam.GetClippingRange()),
+        orientation=clean(cam.GetOrientation()),
     )
     return params

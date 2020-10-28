@@ -78,7 +78,9 @@ class Atlas(BrainGlobeAtlas):
         """
         axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 
-        pos = pos or self.root.centerOfMass()
+        if pos is None:
+            pos = self.root.centerOfMass()
+
         try:
             norm = norm or self.space.plane_normals[plane]
         except KeyError:

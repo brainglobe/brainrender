@@ -1,6 +1,8 @@
 from vedo import Plotter, show, closePlotter
 import numpy as np
 from datetime import datetime
+from rich import print
+from pyinspect._colors import orange, mocassin, lilla
 
 from brainrender import settings
 from .camera import (
@@ -124,6 +126,7 @@ class Render:
             self._get_inset()
 
         # render
+        self.is_rendered = True
         if not self.jupyter:
             if interactive is None:
                 interactive = settings.INTERACTIVE
@@ -131,7 +134,6 @@ class Render:
             show(
                 *self.renderables, interactive=interactive, zoom=zoom,
             )
-            self.is_rendered = True
         else:
             print(
                 "Your scene is ready for rendering, use: `show(scene.renderables)`"
@@ -170,4 +172,15 @@ class Render:
             self.close()
 
         elif key == "c":
-            print(f"Camera parameters:\n{get_camera_params(scene=self)}")
+            pms = get_camera_params(scene=self)
+            names = [
+                f"[green bold]     '{k}'[/green bold]: [{mocassin}]{v},"
+                for k, v in pms.items()
+            ]
+            print(
+                f"[{lilla}]Camera parameters:",
+                f"[{orange}]    {{",
+                *names,
+                f"[{orange}]   }}",
+                sep="\n",
+            )
