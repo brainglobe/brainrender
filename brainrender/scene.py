@@ -101,12 +101,15 @@ class Scene(Render):
         for item, name, _class in zip(items, listify(names), listify(classes)):
             if item is None:
                 continue
+
             if isinstance(item, Mesh):
                 actors.append(Actor(item, name=name, br_class=_class))
+
             elif pi.utils._class_name(item) == "vtkCornerAnnotation":
                 actors.append(
                     Actor(item, name=name, br_class=_class, is_text=True)
                 )
+
             elif isinstance(item, Actor):
                 actors.append(item)
 
@@ -138,12 +141,12 @@ class Scene(Render):
 
         return self.add(*regions)
 
-    def add_silhouette(self, *actors, lw=2, color="k"):
+    def add_silhouette(self, *actors, lw=None, color="k"):
         for actor in actors:
             if actor is None:
                 continue
             actor._needs_silhouette = True
-            actor._silhouette_kwargs = dict(lw=lw, color=color,)
+            actor._silhouette_kwargs = dict(lw=lw or settings.LW, color=color,)
 
     def add_label(self, actor, label, **kwargs):
         actor._needs_label = True

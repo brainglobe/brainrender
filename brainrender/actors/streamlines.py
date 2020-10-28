@@ -23,8 +23,11 @@ def get_streamlines_for_region(region, force_download=False):
     )
 
 
-def make_streamlines(*streamlines):
-    return [Streamlines(s) for s in streamlines]
+def make_streamlines(*streamlines, color="salmon", alpha=1, radius=10):
+    return [
+        Streamlines(s, color=color, alpha=alpha, radius=radius)
+        for s in streamlines
+    ]
 
 
 class Streamlines(Actor):

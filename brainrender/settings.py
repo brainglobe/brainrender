@@ -10,3 +10,4 @@ SCREENSHOT_SCALE = 1
 HDF_SUFFIXES = [".h5", ".hdf", ".hdf5", ".he5"]
 DEFAULT_HDF_KEY = "hdf"
 INTERACTIVE = True
+LW = 2

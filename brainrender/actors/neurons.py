@@ -23,7 +23,8 @@ class Neuron(Actor):
         """
             neuron can be either a .swc, a Mesh, or a morphapi.Neuron
         """
-        color = color or "blackboard"
+        if color is None:
+            color = "blackboard"
         alpha = alpha
         self.neurite_radius = neurite_radius
         self.soma_radius = soma_radius
