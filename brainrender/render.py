@@ -38,7 +38,7 @@ class Render:
     def __init__(self):
         self.plotter = Plotter(
             size="full" if settings.WHOLE_SCREEN else "auto",
-            axes=self._make_axes(),
+            axes=self._make_axes() if settings.SHOW_AXES else None,
             pos=(0, 0),
             title="brainrender",
         )
@@ -125,12 +125,11 @@ class Render:
 
         # render
         if not self.jupyter:
+            if interactive is None:
+                interactive = settings.INTERACTIVE
+
             show(
-                *self.renderables,
-                interactive=interactive or settings.INTERACTIVE,
-                zoom=zoom,
-                bg=settings.BACKGROUND_COLOR,
-                axes=self.plotter.axes,
+                *self.renderables, interactive=interactive, zoom=zoom,
             )
             self.is_rendered = True
         else:

@@ -1,6 +1,7 @@
 import numpy as np
 from vedo import Spheres, Sphere
 from pathlib import Path
+from pyinspect.utils import _class_name
 
 from ..actor import Actor
 
@@ -25,6 +26,10 @@ class Points(Actor):
             mesh = self._from_numpy(data)
         elif isinstance(data, (str, Path)):
             mesh = self._from_file(data)
+        else:
+            raise TypeError(
+                f"Input data should be either a numpy array or a file path, not: {_class_name(data)}"
+            )
 
         Actor.__init__(self, mesh, name=self.name, br_class="Points")
 
