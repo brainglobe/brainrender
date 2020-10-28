@@ -22,6 +22,9 @@ def test_neuron():
     with pytest.raises(NotImplementedError):
         Neuron("tests/files/random_cells.h5")
 
+    s.render(interactive=False)
+    del s
+
 
 def test_get_neurons():
     get_neurons("tests/files/neuron1.swc", "tests/files/neuron1.swc")

@@ -16,6 +16,9 @@ def test_points_working():
     s.add(act)
     s.add(act2)
 
+    s.render(interactive=False)
+    del s
+
 
 def test_points_error():
     with pytest.raises(FileExistsError):

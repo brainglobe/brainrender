@@ -19,3 +19,6 @@ def test_atlas_plane(pos, plane, norm):
     p2 = s.atlas.get_plane(plane=plane, pos=pos, norm=norm)
     assert isinstance(p1, Actor)
     assert isinstance(p2, Actor)
+
+    s.render(interactive=False)
+    del s

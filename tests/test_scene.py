@@ -16,6 +16,11 @@ def test_scene_creation():
     noinset.root
     noinset.render(interactive=False)
 
+    scene.render(interactive=False)
+    del scene
+    noinset.render(interactive=False)
+    del noinset
+
 
 def test_scene_specials():
     scene = Scene()
@@ -25,6 +30,7 @@ def test_scene_specials():
         == f"A `brainrender.scene.Scene` with {len(scene.actors)} actors."
     )
     scene.content
+    scene.render(interactive=False)
     del scene
 
 
@@ -45,6 +51,8 @@ def test_brain_regions():
     a2 = scene.add_brain_region("CA1", hemisphere="right")
     assert isinstance(a1, Actor)
     assert isinstance(a2, Actor)
+
+    scene.render(interactive=False)
     del scene
 
 
@@ -52,6 +60,8 @@ def test_add_from_files():
     scene = Scene()
     obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
     assert isinstance(obj, Actor)
+
+    scene.render(interactive=False)
     del scene
 
 
@@ -89,6 +99,7 @@ def test_scene_render():
     )
 
     scene.render(interactive=False, camera="sagittal")
+    del scene
 
 
 def test_scene_slice():
@@ -109,6 +120,9 @@ def test_scene_slice():
     s.slice(plane, actors=th)
     ret = s.slice(plane, actors=[th, s.root],)
 
+    s.render(interactive=False)
+    del s
+
 
 @pytest.mark.parametrize(
     "name, scale", [("test", 2), (None, None), (None, 1), ("test2", None)]
@@ -117,3 +131,6 @@ def test_scene_screenshot(name, scale):
     s = Scene(screenshots_folder="tests/screenshots")
     s.screenshot(name=name, scale=scale)
     shutil.rmtree("tests/screenshots")
+
+    s.render(interactive=False)
+    del s

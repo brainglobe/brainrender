@@ -13,6 +13,7 @@ def test_ruler():
         )
     )
 
+    s.render(interactive=False)
     del s
 
 
@@ -26,4 +27,5 @@ def test_ruler_from_surface():
         )
     )
 
+    s.render(interactive=False)
     del s
