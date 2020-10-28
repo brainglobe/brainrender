@@ -125,7 +125,9 @@ def download_streamlines(eids, streamlines_folder=None):  # pragma: no cover
 
     filepaths, data = [], []
     for eid in track(eids, total=len(eids), description="downloading"):
-        url = make_url_given_id(eid)
+        url = "https://neuroinformatics.nl/HBP/allen-connectivity-viewer/json/streamlines_{}.json.gz".format(
+            eid
+        )
         jsonpath = streamlines_folder / f"{eid}.json"
         filepaths.append(str(jsonpath))
 

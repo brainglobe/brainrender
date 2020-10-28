@@ -97,7 +97,7 @@ class ABA:
 
         return actors
 
-    def download_streamlines_for_region(self, region, *args, **kwargs):
+    def download_streamlines_for_region(self, region):
         """
             Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
             were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
@@ -115,9 +115,7 @@ class ABA:
             )
 
         # Get experiments whose injections were targeted to the region
-        region_experiments = experiments_source_search(
-            self.mca, region, *args, **kwargs
-        )
+        region_experiments = experiments_source_search(self.mca, region)
         try:
             return download_streamlines(
                 region_experiments.id.values,

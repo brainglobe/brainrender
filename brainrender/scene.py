@@ -180,7 +180,7 @@ class Scene(Render):
 
         for act in self.actors:
             actors.add(
-                f"[bold][{mocassin}]- {act.name}[/bold][{dimorange}] (type: [{orange}]{act.br_class}[/{orange}]) | is transformed: [blue]{act._is_transformed}"
+                f"[bold][{mocassin}]- {act.name}[/bold][{dimorange}] (type: [{orange}]{act.br_class}[/{orange}]) |[dim] is transformed: [blue]{act._is_transformed}"
             )
 
         if "win" not in sys.platform:
