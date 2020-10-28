@@ -1,4 +1,5 @@
 from vedo import Plotter, show, closePlotter
+from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime
 from rich import print
@@ -140,7 +141,11 @@ class Render:
             )
 
     def close(self):
+        self.plotter.close()
+        self.plotter = None
         closePlotter()
+        vsettings.plotter_instance = None
+        vsettings.plotter_instances = []
 
     def export(self):  # as HTML
         pass

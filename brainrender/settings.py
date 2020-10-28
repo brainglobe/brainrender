@@ -1,3 +1,13 @@
+from vedo import settings as vsettings
+
+# ------------------------------- vedo settings ------------------------------ #
+
+vsettings.pointSmoothing = False
+vsettings.lineSmoothing = False
+vsettings.polygonSmoothing = False
+
+# --------------------------- brainrender settings --------------------------- #
+
 DEFAULT_ATLAS = "allen_mouse_25um"  # default atlas
 WHOLE_SCREEN = True  # If true render window is full screen
 BACKGROUND_COLOR = "white"
