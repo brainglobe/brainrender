@@ -6,6 +6,12 @@ vsettings.pointSmoothing = False
 vsettings.lineSmoothing = False
 vsettings.polygonSmoothing = False
 
+
+# For transparent background with screenshots
+vsettings.screenshotTransparentBackground = True  # vedo for transparent bg
+vsettings.useFXAA = False  # This needs to be false for transparent bg
+
+
 # --------------------------- brainrender settings --------------------------- #
 
 DEFAULT_ATLAS = "allen_mouse_25um"  # default atlas

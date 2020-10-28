@@ -3,6 +3,7 @@ from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime
 from rich import print
+from pathlib import Path
 from pyinspect._colors import orange, mocassin, lilla
 
 from brainrender import settings
@@ -123,7 +124,7 @@ class Render:
         # Apply style
         self._apply_style()
 
-        if self.inset and not self.jupyter:
+        if self.inset and not self.jupyter and not self.is_rendered:
             self._get_inset()
 
         # render
@@ -131,6 +132,9 @@ class Render:
         if not self.jupyter:
             if interactive is None:
                 interactive = settings.INTERACTIVE
+
+            for txt in self.labels:
+                txt.followCamera(self.plotter.camera)
 
             show(
                 *self.renderables, interactive=interactive, zoom=zoom,
@@ -141,14 +145,39 @@ class Render:
             )
 
     def close(self):
-        self.plotter.close()
-        self.plotter = None
         closePlotter()
-        vsettings.plotter_instance = None
-        vsettings.plotter_instances = []
 
-    def export(self):  # as HTML
-        pass
+    def export(self, savepath):  # as HTML
+        _jupiter = self.jupyter
+
+        if not self.is_rendered:
+            self.render(interactive=False)
+
+        path = Path(savepath)
+        if path.suffix != ".html":
+            raise ValueError("Savepath should point to a .html file")
+
+        # prepare settings
+        vsettings.notebookBackend = "k3d"
+
+        # Create new plotter and save to file
+        plt = Plotter()
+        plt.add(self.renderables)
+        plt = plt.show(interactive=False)
+        plt.camera[-2] = -1
+
+        with open(path, "w") as fp:
+            fp.write(plt.get_snapshot())
+
+        print(
+            f"The brainrender scene has been exported for web. The results are saved at {path}"
+        )
+
+        # Reset settings
+        vsettings.notebookBackend = None
+        self.jupyter = _jupiter
+
+        return str(path)
 
     def screenshot(self, name=None, scale=None):
         if not self.is_rendered:
