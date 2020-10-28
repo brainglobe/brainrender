@@ -8,6 +8,7 @@ Scene
 import sys
 from pathlib import Path
 from vedo import Mesh, Plane, Sphere, Text2D
+from vedo import settings as vedo_settings
 import pyinspect as pi
 from rich import print
 
@@ -64,6 +65,11 @@ class Scene(Render):
                 name="title",
                 br_class="title",
             )
+
+        if vedo_settings.notebookBackend == "k3d":
+            self.jupyter = True
+        else:
+            self.jupyter = False
 
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
@@ -190,7 +196,10 @@ class Scene(Render):
 
     @property
     def renderables(self):
-        return [a.mesh for a in self.actors + self.labels]
+        if not self.jupyter:
+            return [a.mesh for a in self.actors + self.labels]
+        else:
+            return list(set([a.mesh for a in self.actors if not a.is_text]))
 
     @property
     def clean_actors(self):

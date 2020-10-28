@@ -110,7 +110,9 @@ class Render:
             camera = get_camera(settings.DEFAULT_CAMERA)
         else:
             camera = check_camera_param(camera)
-        set_camera(self, camera)
+
+        if not self.jupyter:
+            set_camera(self, camera)
 
         # Apply axes correction
         self._correct_axes()
@@ -118,18 +120,23 @@ class Render:
         # Apply style
         self._apply_style()
 
-        if self.inset:
+        if self.inset and not self.jupyter:
             self._get_inset()
 
         # render
-        show(
-            *self.renderables,
-            interactive=interactive or settings.INTERACTIVE,
-            zoom=zoom,
-            bg=settings.BACKGROUND_COLOR,
-            axes=self.plotter.axes,
-        )
-        self.is_rendered = True
+        if not self.jupyter:
+            show(
+                *self.renderables,
+                interactive=interactive or settings.INTERACTIVE,
+                zoom=zoom,
+                bg=settings.BACKGROUND_COLOR,
+                axes=self.plotter.axes,
+            )
+            self.is_rendered = True
+        else:
+            print(
+                "Your scene is ready for rendering, use: `show(scene.renderables)`"
+            )
 
     def close(self):
         closePlotter()
