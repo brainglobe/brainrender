@@ -4,17 +4,18 @@ import pandas as pd
 import os
 import sys
 
-from brainrender.ABA.gene_expression.ge_utils import (
+from brainrender.aba.gene_expression.ge_utils import (
     check_gene_cached,
     load_cached_gene,
     download_and_cache,
 )
-from brainrender.Utils.paths_manager import Paths
-from brainrender.Utils.webqueries import request
-from brainrender.Utils.decorators import fail_on_no_connection
+
+from brainrender import base_dir
+from brainrender._io import request, fail_on_no_connection
+from brainrender.actor import Actor
 
 
-class GeneExpressionAPI(Paths):
+class GeneExpressionAPI:
     voxel_size = 200  # um
     grid_size = [58, 41, 67]  # number of voxels along each direction
 
@@ -35,11 +36,13 @@ class GeneExpressionAPI(Paths):
 
     download_url = "http://api.brain-map.org/grid_data/download/EXP_ID?include=energy,intensity,density"
 
-    def __init__(self, base_dir=None, **kwargs):
-        super().__init__(base_dir, **kwargs)
+    gene_expression_cache = base_dir / "GeneExpressionCache"
+    gene_name = None
 
+    def __init__(self):
         # Get metadata about all available genes
         self.genes = None  # when necessary gene data can be downloaded with self.get_all_genes
+        self.gene_expression_cache.mkdir(exist_ok=True)
 
     @fail_on_no_connection
     def get_all_genes(self):
@@ -50,6 +53,7 @@ class GeneExpressionAPI(Paths):
         return pd.DataFrame(res.json()["msg"])
 
     def get_gene_id_by_name(self, gene_name):
+        self.gene_name = self.gene_name or gene_name
         if self.genes is None:
             self.genes = self.get_all_genes()
 
@@ -139,7 +143,7 @@ class GeneExpressionAPI(Paths):
                 url, os.path.join(self.gene_expression_cache, f"{gene}-{eid}")
             )
 
-    def get_gene_data(self, gene, exp_id, metric="energy"):
+    def get_gene_data(self, gene, exp_id, use_cache=True, metric="energy"):
         """
             Given a list of gene ids
         """
@@ -148,8 +152,13 @@ class GeneExpressionAPI(Paths):
         if not isinstance(exp_id, int):
             raise ValueError("Expression id should be an integer")
 
+        self.gene_name = self.gene_name or gene
+
         # Check if gene-experiment cached
-        cache = check_gene_cached(self.gene_expression_cache, gene, exp_id)
+        if use_cache:
+            cache = check_gene_cached(self.gene_expression_cache, gene, exp_id)
+        else:
+            cache = False
 
         if not cache:  # then download it
             self.download_gene_data(gene)
@@ -212,4 +221,4 @@ class GeneExpressionAPI(Paths):
             spacing=[self.voxel_size, self.voxel_size, self.voxel_size],
         )
         actor = actor.legosurface(vmin=th, cmap=cmap)
-        return actor
+        return Actor(actor, name=self.gene_name, br_class="Gene Data")

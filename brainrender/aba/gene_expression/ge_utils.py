@@ -3,9 +3,9 @@ import numpy as np
 import zipfile
 import io
 import sys
-from brainrender.Utils.data_io import get_subdirs, listdir
-from brainrender.Utils.webqueries import request
-from brainrender.Utils.decorators import check_file_exists
+
+from brainrender._utils import get_subdirs, listdir
+from brainrender._io import request, check_file_exists
 
 # ----------------------------------- Cache ---------------------------------- #
 
