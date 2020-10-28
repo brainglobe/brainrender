@@ -12,12 +12,10 @@ requirements = [
     "k3d==2.7.4",
     "msgpack",
     "pyyaml>=5.3",
-    "brainio>=0.0.19",
-    "morphapi>=0.1.1.8",
+    "morphapi>=0.1.2.0",
     "requests",
     "bg-atlasapi>=1.0.0",
     "tables",
-    "accepts",
     "pyinspect>=0.0.8",
 ]
 
@@ -51,5 +49,5 @@ setup(
     url="https://github.com/brainglobe/brainrender",
     author="Federico Claudi",
     zip_safe=False,
-    entry_points={"console_scripts": ["brainrender = brainrender.cli:main"]},
+    entry_points={},
 )
