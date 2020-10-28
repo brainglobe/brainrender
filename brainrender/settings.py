@@ -9,3 +9,4 @@ SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metalli
 SCREENSHOT_SCALE = 1
 HDF_SUFFIXES = [".h5", ".hdf", ".hdf5", ".he5"]
 DEFAULT_HDF_KEY = "hdf"
+INTERACTIVE = True

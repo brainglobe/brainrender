@@ -104,7 +104,7 @@ class Render:
             else:
                 actor.mesh.lighting("off")
 
-    def render(self, interactive=True, camera=None, zoom=1.25):
+    def render(self, interactive=None, camera=None, zoom=1.25):
         # Get camera
         if camera is None:
             camera = get_camera(settings.DEFAULT_CAMERA)
@@ -124,7 +124,7 @@ class Render:
         # render
         show(
             *self.renderables,
-            interactive=interactive,
+            interactive=interactive or settings.INTERACTIVE,
             zoom=zoom,
             bg=settings.BACKGROUND_COLOR,
             axes=self.plotter.axes,
