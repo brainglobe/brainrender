@@ -4,3 +4,4 @@ install_traceback()
 
 import brainrender.settings
 from brainrender.scene import Scene
+import brainrender.actors
