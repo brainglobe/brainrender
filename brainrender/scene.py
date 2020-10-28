@@ -10,7 +10,7 @@ from pathlib import Path
 from vedo import Mesh, Plane, Sphere, Text2D
 import pyinspect as pi
 from rich import print
-from pyinspect._colors import mocassin, orange, dimorange, salmon
+
 
 from brainrender import settings
 from .atlas import Atlas
@@ -18,6 +18,7 @@ from .render import Render
 from .actor import Actor
 from ._utils import return_list_smart, listify
 from ._io import load_mesh_from_file
+from ._colors import mocassin, orange, dimorange, salmon
 
 
 class Scene(Render):
