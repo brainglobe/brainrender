@@ -26,6 +26,7 @@ class Atlas(BrainGlobeAtlas):
         if not regions:
             return None
 
+        _color = color
         actors = []
         for region in regions:
             if region not in self.lookup_df.acronym.values:
@@ -48,6 +49,8 @@ class Atlas(BrainGlobeAtlas):
             actor = Actor(mesh, name=region, br_class="brain region")
             actor.c(color).alpha(alpha)
             actors.append(actor)
+
+            color = _color
 
         return return_list_smart(actors)
 
