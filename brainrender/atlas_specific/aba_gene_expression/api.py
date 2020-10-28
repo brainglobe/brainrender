@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import sys
 
-from brainrender.aba.gene_expression.ge_utils import (
+from brainrender.atlas_specific.aba_gene_expression.ge_utils import (
     check_gene_cached,
     load_cached_gene,
     download_and_cache,

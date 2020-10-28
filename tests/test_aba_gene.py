@@ -1,5 +1,5 @@
 from brainrender import Scene
-from brainrender.aba import GeneExpressionAPI
+from brainrender.atlas_specific import GeneExpressionAPI
 from brainrender.actor import Actor
 import pytest
 
