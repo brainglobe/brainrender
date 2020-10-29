@@ -106,12 +106,17 @@ def save_videocap_to_video(cap, savepath, fmt, fps=30, iscolor=True):
 class Video(VtkVideo):
     # Redifine vedo.Video close method
     def __init__(self, *args, fmt="mp4", **kwargs):
+        """
+            Video class, takes care of storing screenshots (frames)
+            as images in a temporary folder and then merging these into a 
+            single video file when the video is closed.
+        """
         super().__init__(*args, **kwargs)
         self.format = fmt
 
     def get_cap_from_images_folder(self, img_format="%1d.png"):
         """
-            It creates a cv2 VideoCaptur 'cap' from a folder of images (frames)
+            It creates a cv2 VideoCapture 'cap' from a folder of images (frames)
         """
         # Create video capture
         cap = cv2.VideoCapture(os.path.join(self.tmp_dir.name, img_format))

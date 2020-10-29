@@ -20,6 +20,9 @@ def connected_to_internet(url="http://www.google.com/", timeout=5):
 
 
 def fail_on_no_connection(func):
+    """
+        Decorator that throws an error if no internet connection is available
+    """
     if not connected_to_internet():
         raise ConnectionError("No internet connection found.")
 
@@ -46,6 +49,11 @@ def request(url):
 
 
 def check_file_exists(func):
+    """
+        Decorator that throws an error if a function;s first argument
+        is not a path to an existing file.
+    """
+
     def inner(*args, **kwargs):
         if not Path(args[0]).exists():
             raise FileNotFoundError(f"File {args[0]} not found")

@@ -9,6 +9,15 @@ from ..actor import Actor
 def make_neurons(
     *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
 ):
+    """
+        Returns a list of Neurons given a variable numnber of inputs
+        :param neurons: any accepted data input for Neuron
+        :param alpha: float
+        :param color: str
+        :param neuron_radius: float, radius of axon/dendrites
+        :param soma_radius: float, radius of soma
+        :param name: str, actor name
+    """
     return [
         Neuron(
             n,
@@ -33,7 +42,13 @@ class Neuron(Actor):
         name=None,
     ):
         """
-            neuron can be either a .swc, a Mesh, or a morphapi.Neuron
+            Creates an Actor representing a single neuron's morphology
+            :param neuron: path to .swc file, Mesh, Actor or Neuron from morphapi.morphology
+            :param alpha: float
+            :param color: str,
+            :param neuron_radius: float, radius of axon/dendrites
+            :param soma_radius: float, radius of soma
+            :param name: str, actor name
         """
         if color is None:
             color = "blackboard"
@@ -58,13 +73,13 @@ class Neuron(Actor):
         Actor.__init__(self, mesh, name=self.name, br_class="Neuron")
         self.mesh.c(color).alpha(alpha)
 
-    def _from_morphapi_neuron(self, neuron):
+    def _from_morphapi_neuron(self, neuron: (MorphoNeuron)):
         mesh = neuron.create_mesh(
             neurite_radius=self.neurite_radius, soma_radius=self.soma_radius
         )[1]
         return mesh
 
-    def _from_file(self, neuron):
+    def _from_file(self, neuron: (str, Path)):
         path = Path(neuron)
         if not path.exists():
             raise FileExistsError(f"Neuron file doesnt exist: {path}")
