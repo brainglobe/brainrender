@@ -1,46 +1,44 @@
-# language: python
-# services:
-#   - xvfb
-# matrix:
-#   include:
-#   - os: linux
-#     python: 3.6
-#     dist: bionic
-#     env: PIP_CMD='pip install -e .[dev]' TEST_CMD='tests/travis/testing.sh'
-#   - os: linux
-#     python: 3.7
-#     dist: bionic
-#     env: PIP_CMD='pip install -e .[dev]' TEST_CMD='tests/travis/testing.sh'
-# before_install:
-# - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-# - bash miniconda.sh -b -p $HOME/miniconda
-# - export PATH="$HOME/miniconda/bin:$PATH"
-# - hash -r
-# - conda config --set always_yes yes --set changeps1 no
-# - conda info -a
-# install:
-# - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
-# - source activate test-environment
-# - $PIP_CMD
-# - conda info -a
-# script:
-# - travis_wait 20 bash $TEST_CMD
-# after_success:
-# - coveralls
-# notifications:
-#   email:
-#     recipients:
-#     - adam.tyson@ucl.ac.uk
-#     - federicoclaudi@protonmail.com
-#     on_success: change
-#     on_failure: always
-# deploy:
-#   - provider: pypi
-#     user: __token__
-#     password:
-#       secure: qf1V2vs8cO6bydWVGLUn6CbL2chNR32Nffmq+eookmjjEraCvCL7Apk64XkIKzMEm3gRrkMb4savrl4/w5MUsN43pBmywlT6UYs2PGbvtew7FiVopciNYTKWyL6ZCvUIAR1PikkFqquyTzPtJBWxSnTTWtMoTljbd7BbcoOGa+sALhMf0HOBxJngD/mPPTkqrTdgt1kYftxVRcT2vx7UsiWcBz0F/sk0vTee/ox4GG23uZ4qAYC0COJnALuODMooP7cjX3K1ImLDTFJ5mKQD3iZLhv1Fomk/AYaLKuZJtsSsS+VLuLVDp7idlaHU54Q4UKYFQT84J5b5rtHKE7huZovjUh2Iy4Rc1R6lSry9HKvYLPXmFOFhEoUxlZvRZA2+avIOODOrMIIv1ZhJf9ubl0LZIRuWe8D7mIl5b/OoFLj5HwqLMwetWx+3HWqsYOSIzzr7O4OMiI3DRnMhrilM0QbUsLzCUvamHefGe841YquzPulFBl8i3Sg43QEX3q8NHcPg+WjJQ0NbWtY9ucuWkcYPrqPDzdatnhGMhXkeCqsynPpWrYHOiDtncOOYtvsSt5gifk3bk0qPwu20/qJJrwJ7bTcKSTTJUaAWs2FobbeeKaOjtA5w+1KsJZKLefeN2fjeM4Yify2NQFc4HAjhNdsTINcAHKD9Hk636ydEx1Q=
-#     distributions: sdist bdist_wheel
-#     skip_existing: true
-#     on:
-#       branch: master
-#       tags: true
+ language: python
+ services:
+   - xvfb
+ matrix:
+   include:
+   - os: linux
+     python: 3.6
+     dist: bionic
+   - os: linux
+     python: 3.7
+     dist: bionic
+ before_install:
+ - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+ - bash miniconda.sh -b -p $HOME/miniconda
+ - export PATH="$HOME/miniconda/bin:$PATH"
+ - hash -r
+ - conda config --set always_yes yes --set changeps1 no
+ - conda info -a
+ install:
+ - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
+ - source activate test-environment
+ - pip install -e .[dev]
+ - conda info -a
+ script:
+ - travis_wait 50 pytest
+ after_success:
+ - coveralls
+ notifications:
+   email:
+     recipients:
+     - adam.tyson@ucl.ac.uk
+     - federicoclaudi@protonmail.com
+     on_success: change
+     on_failure: always
+ deploy:
+   - provider: pypi
+     user: __token__
+     password:
+       secure: qf1V2vs8cO6bydWVGLUn6CbL2chNR32Nffmq+eookmjjEraCvCL7Apk64XkIKzMEm3gRrkMb4savrl4/w5MUsN43pBmywlT6UYs2PGbvtew7FiVopciNYTKWyL6ZCvUIAR1PikkFqquyTzPtJBWxSnTTWtMoTljbd7BbcoOGa+sALhMf0HOBxJngD/mPPTkqrTdgt1kYftxVRcT2vx7UsiWcBz0F/sk0vTee/ox4GG23uZ4qAYC0COJnALuODMooP7cjX3K1ImLDTFJ5mKQD3iZLhv1Fomk/AYaLKuZJtsSsS+VLuLVDp7idlaHU54Q4UKYFQT84J5b5rtHKE7huZovjUh2Iy4Rc1R6lSry9HKvYLPXmFOFhEoUxlZvRZA2+avIOODOrMIIv1ZhJf9ubl0LZIRuWe8D7mIl5b/OoFLj5HwqLMwetWx+3HWqsYOSIzzr7O4OMiI3DRnMhrilM0QbUsLzCUvamHefGe841YquzPulFBl8i3Sg43QEX3q8NHcPg+WjJQ0NbWtY9ucuWkcYPrqPDzdatnhGMhXkeCqsynPpWrYHOiDtncOOYtvsSt5gifk3bk0qPwu20/qJJrwJ7bTcKSTTJUaAWs2FobbeeKaOjtA5w+1KsJZKLefeN2fjeM4Yify2NQFc4HAjhNdsTINcAHKD9Hk636ydEx1Q=
+     distributions: sdist bdist_wheel
+     skip_existing: true
+     on:
+       branch: master
+       tags: true

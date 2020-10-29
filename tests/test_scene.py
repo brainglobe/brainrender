@@ -56,6 +56,7 @@ def test_brain_regions():
     del scene
 
 
+@pytest.mark.xfail(reason="No data in repo")
 def test_add_from_files():
     scene = Scene()
     obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
