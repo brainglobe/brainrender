@@ -23,9 +23,6 @@ from ._colors import mocassin, orange, dimorange, salmon
 
 
 class Scene(Render):
-    actors = []  # stores all actors in the scene
-    labels = []  # stores all `labels` actors in scene
-
     def __init__(
         self,
         root=True,
@@ -34,6 +31,9 @@ class Scene(Render):
         title=None,
         screenshots_folder=None,
     ):
+        self.actors = []  # stores all actors in the scene
+        self.labels = []  # stores all `labels` actors in scene
+
         self.atlas = Atlas(atlas_name=atlas_name)
 
         self.screenshots_folder = (

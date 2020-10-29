@@ -195,9 +195,6 @@ class Render:
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 
-    # ---------------------------------------------------------------------------- #
-    #                               USER INTERACTION                               #
-    # ---------------------------------------------------------------------------- #
     def keypress(self, key):
         if key == "s":
             self.screenshot()
