@@ -17,6 +17,7 @@ requirements = [
     "bg-atlasapi>=1.0.0",
     "tables",
     "pyinspect>=0.0.8",
+    "brainio" # TEMPORARY
 ]
 
 setup(
