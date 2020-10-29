@@ -6,8 +6,20 @@ from pyinspect.utils import _class_name
 from ..actor import Actor
 
 
-def get_neurons(*neurons):
-    return [Neuron(n) for n in neurons]
+def make_neurons(
+    *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
+):
+    return [
+        Neuron(
+            n,
+            alpha=alpha,
+            color=color,
+            neurite_radius=neurite_radius,
+            soma_radius=soma_radius,
+            name=name,
+        )
+        for n in neurons
+    ]
 
 
 class Neuron(Actor):

@@ -12,7 +12,7 @@ requirements = [
     "k3d==2.7.4",
     "msgpack",
     "pyyaml>=5.3",
-    "morphapi>=0.1.2.0",
+    "morphapi>=0.1.2.4",
     "requests",
     "bg-atlasapi>=1.0.0",
     "tables",

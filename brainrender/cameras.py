@@ -11,7 +11,7 @@ sagittal_camera2 = {
     "position": (9782, 1795, -40999),
     "focal": (6588, 3849, -5688),
     "viewup": (0, -1, 0),
-    "distance": "35514",
+    "distance": 35514,
     "clipping": (23256, 51031),
     "orientation": (-3, -175, -179),
 }
