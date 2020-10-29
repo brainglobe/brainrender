@@ -22,7 +22,7 @@
  - pip install -e .[dev]
  - conda info -a
  script:
- - pytest
+ - travis_wait 50 pytest
  after_success:
  - coveralls
  notifications:
