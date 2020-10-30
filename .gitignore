@@ -9,6 +9,8 @@ __pycache__
 __pycache__/*
 __pycache__/
 */__pycache__
+brainrender/atlas_specific/aba_gene_expression/__pycache__
+brainrender/atlas_specific/aba_gene_expression/__pycache__/*
 
 workspace.py
 workspace.ipynb
