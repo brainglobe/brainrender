@@ -29,6 +29,6 @@ coordinates = get_n_random_points_in_region(mos, 2000)
 # Add to scene
 scene.add(Points(coordinates, name="CELLS", colors="steelblue"))
 
-
+# render
 scene.content
 scene.render()

@@ -1,4 +1,6 @@
 # Ignored file types
+workspace.py
+workspace.ipynb
 brexport.html
 *.ckpt
 *.vscode
@@ -7,7 +9,7 @@ brexport.html
 *.idea
 *.pyc
 *.vtk
-*.obj
+# *.obj
 # *.stl
 *.nrrd
 # *.swc
