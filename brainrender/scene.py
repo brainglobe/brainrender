@@ -66,6 +66,7 @@ class Scene(Render):
             "root", alpha=root_alpha, color=settings.ROOT_COLOR
         )
         self.atlas.root = self.root  # give atlas access to root
+        self._root_mesh = self.root.mesh.clone()
 
         # keep track if we need to make an inset
         self.inset = (
@@ -99,16 +100,12 @@ class Scene(Render):
         """
             Creates a small inset showing the brain's orientation
         """
-        inset = self.root.mesh.clone()
+        inset = self._root_mesh.clone()
         inset.scale(0.5).alpha(1)
         self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
 
         if settings.SHADER_STYLE == "cartoon":
-            self.plotter.showInset(
-                inset.silhouette().lw(0.5).c("k"),
-                pos=(0.95, 0.1),
-                draggable=False,
-            )
+            inset.lighting("off")
 
     def add(self, *items, names=None, classes=None, **kwargs):
         """

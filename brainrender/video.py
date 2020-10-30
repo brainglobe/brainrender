@@ -48,7 +48,9 @@ class VideoMaker:
         scene.plotter.camera.Azimuth(azimuth)
         scene.plotter.camera.Roll(roll)
 
-    def make_video(self, *args, duration=10, fps=30, **kwargs):
+    def make_video(
+        self, *args, duration=10, fps=30, render_kwargs={}, **kwargs
+    ):
         """
         Creates a video using user defined parameters
 
@@ -57,7 +59,7 @@ class VideoMaker:
         :param fps: int, frame rate
         :param **kwargs: any extra keyword argument to be bassed to `make_frame_func`
         """
-        self.scene.render(interactive=False)
+        self.scene.render(interactive=False, **render_kwargs)
 
         # cd to folder where the video will be saved
         curdir = os.getcwd()

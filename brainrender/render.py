@@ -34,6 +34,7 @@ class Render:
             axes=self._make_axes() if settings.SHOW_AXES else None,
             pos=(0, 0),
             title="brainrender",
+            bg=settings.BACKGROUND_COLOR,
         )
 
         self.plotter.keyPressFunction = self.keypress
@@ -106,7 +107,7 @@ class Render:
             else:
                 actor.mesh.lighting("off")
 
-    def render(self, interactive=None, camera=None, zoom=1.25):
+    def render(self, interactive=None, camera=None, zoom=1.75):
         """
             Renders the scene.
 
@@ -146,7 +147,10 @@ class Render:
                 txt.followCamera(self.plotter.camera)
 
             show(
-                *self.renderables, interactive=interactive, zoom=zoom,
+                *self.renderables,
+                interactive=interactive,
+                zoom=zoom,
+                bg=settings.BACKGROUND_COLOR,
             )
         else:
             print(
