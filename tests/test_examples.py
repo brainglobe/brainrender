@@ -6,4 +6,4 @@ settings.INTERACTIVE = False
 def test_examples():
     import examples
 
-    examples.basic_scene
+    examples.brain_regions

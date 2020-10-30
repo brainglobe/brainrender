@@ -1,5 +1,5 @@
 from brainrender import Scene
-from brainrender.actors import Neuron, get_neurons
+from brainrender.actors import Neuron, make_neurons
 from brainrender.actor import Actor
 from vedo import Sphere
 import pytest
@@ -26,5 +26,5 @@ def test_neuron():
     del s
 
 
-def test_get_neurons():
-    get_neurons("tests/files/neuron1.swc", "tests/files/neuron1.swc")
+def test_make_neurons():
+    make_neurons("tests/files/neuron1.swc", "tests/files/neuron1.swc")
