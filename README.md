@@ -66,13 +66,6 @@ gene expression | MouseLight
 :-------------------------:|:-------------------------:|
  <a href="Examples/mouse/gene_expression.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/gene_expr.png"><br>`gene_expression.py`</a> |  <a href="Examples/mouse/mouselight.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/neurons.png"><br>`mouselight.py`</a>
 
-### User generated
-`brainrender` can be used to visualise the location of implanted neuropixel probes with data from [SHARP TRACK](https://github.com/cortex-lab/allenCCF).
-Neuropixel             | 
-:-------------------------:|
-<a href="Examples/user_data/sharptrack.py" target="_blank"><img style="width:400px" src="Docs/Media/clean_screenshots/neuropixel.png" style="width:400px"><br>`sharptrack.py` </a>| 
-
-
 ## Exporting
 To facilitate the creation of scientific illustrations, brainrender let's you take screenshots of your scenes, create animated videos and embed [interactive visualisations](https://fedeclaudi.github.io/br-info.html) scenes in your website. 
 
