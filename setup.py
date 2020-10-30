@@ -17,15 +17,28 @@ requirements = [
     "bg-atlasapi>=1.0.0",
     "tables",
     "pyinspect>=0.0.8",
+    "qtpy",
+    "napari",
 ]
 
 setup(
     name="brainrender",
     version="2.0.0.0rc",
-    description="Python scripts to use Allen Brain Map data for analysis "
-    "and rendering",
+    description="Visualisation and exploration of brain atlases and other anatomical data",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Microsoft :: Windows :: Windows 10",
+        "Operating System :: MacOS :: MacOS X",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+    ],
     install_requires=requirements,
     extras_require={
         "nb": ["jupyter", "k3d"],
@@ -40,14 +53,18 @@ setup(
             "jupyter",
             "allensdk",
         ],
+        "pyside2": ["PySide2>=5.12.3"],
+        "pyqt5": ["PyQt5>=5.12.3"],
     },
     python_requires=">=3.6",
-    packages=find_namespace_packages(
-        exclude=("Installation", "Meshes", "Metadata", "Screenshots")
-    ),
+    packages=find_namespace_packages(exclude=("tests, examples")),
+    entry_points={
+        "console_scripts": [
+            "brainrender-gui = brainrender.gui.__init__:clilaunch",
+        ]
+    },
     include_package_data=True,
     url="https://github.com/brainglobe/brainrender",
-    author="Federico Claudi",
+    author="Federico Claudi, Adam Tyson, Luigi Petrucco",
     zip_safe=False,
-    entry_points={},
 )

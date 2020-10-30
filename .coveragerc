@@ -1,8 +1,13 @@
+[RUN]
+omit = 
+    brainrender/gui/*
+    brainrender/gui
+
 [report]
 omit = 
-    brainrender.gui/*
-    brainrender.gui
-    
+    brainrender/gui/*
+    brainrender/gui
+
 
 exclude_lines =
     def keypress
