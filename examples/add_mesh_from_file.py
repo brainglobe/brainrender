@@ -3,11 +3,11 @@ from brainrender import Scene
 # Create a brainrender scene
 scene = Scene()
 
-# Add brain regions
-scene.add_brain_region("TH")
+# Add brain SCm
+scene.add_brain_region("SCm")
 
-# You can specify color, transparency...
-scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
+# Add from file
+scene.add("examples/data/CC_134_1_ch1inj.obj", color="tomato")
 
 # Render!
 scene.render()

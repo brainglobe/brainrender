@@ -1,13 +1,7 @@
 from brainrender import Scene
 
-# Create a brainrender scene
-scene = Scene()
-
-# Add brain regions
-scene.add_brain_region("TH")
-
-# You can specify color, transparency...
-scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
+# Create a brainrender scene using the zebrafish atlas
+scene = Scene(atlas_name="mpin_zfish_1um")
 
 # Render!
 scene.render()

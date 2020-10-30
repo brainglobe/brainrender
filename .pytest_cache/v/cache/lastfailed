@@ -1,5 +1,0 @@
-{
-  "tests/test_colors.py::test_makepalette[3-salmon]": true,
-  "tests/test_examples.py::test_examples": true,
-  "tests/test_scene.py::test_scene_cut_with_plane": true
-}
