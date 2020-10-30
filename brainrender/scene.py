@@ -31,6 +31,16 @@ class Scene(Render):
         title=None,
         screenshots_folder=None,
     ):
+        """
+            Main scene in brainrender.
+            It coordinates what should be render and how should it look like.
+
+            :param root: bool. If true the brain root mesh is added
+            :param atlas_name: str, name of the brainglobe atlas to be used
+            :param inset: bool. If true an inset is shown with the brain's outline
+            :param title: str. If true a title is added to the top of the window
+            :param screenshots_folder: str, Path. Where the screenshots will be saved
+        """
         self.actors = []  # stores all actors in the scene
         self.labels = []  # stores all `labels` actors in scene
 
@@ -43,22 +53,26 @@ class Scene(Render):
         )
         self.screenshots_folder.mkdir(exist_ok=True)
 
+        # Initialise render class
         Render.__init__(self)
 
+        # Get root mesh
         if root:
-            self.root = self.add_brain_region(
-                "root", alpha=settings.ROOT_ALPHA, color=settings.ROOT_COLOR
-            )
+            root_alpha = settings.ROOT_ALPHA
         else:
-            self.root = self.atlas.get(
-                "region", "root", alpha=0, color=settings.ROOT_COLOR
-            )
+            root_alpha = 0
+
+        self.root = self.add_brain_region(
+            "root", alpha=root_alpha, color=settings.ROOT_COLOR
+        )
         self.atlas.root = self.root  # give atlas access to root
 
+        # keep track if we need to make an inset
         self.inset = (
             inset  # the inset will be created when the scene is first rendered
         )
 
+        # add title
         if title:
             self.add(
                 Text2D(title, pos=8, s=2.5, c="k", alpha=1, font="Montserrat"),
@@ -66,6 +80,7 @@ class Scene(Render):
                 br_class="title",
             )
 
+        # keep track if we are in a jupyter notebook
         if vedo_settings.notebookBackend == "k3d":
             self.jupyter = True
         else:
@@ -81,6 +96,9 @@ class Scene(Render):
         self.close()
 
     def _get_inset(self):
+        """
+            Creates a small inset showing the brain's orientation
+        """
         inset = self.root.mesh.clone()
         inset.scale(0.5).alpha(1)
         self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
@@ -93,10 +111,23 @@ class Scene(Render):
             )
 
     def add(self, *items, names=None, classes=None, **kwargs):
+        """
+            General method to add Actors to the scene.
+
+            :param items: vedo.Mesh, Actor, (str, Path).   
+                    If str/path it should be a path to a .obj or .stl file.
+                    Whatever the input it's turned into an instance of Actor
+                    before adding it to the scne
+                
+            :param names: names to be assigned to the Actors
+            :param classs: br_classes to be assigned to the Actors
+            :param **kwargs: parameters to be passed to the individual 
+                loading functions (e.g. to load from file and specify the color)
+        """
         names = names or ["Actor" for a in items]
         classes = classes or ["None" for a in items]
 
-        # Should deal with Mesh, Actor or filepath
+        # turn items into Actors
         actors = []
         for item, name, _class in zip(items, listify(names), listify(classes)):
             if item is None:
@@ -106,6 +137,8 @@ class Scene(Render):
                 actors.append(Actor(item, name=name, br_class=_class))
 
             elif pi.utils._class_name(item) == "vtkCornerAnnotation":
+                # Mark text actors differently because they don't behave like
+                # other 3d actors
                 actors.append(
                     Actor(item, name=name, br_class=_class, is_text=True)
                 )
@@ -120,12 +153,27 @@ class Scene(Render):
             else:
                 raise ValueError(f"Unrecognized argument: {item}")
 
+        # Add to the lists actors
         self.actors.extend(actors)
         return return_list_smart(actors)
 
     def add_brain_region(
         self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"
     ):
+        """
+            Dedicated method to add brain regions to render
+            
+            :param regions: str. String of regions names
+            :param alpha: float
+            :param color: str. If None the atlas default color is used
+            :param silhouette: bool. If true regions Actors will have 
+                a silhouette
+            :param hemisphere: str.
+                - if "both" the complete mesh is returned
+                - if "left"/"right" only the corresponding half
+                    of the mesh is returned
+        """
+        # get regions actors from atlsa
         regions = self.atlas.get("region", *regions, alpha=alpha, color=color)
         regions = listify(regions) or []
 
@@ -142,6 +190,13 @@ class Scene(Render):
         return self.add(*regions)
 
     def add_silhouette(self, *actors, lw=None, color="k"):
+        """
+            Dedicated method to add silhouette to actors
+
+            :param actors: Actors
+            :param lw: float. Line weight
+            :param color: str, silhouette color
+        """
         for actor in actors:
             if actor is None:
                 continue
@@ -149,6 +204,13 @@ class Scene(Render):
             actor._silhouette_kwargs = dict(lw=lw or settings.LW, color=color,)
 
     def add_label(self, actor, label, **kwargs):
+        """
+            Dedicated method to add lables to actors
+
+            :param actor: Actors
+            :param llabelw: str. Text of label
+            :param **kwargs: see brainrender._actor.make_actor_label for kwargs
+        """
         actor._needs_label = True
         actor._label_str = label
         actor._label_kwargs = kwargs
@@ -156,6 +218,17 @@ class Scene(Render):
     def slice(
         self, plane: [str, Plane], actors=None, close_actors=False,
     ):
+        """
+            Slices actors with a plane.
+            
+            :param plane: str, Plane. If a string it needs to be 
+                a supported plane from brainglobe's atlas api (e.g. 'frontal')
+                otherwise it should be a vedo.Plane mesh
+            :param actors: list of actors to be sliced. If None all actors
+                will be sliced
+            :param close_actors: If true the openings in the actors meshes
+                caused by teh cut will be closed.
+        """
         if self.transform_applied:
             print(
                 f"[b {salmon}]Warning: [/b {salmon}][{mocassin}]you're attempting to cut actors with a plane "
@@ -176,6 +249,10 @@ class Scene(Render):
 
     @property
     def content(self):
+        """
+            Prints an overview of the Actors in the scene.
+        """
+
         actors = pi.Report(
             "Scene actors", accent=salmon, dim=orange, color=orange
         )
@@ -192,6 +269,9 @@ class Scene(Render):
 
     @property
     def renderables(self):
+        """
+            Returns the meshes for all actors.
+        """
         if not self.jupyter:
             return [a.mesh for a in self.actors + self.labels]
         else:

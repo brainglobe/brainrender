@@ -10,19 +10,34 @@ from ._utils import return_list_smart
 
 class Atlas(BrainGlobeAtlas):
     def __init__(self, atlas_name=None):
+        """
+            Brainrender's Atlas class subclasses BrainGlobeAtlas
+            to add methods to get regions meshes as Actors
+            and to get a plane at a given point and normal.
+
+            :param atlas_name: str, atlas name from brainglobe's atlas API atlases
+        """
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         BrainGlobeAtlas.__init__(
             self, atlas_name=atlas_name, print_authors=False
         )
 
     def get(self, _type, *args, **kwargs):
-        # returns Region, Neuron, Streamlines... instances
+        """
+            General getter for fetching different types of data
+        """
         if _type == "region":
             return self._get_region(*args, **kwargs)
         else:
             raise ValueError(f"Unrecognized argument {_type}")
 
     def _get_region(self, *regions, alpha=1, color=None):
+        """
+            Get brain regions meshes as Actors
+            :param regions: str with names of brain regions in the atlas
+            :param alpha: float
+            :param color: str
+        """
         if not regions:
             return None
 
@@ -46,10 +61,12 @@ class Atlas(BrainGlobeAtlas):
                     for x in self._get_from_structure(region, "rgb_triplet")
                 ]
 
+            # Make actor
             actor = Actor(mesh, name=region, br_class="brain region")
             actor.c(color).alpha(alpha)
             actors.append(actor)
 
+            # reset color to input
             color = _color
 
         return return_list_smart(actors)

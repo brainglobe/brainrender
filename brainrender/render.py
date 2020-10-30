@@ -15,23 +15,7 @@ from .camera import (
 )
 
 
-def get_scene_camera(camera, atlas):
-    """
-        Gets a working camera. 
-        In order these alternatives are used:
-            - user given camera
-            - atlas specific camera
-            - default camera
-    """
-    if camera is None:
-        if atlas.default_camera is not None:
-            return check_camera_param(atlas.default_camera)
-        else:
-            return settings.DEFAULT_CAMERA
-    else:
-        return check_camera_param(camera)
-
-
+# mtx used to transform meshes to sort axes orientation
 mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
@@ -40,6 +24,11 @@ class Render:
     is_rendered = False
 
     def __init__(self):
+        """
+            Backend for Scene, handles all rendering and exporting
+            related tasks.
+        """
+        # Make a vedo plotter
         self.plotter = Plotter(
             size="full" if settings.WHOLE_SCREEN else "auto",
             axes=self._make_axes() if settings.SHOW_AXES else None,
@@ -50,6 +39,10 @@ class Render:
         self.plotter.keyPressFunction = self.keypress
 
     def _make_axes(self):
+        """
+            Returns a dictionary with axes 
+            parameters for the vedo plotter
+        """
         ax_idx = self.atlas.space.axes_order.index("frontal")
 
         # make acustom axes dict
@@ -83,9 +76,11 @@ class Render:
 
     def _correct_axes(self):
         """
-            When the scene is first rendered, a transform matrix
-            is applied to each actor's points to correct orientation
+            When an actor is first rendered, a transform matrix
+            is applied to its points to correct axes orientation
             mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+
+            Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
         self.transform_applied = True
 
@@ -102,6 +97,9 @@ class Render:
                 self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
+        """
+            Sets the rendering style for each mesh
+        """
         for actor in self.clean_actors:
             if settings.SHADER_STYLE != "cartoon":
                 actor.mesh.lighting(style=settings.SHADER_STYLE)
@@ -109,6 +107,17 @@ class Render:
                 actor.mesh.lighting("off")
 
     def render(self, interactive=None, camera=None, zoom=1.25):
+        """
+            Renders the scene.
+
+            :param interactive: bool. If note settings.INTERACTIVE is used.
+                If true the program's execution is stopped and users
+                can interact with scene.
+            :param camera: str, dict. If none the default camera is used.
+                Pass a valid camera input to specify the camera position when
+                the scene is rendered.
+            :param zoom: float
+        """
         # Get camera
         if camera is None:
             camera = get_camera(settings.DEFAULT_CAMERA)
@@ -147,7 +156,13 @@ class Render:
     def close(self):
         closePlotter()
 
-    def export(self, savepath):  # as HTML
+    def export(self, savepath):
+        """
+            Exports the scene to a .html
+            file for online renderings.
+
+            :param savepath: str, Path to a .html file to save the export
+        """
         _jupiter = self.jupyter
 
         if not self.is_rendered:
@@ -180,6 +195,15 @@ class Render:
         return str(path)
 
     def screenshot(self, name=None, scale=None):
+        """
+            Takes a screenshot of the current view
+            and save it to file.
+            Screenshots are saved in `screenshots_folder`
+            (see Scene)
+
+            :param name: str, name of png file
+            :param scale: float, >1 for higher resolution
+        """
         if not self.is_rendered:
             self.render(interactive=False)
 
@@ -196,6 +220,12 @@ class Render:
         return savepath
 
     def keypress(self, key):
+        """
+            Hanles key presses for interactive view
+            -s: take's a screenshot
+            -q: closes the window
+            -c: prints the current camera parameters
+        """
         if key == "s":
             self.screenshot()
 
