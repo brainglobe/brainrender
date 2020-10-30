@@ -1,4 +1,5 @@
 # Ignored file types
+examples/*.mp4
 .pytest_cache
 __pycache__
 *.pyc
@@ -7,6 +8,7 @@ __pycache__
 .pytest_cache/
 __pycache__/*
 __pycache__/
+*/__pycache__
 
 workspace.py
 workspace.ipynb

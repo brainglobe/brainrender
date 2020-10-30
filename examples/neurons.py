@@ -1,13 +1,23 @@
 from brainrender import Scene
+from brainrender.actors import make_neurons, Neuron
+from morphapi.api.mouselight import MouseLightAPI
+
 
 # Create a brainrender scene
-scene = Scene()
+scene = Scene(title="neurons")
 
-# Add brain regions
-scene.add_brain_region("TH")
+# Add a neuron from file
+scene.add(Neuron("examples/data/neuron1.swc"))
 
-# You can specify color, transparency...
-scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
+# Download neurons data with morphapi
+mlapi = MouseLightAPI()
+neurons_metadata = mlapi.fetch_neurons_metadata(
+    filterby="soma", filter_regions=["MOs"]
+)
+
+to_add = [neurons_metadata[47], neurons_metadata[51]]
+neurons = mlapi.download_neurons(to_add)
+neurons = scene.add(*make_neurons(*neurons, neurite_radius=12))
 
 # Render!
 scene.render()

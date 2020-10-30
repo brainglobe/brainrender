@@ -1,7 +1,7 @@
 from brainrender import Scene
 
 # Create a brainrender scene
-scene = Scene()
+scene = Scene(title="brain regions")
 
 # Add brain regions
 scene.add_brain_region("TH")
