@@ -89,7 +89,7 @@ class Scene(Render):
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
     def __del__(self):
@@ -262,7 +262,7 @@ class Scene(Render):
                 f"[bold][{mocassin}]- {act.name}[/bold][{dimorange}] (type: [{orange}]{act.br_class}[/{orange}]) |[dim] is transformed: [blue]{act._is_transformed}"
             )
 
-        if "win" not in sys.platform:
+        if "win32" != sys.platform:
             actors.print()
         else:
             print(pi.utils.stringify(actors, maxlen=-1))
@@ -275,7 +275,9 @@ class Scene(Render):
         if not self.jupyter:
             return [a.mesh for a in self.actors + self.labels]
         else:
-            return list(set([a.mesh for a in self.actors if not a.is_text]))
+            return list(
+                set([a.mesh for a in self.actors if not a.is_text])
+            )  # pragma: no cover
 
     @property
     def clean_actors(self):

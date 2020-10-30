@@ -97,9 +97,13 @@ class GeneExpressionAPI:
             if isinstance(gene_symbol, int):  # it's an ID, get symbol
                 gene_symbol = self.get_gene_symbol_by_id(gene_symbol)
                 if gene_symbol is None:
-                    raise ValueError("Invalid gene_symbol argument")
+                    raise ValueError(
+                        "Invalid gene_symbol argument"
+                    )  # pragma: no cover
             else:
-                raise ValueError("Invalid gene_symbol argument")
+                raise ValueError(
+                    "Invalid gene_symbol argument"
+                )  # pragma: no cover
 
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene_symbol)
         data = request(url).json()["msg"]
@@ -122,8 +126,8 @@ class GeneExpressionAPI:
         if self.genes is None:
             self.genes = self.get_all_genes()
         if str(gene) not in self.genes.id.values:
-            raise ValueError(
-                f"The gened {gene} is not in the list of available genes"
+            raise ValueError(  # pragma: no cover
+                f"The gened {gene} is not in the list of available genes"  # pragma: no cover
             )
 
         # Get the gene's experiment id
@@ -148,9 +152,13 @@ class GeneExpressionAPI:
             Given a list of gene ids
         """
         if not isinstance(gene, int):
-            raise ValueError("Gene id should be an integer")
+            raise ValueError(
+                "Gene id should be an integer"
+            )  # pragma: no cover
         if not isinstance(exp_id, int):
-            raise ValueError("Expression id should be an integer")
+            raise ValueError(
+                "Expression id should be an integer"
+            )  # pragma: no cover
 
         self.gene_name = self.gene_name or gene
 
@@ -164,7 +172,7 @@ class GeneExpressionAPI:
             self.download_gene_data(gene)
             cache = check_gene_cached(self.gene_expression_cache, gene, exp_id)
             if not cache:
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "Something went wrong and data were not cached"
                 )
 
@@ -192,26 +200,32 @@ class GeneExpressionAPI:
         """
         # Check inputs
         if not isinstance(griddata, np.ndarray):
-            raise ValueError("Griddata should be a numpy array")
+            raise ValueError(
+                "Griddata should be a numpy array"
+            )  # pragma: no cover
         if not len(griddata.shape) == 3:
-            raise ValueError("Griddata should be a 3d array")
+            raise ValueError(
+                "Griddata should be a 3d array"
+            )  # pragma: no cover
 
         # Get threshold
         if min_quantile is None and min_value is None:
             th = 0
         elif min_value is not None:
             if not isinstance(min_value, (int, float)):
-                raise ValueError("min_values should be a float")
+                raise ValueError(
+                    "min_values should be a float"
+                )  # pragma: no cover
             th = min_value
         else:
             if not isinstance(min_quantile, (float, int)):
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "min_values should be a float in range [0, 1]"
                 )
             if 0 > min_quantile or 100 < min_quantile:
-                raise ValueError(
-                    "min_values should be a float in range [0, 100]"
-                )
+                raise ValueError(  # pragma: no cover
+                    "min_values should be a float in range [0, 100]"  # pragma: no cover
+                )  # pragma: no cover
             th = np.percentile(griddata.ravel(), min_quantile)
 
         # Create mesh

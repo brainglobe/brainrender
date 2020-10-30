@@ -27,5 +27,8 @@ def test_streamlines():
     s.add(Streamlines(streams[0]))
     s.add(*make_streamlines(*streams[1:3]))
 
+    with pytest.raises(TypeError):
+        Streamlines([1, 2, 3])
+
     s.render(interactive=False)
     del s

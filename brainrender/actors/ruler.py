@@ -31,8 +31,8 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
     actors.append(Line(gap2, p2, lw=200))
 
     # Add label
-    if units is None:
-        units = ""
+    if units is None:  # pragma: no cover
+        units = ""  # pragma: no cover
     dist = mag(p2 - p1) * unit_scale
     label = precision(dist, 3) + " " + units
     lbl = Text(label, pos=midpoint, s=s + 100, justify="center")

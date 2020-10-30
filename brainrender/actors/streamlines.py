@@ -10,8 +10,8 @@ try:
 
     mca = MouseConnectivityApi()
     allen_sdk_installed = True
-except ModuleNotFoundError:
-    allen_sdk_installed = False
+except ModuleNotFoundError:  # pragma: no cover
+    allen_sdk_installed = False  # pragma: no cover
 
 
 from brainrender import base_dir
@@ -143,8 +143,8 @@ class Streamlines(Actor):
         if len(data["lines"]) == 1:
             try:
                 lines_data = data["lines"][0]
-            except KeyError:
-                lines_data = data["lines"]["0"]
+            except KeyError:  # pragma: no cover
+                lines_data = data["lines"]["0"]  # pragma: no cover
         else:
             lines_data = data["lines"]
         for line in lines_data:

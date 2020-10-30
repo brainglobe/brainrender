@@ -219,7 +219,7 @@ class Render:
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 
-    def keypress(self, key):
+    def keypress(self, key):  # pragma: no cover
         """
             Hanles key presses for interactive view
             -s: take's a screenshot

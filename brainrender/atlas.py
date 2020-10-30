@@ -29,7 +29,9 @@ class Atlas(BrainGlobeAtlas):
         if _type == "region":
             return self._get_region(*args, **kwargs)
         else:
-            raise ValueError(f"Unrecognized argument {_type}")
+            raise ValueError(
+                f"Unrecognized argument {_type}"
+            )  # pragma: no cover
 
     def _get_region(self, *regions, alpha=1, color=None):
         """
@@ -100,9 +102,9 @@ class Atlas(BrainGlobeAtlas):
 
         try:
             norm = norm or self.space.plane_normals[plane]
-        except KeyError:
-            raise ValueError(
-                f"Could not find normals for plane {plane}. Atlas space provides these normals: {self.space.plane_normals}"
+        except KeyError:  # pragma: no cover
+            raise ValueError(  # pragma: no cover
+                f"Could not find normals for plane {plane}. Atlas space provides these norma ls: {self.space.plane_normals}"  # pragma: no cover
             )
 
             # Get plane width and height

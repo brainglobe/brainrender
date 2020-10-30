@@ -1,2 +1,5 @@
 [report]
 
+exclude_lines =
+    def keypress
+    pragma: no cover

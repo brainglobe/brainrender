@@ -40,10 +40,12 @@ class Actor(object):
             return None
         if hasattr(self.__dict__["mesh"], attr):
             return getattr(self.__dict__["mesh"], attr)
-        else:
-            raise AttributeError(f"{self} doesn not have attribute {attr}")
+        else:  # pragma: no cover
+            raise AttributeError(
+                f"{self} doesn not have attribute {attr}"
+            )  # pragma: no cover
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"brainrender.Actor: {self.name}-{self.br_class}"
 
     def __str__(self):

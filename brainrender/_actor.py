@@ -27,13 +27,8 @@ def make_actor_label(
                     - xoffset, yoffset, zoffset: integers that shift the label position
                     - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
     """
-
-    if atlas.atlas_name == "ABA":
-        offset = [-yoffset, -zoffset, xoffset]
-        default_offset = np.array([0, -200, 100])
-    else:
-        offset = [xoffset, yoffset, zoffset]
-        default_offset = np.array([100, 0, -200])
+    offset = [-yoffset, -zoffset, xoffset]
+    default_offset = np.array([0, -200, 100])
 
     new_actors = []
     for n, (actor, label) in enumerate(zip(listify(actors), listify(labels))):
@@ -41,8 +36,6 @@ def make_actor_label(
         # Get label color
         if color is None:
             color = actor.c()
-        elif isinstance(color, (list, tuple)):
-            color = color[n]
 
         # Get mesh's highest point
         points = actor.points().copy()

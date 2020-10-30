@@ -45,10 +45,10 @@ class Points(Actor):
             mesh = self._from_numpy(data)
         elif isinstance(data, (str, Path)):
             mesh = self._from_file(data)
-        else:
-            raise TypeError(
-                f"Input data should be either a numpy array or a file path, not: {_class_name(data)}"
-            )
+        else:  # pragma: no cover
+            raise TypeError(  # pragma: no cover
+                f"Input data should be either a numpy array or a file path, not: {_class_name(data)}"  # pragma: no cover
+            )  # pragma: no cover
 
         Actor.__init__(self, mesh, name=self.name, br_class="Points")
 
@@ -58,10 +58,10 @@ class Points(Actor):
         """
         N = len(data)
         if not isinstance(self.colors, str):
-            if not N == len(self.colors):
-                raise ValueError(
-                    "When passing a list of colors, the number of colors should match the number of cells"
-                )
+            if not N == len(self.colors):  # pragma: no cover
+                raise ValueError(  # pragma: no cover
+                    "When passing a list of colors, the number of colors shou  # pragma: no coverld match the number of cells"  # pragma: no cover
+                )  # pragma: no cover
 
         self.name = self.name or "Points"
         mesh = Spheres(
@@ -81,8 +81,8 @@ class Points(Actor):
         if path.suffix == ".npy":
             self.name = self.name or path.name
             return self._from_numpy(np.load(path),)
-        else:
-            raise NotImplementedError(
-                f"Add points from file only works with numpy file for now, now {path.suffix}."
-                + "If youd like more formats supported open an issue on Github!"
-            )
+        else:  # pragma: no cover
+            raise NotImplementedError(  # pragma: no cover
+                f"Add points from file only works with numpy file for now, now {path.suffix}."  # pragma: no cover
+                + "If youd like more formats supported open an issue on Github!"  # pragma: no cover
+            )  # pragma: no cover

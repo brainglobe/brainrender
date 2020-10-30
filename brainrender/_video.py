@@ -1,9 +1,9 @@
 try:
     import cv2
-except ModuleNotFoundError:
-    raise ModuleNotFoundError(
-        "You need opencv to save videos in brainrender, please install opencv with: "
-        + "pip install opencv-python"
+except ModuleNotFoundError:  # pragma: no cover
+    raise ModuleNotFoundError(  # pragma: no cover
+        "You need opencv to save videos in brainrender, please install opencv with: "  # pragma: no cover
+        + "pip install opencv-python"  # pragma: no cover
     )
 from vedo import Video as VtkVideo
 import os
@@ -28,8 +28,8 @@ def open_cvwriter(
         videowriter = cv2.VideoWriter(
             filepath, fourcc, framerate, (w, h), iscolor
         )
-    except:
-        raise ValueError("Could not create videowriter")
+    except:  # pragma: no cover
+        raise ValueError("Could not create videowriter")  # pragma: no cover
     else:
         return videowriter
 
@@ -123,10 +123,10 @@ class Video(VtkVideo):
 
         # Check all went well
         ret, frame = cap.read()
-        if not ret:
-            raise ValueError(
-                "Something went wrong, can't read form folder: "
-                + self.tmp_dir.name
+        if not ret:  # pragma: no cover
+            raise ValueError(  # pragma: no cover
+                "Something went wrong, can't read form folder: "  # pragma: no cover
+                + self.tmp_dir.name  # pragma: no cover
             )
         else:
             cap.set(1, 0)  # reset cap to first frame

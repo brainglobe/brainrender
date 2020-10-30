@@ -14,8 +14,8 @@ def connected_to_internet(url="http://www.google.com/", timeout=5):
     try:
         _ = requests.get(url, timeout=timeout)
         return True
-    except requests.ConnectionError:
-        print("No internet connection available.")
+    except requests.ConnectionError:  # pragma: no cover
+        print("No internet connection available.")  # pragma: no cover
     return False
 
 
@@ -23,8 +23,10 @@ def fail_on_no_connection(func):
     """
         Decorator that throws an error if no internet connection is available
     """
-    if not connected_to_internet():
-        raise ConnectionError("No internet connection found.")
+    if not connected_to_internet():  # pragma: no cover
+        raise ConnectionError(
+            "No internet connection found."
+        )  # pragma: no cover
 
     def inner(*args, **kwargs):
         return func(*args, **kwargs)
@@ -43,12 +45,14 @@ def request(url):
     response = requests.get(url)
     if response.ok:
         return response
-    else:
-        exception_string = "URL request failed: {}".format(response.reason)
+    else:  # pragma: no cover
+        exception_string = "URL request failed: {}".format(
+            response.reason
+        )  # pragma: no cover
     raise ValueError(exception_string)
 
 
-def check_file_exists(func):
+def check_file_exists(func):  # pragma: no cover
     """
         Decorator that throws an error if a function;s first argument
         is not a path to an existing file.
@@ -56,7 +60,9 @@ def check_file_exists(func):
 
     def inner(*args, **kwargs):
         if not Path(args[0]).exists():
-            raise FileNotFoundError(f"File {args[0]} not found")
+            raise FileNotFoundError(
+                f"File {args[0]} not found"
+            )  # pragma: no cover
         return func(*args, **kwargs)
 
     return inner

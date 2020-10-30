@@ -99,14 +99,6 @@ def makePalette(N, *colors):
                 c = c1 * (1 - f) + c2 * f
                 cols.append(c)
             output.extend(cols)
-
-        if len(output) != N:
-            if len(output) > N:
-                return output[:N]
-            else:
-                raise ValueError(
-                    f"Expected number of output colors was {N} but we got {len(output)} instead"
-                )
         return output
 
 
@@ -116,11 +108,6 @@ def get_random_colors(n_colors=1):
     :param n_colors:  (Default value = 1)
 
     """
-    if not isinstance(n_colors, np.int):
-        raise ValueError("n_colors should be an integer")
-    if n_colors <= 0:
-        raise ValueError("n_colors should be bigger or equal to 0")
-
     col_names = list(vcolors.keys())
     if n_colors == 1:
         return random.choice(col_names)
