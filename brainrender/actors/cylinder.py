@@ -1,7 +1,7 @@
 from vedo import shapes
 from vedo import Mesh
 
-from ..actor import Actor
+from brainrender.actor import Actor
 
 
 class Cylinder(Actor):

@@ -4,10 +4,10 @@ import numpy as np
 from datetime import datetime
 from rich import print
 from pathlib import Path
-from pyinspect._colors import orange, mocassin, lilla
+from myterial import orange, amber, deep_purple_light
 
 from brainrender import settings
-from .camera import (
+from brainrender.camera import (
     get_camera,
     check_camera_param,
     set_camera,
@@ -240,11 +240,11 @@ class Render:
         elif key == "c":
             pms = get_camera_params(scene=self)
             names = [
-                f"[green bold]     '{k}'[/green bold]: [{mocassin}]{v},"
+                f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
                 for k, v in pms.items()
             ]
             print(
-                f"[{lilla}]Camera parameters:",
+                f"[{deep_purple_light}]Camera parameters:",
                 f"[{orange}]    {{",
                 *names,
                 f"[{orange}]   }}",

@@ -3,7 +3,7 @@ from vedo import Spheres, Sphere
 from pathlib import Path
 from pyinspect.utils import _class_name
 
-from ..actor import Actor
+from brainrender.actor import Actor
 
 
 class Point(Actor):

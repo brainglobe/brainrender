@@ -3,9 +3,9 @@ from vedo import Plane
 import numpy as np
 
 from brainrender import settings
-from .actor import Actor
-from ._io import load_mesh_from_file
-from ._utils import return_list_smart
+from brainrender.actor import Actor
+from brainrender._io import load_mesh_from_file
+from brainrender._utils import return_list_smart
 
 
 class Atlas(BrainGlobeAtlas):
@@ -22,18 +22,7 @@ class Atlas(BrainGlobeAtlas):
             self, atlas_name=atlas_name, print_authors=False
         )
 
-    def get(self, _type, *args, **kwargs):
-        """
-            General getter for fetching different types of data
-        """
-        if _type == "region":
-            return self._get_region(*args, **kwargs)
-        else:
-            raise ValueError(
-                f"Unrecognized argument {_type}"
-            )  # pragma: no cover
-
-    def _get_region(self, *regions, alpha=1, color=None):
+    def get_region(self, *regions, alpha=1, color=None):
         """
             Get brain regions meshes as Actors
             :param regions: str with names of brain regions in the atlas

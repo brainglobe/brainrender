@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import sys
 
-from brainrender.atlas_specific.aba_gene_expression.ge_utils import (
+from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils import (
     check_gene_cached,
     load_cached_gene,
     download_and_cache,
@@ -74,16 +74,9 @@ class GeneExpressionAPI:
         if self.genes is None:
             self.genes = self.get_all_genes()
 
-        if str(gene_id) not in self.genes.id.values:
-            print(
-                f"Gene id {gene_id} doesnt appear in the genes dataset, nothing to return\n"
-                + "You can search for you gene here: https://mouse.brain-map.org/"
-            )
-            return None
-        else:
-            return self.genes.loc[
-                self.genes.id == str(gene_id)
-            ].gene_symbol.values[0]
+        return self.genes.loc[
+            self.genes.id == str(gene_id)
+        ].gene_symbol.values[0]
 
     @fail_on_no_connection
     def get_gene_experiments(self, gene_symbol):
@@ -93,18 +86,7 @@ class GeneExpressionAPI:
 
             :param gene_symbol: str, self.genes.gene_symbol
         """
-        if not isinstance(gene_symbol, str):
-            if isinstance(gene_symbol, int):  # it's an ID, get symbol
-                gene_symbol = self.get_gene_symbol_by_id(gene_symbol)
-                if gene_symbol is None:
-                    raise ValueError(
-                        "Invalid gene_symbol argument"
-                    )  # pragma: no cover
-            else:
-                raise ValueError(
-                    "Invalid gene_symbol argument"
-                )  # pragma: no cover
-
+        gene_symbol = self.get_gene_symbol_by_id(gene_symbol)
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene_symbol)
         data = request(url).json()["msg"]
 
@@ -125,10 +107,6 @@ class GeneExpressionAPI:
         """
         if self.genes is None:
             self.genes = self.get_all_genes()
-        if str(gene) not in self.genes.id.values:
-            raise ValueError(  # pragma: no cover
-                f"The gened {gene} is not in the list of available genes"  # pragma: no cover
-            )
 
         # Get the gene's experiment id
         gene_symbol = self.genes.loc[
@@ -151,15 +129,6 @@ class GeneExpressionAPI:
         """
             Given a list of gene ids
         """
-        if not isinstance(gene, int):
-            raise ValueError(
-                "Gene id should be an integer"
-            )  # pragma: no cover
-        if not isinstance(exp_id, int):
-            raise ValueError(
-                "Expression id should be an integer"
-            )  # pragma: no cover
-
         self.gene_name = self.gene_name or gene
 
         # Check if gene-experiment cached
@@ -198,16 +167,6 @@ class GeneExpressionAPI:
             :param min_quantile: float, percentile for threshold
             :param min_value: float, value for threshold
         """
-        # Check inputs
-        if not isinstance(griddata, np.ndarray):
-            raise ValueError(
-                "Griddata should be a numpy array"
-            )  # pragma: no cover
-        if not len(griddata.shape) == 3:
-            raise ValueError(
-                "Griddata should be a 3d array"
-            )  # pragma: no cover
-
         # Get threshold
         if min_quantile is None and min_value is None:
             th = 0

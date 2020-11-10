@@ -1,10 +1,79 @@
 import pyinspect as pi
 from io import StringIO
 from rich.console import Console
-from pyinspect._colors import orange, mocassin, salmon
 import numpy as np
+from myterial import orange, salmon, amber
+from vedo import Text, Sphere
 
-from ._actor import make_actor_label
+
+from brainrender._utils import listify
+
+
+def make_actor_label(
+    atlas,
+    actors,
+    labels,
+    size=300,
+    color=None,
+    radius=100,
+    xoffset=0,
+    yoffset=-500,
+    zoffset=0,
+):
+    """
+        Adds a 2D text ancored to a point on the actor's mesh
+        to label what the actor is
+
+        :param kwargs: key word arguments can be passed to determine 
+                text appearance and location:
+                    - size: int, text size. Default 300
+                    - color: str, text color. A list of colors can be passed
+                            if None the actor's color is used. Default None.
+                    - xoffset, yoffset, zoffset: integers that shift the label position
+                    - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
+    """
+    offset = [-yoffset, -zoffset, xoffset]
+    default_offset = np.array([0, -200, 100])
+
+    new_actors = []
+    for n, (actor, label) in enumerate(zip(listify(actors), listify(labels))):
+
+        # Get label color
+        if color is None:
+            color = actor.c()
+
+        # Get mesh's highest point
+        points = actor.points().copy()
+        point = points[np.argmin(points[:, 1]), :]
+        point += np.array(offset) + default_offset
+
+        try:
+            if atlas.hemisphere_from_coords(point, as_string=True) == "left":
+                point = atlas.mirror_point_across_hemispheres(point)
+        except IndexError:
+            pass
+
+        # Create label
+        txt = Text(label, point, s=size, c=color)
+        txt._kwargs = dict(
+            size=size,
+            color=color,
+            radius=radius,
+            xoffset=xoffset,
+            yoffset=yoffset,
+            zoffset=zoffset,
+        )
+
+        new_actors.append(txt)
+
+        # Mark a point on Mesh that corresponds to the label location
+        if radius is not None:
+            pt = actor.closestPoint(point)
+            sphere = Sphere(pt, r=radius, c=color)
+            sphere.ancor = pt
+            new_actors.append(sphere)
+
+    return new_actors
 
 
 class Actor(object):
@@ -99,18 +168,18 @@ class Actor(object):
             title=f"[b]brainrender.Actor: ", color=salmon, accent=orange,
         )
 
-        rep.add(f"[b {orange}]name:[/b {orange}][{mocassin}] {self.name}")
-        rep.add(f"[b {orange}]type:[/b {orange}][{mocassin}] {self.br_class}")
+        rep.add(f"[b {orange}]name:[/b {orange}][{amber}] {self.name}")
+        rep.add(f"[b {orange}]type:[/b {orange}][{amber}] {self.br_class}")
         rep.line()
         rep.add(
-            f"[{orange}]center of mass:[/{orange}][{mocassin}] {self.mesh.centerOfMass().astype(np.int32)}"
+            f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.centerOfMass().astype(np.int32)}"
         )
         rep.add(
-            f"[{orange}]number of vertices:[/{orange}][{mocassin}] {len(self.mesh.points())}"
+            f"[{orange}]number of vertices:[/{orange}][{amber}] {len(self.mesh.points())}"
         )
         rep.add(
-            f"[{orange}]dimensions:[/{orange}][{mocassin}] {np.array(self.mesh.bounds()).astype(np.int32)}"
+            f"[{orange}]dimensions:[/{orange}][{amber}] {np.array(self.mesh.bounds()).astype(np.int32)}"
         )
-        rep.add(f"[{orange}]color:[/{orange}][{mocassin}] {self.mesh.color()}")
+        rep.add(f"[{orange}]color:[/{orange}][{amber}] {self.mesh.color()}")
 
         yield rep

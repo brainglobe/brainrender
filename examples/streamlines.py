@@ -1,8 +1,6 @@
 from brainrender import Scene
-from brainrender.actors.streamlines import (
-    make_streamlines,
-    get_streamlines_for_region,
-)
+from brainrender.atlas_specific import get_streamlines_for_region
+from brainrender.actors.streamlines import make_streamlines
 
 # Create a brainrender scene
 scene = Scene()

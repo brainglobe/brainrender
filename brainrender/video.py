@@ -5,8 +5,8 @@ from pyinspect._colors import orange
 import os
 import numpy as np
 
-from .camera import check_camera_param
-from ._video import Video
+from brainrender.camera import check_camera_param
+from brainrender._video import Video
 
 
 class VideoMaker:
@@ -207,49 +207,3 @@ class Animation(VideoMaker):
         return self.segment_fact * np.array(v1) + (
             1 - self.segment_fact
         ) * np.array(v2)
-
-    # def _get_last_next(self, frame_number):
-    #     raise NotImplementedError('Deal with frame being one of the specified keyframes')
-    #     last = [n for n in self.key_frames_n if n<frame_number]
-    #     nxt = [n for n in self.key_frames_n if n>=frame_number]
-
-    #     if not last:
-    #         return None, nxt
-    #     elif not nxt:
-    #         return last, None
-    #     else:
-    #         return last[0], nxt[0]
-
-    # def _get_frame_params(self, last, nxt):
-    #     self.segment_fact = 1 - (framen/tot_frames)
-    #     kf1, kf2 = self.keyframes[last], self.keyframes[nxt]
-
-    #     camera = self._interpolate_cameras(kf1['camera'], kf2['camera'])
-    #     zoom = self._interpolate_values(kf1['zoom'], kf2['zoom'])
-
-    #     params = dict(
-    #         camera=camera,
-    #         zoom=zoom,
-    #         callback=None
-    #     )
-    #     self._last_frame_params = params
-    #     return params
-
-    # def make_frame(self):
-    #     # Get previous and next keyframes
-    #     last, nxt = self._get_last_next()
-
-    #     if last is None:
-    #         last = 0  # it's the first frame
-    #     elif nxt is None:
-    #         # just keep what was the last set of paramters.
-    #         frame_params = self._last_frame_params
-    #     else:
-    #         frame_params = self._get_frame_params(last, nxt,)
-
-    #     # Call frame callback
-    #     if frame_params['callback'] is not None:
-    #         frame_params['callback'](self.scene)
-
-    #     # render
-    #     self.scene.render(camera=frame_params['camera'], zoom=frame_params['zoom'], interactive=False)

@@ -4,7 +4,7 @@ from vedo import merge
 from vedo.shapes import Line, Sphere, Text
 from vedo.utils import precision, mag
 
-from ..actor import Actor
+from brainrender.actor import Actor
 
 
 def ruler(p1, p2, unit_scale=1, units=None, s=50):

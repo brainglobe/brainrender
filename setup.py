@@ -19,6 +19,7 @@ requirements = [
     "pyinspect>=0.0.8",
     "qtpy",
     "napari",
+    "myterial",
 ]
 
 setup(

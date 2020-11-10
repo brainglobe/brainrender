@@ -71,7 +71,7 @@ class AddFromFile:
 
     def add_from_file_object(self):
         """
-            Add to scene from .stl, .obj and .vtk files.
+            Add to scene from brainrender.stl, .obj and .vtk files.
             Method of the corresponding button
         """
         self.__add_from_file(self.scene.add)
@@ -82,7 +82,7 @@ class AddFromFile:
 
     def add_from_file_cells(self):
         """
-            Add to scene from .npy files with cell coordinates data.
+            Add to scene from brainrender.npy files with cell coordinates data.
             Method of the corresponding button
         """
         self.__add_from_file(self._get_cells_mesh)

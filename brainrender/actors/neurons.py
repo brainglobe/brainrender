@@ -3,7 +3,7 @@ from morphapi.morphology.morphology import Neuron as MorphoNeuron
 from vedo import Mesh
 from pyinspect.utils import _class_name
 
-from ..actor import Actor
+from brainrender.actor import Actor
 
 
 def make_neurons(
@@ -86,7 +86,7 @@ class Neuron(Actor):
 
         if not path.suffix == ".swc":
             raise NotImplementedError(
-                "Neuron can load morphology only from .swc files"
+                "Neuron can load morphology only from brainrender.swc files"
             )
 
         self.name = self.name or path.name

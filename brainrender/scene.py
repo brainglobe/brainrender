@@ -11,15 +11,14 @@ from vedo import Mesh, Plane, Text2D
 from vedo import settings as vedo_settings
 import pyinspect as pi
 from rich import print
-
+from myterial import amber, orange, orange_darker, salmon
 
 from brainrender import settings
-from .atlas import Atlas
-from .render import Render
-from .actor import Actor
-from ._utils import return_list_smart, listify
-from ._io import load_mesh_from_file
-from ._colors import mocassin, orange, dimorange, salmon
+from brainrender.atlas import Atlas
+from brainrender.render import Render
+from brainrender.actor import Actor
+from brainrender._utils import return_list_smart, listify
+from brainrender._io import load_mesh_from_file
 
 
 class Scene(Render):
@@ -171,7 +170,7 @@ class Scene(Render):
                     of the mesh is returned
         """
         # get regions actors from atlsa
-        regions = self.atlas.get("region", *regions, alpha=alpha, color=color)
+        regions = self._region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
 
         if hemisphere == "right":
@@ -228,7 +227,7 @@ class Scene(Render):
         """
         if self.transform_applied:
             print(
-                f"[b {salmon}]Warning: [/b {salmon}][{mocassin}]you're attempting to cut actors with a plane "
+                f"[b {salmon}]Warning: [/b {salmon}][{amber}]you're attempting to cut actors with a plane "
                 + "after having rendered the scene at lest once, this might give unpredicable results."
                 + "\nIt's advised to perform all cuts before the first call to `render`"
             )
@@ -256,7 +255,7 @@ class Scene(Render):
 
         for act in self.actors:
             actors.add(
-                f"[bold][{mocassin}]- {act.name}[/bold][{dimorange}] (type: [{orange}]{act.br_class}[/{orange}]) |[dim] is transformed: [blue]{act._is_transformed}"
+                f"[bold][{amber}]- {act.name}[/bold][{orange_darker}] (type: [{orange}]{act.br_class}[/{orange}]) |[dim] is transformed: [blue]{act._is_transformed}"
             )
 
         if "win32" != sys.platform:

@@ -1,6 +1,6 @@
 import vtk
 
-from .cameras import cameras
+from brainrender.cameras import cameras
 
 
 def get_camera(camera):

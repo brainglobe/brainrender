@@ -1,5 +1,5 @@
 from brainrender import Scene
-from brainrender.atlas_specific.aba_gene_expression import GeneExpressionAPI
+from brainrender.atlas_specific.gene_expression import GeneExpressionAPI
 
 from settings import LW
 
