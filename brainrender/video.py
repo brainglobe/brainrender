@@ -30,12 +30,15 @@ class VideoMaker:
         self.make_frame_func = make_frame_func or self._make_frame
 
     @staticmethod
-    def _make_frame(scene, frame_number, azimuth=0, elevation=0, roll=0):
+    def _make_frame(
+        scene, frame_number, tot_frames, azimuth=0, elevation=0, roll=0
+    ):
         """
             Default `make_frame_func`. Rotaets the camera in 3 directions
 
             :param scene: scene to be animated.
             :param frame_number: int, not used
+            :param tot_frames: int, total numner of frames
             :param azimuth: integer, specify the rotation in degrees 
                         per frame on the relative axis. (Default value = 0)
             :param elevation: integer, specify the rotation in degrees 
@@ -77,7 +80,7 @@ class VideoMaker:
         # Make frames
         niters = int(fps * duration)
         for i in track(range(niters)):
-            self.make_frame_func(self.scene, i, *args, **kwargs)
+            self.make_frame_func(self.scene, i, niters, *args, **kwargs)
             video.addFrame()
 
         self.scene.close()

@@ -1,4 +1,5 @@
 # Ignored file types
+.DS_Store
 examples/*.mp4
 .pytest_cache
 __pycache__

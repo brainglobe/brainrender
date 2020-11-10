@@ -25,3 +25,4 @@ SCREENSHOT_SCALE = 1
 SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metallic, plastic, shiny, glossy]
 SHOW_AXES = True
 WHOLE_SCREEN = True  # If true render window is full screen
+OFFSCREEN = False

@@ -151,6 +151,7 @@ class Render:
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
+                offscreen=settings.OFFSCREEN,
             )
         else:
             print(
