@@ -1,5 +1,5 @@
 from brainrender.scene import Scene
-from brainrender.video import VideoMaker
+from brainrender.video import VideoMaker, Animation
 
 from pathlib import Path
 
@@ -35,3 +35,21 @@ def test_video_custom():
     path = Path(savepath)
     assert path.exists()
     path.unlink()
+
+
+def test_animation():
+    # Create a brainrender scene
+    scene = Scene(title="brain regions", inset=False)
+
+    # Add brain regions
+    scene.add_brain_region("TH")
+
+    anim = Animation(scene, "tests", "test")
+    anim.add_keyframe(0, camera="top", zoom=1.3)
+    anim.add_keyframe(10, camera="sagittal", zoom=2.1)
+    anim.add_keyframe(20, camera="frontal", zoom=3)
+    anim.add_keyframe(30, camera="frontal", zoom=2)
+    anim.add_keyframe(30, camera="frontal", zoom=2)  # overwrite
+    anim.add_keyframe(300, camera="frontal", zoom=2)  # too many
+
+    anim.make_video(duration=3, fps=10)
