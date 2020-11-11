@@ -1,4 +1,4 @@
-from vedo import Plotter, show, closePlotter
+from vedo import Plotter, closePlotter
 from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime
@@ -22,19 +22,24 @@ mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 class Render:
     transform_applied = False
     is_rendered = False
+    plotter = None
 
     def __init__(self):
         """
             Backend for Scene, handles all rendering and exporting
             related tasks.
         """
+        return
+
+    def _get_plotter(self):
         # Make a vedo plotter
         self.plotter = Plotter(
-            size="full" if settings.WHOLE_SCREEN else "auto",
             axes=self._make_axes() if settings.SHOW_AXES else None,
             pos=(0, 0),
             title="brainrender",
             bg=settings.BACKGROUND_COLOR,
+            offscreen=settings.OFFSCREEN,
+            size="full" if settings.WHOLE_SCREEN else "auto",
         )
 
         self.plotter.keyPressFunction = self.keypress
@@ -119,6 +124,10 @@ class Render:
                 the scene is rendered.
             :param zoom: float
         """
+        # get vedo plotter
+        if self.plotter is None:
+            self._get_plotter()
+
         # Get camera
         if camera is None:
             camera = get_camera(settings.DEFAULT_CAMERA)
@@ -146,7 +155,7 @@ class Render:
             for txt in self.labels:
                 txt.followCamera(self.plotter.camera)
 
-            show(
+            self.plotter.show(
                 *self.renderables,
                 interactive=interactive,
                 zoom=zoom,

@@ -7,6 +7,7 @@ import numpy as np
 
 from brainrender.camera import check_camera_param
 from brainrender._video import Video
+import brainrender as br
 
 
 class VideoMaker:
@@ -60,7 +61,7 @@ class VideoMaker:
             Loop to generate frames
         """
         nframes = int(fps * duration)
-        for i in track(range(nframes)):
+        for i in track(range(nframes), description="Generating frames"):
             self.make_frame_func(self.scene, i, nframes, *args, **kwargs)
             video.addFrame()
 
@@ -75,6 +76,9 @@ class VideoMaker:
         :param fps: int, frame rate
         :param **kwargs: any extra keyword argument to be bassed to `make_frame_func`
         """
+        _off = br.settings.OFFSCREEN
+        br.settings.OFFSCREEN = True  # render offscreen
+
         self.scene.render(interactive=False, **render_kwargs)
 
         # cd to folder where the video will be saved
@@ -95,6 +99,7 @@ class VideoMaker:
 
         self.scene.close()
         video.close()  # merge all the recorded frames
+        br.settings.OFFSCREEN = _off
 
         # Cd back to original dir
         os.chdir(curdir)
@@ -102,6 +107,14 @@ class VideoMaker:
         return os.path.join(
             self.save_fld, self.save_name + "." + self.video_format
         )
+
+
+def sigma(x):
+    """
+        Sigmoid curve
+    """
+    y = 1 / (1 + np.exp(-8 * (x - 0.5)))
+    return y
 
 
 class Animation(VideoMaker):
@@ -116,7 +129,12 @@ class Animation(VideoMaker):
         )
 
     def add_keyframe(
-        self, frame_number, zoom=None, camera=None, callback=None
+        self,
+        frame_number,
+        zoom=None,
+        camera=None,
+        interpol="sigma",
+        callback=None,
     ):
         if camera is not None:
             camera = check_camera_param(camera)
@@ -127,7 +145,7 @@ class Animation(VideoMaker):
             )
 
         self.keyframes[frame_number] = dict(
-            zoom=zoom, camera=camera, callback=callback
+            zoom=zoom, camera=camera, callback=callback, interpol=interpol,
         )
 
     def get_keyframe_framenumber(self, fps):
@@ -154,7 +172,9 @@ class Animation(VideoMaker):
                 f"[b {orange}]The video will be {self.nframes} frames long, but you have defined keyframes after that, try increasing video duration?"
             )
 
-        for framen in track(range(self.nframes)):
+        for framen in track(
+            range(self.nframes), description="Generating frames..."
+        ):
             self._make_frame(framen)
             video.addFrame()
 
@@ -174,6 +194,8 @@ class Animation(VideoMaker):
             kf1, kf2 = self.keyframes[prev], self.keyframes[nxt]
 
             self.segment_fact = (nxt - frame_number) / (nxt - prev)
+            if kf2["interpol"] == "sigma":
+                self.segment_fact = sigma(self.segment_fact)
 
             params = dict(
                 camera=self._interpolate_cameras(kf1["camera"], kf2["camera"]),
