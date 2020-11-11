@@ -52,4 +52,8 @@ def test_animation():
     anim.add_keyframe(30, camera="frontal", zoom=2)  # overwrite
     anim.add_keyframe(300, camera="frontal", zoom=2)  # too many
 
-    anim.make_video(duration=3, fps=10)
+    savepath = anim.make_video(duration=3, fps=10)
+    assert savepath == "tests/test.mp4"
+    path = Path(savepath)
+    assert path.exists()
+    path.unlink()

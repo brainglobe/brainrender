@@ -169,8 +169,8 @@ class Scene(Render):
                 - if "left"/"right" only the corresponding half
                     of the mesh is returned
         """
-        # get regions actors from atlsa
-        regions = self._region(*regions, alpha=alpha, color=color)
+        # get regions actors from atlas
+        regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
 
         if hemisphere == "right":
