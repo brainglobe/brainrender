@@ -228,7 +228,7 @@ class Scene(Render):
         if self.transform_applied:
             print(
                 f"[b {salmon}]Warning: [/b {salmon}][{amber}]you're attempting to cut actors with a plane "
-                + "after having rendered the scene at lest once, this might give unpredicable results."
+                + "after having rendered the scene, this might give unpredictable results."
                 + "\nIt's advised to perform all cuts before the first call to `render`"
             )
 
