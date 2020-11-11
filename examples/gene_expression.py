@@ -8,9 +8,8 @@ scene = Scene(inset=False, screenshots_folder="figures")
 
 gene = "Gpr161"
 geapi = GeneExpressionAPI()
-geneid = geapi.get_gene_id_by_name(gene)
-expids = geapi.get_gene_experiments(geneid)
-data = geapi.get_gene_data(geneid, expids[1])
+expids = geapi.get_gene_experiments(gene)
+data = geapi.get_gene_data(gene, expids[1])
 
 gene_actor = geapi.griddata_to_volume(data, min_quantile=99, cmap="inferno")
 act = scene.add(gene_actor)

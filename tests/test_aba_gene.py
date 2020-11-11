@@ -17,10 +17,10 @@ def test_gebe_expression_api(geapi):
 
     s = Scene(title="BR")
 
-    geneid = geapi.get_gene_id_by_name(gene)
-    expids = geapi.get_gene_experiments(geneid)
+    geapi.get_gene_id_by_name(gene)
+    expids = geapi.get_gene_experiments(gene)
 
-    data = geapi.get_gene_data(geneid, expids[0], use_cache=True)
+    data = geapi.get_gene_data(gene, expids[0], use_cache=True)
 
     # make actor
     gene_actor = geapi.griddata_to_volume(
@@ -37,6 +37,6 @@ def test_gebe_expression_api(geapi):
 
 @pytest.mark.slow
 def test_download_no_cache(geapi):
-    geneid = geapi.get_gene_id_by_name(gene)
-    expids = geapi.get_gene_experiments(geneid)
-    geapi.get_gene_data(geneid, expids[0], use_cache=False)
+    geapi.get_gene_id_by_name(gene)
+    expids = geapi.get_gene_experiments(gene)
+    geapi.get_gene_data(gene, expids[0], use_cache=False)

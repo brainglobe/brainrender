@@ -79,19 +79,18 @@ class GeneExpressionAPI:
         ].gene_symbol.values[0]
 
     @fail_on_no_connection
-    def get_gene_experiments(self, gene_symbol):
+    def get_gene_experiments(self, gene):
         """
             Given a gene_symbol it returns the list of ISH
             experiments for this gene
 
-            :param gene_symbol: str, self.genes.gene_symbol
+            :param gene_symbol: str
         """
-        gene_symbol = self.get_gene_symbol_by_id(gene_symbol)
-        url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene_symbol)
+        url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
         data = request(url).json()["msg"]
 
         if not len(data):
-            print(f"No experiment found for gene {gene_symbol}")
+            print(f"No experiment found for gene {gene}")
             return None
         else:
             return [d["id"] for d in data]
@@ -105,21 +104,15 @@ class GeneExpressionAPI:
 
             :param gene: int, the gene_id for the gene being downloaded.
         """
-        if self.genes is None:
-            self.genes = self.get_all_genes()
-
         # Get the gene's experiment id
-        gene_symbol = self.genes.loc[
-            self.genes.id == str(gene)
-        ].gene_symbol.values[0]
-        exp_ids = self.get_gene_experiments(gene_symbol)
+        exp_ids = self.get_gene_experiments(gene)
 
         if exp_ids is None:
             return
 
         # download experiment data
         for eid in exp_ids:
-            print(f"Downloading data for {gene_symbol} - experiment: {eid}")
+            print(f"Downloading data for {gene} - experiment: {eid}")
             url = self.download_url.replace("EXP_ID", str(eid))
             download_and_cache(
                 url, os.path.join(self.gene_expression_cache, f"{gene}-{eid}")

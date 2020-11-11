@@ -46,11 +46,11 @@ def test_animation():
 
     anim = Animation(scene, "tests", "test")
     anim.add_keyframe(0, camera="top", zoom=1.3)
-    anim.add_keyframe(10, camera="sagittal", zoom=2.1)
-    anim.add_keyframe(20, camera="frontal", zoom=3)
-    anim.add_keyframe(30, camera="frontal", zoom=2)
-    anim.add_keyframe(30, camera="frontal", zoom=2)  # overwrite
-    anim.add_keyframe(300, camera="frontal", zoom=2)  # too many
+    anim.add_keyframe(1, camera="sagittal", zoom=2.1)
+    anim.add_keyframe(2, camera="frontal", zoom=3)
+    anim.add_keyframe(3, camera="frontal", zoom=2)
+    anim.add_keyframe(3, camera="frontal", zoom=2)  # overwrite
+    anim.add_keyframe(30, camera="frontal", zoom=2)  # too many
 
     savepath = anim.make_video(duration=3, fps=10)
     assert savepath == "tests/test.mp4"

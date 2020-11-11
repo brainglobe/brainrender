@@ -130,12 +130,23 @@ class Animation(VideoMaker):
             zoom=zoom, camera=camera, callback=callback
         )
 
+    def get_keyframe_framenumber(self, fps):
+        """
+            Keyframes are defines in units of time (s), so we need
+            to know to which frame each keyframe corresponds
+        """
+        self.keyframes = {
+            int(np.floor(s * fps)): v for s, v in self.keyframes.items()
+        }
+        self.keyframes_numbers = sorted(list(self.keyframes.keys()))
+
     def generate_frames(self, fps, duration, video):
         """
             Loop to generate frames
         """
+        self.get_keyframe_framenumber(fps)
+
         self.nframes = int(fps * duration)
-        self.keyframes_numbers = sorted(list(self.keyframes.keys()))
         self.last_keyframe = max(self.keyframes_numbers)
 
         if self.last_keyframe > self.nframes:
