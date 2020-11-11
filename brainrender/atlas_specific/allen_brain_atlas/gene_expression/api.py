@@ -1,5 +1,3 @@
-import numpy as np
-from vedo import Volume
 import pandas as pd
 import os
 import sys
@@ -12,7 +10,7 @@ from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils impor
 
 from brainrender import base_dir
 from brainrender._io import request, fail_on_no_connection
-from brainrender.actor import Actor
+from brainrender.actors import Volume
 
 
 class GeneExpressionAPI:
@@ -147,7 +145,7 @@ class GeneExpressionAPI:
         return data
 
     def griddata_to_volume(
-        self, griddata, min_quantile=None, min_value=None, **kwargs
+        self, griddata, min_quantile=None, min_value=None, cmap="bwr",
     ):
         """
             Takes a 3d numpy array with volumetric gene expression
@@ -160,31 +158,12 @@ class GeneExpressionAPI:
             :param min_quantile: float, percentile for threshold
             :param min_value: float, value for threshold
         """
-        # Get threshold
-        if min_quantile is None and min_value is None:
-            th = 0
-        elif min_value is not None:
-            if not isinstance(min_value, (int, float)):
-                raise ValueError(
-                    "min_values should be a float"
-                )  # pragma: no cover
-            th = min_value
-        else:
-            if not isinstance(min_quantile, (float, int)):
-                raise ValueError(  # pragma: no cover
-                    "min_values should be a float in range [0, 1]"
-                )
-            if 0 > min_quantile or 100 < min_quantile:
-                raise ValueError(  # pragma: no cover
-                    "min_values should be a float in range [0, 100]"  # pragma: no cover
-                )  # pragma: no cover
-            th = np.percentile(griddata.ravel(), min_quantile)
-
-        # Create mesh
-        cmap = kwargs.pop("cmap", None)
-        actor = Volume(
+        return Volume(
             griddata,
-            spacing=[self.voxel_size, self.voxel_size, self.voxel_size],
+            min_quantile=min_quantile,
+            voxel_size=self.voxel_size,
+            min_value=min_value,
+            cmap=cmap,
+            name=self.gene_name,
+            br_class="Gene Data",
         )
-        actor = actor.legosurface(vmin=th, cmap=cmap)
-        return Actor(actor, name=self.gene_name, br_class="Gene Data")

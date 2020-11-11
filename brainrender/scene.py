@@ -68,9 +68,7 @@ class Scene(Render):
         self._root_mesh = self.root.mesh.clone()
 
         # keep track if we need to make an inset
-        self.inset = (
-            inset  # the inset will be created when the scene is first rendered
-        )
+        self.inset = inset
 
         # add title
         if title:
@@ -100,7 +98,7 @@ class Scene(Render):
             Creates a small inset showing the brain's orientation
         """
         inset = self._root_mesh.clone()
-        inset.scale(0.5).alpha(1)
+        inset.alpha(1)  # scale(0.5)
         self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
 
         if settings.SHADER_STYLE == "cartoon":
