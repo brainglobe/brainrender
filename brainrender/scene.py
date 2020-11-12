@@ -151,6 +151,32 @@ class Scene(Render):
         self.actors.extend(actors)
         return return_list_smart(actors)
 
+    def remove(self, *actors):
+        """
+            Removes actors from the scene.
+        """
+        for act in actors:
+            try:
+                self.actors.pop(self.actors.index(act))
+            except Exception:
+                print(f"Could not remove {act} from actors")
+
+    def get_actors(self, name=None, br_class=None):
+        """
+            Return's the scene's actors that match some search criteria.
+
+            :param name: str or list of str, actors' names
+            :param br_class: str or list of str, actors br classes
+        """
+        matches = self.actors
+        if name is not None:
+            name = listify(name)
+            matches = [m for m in matches if m.name in name]
+        if br_class is not None:
+            br_class = listify(br_class)
+            matches = [m for m in matches if m.br_class in br_class]
+        return matches
+
     def add_brain_region(
         self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"
     ):

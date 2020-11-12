@@ -135,3 +135,29 @@ def test_scene_screenshot(name, scale):
 
     s.render(interactive=False)
     del s
+
+
+def test_actor_removal():
+    s = Scene()
+    th = s.add_brain_region("TH")
+    assert len(s.actors) == 2
+
+    s.remove(th)
+    assert len(s.actors) == 1
+
+    s.remove("no actor")
+    assert len(s.actors) == 1
+
+
+def test_get_actors():
+    s = Scene()
+    th = s.add_brain_region("TH")
+
+    found1 = s.get_actors(name="TH")
+    assert len(found1) == 1
+    assert th in found1
+
+    found2 = s.get_actors(br_class="brain  region")
+    assert len(found2) == 2
+    assert th in found2
+    assert s.root in found2
