@@ -1,9 +1,9 @@
 from pathlib import Path
 from rich.progress import track
 from rich import print
-from pyinspect._colors import orange
 import os
 import numpy as np
+from myterial import amber_light, orange
 
 from brainrender.camera import check_camera_param, get_camera_params
 from brainrender._video import Video
@@ -69,6 +69,20 @@ class VideoMaker:
             self.make_frame_func(self.scene, i, nframes, *args, **kwargs)
             video.addFrame()
 
+    def compress(self, temp_name):
+        """
+            Compresses created video with ffmpeg and removes
+            uncompressed video
+        """
+
+        command = f"ffmpeg -hide_banner -loglevel panic -i {temp_name}.mp4 -vcodec libx264 -crf 28 {self.save_name}.mp4 -y"
+        os.system(command)
+        Path(temp_name + ".mp4").unlink()
+
+        print(
+            f"[{amber_light}]Saved compressed video at: [{orange} bold]{self.save_fld}/{self.save_name}.{self.video_format}"
+        )
+
     def make_video(
         self, *args, duration=10, fps=30, render_kwargs={}, **kwargs
     ):
@@ -88,22 +102,24 @@ class VideoMaker:
         # cd to folder where the video will be saved
         curdir = os.getcwd()
         os.chdir(self.save_fld)
-        print(f"Saving video in {self.save_fld}")
+        print(f"[{amber_light}]Saving video in [{orange}]{self.save_fld}")
 
         # Create video
+        temp_name = self.save_name + "_uncompressed"
         video = Video(
-            name=self.save_name,
-            duration=duration,
-            fps=fps,
-            fmt=self.video_format,
+            name=temp_name, duration=duration, fps=fps, fmt=self.video_format,
         )
 
         # Make frames
         self.generate_frames(fps, duration, video, *args, **kwargs)
-
         self.scene.close()
+
+        # Stitch frames into uncompressed video
         video.close()  # merge all the recorded frames
         br.settings.OFFSCREEN = _off
+
+        # Compress video
+        self.compress(temp_name)
 
         # Cd back to original dir
         os.chdir(curdir)
