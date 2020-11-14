@@ -310,6 +310,7 @@ class Animation(VideoMaker):
             camera=frame_params["camera"],
             zoom=frame_params["zoom"],
             interactive=False,
+            resetcam=False,
         )
 
     def _interpolate_cameras(self, cam1, cam2):

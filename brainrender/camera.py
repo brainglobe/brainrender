@@ -92,7 +92,7 @@ def get_camera_params(scene=None, camera=None):
         cam = camera
 
     params = dict(
-        position=clean([x * 10 for x in cam.GetPosition()]),
+        position=clean(cam.GetPosition()),
         focal=clean(cam.GetFocalPoint()),
         viewup=clean(cam.GetViewUp()),
         distance=clean(cam.GetDistance()),

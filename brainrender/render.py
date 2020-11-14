@@ -112,7 +112,7 @@ class Render:
             else:
                 actor.mesh.lighting("off")
 
-    def render(self, interactive=None, camera=None, zoom=1.75):
+    def render(self, interactive=None, camera=None, zoom=1.75, **kwargs):
         """
             Renders the scene.
 
@@ -123,6 +123,7 @@ class Render:
                 Pass a valid camera input to specify the camera position when
                 the scene is rendered.
             :param zoom: float
+            :param kwargs: additional arguments to pass to self.plotter.show
         """
         # get vedo plotter
         if self.plotter is None:
