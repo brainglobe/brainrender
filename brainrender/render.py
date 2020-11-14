@@ -136,7 +136,7 @@ class Render:
             camera = check_camera_param(camera)
 
         if not self.jupyter:
-            set_camera(self, camera)
+            camera = set_camera(self, camera)
 
         # Apply axes correction
         self._correct_axes()
@@ -162,6 +162,7 @@ class Render:
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 offscreen=settings.OFFSCREEN,
+                camera=camera,
             )
         else:
             print(

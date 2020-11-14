@@ -23,7 +23,7 @@ def check_camera_param(camera):
     if isinstance(camera, str):
         return get_camera(camera)
     else:
-        params = ["position", "focal", "viewup", "distance", "clipping"]
+        params = ["pos", "focalPoint", "viewup", "distance", "clippingRange"]
         for param in params:
             if param not in list(camera.keys()):
                 raise ValueError(
@@ -39,11 +39,11 @@ def set_camera_params(camera, params):
         :param params: dictionary of camera parameters
     """
     # Apply camera parameters
-    camera.SetPosition(params["position"])
-    camera.SetFocalPoint(params["focal"])
+    camera.SetPosition(params["pos"])
+    camera.SetFocalPoint(params["focalPoint"])
     camera.SetViewUp(params["viewup"])
     camera.SetDistance(params["distance"])
-    camera.SetClippingRange(params["clipping"])
+    camera.SetClippingRange(params["clippingRange"])
 
 
 def set_camera(scene, camera):
@@ -92,11 +92,11 @@ def get_camera_params(scene=None, camera=None):
         cam = camera
 
     params = dict(
-        position=clean(cam.GetPosition()),
-        focal=clean(cam.GetFocalPoint()),
+        pos=clean(cam.GetPosition()),
+        focalPoint=clean(cam.GetFocalPoint()),
         viewup=clean(cam.GetViewUp()),
         distance=clean(cam.GetDistance()),
-        clipping=clean(cam.GetClippingRange()),
-        orientation=clean(cam.GetOrientation()),
+        clippingRange=clean(cam.GetClippingRange()),
+        # orientation=clean(cam.GetOrientation()),
     )
     return params

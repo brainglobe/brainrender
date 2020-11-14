@@ -1,56 +1,50 @@
 sagittal_camera = {
-    "position": (5976, 6290, 29737),
-    "focal": (6588, 3849, -5688),
+    "pos": (5976, 6290, 29737),
+    "focalPoint": (6588, 3849, -5688),
     "viewup": (0, -1, 0),
     "distance": 35514,
-    "clipping": (24098, 49971),
-    "orientation": (4, 1, 177),
+    "clippingRange": (24098, 49971),
 }
 
 sagittal_camera2 = {
-    "position": (9782, 1795, -40999),
-    "focal": (6588, 3849, -5688),
+    "pos": (9782, 1795, -40999),
+    "focalPoint": (6588, 3849, -5688),
     "viewup": (0, -1, 0),
     "distance": 35514,
-    "clipping": (23256, 51031),
-    "orientation": (-3, -175, -179),
+    "clippingRange": (23256, 51031),
 }
 
 
 frontal_camera = {
-    "position": (-19199, -1428, -5763),
-    "focal": (9157, 4406, -5858),
+    "pos": (-19199, -1428, -5763),
+    "focalPoint": (9157, 4406, -5858),
     "viewup": (0, -1, 0),
     "distance": 28950,
-    "clipping": (19531, 40903),
-    "orientation": (-12, 90, -180),
+    "clippingRange": (19531, 40903),
 }
 
 top_camera = {
-    "position": (7760, -31645, -5943),
-    "focal": (6588, 3849, -5688),
+    "pos": (7760, -31645, -5943),
+    "focalPoint": (6588, 3849, -5688),
     "viewup": (-1, 0, 0),
     "distance": 35514,
-    "clipping": (27262, 45988),
-    "orientation": (-88, -102, 169),
+    "clippingRange": (27262, 45988),
 }
 
 top_side_camera = {
-    "position": (4405, -31597, -5411),
-    "focal": (6588, 3849, -5688),
+    "pos": (4405, -31597, -5411),
+    "focalPoint": (6588, 3849, -5688),
     "viewup": (0, 0, -1),
     "distance": 35514,
-    "clipping": (26892, 46454),
-    "orientation": (-86, 83, -97),
+    "clippingRange": (26892, 46454),
 }
 
 three_quarters_camera = {
-    "position": (-20169, -7298, 14832),
-    "focal": (6588, 3849, -5688),
+    "pos": (-20169, -7298, 14832),
+    "focalPoint": (6588, 3849, -5688),
     "viewup": (0, -1, 0),
     "distance": 35514,
-    "clipping": (16955, 58963),
-    "orientation": (-18, 53, 175),
+    "clippingRange": (16955, 58963),
 }
 
 cameras = dict(
