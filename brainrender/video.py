@@ -307,7 +307,7 @@ class Animation(VideoMaker):
 
         # render
         self.scene.render(
-            camera=frame_params["camera"],
+            camera=frame_params["camera"].copy(),
             zoom=frame_params["zoom"],
             interactive=False,
             resetcam=False,

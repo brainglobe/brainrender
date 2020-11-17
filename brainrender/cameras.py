@@ -1,6 +1,6 @@
 sagittal_camera = {
-    "pos": (5976, 6290, 29737),
-    "focalPoint": (6588, 3849, -5688),
+    "pos": (6514, -34, 36854),
+    "focalPoint": (6588, 3849, -8293),
     "viewup": (0, -1, 0),
     "distance": 35514,
     "clippingRange": (24098, 49971),

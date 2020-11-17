@@ -162,7 +162,8 @@ class Render:
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 offscreen=settings.OFFSCREEN,
-                camera=camera,
+                camera=camera.copy(),
+                interactorStyle=0,
             )
         else:
             print(
@@ -235,6 +236,20 @@ class Render:
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 
+    def _print_camera(self):
+        pms = get_camera_params(scene=self)
+        names = [
+            f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
+            for k, v in pms.items()
+        ]
+        print(
+            f"[{deep_purple_light}]Camera parameters:",
+            f"[{orange}]    {{",
+            *names,
+            f"[{orange}]   }}",
+            sep="\n",
+        )
+
     def keypress(self, key):  # pragma: no cover
         """
             Hanles key presses for interactive view
@@ -249,15 +264,4 @@ class Render:
             self.close()
 
         elif key == "c":
-            pms = get_camera_params(scene=self)
-            names = [
-                f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
-                for k, v in pms.items()
-            ]
-            print(
-                f"[{deep_purple_light}]Camera parameters:",
-                f"[{orange}]    {{",
-                *names,
-                f"[{orange}]   }}",
-                sep="\n",
-            )
+            self._print_camera()
