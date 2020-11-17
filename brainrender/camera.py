@@ -23,7 +23,7 @@ def check_camera_param(camera):
     if isinstance(camera, str):
         return get_camera(camera)
     else:
-        params = ["pos", "focalPoint", "viewup", "distance", "clippingRange"]
+        params = ["pos", "viewup", "clippingRange"]
         for param in params:
             if param not in list(camera.keys()):
                 raise ValueError(
@@ -40,9 +40,7 @@ def set_camera_params(camera, params):
     """
     # Apply camera parameters
     camera.SetPosition(params["pos"])
-    camera.SetFocalPoint(params["focalPoint"])
     camera.SetViewUp(params["viewup"])
-    camera.SetDistance(params["distance"])
     camera.SetClippingRange(params["clippingRange"])
 
 
