@@ -3,7 +3,7 @@ from rich.progress import track
 from rich import print
 import os
 import numpy as np
-from myterial import amber_light, orange
+from myterial import amber_light, orange, salmon
 
 from brainrender.camera import check_camera_param, get_camera_params
 from brainrender._video import Video
@@ -11,7 +11,15 @@ import brainrender as br
 
 
 class VideoMaker:
-    def __init__(self, scene, save_fld, name, fmt="mp4", make_frame_func=None):
+    def __init__(
+        self,
+        scene,
+        save_fld,
+        name,
+        fmt="mp4",
+        size="1620x1050",
+        make_frame_func=None,
+    ):
         """
             Creates a video by animating a scene and saving a sequence
             of screenshots.
@@ -24,6 +32,7 @@ class VideoMaker:
                 function that takes the Scene to be animated as the fist argument abd
                 the current frame number as second. At every frame this function
                 can do what's needed to animate the scene
+            :param size: str, size of video's frames in pixels
         """
         self.scene = scene
 
@@ -31,6 +40,11 @@ class VideoMaker:
         self.save_fld.mkdir(exist_ok=True)
         self.save_name = name
         self.video_format = fmt
+        self.size = size
+        if "mp4" not in self.video_format:
+            raise NotImplementedError(
+                "Video creation can only output mp4 videos for now"
+            )
 
         self.make_frame_func = make_frame_func or self._make_frame
 
@@ -105,9 +119,12 @@ class VideoMaker:
         print(f"[{amber_light}]Saving video in [{orange}]{self.save_fld}")
 
         # Create video
-        temp_name = self.save_name + "_uncompressed"
         video = Video(
-            name=temp_name, duration=duration, fps=fps, fmt=self.video_format,
+            name=self.save_name,
+            duration=duration,
+            fps=fps,
+            fmt=self.video_format,
+            size=self.size,
         )
 
         # Make frames
@@ -115,18 +132,19 @@ class VideoMaker:
         self.scene.close()
 
         # Stitch frames into uncompressed video
-        video.close()  # merge all the recorded frames
+        out, command = video.close()
+        spath = f"{self.save_fld}/{self.save_name}.{self.video_format}"
+        if out:
+            print(
+                f"[{orange} bold]ffmpeg returned an error while trying to save video with command:\n    [{salmon}]{command}"
+            )
+        else:
+            print(f"[{amber_light}]Saved video at: [{orange} bold]{spath}")
+
+        # finish up
         br.settings.OFFSCREEN = _off
-
-        # Compress video
-        self.compress(temp_name)
-
-        # Cd back to original dir
         os.chdir(curdir)
-
-        return os.path.join(
-            self.save_fld, self.save_name + "." + self.video_format
-        )
+        return spath
 
 
 def sigma(x):
@@ -323,10 +341,13 @@ class Animation(VideoMaker):
             return cam1
 
         interpolated = {}
-        for (k, v1), (k2, v2) in zip(cam1.items(), cam2.items()):
-            if k != k2:
-                raise ValueError(f"Keys mismatch: {k} - {k2}")
-            interpolated[k] = self._interpolate_values(v1, v2)
+        for k, v1 in cam1.items():
+            try:
+                interpolated[k] = self._interpolate_values(v1, cam2[k])
+            except KeyError:  # pragma: no cover
+                raise ValueError(
+                    "Cameras to interpolate dont have the same set of parameters"
+                )
         return interpolated
 
     def _interpolate_values(self, v1, v2):
