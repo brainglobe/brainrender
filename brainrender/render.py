@@ -238,6 +238,10 @@ class Render:
 
     def _print_camera(self):
         pms = get_camera_params(scene=self)
+
+        focal = pms.pop("focalPoint", None)
+        dst = pms.pop("distance", None)
+
         names = [
             f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
             for k, v in pms.items()
@@ -247,6 +251,9 @@ class Render:
             f"[{orange}]    {{",
             *names,
             f"[{orange}]   }}",
+            f"[{deep_purple_light}]Additional, (optional) parameters:",
+            f"[green bold]     'focalPoint'[/green bold]: [{amber}]{focal},",
+            f"[green bold]     'distance'[/green bold]: [{amber}]{dst},",
             sep="\n",
         )
 

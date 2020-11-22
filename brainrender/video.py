@@ -170,7 +170,7 @@ class Animation(VideoMaker):
 
     _last_frame_params = None
 
-    def __init__(self, scene, save_fld, name, fmt="mp4"):
+    def __init__(self, scene, save_fld, name, fmt="mp4", size="1620x1050"):
         """
             The animation class facilitates the creation of videos
             by specifying a series of keyframes at given moments during
@@ -183,7 +183,7 @@ class Animation(VideoMaker):
             :param save_name: str, name of the video
             :param fmt: str. Video format (e.g. 'mp4')
         """
-        VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt)
+        VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt, size=size)
 
         self.keyframes = {}
         self.keyframes[0] = dict(  # make sure first frame is a keyframe
@@ -198,6 +198,7 @@ class Animation(VideoMaker):
         camera=None,
         interpol="sigma",
         callback=None,
+        **kwargs,
     ):
         """
             Add a keyframe to the video.
@@ -223,7 +224,11 @@ class Animation(VideoMaker):
 
         if not duration:
             self.keyframes[time] = dict(
-                zoom=zoom, camera=camera, callback=callback, interpol=interpol,
+                zoom=zoom,
+                camera=camera,
+                callback=callback,
+                interpol=interpol,
+                kwargs=kwargs,
             )
         else:
             for time in np.arange(time, time + duration, 0.001):
@@ -232,6 +237,7 @@ class Animation(VideoMaker):
                     camera=camera,
                     callback=callback,
                     interpol=interpol,
+                    kwargs=kwargs,
                 )
 
     def get_keyframe_framenumber(self, fps):
@@ -321,11 +327,21 @@ class Animation(VideoMaker):
 
         # callback
         if frame_params["callback"] is not None:
-            frame_params["callback"](self.scene, frame_number, self.nframes)
+            callback_camera = frame_params["callback"](
+                self.scene,
+                frame_number,
+                self.nframes,
+                **frame_params["kwargs"],
+            )
+        else:
+            callback_camera = None
+
+        # see if callback returned a camera
+        camera = callback_camera or frame_params["camera"]
 
         # render
         self.scene.render(
-            camera=frame_params["camera"].copy(),
+            camera=camera.copy(),
             zoom=frame_params["zoom"],
             interactive=False,
             resetcam=False,

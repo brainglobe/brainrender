@@ -97,6 +97,9 @@ class Scene(Render):
         """
             Creates a small inset showing the brain's orientation
         """
+        if settings.OFFSCREEN:
+            return None
+
         inset = self._root_mesh.clone()
         inset.alpha(1)  # scale(0.5)
         self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
@@ -159,7 +162,9 @@ class Scene(Render):
             try:
                 self.actors.pop(self.actors.index(act))
             except Exception:
-                print(f"Could not remove {act} from actors")
+                print(
+                    f"Could not remove ({act}, {pi.utils._class_name(act)}) from actors"
+                )
 
     def get_actors(self, name=None, br_class=None):
         """

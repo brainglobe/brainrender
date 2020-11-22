@@ -27,7 +27,7 @@ def check_camera_param(camera):
         for param in params:
             if param not in list(camera.keys()):
                 raise ValueError(
-                    f"Camera parameters dict should include the following keys: {params}"
+                    f"Camera parameters dict should include the following keys: {params}, missing: {param}"
                 )
         return camera
 

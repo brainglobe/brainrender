@@ -33,6 +33,7 @@ def test_camera_params():
 
 def test_get_camera_params():
     s = Scene()
+    s.render(interactive=False)
     cam = s.plotter.camera
 
     params = get_camera_params(scene=s)
@@ -51,6 +52,7 @@ def test_set_camera_params():
 
 def test_set_camera():
     s = Scene()
+    s.render(interactive=False)
     cam = s.plotter.camera
 
     set_camera(s, cam)
