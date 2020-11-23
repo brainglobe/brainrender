@@ -4,7 +4,7 @@ import datetime
 
 import brainrender
 from brainrender import Scene
-from brainrender.camera import set_camera
+from brainrender.camera import set_camera, get_camera_params
 
 from brainrender.gui.ui import UI
 from brainrender.gui.apputils.camera_control import CameraControl
@@ -160,12 +160,13 @@ class App(
             Updates the scene's Plotter to add/remove
             meshes
         """
-        self.scene._apply_style()
-        self.scene.render(interactive=False)
-
         if self.camera_orientation is not None:
-            set_camera(self.scene, self.camera_orientation)
+            # set_camera(self.scene, self.camera_orientation)
+            camera = self.camera_orientation
             self.camera_orientation = None
+        else:
+            camera = get_camera_params(scene=self.scene)
+        self.scene.render(camera=camera)
 
         # Get actors to render
         self._update_actors()

@@ -29,14 +29,9 @@ def launch(*args, atlas_name=None, output=None, screenshots_folder=None):
 @click.option("-a", "--atlas", default=None)
 @click.option("-o", "--output", default=None)
 def clilaunch(atlas=None, axes=False, output=None):
-    if output is None:
-        screenshot_kwargs = {}
-    else:
-        screenshot_kwargs = dict(folder=output)
-
     app = QApplication(sys.argv)
     app.setApplicationName("Brainrender GUIs")
-    ex = App(atlas=atlas, axes=axes, screenshot_kwargs=screenshot_kwargs)
+    ex = App(atlas_name=atlas, axes=axes, screenshots_folder=output)
     app.aboutToQuit.connect(ex.onClose)
     ex.show()
     sys.exit(app.exec_())

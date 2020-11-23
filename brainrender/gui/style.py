@@ -122,24 +122,23 @@ QTreeView {
     border-radius: 12px; 
     padding: 20px 12px;
 } 
-
-
-QTreeView::branch:has-children:!has-siblings:closed,
-QTreeView::branch:closed:has-children:has-siblings {
-    border-image: none;
-    image: url(CLOSED_IMG);
-}
-QTreeView::branch:open:has-children:!has-siblings,
-QTreeView::branch:open:has-children:has-siblings  {
-    border-image: none;
-    image: url(OPENED_IMG);
-}
 QTreeView::indicator:checked {
     image: url(CHECKED_IMG);
 }
 QTreeView::indicator:unchecked {
     image: url(UNCHECKED_IMG);
 } 
+
+
+QTreeView::branch:has-children:!has-siblings:closed,QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    image: url(CLOSED_IMG);
+}
+QTreeView::branch:open:has-children:!has-siblings,QTreeView::branch:open:has-children:has-siblings  {
+    border-image: none;
+    image: url(OPENED_IMG);
+}
+
 """
 
 
@@ -148,15 +147,19 @@ def update_css(css, palette):
         Updates a CSS string with values
         from the palette chosen.
     """
+
+    def path(raw_path):
+        return raw_path.replace("\\", "/")
+
     css = css.replace("FGCOLOR", palette["foreground"])
     css = css.replace("BGCOLOR", palette["background"])
     css = css.replace("TXTCOLOR", palette["text"])
     css = css.replace("HIGHLIGHT", palette["highlight"])
 
-    css = css.replace("CLOSED_IMG", palette["branch_closed_img"])
-    css = css.replace("OPENED_IMG", palette["branch_opened_img"])
+    css = css.replace("CLOSED_IMG", path(palette["branch_closed_img"]))
+    css = css.replace("OPENED_IMG", path(palette["branch_opened_img"]))
 
-    css = css.replace("UNCHECKED_IMG", palette["unchecked_img"])
-    css = css.replace("CHECKED_IMG", palette["checked_img"])
+    css = css.replace("UNCHECKED_IMG", path(palette["unchecked_img"]))
+    css = css.replace("CHECKED_IMG", path(palette["checked_img"]))
 
     return css

@@ -27,7 +27,6 @@ brexport.html
 *.pyc
 *.vtk
 *.nrrd
-*.svg
 *.tdms
 
 
