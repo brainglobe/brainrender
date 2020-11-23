@@ -8,14 +8,7 @@
 We have recently released a new version of `brainrender`, version 2.0 (:tada:). This consists of an entire re-writing of the whole library to make the code cleaner, more compact. easier to read and easier to use.
 We've also included a new GUI packaged with `brainrender`.
 However, this does mean that code written to work with previous versions of `brainrender` will need to be adjusted slightly to wrok with the newer versions.
-Main things to change:
-- `scene.add_brain_regions` is now called `scene.add_brain_region` (no `s`)
-- `scene.add_from_file`, `scene.add_actor`, `scene.add_sphere`... don't exist, you can just use `scene.add` to add anything to the scene.
-- `scene.add_cells` and `scene.add_from_file` don't exist, the workflow is a bit different now (see examples)
-- `scene.add_neurons` doesn't exist, the workflow is a bit different now (see examples)
-- `scene.add_streamlines` doesn't exist, the workflow is a bit different now (see examples)
-  
-Everything else should be more or less the same!
+If you are transitioning to the new `brainrender` version, please reade [the guide we have put together](https://docs.brainrender.info/usage/overview/v1-greater-than-v2) about moving from v1.0 to v2.0.
 
 **`brainrender` is a python package for the visualization of three dimensional neuro-anatomical data. It can be used to render data from publicly available data set (e.g. Allen Brain atlas) as well as user generated experimental data. The goal of brainrender is to facilitate the exploration and dissemination of neuro-anatomical data by providing a user-friendly platform to create high-quality 3D renderings.**
 
