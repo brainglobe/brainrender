@@ -51,7 +51,7 @@ class UI(QMainWindow):
         self.setWindowTitle("BRAINGLOBE - brainrender GUI")
 
         logo_path = resource_filename(
-            "brainrender.gui", f"icons/BG_logo_mini.svg"
+            "brainrender.gui.icons", f"BG_logo_mini.svg"
         )
         self.setWindowIcon(QtGui.QIcon(logo_path))
 
@@ -70,19 +70,17 @@ class UI(QMainWindow):
             Gets the correct path to the icons
             depending on the theme chosen
         """
-        # fld = Path(os.path.dirname(os.path.realpath(__file__)))
-
         self.palette["branch_closed_img"] = resource_filename(
-            "brainrender.gui", f"icons/right_{self.theme}.svg"
+            "brainrender.gui.icons", f"right_{self.theme}.svg"
         )
         self.palette["branch_opened_img"] = resource_filename(
-            "brainrender.gui", f"icons/down_{self.theme}.svg"
+            "brainrender.gui.icons", f"down_{self.theme}.svg"
         )
         self.palette["checked_img"] = resource_filename(
-            "brainrender.gui", f"icons/checkedbox_{self.theme}.svg"
+            "brainrender.gui.icons", f"checkedbox_{self.theme}.svg"
         )
         self.palette["unchecked_img"] = resource_filename(
-            "brainrender.gui", f"icons/box_{self.theme}.svg"
+            "brainrender.gui.icons", f"box_{self.theme}.svg"
         )
 
     def make_left_navbar(self):
