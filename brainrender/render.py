@@ -1,360 +1,274 @@
-from vedo import settings as vedosettings
-from vedo import Plotter, show, closePlotter, buildRulerAxes
-import datetime
-import warnings
+from vedo import Plotter, closePlotter
+from vedo import settings as vsettings
 import numpy as np
+from datetime import datetime
+from rich import print
 from pathlib import Path
-from pyinspect.classes import Enhanced
+from myterial import orange, amber, deep_purple_light
 
-import brainrender
-from brainrender.Utils.scene_utils import (
-    get_scene_camera,
-    get_scene_plotter_settings,
-)
-from brainrender.Utils.camera import (
+from brainrender import settings
+from brainrender.camera import (
+    get_camera,
     check_camera_param,
     set_camera,
     get_camera_params,
 )
-from brainrender.Utils.data_manipulation import flatten
-from rich import print
-from pyinspect._colors import mocassin, orange
 
-"""
-    The render class expands scene.Scene's functionality
-    to take care of the rendering and visualization
-    of all actors added a scene. 
-"""
 
+# mtx used to transform meshes to sort axes orientation
 mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 
-class Render(Enhanced):
+class Render:
     transform_applied = False
+    is_rendered = False
+    plotter = None
 
-    def __init__(
-        self,
-        verbose,
-        display_inset,
-        camera,
-        screenshot_kwargs,
-        use_default_key_bindings,
-    ):
+    def __init__(self):
         """
-            Creates and manages a Plotter instance
-
-            :param add_root: if False a rendered outline of the whole brain is added to the scene (default value None)
-            :param verbose: if False less feedback is printed to screen (default value True)
-            :param display_inset: if False the inset displaying the brain's outline is not rendered (but the root is added to the scene) (default value None)
-            :param camera: name of the camera parameters setting to use (controls the orientation of the rendered scene)
-            :param screenshot_kwargs: pass a dictionary with keys:
-                        - "folder" -> str, path to folder where to save screenshots
-                        - "name" -> str, filename to prepend to screenshots files
-                        - "format" -> str, format of the screenshot
-            :param use_default_key_bindings: if True the defualt keybindings from vedo are used, otherwise
-                            a custom function that can be used to take screenshots with the parameter above. 
+            Backend for Scene, handles all rendering and exporting
+            related tasks.
         """
-        Enhanced.__init__(self)
+        return
 
-        # Setup a few rendering options
-        self.verbose = verbose
-        self.display_inset = (
-            display_inset
-            if display_inset is not None
-            else brainrender.DISPLAY_INSET
-        )
-
-        if vedosettings.notebookBackend == "k3d":
-            self.jupyter = True
-        else:
-            self.jupyter = False
-
-        if self.display_inset and self.jupyter:
-            if self.verbose:
-                print(
-                    "Setting 'display_inset' to False as this feature is not \
-                                available in juputer notebooks"
-                )
-            self.display_inset = False
-
-        # Camera parameters
-        self.camera = get_scene_camera(camera, self.atlas)
-
-        # Create vedo plotter
+    def _get_plotter(self):
+        # Make a vedo plotter
         self.plotter = Plotter(
-            **get_scene_plotter_settings(
-                self.jupyter, self.atlas, self.verbose
-            )
+            axes=self._make_axes() if settings.SHOW_AXES else None,
+            pos=(0, 0),
+            title="brainrender",
+            bg=settings.BACKGROUND_COLOR,
+            offscreen=settings.OFFSCREEN,
+            size="full" if settings.WHOLE_SCREEN else "auto",
         )
 
-        if brainrender.AXES_STYLE == 7 and brainrender.SHOW_AXES:
-            self.make_custom_axes = True  # to be made at render
-        else:
-            self.make_custom_axes = False
+        self.plotter.keyPressFunction = self.keypress
 
-        self.screenshot_kwargs = screenshot_kwargs
+    def _make_axes(self):
+        """
+            Returns a dictionary with axes 
+            parameters for the vedo plotter
+        """
+        ax_idx = self.atlas.space.axes_order.index("frontal")
 
-        if not use_default_key_bindings:
-            self.plotter.keyPressFunction = self.keypress
-            self.verbose = False
+        # make acustom axes dict
+        atlas_shape = np.array(self.atlas.metadata["shape"]) * np.array(
+            self.atlas.metadata["resolution"]
+        )
 
-        if not brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
-            vedosettings.screenshotTransparentBackground = False
-            vedosettings.useFXAA = True
-
-    @property
-    def to_render(self):
-        return [
-            a.mesh
-            for a in flatten(self.actors) + flatten(self.actors_labels)
-            if a.mesh is not None
+        z_ticks = [
+            (-v, str(np.abs(v).astype(np.int32)))
+            for v in np.linspace(0, atlas_shape[ax_idx], 10,)
         ]
 
-    def _make_custom_axes(self):
-        """
-            When using `ruler` axes (vedy style 7), we need to 
-            customize them a little bit, this function takes care of it. 
-        """
-        raise NotImplementedError(
-            "Currently ony AXES_STYLE=1 is supported, sorry"
+        # make custom axes dict
+        axes = dict(
+            axesLineWidth=3,
+            tipSize=0,
+            xtitle="AP (μm)",
+            ytitle="DV (μm)",
+            ztitle="LR (μm)",
+            textScale=0.8,
+            xTitleRotation=0,
+            xFlipText=True,
+            zrange=np.array([-atlas_shape[2], 0]),
+            zValuesAndLabels=z_ticks,
+            xyGrid=False,
+            yzGrid=False,
+            zxGrid=False,
         )
 
-        # Get plotter and axes color
-        plt = self.plotter
-        c = (0.9, 0.9, 0.9)
-        if np.sum(plt.renderer.GetBackground()) > 1.5:
-            c = (0.1, 0.1, 0.1)
-
-        bounds = [
-            item for sublist in self.atlas._root_bounds for item in sublist
-        ]
-        rulax = buildRulerAxes(
-            bounds,
-            c=c,
-            units="μm",
-            xtitle="AP - ",
-            ytitle="DV - ",
-            ztitle="LR - ",
-            precision=1,
-            labelRotation=0,
-            axisRotation=90,
-            xycross=False,
-        )
-        rulax.UseBoundsOff()
-        rulax.PickableOff()
-        plt.renderer.AddActor(rulax)
-        plt.axes_instances[0] = rulax
-
-        return plt
+        return axes
 
     def _correct_axes(self):
         """
-            When the scene is first rendered, a transform matrix
-            is applied to each actor's points to correct orientation
+            When an actor is first rendered, a transform matrix
+            is applied to its points to correct axes orientation
             mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+
+            Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
         self.transform_applied = True
 
         # Flip every actor's orientation
-        for actor in self.actors:
-            try:
-                _name = actor.name
+        for actor in self.clean_actors + self.labels:
+            if not actor._is_transformed:
+                actor.mesh.applyTransform(mtx).reverse()
+                actor._is_transformed = True
 
-                if _name is None:
-                    _name = ""
-            except AttributeError:
-                """ not all scene objects will have a name """
-                continue
+            if actor._needs_silhouette:
+                self.actors.append(actor.make_silhouette())
 
-            # Transform the actors that need to be transform
-            try:
-                if not actor._is_transformed:
-                    actor.mesh.applyTransform(mtx).reverse()
-                    actor._is_transformed = True
+            if actor._needs_label:
+                self.labels.extend(actor.make_label(self.atlas))
 
-            except AttributeError:
-                pass
-
-        # Make labels
-        for actor in self.actors:
-            try:
-                if actor._needs_label:
-                    self.actors_labels.extend(actor.make_label(self.atlas))
-            except AttributeError:
-                pass
-
-        # Make silhouettes
-        silhouettes = []
-        for actor in self.actors:
-            try:
-                if actor._needs_silhouette:
-                    silhouettes.append(actor.make_silhouette())
-            except AttributeError:
-                pass
-        self.actors.extend(silhouettes)
-
-    def apply_render_style(self):
-        if brainrender.SHADER_STYLE is None:  # No style to apply
-            return
-
-        for actor in self.actors + self.actors_labels:
-            if actor is not None:
-                try:
-                    if brainrender.SHADER_STYLE != "cartoon":
-                        actor.mesh.lighting(style=brainrender.SHADER_STYLE)
-                    else:
-                        actor.mesh.lighting("off")
-                except AttributeError:
-                    pass  # Some types of actors such as Text 2D don't have this attribute!
-
-    def render(
-        self, interactive=True, video=False, camera=None, zoom=None, **kwargs
-    ):
+    def _apply_style(self):
         """
-        Takes care of rendering the scene
+            Sets the rendering style for each mesh
         """
+        for actor in self.clean_actors:
+            if settings.SHADER_STYLE != "cartoon":
+                actor.mesh.lighting(style=settings.SHADER_STYLE)
+            else:
+                actor.mesh.lighting("off")
 
-        if not video:
-            if (
-                not self.jupyter
-            ):  # cameras work differently in jupyter notebooks?
-                if camera is None:
-                    camera = self.camera
+    def render(self, interactive=None, camera=None, zoom=1.75, **kwargs):
+        """
+            Renders the scene.
 
-                if isinstance(
-                    camera, (str, dict)
-                ):  # otherwise assume that it's vtk.camera
-                    camera = check_camera_param(camera)
+            :param interactive: bool. If note settings.INTERACTIVE is used.
+                If true the program's execution is stopped and users
+                can interact with scene.
+            :param camera: str, dict. If none the default camera is used.
+                Pass a valid camera input to specify the camera position when
+                the scene is rendered.
+            :param zoom: float
+            :param kwargs: additional arguments to pass to self.plotter.show
+        """
+        # get vedo plotter
+        if self.plotter is None:
+            self._get_plotter()
 
-                set_camera(self, camera)
+        # Get camera
+        if camera is None:
+            camera = get_camera(settings.DEFAULT_CAMERA)
+        else:
+            camera = check_camera_param(camera)
 
-            if interactive and self.verbose:
-                if not self.jupyter:
-                    print(
-                        f"\n\n[{mocassin}]Rendering scene.\n   Press [{orange}]'q'[/{orange}] to Quit"
-                    )
-                elif self.jupyter:
-                    print(
-                        f"[{mocassin}]The scene is ready to render in your jupyter notebook"
-                    )
+        if not self.jupyter:
+            camera = set_camera(self, camera)
 
-            self._get_inset()
-
-        if zoom is None and not video:
-            zoom = 1.2 if brainrender.WHOLE_SCREEN else 1.5
-
-        args_dict = dict(
-            interactive=interactive,
-            zoom=zoom,
-            bg=brainrender.BACKGROUND_COLOR,
-            axes=self.plotter.axes,
-        )
-
-        if video:
-            args_dict["offscreen"] = True
-
-        if self.make_custom_axes:
-            self.plotter = self._make_custom_axes()
-            self.make_custom_axes = False
-
-        # Correct axes orientations
+        # Apply axes correction
         self._correct_axes()
 
-        # Make mesh labels follow the camera
-        if not self.jupyter:
-            for txt in self.actors_labels:
-                txt.followCamera(self.plotter.camera)
-        self.apply_render_style()
+        # Apply style
+        self._apply_style()
 
+        if self.inset and not self.jupyter and not self.is_rendered:
+            self._get_inset()
+
+        # render
         self.is_rendered = True
-        show(*self.to_render, **args_dict)
+        if not self.jupyter:
+            if interactive is None:
+                interactive = settings.INTERACTIVE
+
+            for txt in self.labels:
+                txt.followCamera(self.plotter.camera)
+
+            self.plotter.show(
+                *self.renderables,
+                interactive=interactive,
+                zoom=zoom,
+                bg=settings.BACKGROUND_COLOR,
+                offscreen=settings.OFFSCREEN,
+                camera=camera.copy(),
+                interactorStyle=0,
+            )
+        else:
+            print(
+                "Your scene is ready for rendering, use: `show(scene.renderables)`"
+            )
 
     def close(self):
         closePlotter()
 
-    def export_for_web(self, filepath="brexport.html"):
+    def export(self, savepath):
         """
-            This function is used to export a brainrender scene
-            for hosting it online. It saves an html file that can
-            be opened in a web browser to show an interactive brainrender scene
+            Exports the scene to a .html
+            file for online renderings.
+
+            :param savepath: str, Path to a .html file to save the export
         """
-        if not filepath.endswith(".html"):
-            raise ValueError("Filepath should point to a .html file")
+        _jupiter = self.jupyter
+
+        if not self.is_rendered:
+            self.render(interactive=False)
+
+        path = Path(savepath)
+        if path.suffix != ".html":
+            raise ValueError("Savepath should point to a .html file")
 
         # prepare settings
-        vedosettings.notebookBackend = "k3d"
+        vsettings.notebookBackend = "k3d"
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.to_render)
+        plt.add(self.renderables)
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 
-        if self.verbose:
-            print(
-                "Ready for exporting. Exporting scenes with many actors might require a few minutes"
-            )
-        with open(filepath, "w") as fp:
+        with open(path, "w") as fp:
             fp.write(plt.get_snapshot())
 
-        if self.verbose:
-            print(
-                f"The brainrender scene has been exported for web. The results are saved at {filepath}"
-            )
+        print(
+            f"The brainrender scene has been exported for web. The results are saved at {path}"
+        )
 
         # Reset settings
-        vedosettings.notebookBackend = None
-        self.jupyter = False
+        vsettings.notebookBackend = None
+        self.jupyter = _jupiter
 
-    # ---------------------------------------------------------------------------- #
-    #                               USER INTERACTION                               #
-    # ---------------------------------------------------------------------------- #
-    def keypress(self, key):
+        return str(path)
+
+    def screenshot(self, name=None, scale=None):
+        """
+            Takes a screenshot of the current view
+            and save it to file.
+            Screenshots are saved in `screenshots_folder`
+            (see Scene)
+
+            :param name: str, name of png file
+            :param scale: float, >1 for higher resolution
+        """
+        if not self.is_rendered:
+            self.render(interactive=False)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        name = name or f"brainrender_screenshot_{timestamp}"
+        if ".png" not in name:
+            name += ".png"
+
+        scale = scale or settings.SCREENSHOT_SCALE
+
+        print(f"\nSaving new screenshot at {name}\n")
+        savepath = str(self.screenshots_folder / name)
+        self.plotter.screenshot(filename=savepath, scale=scale)
+        return savepath
+
+    def _print_camera(self):
+        pms = get_camera_params(scene=self)
+
+        focal = pms.pop("focalPoint", None)
+        dst = pms.pop("distance", None)
+
+        names = [
+            f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
+            for k, v in pms.items()
+        ]
+        print(
+            f"[{deep_purple_light}]Camera parameters:",
+            f"[{orange}]    {{",
+            *names,
+            f"[{orange}]   }}",
+            f"[{deep_purple_light}]Additional, (optional) parameters:",
+            f"[green bold]     'focalPoint'[/green bold]: [{amber}]{focal},",
+            f"[green bold]     'distance'[/green bold]: [{amber}]{dst},",
+            sep="\n",
+        )
+
+    def keypress(self, key):  # pragma: no cover
+        """
+            Hanles key presses for interactive view
+            -s: take's a screenshot
+            -q: closes the window
+            -c: prints the current camera parameters
+        """
         if key == "s":
-            self.take_screenshot()
+            self.screenshot()
 
-        elif key == "q":
+        elif key == "q" or key == "Esc":
             self.close()
 
         elif key == "c":
-            print(f"Camera parameters:\n{get_camera_params(scene=self)}")
-
-    def take_screenshot(
-        self, screenshots_folder=None, screenshot_name=None, scale=None
-    ):
-        """
-        :param screenshots_folder: folder where the screenshot will be saved
-        :param screenshot_name: name of the saved file
-        :param scale: int, upsampling factor over screen resolution. Increase to export
-        higher quality images
-        """
-
-        if screenshots_folder is None:
-            screenshots_folder = Path(
-                self.screenshot_kwargs.get(
-                    "folder", brainrender.DEFAULT_SCREENSHOT_FOLDER
-                )
-            )
-        screenshots_folder.mkdir(exist_ok=True)
-
-        if screenshot_name is None:
-            name = self.screenshot_kwargs.get("name", "screenshot")
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            file_format = self.screenshot_kwargs.get("format", ".png")
-            screenshot_name = f"{name}_{timestamp}{file_format}"
-
-        if not self.is_rendered:
-            print(
-                "You need to render the scene before you can take a screenshot"
-            )
-            return
-
-        if brainrender.SCREENSHOT_TRANSPARENT_BACKGROUND:
-            warnings.warn(
-                "BRAINRENDER - settings: screenshots are set to have transparent background. Set the parameter 'SCREENSHOT_TRANSPARENT_BACKGROUND' to False if you'd prefer a not transparent background"
-            )
-
-        savename = str(screenshots_folder / screenshot_name)
-        print(f"\nSaving new screenshot at {savename}\n")
-        self.plotter.screenshot(filename=savename, scale=scale)
-        return savename
+            self._print_camera()

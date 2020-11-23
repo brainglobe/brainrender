@@ -1,4 +1,23 @@
 # Ignored file types
+.DS_Store
+examples/*.mp4
+tests/*.mp4
+
+.pytest_cache
+__pycache__
+*.pyc
+.ipynb_checkpoints
+.pytest_cache/*
+.pytest_cache/
+__pycache__/*
+__pycache__/
+*/__pycache__
+brainrender/atlas_specific/gene_expression/__pycache__
+brainrender/atlas_specific/gene_expression/__pycache__/*
+brainrender/atlas_specific/__pycache__
+
+workspace.py
+workspace.ipynb
 brexport.html
 *.ckpt
 *.vscode
@@ -7,18 +26,9 @@ brexport.html
 *.idea
 *.pyc
 *.vtk
-*.obj
-# *.stl
 *.nrrd
-# *.swc
-*.svg
 *.tdms
 
-# These file formats are tracked
-# *.avi
-# *.png
-# *.mp4
-# *.jpg
 
 screenshots/*
 atlas_images/*
