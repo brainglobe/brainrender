@@ -1,7 +1,7 @@
 
 # Brainrender
 <p align="center">
-  <img width="600" src="https://github.com/BrancoLab/BrainREnder/raw/master/Docs/Media/humanbrainexp.png">
+  <img width="600" src="imgs/three_atlases.png">
 </p>
 
 **!! NOTE: you're looking at brainrender v2.0**
