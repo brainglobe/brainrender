@@ -14,7 +14,8 @@ If you are transitioning to the new `brainrender` version, please reade [the gui
 
 ## Docs
 :books: [brainrender docs](https://docs.brainrender.info/).
-:paper: [brainrender paper](URL TO UPDATE ONCE PUBLISHED)
+
+:paper: [brainrender paper](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1.article-metrics)
 
 ## Installation
 You can [install `brainrender`](https://docs.brainrender.info/installation/installation) with:
@@ -26,18 +27,36 @@ pip install brainrender
 ## Citing brainrender
 If you use `brainrender` in your work, please cite:
 ```
-  CITATION TO BE UPDATED
+  Claudi, Federico, Adam L. Tyson, and Tiago Branco. 2020. “Brainrender. A Python Based Software for Visualisation of Neuroanatomical and Morphological Data.” Cold Spring Harbor Laboratory. https://doi.org/10.1101/2020.02.23.961748.
 ```
 
 ## Examples
-The following images were created for the publication of the [brainrender paper](URL TO UPDATE ONCE PUBLISHED). References to the original data being visualised can also be found in the paper, and the code to generate these figures can be found at [URL TO BE UPDATED]()
+The following images were created for the publication of the [brainrender paper](https://www.biorxiv.org/content/10.1101/2020.02.23.961748v1.article-metrics). References to the original data being visualised can also be found in the paper.
 
-<img src='imgs/cellfinder_cells_3.png' width=800 style='margin:auto'></img>
-<img src='imgs/gene_expression.png' width=800 style='margin:auto'></img>
-<img src='imgs/human_regions.png' width=800 style='margin:auto'></img>
-<img src='imgs/injection_2.png' width=800 style='margin:auto'></img>
-<img src='imgs/mouse_neurons_2.png' width=800 style='margin:auto'></img>
-<img src='imgs/probes.png' width=800 style='margin:auto'></img>
-<img src='imgs/zfish_functional_clusters_2.png' width=800 style='margin:auto'></img>
-<img src='imgs/zfish_neurons.png' width=800 style='margin:auto'></img>
-<img src='imgs/zfish_regions.png' width=800 style='margin:auto'></img>
+<p align="center">
+<img src='imgs/cellfinder_cells_3.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/gene_expression.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/human_regions.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/injection_2.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/mouse_neurons_2.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/probes.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/zfish_functional_clusters_2.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/zfish_neurons.png' width=500 style='margin:auto'></img>
+</p>
+<p align="center">
+<img src='imgs/zfish_regions.png' width=500 style='margin:auto'></img>
+</p>
