@@ -1,10 +1,10 @@
 from brainrender import Scene
+from brainrender import settings
 from brainrender.atlas_specific import GeneExpressionAPI
 
-from settings import LW
+settings.SHOW_AXES = False
 
-
-scene = Scene(inset=False, screenshots_folder="figures")
+scene = Scene(inset=False)
 
 gene = "Gpr161"
 geapi = GeneExpressionAPI()
@@ -18,6 +18,6 @@ ca1 = scene.add_brain_region("CA1", alpha=0.2, color="skyblue")
 ca3 = scene.add_brain_region("CA3", alpha=0.5, color="salmon")
 
 
-scene.add_silhouette(act, lw=LW)
+scene.add_silhouette(act)
 
-scene.render(zoom=1.75)
+scene.render(zoom=1.6)
