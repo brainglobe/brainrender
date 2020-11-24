@@ -1,10 +1,15 @@
 from examples import (
     add_cells,
     add_mesh_from_file,
+    animation,
     brain_regions,
     brainglobe_atlases,
+    custom_camera,
+    gene_expression,
     neurons,
     ruler,
     slice,
     streamlines,
+    video,
+    volumetric_data,
 )

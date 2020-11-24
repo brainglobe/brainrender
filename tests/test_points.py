@@ -1,9 +1,25 @@
 from brainrender import Scene
-from brainrender.actors import Points, Point
+from brainrender.actors import Points, Point, PointsDensity
 import numpy as np
 from brainrender.actor import Actor
+import random
 
 import pytest
+
+
+def get_n_random_points_in_region(region, N):
+    """
+    Gets N random points inside (or on the surface) of a mes
+    """
+
+    region_bounds = region.bounds()
+    X = np.random.randint(region_bounds[0], region_bounds[1], size=10000)
+    Y = np.random.randint(region_bounds[2], region_bounds[3], size=10000)
+    Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
+    pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
+
+    ipts = region.insidePoints(pts).points()
+    return np.vstack(random.choices(ipts, k=N))
 
 
 def test_points_working():
@@ -25,6 +41,17 @@ def test_points_working():
     assert isinstance(act3, Actor)
     assert point.name == "Point"
 
+    s.render(interactive=False)
+    del s
+
+
+def test_points_density():
+    s = Scene(title="BR")
+    mos = s.add_brain_region("MOs", alpha=0.0)
+    coordinates = get_n_random_points_in_region(mos, 2000)
+    pd = s.add(PointsDensity(coordinates))
+
+    assert isinstance(pd, Actor)
     s.render(interactive=False)
     del s
 

@@ -1,5 +1,6 @@
 import numpy as np
 from vedo import Spheres, Sphere
+from vedo import Points as vPoints
 from pathlib import Path
 from pyinspect.utils import _class_name
 
@@ -24,33 +25,12 @@ class Point(Actor):
         Actor.__init__(self, mesh, name=name, br_class="Point")
 
 
-class Points(Actor):
-    def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20):
+class PointsBase:
+    def __init__(self,):
         """
-            Creates an actor representing multiple points (more efficient than 
-            creating many Point instances).
-
-            :param data: np.ndarray, Nx3 array or path to .npy file with coords data
-            :param radius: float
-            :param color: str,
-            :param alpha: float
-            :param name: str, actor name
+            Base class with functinality to load from file.
         """
-        self.radius = radius
-        self.colors = colors
-        self.alpha = alpha
-        self.name = name
-
-        if isinstance(data, np.ndarray):
-            mesh = self._from_numpy(data)
-        elif isinstance(data, (str, Path)):
-            mesh = self._from_file(data)
-        else:  # pragma: no cover
-            raise TypeError(  # pragma: no cover
-                f"Input data should be either a numpy array or a file path, not: {_class_name(data)}"  # pragma: no cover
-            )  # pragma: no cover
-
-        Actor.__init__(self, mesh, name=self.name, br_class="Points")
+        return
 
     def _from_numpy(self, data):
         """
@@ -86,3 +66,62 @@ class Points(Actor):
                 f"Add points from file only works with numpy file for now, now {path.suffix}."  # pragma: no cover
                 + "If youd like more formats supported open an issue on Github!"  # pragma: no cover
             )  # pragma: no cover
+
+
+class Points(PointsBase, Actor):
+    def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20):
+        """
+            Creates an actor representing multiple points (more efficient than 
+            creating many Point instances).
+
+            :param data: np.ndarray, Nx3 array or path to .npy file with coords data
+            :param radius: float
+            :param color: str,
+            :param alpha: float
+            :param name: str, actor name
+        """
+        PointsBase.__init__(self)
+
+        self.radius = radius
+        self.colors = colors
+        self.alpha = alpha
+        self.name = name
+
+        if isinstance(data, np.ndarray):
+            mesh = self._from_numpy(data)
+        elif isinstance(data, (str, Path)):
+            mesh = self._from_file(data)
+        else:  # pragma: no cover
+            raise TypeError(  # pragma: no cover
+                f"Input data should be either a numpy array or a file path, not: {_class_name(data)}"  # pragma: no cover
+            )  # pragma: no cover
+
+        Actor.__init__(self, mesh, name=self.name, br_class="Points")
+
+
+class PointsDensity(PointsBase, Actor):
+    def __init__(
+        self, data, name=None, dims=(40, 40, 40), radius=None, **kwargs
+    ):
+        """
+            Creates a Volume actor showing the 3d density of a set 
+            of points.
+
+            :param data: np.ndarray, Nx3 array or path to .npy file with coords data
+
+
+            from vedo:
+                Generate a density field from a point cloud. Input can also be a set of 3D coordinates.
+                Output is a ``Volume``.
+                The local neighborhood is specified as the `radius` around each sample position (each voxel).
+                The density is expressed as the number of counts in the radius search.
+
+                :param int,list dims: numer of voxels in x, y and z of the output Volume.
+
+        """
+        PointsBase.__init__(self)
+
+        volume = vPoints(data).density(
+            dims=dims, radius=radius, **kwargs
+        )  # returns a vedo Volume
+        Actor.__init__(self, volume, name=name, br_class="density")

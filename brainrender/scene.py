@@ -17,6 +17,7 @@ from brainrender import settings
 from brainrender.atlas import Atlas
 from brainrender.render import Render
 from brainrender.actor import Actor
+from brainrender.actors import Volume
 from brainrender._utils import return_list_smart, listify
 from brainrender._io import load_mesh_from_file
 
@@ -62,7 +63,10 @@ class Scene(Render):
             root_alpha = 0
 
         self.root = self.add_brain_region(
-            "root", alpha=root_alpha, color=settings.ROOT_COLOR
+            "root",
+            alpha=root_alpha,
+            color=settings.ROOT_COLOR,
+            silhouette=True if root else False,
         )
         self.atlas.root = self.root  # give atlas access to root
         self._root_mesh = self.root.mesh.clone()
@@ -139,6 +143,12 @@ class Scene(Render):
                 actors.append(
                     Actor(item, name=name, br_class=_class, is_text=True)
                 )
+            elif pi.utils._class_name(item) == "Volume" and not isinstance(
+                item, Volume
+            ):
+                actors.append(
+                    Volume(item, name=name, br_class=_class, **kwargs)
+                )
 
             elif isinstance(item, Actor):
                 actors.append(item)
@@ -148,7 +158,9 @@ class Scene(Render):
                 actors.append(Actor(mesh, name=name, br_class=_class))
 
             else:
-                raise ValueError(f"Unrecognized argument: {item}")
+                raise ValueError(
+                    f"Unrecognized argument: {item} [{pi.utils._class_name(item)}]"
+                )
 
         # Add to the lists actors
         self.actors.extend(actors)
@@ -209,7 +221,7 @@ class Scene(Render):
         if hemisphere in ("left", "right"):
             self.slice(plane, actors=regions, close_actors=True)
 
-        if silhouette and regions:
+        if silhouette and regions and alpha:
             self.add_silhouette(*regions)
 
         return self.add(*regions)

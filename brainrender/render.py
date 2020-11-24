@@ -16,7 +16,8 @@ from brainrender.camera import (
 
 
 # mtx used to transform meshes to sort axes orientation
-mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+# mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
 
 
 class Render:
@@ -93,7 +94,11 @@ class Render:
         # Flip every actor's orientation
         for actor in self.clean_actors + self.labels:
             if not actor._is_transformed:
-                actor.mesh.applyTransform(mtx).reverse()
+                actor.applyTransform(mtx)
+                try:
+                    actor.reverse()
+                except AttributeError:  # Volumes don't have reverse
+                    pass
                 actor._is_transformed = True
 
             if actor._needs_silhouette:
@@ -108,9 +113,14 @@ class Render:
         """
         for actor in self.clean_actors:
             if settings.SHADER_STYLE != "cartoon":
-                actor.mesh.lighting(style=settings.SHADER_STYLE)
+                style = settings.SHADER_STYLE
             else:
-                actor.mesh.lighting("off")
+                style = "off"
+
+            try:
+                actor.lighting(style=style)
+            except AttributeError:
+                pass
 
     def render(self, interactive=None, camera=None, zoom=1.75, **kwargs):
         """
