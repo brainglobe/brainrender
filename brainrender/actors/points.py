@@ -99,7 +99,7 @@ class Points(PointsBase, Actor):
         Actor.__init__(self, mesh, name=self.name, br_class="Points")
 
 
-class PointsDensity(PointsBase, Actor):
+class PointsDensity(Actor):
     def __init__(
         self, data, name=None, dims=(40, 40, 40), radius=None, **kwargs
     ):
@@ -107,7 +107,7 @@ class PointsDensity(PointsBase, Actor):
             Creates a Volume actor showing the 3d density of a set 
             of points.
 
-            :param data: np.ndarray, Nx3 array or path to .npy file with coords data
+            :param data: np.ndarray, Nx3 array with cell coordinates
 
 
             from vedo:
@@ -119,8 +119,6 @@ class PointsDensity(PointsBase, Actor):
                 :param int,list dims: numer of voxels in x, y and z of the output Volume.
 
         """
-        PointsBase.__init__(self)
-
         volume = vPoints(data).density(
             dims=dims, radius=radius, **kwargs
         )  # returns a vedo Volume
