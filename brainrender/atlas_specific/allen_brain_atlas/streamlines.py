@@ -1,5 +1,7 @@
 import pandas as pd
 from rich.progress import track
+from rich import print
+from myterial import orange
 
 try:
     from allensdk.api.queries.mouse_connectivity_api import (
@@ -29,6 +31,13 @@ def experiments_source_search(SOI):
 
     transgenic_id = 0  # id = 0 means use only wild type
     primary_structure_only = True
+
+    if not allen_sdk_installed:
+        print(
+            f"[{orange}]Allen skd package is not installed, cannot download streamlines data."
+            "Please install `allensdk` with `pip install allensdk` (note: this requires python < 3.8)"
+        )
+        return None
 
     return pd.DataFrame(
         mca.experiment_source_search(

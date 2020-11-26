@@ -182,4 +182,5 @@ class Actor(object):
         )
         rep.add(f"[{orange}]color:[/{orange}][{amber}] {self.mesh.color()}")
 
+        yield "\n"
         yield rep
