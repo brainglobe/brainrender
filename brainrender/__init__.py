@@ -1,8 +1,12 @@
-from pyinspect import install_traceback
 import os
 from pathlib import Path
 
-install_traceback()
+try:
+    from pyinspect import install_traceback
+
+    install_traceback()
+except ImportError:
+    pass  # fails in notebooks
 
 import brainrender.settings
 from brainrender.scene import Scene

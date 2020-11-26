@@ -101,10 +101,10 @@ class Render:
                     pass
                 actor._is_transformed = True
 
-            if actor._needs_silhouette:
+            if actor._needs_silhouette and not self.jupyter:
                 self.actors.append(actor.make_silhouette())
 
-            if actor._needs_label:
+            if actor._needs_label and not self.jupyter:
                 self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
@@ -145,7 +145,7 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if not self.jupyter:
+        if not self.jupyter and camera is not None:
             camera = set_camera(self, camera)
 
         # Apply axes correction
@@ -172,12 +172,14 @@ class Render:
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 offscreen=settings.OFFSCREEN,
-                camera=camera.copy(),
+                camera=camera.copy() if camera else None,
                 interactorStyle=0,
             )
         else:
+            # Remove silhouettes
+            self.remove(*self.get_actors(br_class="silhouette"))
             print(
-                "Your scene is ready for rendering, use: `show(scene.renderables)`"
+                "Your scene is ready for rendering, use: `vedo.show(*scene.renderables)`"
             )
 
     def close(self):

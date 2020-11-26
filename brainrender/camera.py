@@ -66,7 +66,10 @@ def set_camera(scene, camera):
         camera = check_camera_param(camera)
 
         # set params
-        set_camera_params(scene.plotter.camera, camera)
+        try:
+            set_camera_params(scene.plotter.camera, camera)
+        except AttributeError:
+            return None
     else:
         scene.plotter.camera = camera
     return camera
