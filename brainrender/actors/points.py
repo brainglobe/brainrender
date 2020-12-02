@@ -76,7 +76,7 @@ class Points(PointsBase, Actor):
 
             :param data: np.ndarray, Nx3 array or path to .npy file with coords data
             :param radius: float
-            :param color: str,
+            :param color: str, or list of str with color names or hex codes
             :param alpha: float
             :param name: str, actor name
         """

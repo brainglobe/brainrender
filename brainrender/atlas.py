@@ -37,7 +37,7 @@ class Atlas(BrainGlobeAtlas):
         for region in regions:
             if (
                 region not in self.lookup_df.acronym.values
-                and region not in self.lookup_df["id"]
+                and region not in self.lookup_df["id"].values
             ):
                 print(
                     f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping"

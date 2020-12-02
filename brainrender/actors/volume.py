@@ -19,10 +19,13 @@ class Volume(Actor):
     ):
         """
             Takes a 3d numpy array with volumetric data
-            and returns an Actor with mesh: vedo.Volume.isosurface.
-            The isosurface needs a lower bound threshold, this can be
-            either a user defined hard value (min_value) or the value
-            corresponding to some percentile of the grid data.
+            and returns an Actor with mesh: vedo.Volume.isosurface or a vedo.Volume.
+            BY default the volume is represented as a surface
+
+            To extract the surface:
+                The isosurface needs a lower bound threshold, this can be
+                either a user defined hard value (min_value) or the value
+                corresponding to some percentile of the grid data.
 
             :param griddata: np.ndarray, 3d array with grid data
             :param voxel_size: int, size of each voxel in microns
