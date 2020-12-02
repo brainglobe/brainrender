@@ -35,7 +35,10 @@ class Atlas(BrainGlobeAtlas):
         _color = color
         actors = []
         for region in regions:
-            if region not in self.lookup_df.acronym.values:
+            if (
+                region not in self.lookup_df.acronym.values
+                and region not in self.lookup_df["id"]
+            ):
                 print(
                     f"The region {region} doesn't seem to belong to the atlas being used: {self.atlas_name}. Skipping"
                 )
