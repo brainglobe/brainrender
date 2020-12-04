@@ -80,8 +80,8 @@ class Scene(Render):
         if title:
             self.add(
                 Text2D(title, pos=8, s=2.5, c="k", alpha=1, font="Montserrat"),
-                name="title",
-                br_class="title",
+                names="title",
+                classes="title",
             )
 
         # keep track if we are in a jupyter notebook
@@ -127,8 +127,8 @@ class Scene(Render):
             :param **kwargs: parameters to be passed to the individual 
                 loading functions (e.g. to load from file and specify the color)
         """
-        names = names or ["Actor" for a in items]
-        classes = classes or ["None" for a in items]
+        names = names or [None for a in items]
+        classes = classes or [None for a in items]
 
         # turn items into Actors
         actors = []
@@ -143,7 +143,13 @@ class Scene(Render):
                 # Mark text actors differently because they don't behave like
                 # other 3d actors
                 actors.append(
-                    Actor(item, name=name, br_class=_class, is_text=True)
+                    Actor(
+                        item,
+                        name=name,
+                        br_class=_class,
+                        is_text=True,
+                        **kwargs,
+                    )
                 )
             elif pi.utils._class_name(item) == "Volume" and not isinstance(
                 item, Volume
@@ -157,6 +163,8 @@ class Scene(Render):
 
             elif isinstance(item, (str, Path)):
                 mesh = load_mesh_from_file(item, **kwargs)
+                name = name or Path(item).name
+                _class = _class or "from file"
                 actors.append(Actor(mesh, name=name, br_class=_class))
 
             else:
@@ -301,7 +309,7 @@ class Scene(Render):
 
         for act in self.actors:
             actors.add(
-                f"[bold][{amber}]- {act.name}[/bold][{orange_darker}] (type: [{orange}]{act.br_class}[/{orange}]) |[dim] is transformed: [blue]{act._is_transformed}"
+                f"[bold][{amber}]- {act.name}[/bold][{orange_darker}] (type: [{orange}]{act.br_class}[/{orange}])"
             )
 
         if "win32" != sys.platform:

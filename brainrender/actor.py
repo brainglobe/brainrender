@@ -81,7 +81,15 @@ class Actor(object):
     _needs_silhouette = False  # needs to make a silhouette
     _is_transformed = False  # has been transformed to correct axes orientation
 
-    def __init__(self, mesh, name=None, br_class=None, is_text=False):
+    def __init__(
+        self,
+        mesh,
+        name=None,
+        br_class=None,
+        is_text=False,
+        color=None,
+        alpha=None,
+    ):
         """
             Actor class representing anythng shown in a brainrender scene.
             Methods in brainrender.actors are used to creates actors specific
@@ -94,11 +102,18 @@ class Actor(object):
             :param name: str, actor name
             :param br_class: str, name of brainrende actors class
             :param is_text: bool, is it a 2d text or annotation?
+            :param color: str, name or hex code of color to assign to actor's mesh
+            :param alpha: float, transparency to assign to actor's mesh
         """
         self.mesh = mesh
-        self.name = name
-        self.br_class = br_class
+        self.name = name or "Actor"
+        self.br_class = br_class or "None"
         self.is_text = is_text
+
+        if color:
+            self.mesh.c(color)
+        if alpha:
+            self.mesh.alpha(alpha)
 
     def __getattr__(self, attr):
         """
