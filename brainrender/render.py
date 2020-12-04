@@ -5,6 +5,7 @@ from datetime import datetime
 from rich import print
 from pathlib import Path
 from myterial import orange, amber, deep_purple_light
+from rich.syntax import Syntax
 
 from brainrender import settings
 from brainrender.camera import (
@@ -16,7 +17,6 @@ from brainrender.camera import (
 
 
 # mtx used to transform meshes to sort axes orientation
-# mtx = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
 
 
@@ -24,6 +24,10 @@ class Render:
     transform_applied = False
     is_rendered = False
     plotter = None
+
+    axes_names = ("AP", "DV", "LR")
+    axes_lookup = {"x": "AP", "y": "DV", "z": "LR"}
+    axes_indices = {"AP": 0, "DV": 1, "LR": 2}
 
     def __init__(self):
         """
@@ -33,7 +37,10 @@ class Render:
         return
 
     def _get_plotter(self):
-        # Make a vedo plotter
+        """
+            Make a vedo plotter with
+            fancy axes and all
+        """
         self.plotter = Plotter(
             axes=self._make_axes() if settings.SHOW_AXES else None,
             pos=(0, 0),
@@ -81,7 +88,7 @@ class Render:
 
         return axes
 
-    def _correct_axes(self):
+    def _prepare_actor(self):
         """
             When an actor is first rendered, a transform matrix
             is applied to its points to correct axes orientation
@@ -101,10 +108,11 @@ class Render:
                     pass
                 actor._is_transformed = True
 
-            if actor._needs_silhouette and not self.jupyter:
+            # Add silhouette and labels
+            if actor._needs_silhouette and not self.backend:
                 self.actors.append(actor.make_silhouette())
 
-            if actor._needs_label and not self.jupyter:
+            if actor._needs_label and not self.backend:
                 self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
@@ -115,6 +123,10 @@ class Render:
             if settings.SHADER_STYLE != "cartoon":
                 style = settings.SHADER_STYLE
             else:
+                if self.backend:  # notebook backend
+                    print(
+                        'Shader style "cartoon" cannot be used in a notebook'
+                    )
                 style = "off"
 
             try:
@@ -145,21 +157,21 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if not self.jupyter and camera is not None:
+        if not self.backend and camera is not None:
             camera = set_camera(self, camera)
 
         # Apply axes correction
-        self._correct_axes()
+        self._prepare_actor()
 
         # Apply style
         self._apply_style()
 
-        if self.inset and not self.jupyter and not self.is_rendered:
+        if self.inset and not self.is_rendered:
             self._get_inset()
 
         # render
         self.is_rendered = True
-        if not self.jupyter:
+        if not self.backend:  # not running in a python script
             if interactive is None:
                 interactive = settings.INTERACTIVE
 
@@ -175,11 +187,24 @@ class Render:
                 camera=camera.copy() if camera else None,
                 interactorStyle=0,
             )
-        else:
+        elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
             self.remove(*self.get_actors(br_class="silhouette"))
             print(
-                "Your scene is ready for rendering, use: `vedo.show(*scene.renderables)`"
+                "Your scene is ready for rendering, use:\n",
+                Syntax("from vedo import show", lexer_name="python"),
+                Syntax("vedo.show(*scene.renderables)", lexer_name="python"),
+                sep="\n",
+            )
+        else:  # pragma: no cover
+            print(
+                "Your scene is ready for rendering, use:\n",
+                Syntax("from itkwidgets import view", lexer_name="python"),
+                Syntax(
+                    "view(scene.plotter.show(*scene.renderables))",
+                    lexer_name="python",
+                ),
+                sep="\n",
             )
 
     def close(self):
@@ -192,7 +217,7 @@ class Render:
 
             :param savepath: str, Path to a .html file to save the export
         """
-        _jupiter = self.jupyter
+        _jupiter = self.backend
 
         if not self.is_rendered:
             self.render(interactive=False)
@@ -219,7 +244,7 @@ class Render:
 
         # Reset settings
         vsettings.notebookBackend = None
-        self.jupyter = _jupiter
+        self.backend = _jupiter
 
         return str(path)
 

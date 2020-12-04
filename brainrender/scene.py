@@ -8,7 +8,6 @@ Scene
 import sys
 from pathlib import Path
 from vedo import Mesh, Plane, Text2D, Assembly
-from vedo import settings as vedo_settings
 import pyinspect as pi
 from rich import print
 from myterial import amber, orange, orange_darker, salmon
@@ -20,9 +19,10 @@ from brainrender.actor import Actor
 from brainrender.actors import Volume
 from brainrender._utils import return_list_smart, listify
 from brainrender._io import load_mesh_from_file
+from brainrender._jupyter import not_on_jupyter, JupyterMixIn
 
 
-class Scene(Render):
+class Scene(JupyterMixIn, Render):
     def __init__(
         self,
         root=True,
@@ -41,6 +41,8 @@ class Scene(Render):
             :param title: str. If true a title is added to the top of the window
             :param screenshots_folder: str, Path. Where the screenshots will be saved
         """
+        JupyterMixIn.__init__(self)
+
         self.actors = []  # stores all actors in the scene
         self.labels = []  # stores all `labels` actors in scene
 
@@ -84,21 +86,19 @@ class Scene(Render):
                 classes="title",
             )
 
-        # keep track if we are in a jupyter notebook
-        if vedo_settings.notebookBackend == "k3d":
-            self.jupyter = True
-        else:
-            self.jupyter = False
-
     def __str__(self):
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
     def __repr__(self):  # pragma: no cover
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
+    def __repr_html__(self):  # pragma: no cover
+        return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
+
     def __del__(self):
         self.close()
 
+    @not_on_jupyter
     def _get_inset(self):
         """
             Creates a small inset showing the brain's orientation
@@ -239,6 +239,7 @@ class Scene(Render):
 
         return self.add(*regions)
 
+    @not_on_jupyter
     def add_silhouette(self, *actors, lw=None, color="k"):
         """
             Dedicated method to add silhouette to actors
@@ -253,6 +254,7 @@ class Scene(Render):
             actor._needs_silhouette = True
             actor._silhouette_kwargs = dict(lw=lw or settings.LW, color=color,)
 
+    @not_on_jupyter
     def add_label(self, actor, label, **kwargs):
         """
             Dedicated method to add lables to actors
@@ -322,12 +324,10 @@ class Scene(Render):
         """
             Returns the meshes for all actors.
         """
-        if not self.jupyter:
+        if not self.backend:
             return [a.mesh for a in self.actors + self.labels]
         else:
-            return list(
-                set([a.mesh for a in self.actors if not a.is_text])
-            )  # pragma: no cover
+            return [a.mesh for a in self.actors if not a.is_text]
 
     @property
     def clean_actors(self):

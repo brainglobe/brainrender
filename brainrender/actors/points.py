@@ -63,7 +63,7 @@ class PointsBase:
             return self._from_numpy(np.load(path),)
         else:  # pragma: no cover
             raise NotImplementedError(  # pragma: no cover
-                f"Add points from file only works with numpy file for now, now {path.suffix}."  # pragma: no cover
+                f"Add points from file only works with numpy file for now, not {path.suffix}."  # pragma: no cover
                 + "If youd like more formats supported open an issue on Github!"  # pragma: no cover
             )  # pragma: no cover
 
