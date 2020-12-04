@@ -7,7 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Plane, Text2D
+from vedo import Mesh, Plane, Text2D, Assembly
 from vedo import settings as vedo_settings
 import pyinspect as pi
 from rich import print
@@ -66,7 +66,9 @@ class Scene(Render):
             "root",
             alpha=root_alpha,
             color=settings.ROOT_COLOR,
-            silhouette=True if root else False,
+            silhouette=True
+            if root and settings.SHADER_STYLE == "cartoon"
+            else False,
         )
         self.atlas.root = self.root  # give atlas access to root
         self._root_mesh = self.root.mesh.clone()
@@ -134,7 +136,7 @@ class Scene(Render):
             if item is None:
                 continue
 
-            if isinstance(item, Mesh):
+            if isinstance(item, (Mesh, Assembly)):
                 actors.append(Actor(item, name=name, br_class=_class))
 
             elif pi.utils._class_name(item) == "vtkCornerAnnotation":
@@ -195,7 +197,7 @@ class Scene(Render):
         return matches
 
     def add_brain_region(
-        self, *regions, alpha=1, color=None, silhouette=True, hemisphere="both"
+        self, *regions, alpha=1, color=None, silhouette=None, hemisphere="both"
     ):
         """
             Dedicated method to add brain regions to render
@@ -210,6 +212,9 @@ class Scene(Render):
                 - if "left"/"right" only the corresponding half
                     of the mesh is returned
         """
+        silhouette = (
+            silhouette or True if settings.SHADER_STYLE == "cartoon" else False
+        )
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
