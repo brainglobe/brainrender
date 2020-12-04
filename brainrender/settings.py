@@ -5,6 +5,7 @@ from vedo import settings as vsettings
 vsettings.pointSmoothing = False
 vsettings.lineSmoothing = False
 vsettings.polygonSmoothing = False
+vsettings.useDepthPeeling = True
 
 
 # For transparent background with screenshots
