@@ -1,6 +1,9 @@
 import vedo
 from functools import update_wrapper, partial
 from brainrender import settings
+from rich import print
+from rich.syntax import Syntax
+from myterial import orange_dark, salmon
 
 
 class JupyterMixIn:  # pragma: no cover
@@ -34,10 +37,13 @@ class not_on_jupyter:  # pragma: no cover
 
     def __call__(self, obj, *args, **kwargs):  # pragma: no cover
         backend = JupyterMixIn().backend
-        if not backend or backend == "itkwidgets":
+        if not backend:
             return self.func(obj, *args, **kwargs)
         else:
             print(
-                f"Cannot run function {self.func.__name__} in a jupyter notebook"
+                f"[{orange_dark}]Cannot run function [bold {salmon}]{self.func.__name__}[/ bold {salmon}] in a jupyter notebook",
+                f"[{orange_dark}]Try setting the correct backend before creating your scene:\n",
+                Syntax("from vedo import embedWindow", lexer_name="python"),
+                Syntax("embedWindow(None)", lexer_name="python"),
             )
             return None

@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime
 from rich import print
 from pathlib import Path
-from myterial import orange, amber, deep_purple_light
+from myterial import orange, amber, deep_purple_light, teal
 from rich.syntax import Syntax
 
 from brainrender import settings
@@ -191,14 +191,14 @@ class Render:
             # Remove silhouettes
             self.remove(*self.get_actors(br_class="silhouette"))
             print(
-                "Your scene is ready for rendering, use:\n",
+                f"[{teal}]Your scene is ready for rendering, use:\n",
                 Syntax("from vedo import show", lexer_name="python"),
                 Syntax("vedo.show(*scene.renderables)", lexer_name="python"),
                 sep="\n",
             )
         else:  # pragma: no cover
             print(
-                "Your scene is ready for rendering, use:\n",
+                f"[{teal}]Your scene is ready for rendering, use:\n",
                 Syntax("from itkwidgets import view", lexer_name="python"),
                 Syntax(
                     "view(scene.plotter.show(*scene.renderables))",

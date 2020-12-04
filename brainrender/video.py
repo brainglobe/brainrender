@@ -3,11 +3,12 @@ from rich.progress import track
 from rich import print
 import os
 import numpy as np
-from myterial import amber_light, orange, salmon
+from myterial import amber, orange, salmon
 
 from brainrender.camera import check_camera_param, get_camera_params
 from brainrender._video import Video
 import brainrender as br
+from brainrender._jupyter import not_on_jupyter
 
 
 class VideoMaker:
@@ -94,9 +95,10 @@ class VideoMaker:
         Path(temp_name + ".mp4").unlink()
 
         print(
-            f"[{amber_light}]Saved compressed video at: [{orange} bold]{self.save_fld}/{self.save_name}.{self.video_format}"
+            f"[{amber}]Saved compressed video at: [{orange} bold]{self.save_fld}/{self.save_name}.{self.video_format}"
         )
 
+    @not_on_jupyter
     def make_video(
         self, *args, duration=10, fps=30, render_kwargs={}, **kwargs
     ):
@@ -116,7 +118,7 @@ class VideoMaker:
         # cd to folder where the video will be saved
         curdir = os.getcwd()
         os.chdir(self.save_fld)
-        print(f"[{amber_light}]Saving video in [{orange}]{self.save_fld}")
+        print(f"[{amber}]Saving video in [{orange}]{self.save_fld}")
 
         # Create video
         video = Video(
@@ -139,7 +141,7 @@ class VideoMaker:
                 f"[{orange} bold]ffmpeg returned an error while trying to save video with command:\n    [{salmon}]{command}"
             )
         else:
-            print(f"[{amber_light}]Saved video at: [{orange} bold]{spath}")
+            print(f"[{amber}]Saved video at: [{orange} bold]{spath}")
 
         # finish up
         br.settings.OFFSCREEN = _off
