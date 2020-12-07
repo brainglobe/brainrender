@@ -24,7 +24,7 @@ requirements = [
 
 setup(
     name="brainrender",
-    version="2.0.0.3rc",
+    version="2.0.0.5rc",
     description="Visualisation and exploration of brain atlases and other anatomical data",
     long_description=long_description,
     long_description_content_type="text/markdown",
