@@ -126,7 +126,7 @@ class Actor(object):
             return getattr(self.__dict__["mesh"], attr)
         else:  # pragma: no cover
             raise AttributeError(
-                f"{self} doesn not have attribute {attr}"
+                f"Actor doesn not have attribute {attr}"
             )  # pragma: no cover
 
     def __repr__(self):  # pragma: no cover
