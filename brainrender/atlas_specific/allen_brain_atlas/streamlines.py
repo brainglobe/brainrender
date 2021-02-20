@@ -100,6 +100,8 @@ def get_streamlines_for_region(region, force_download=False):
     """
     # Get experiments whose injections were targeted to the region
     region_experiments = experiments_source_search(region)
+    if region_experiments is None:
+        return None
 
     return get_streamlines_data(
         region_experiments.id.values, force_download=force_download

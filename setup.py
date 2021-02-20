@@ -49,6 +49,8 @@ setup(
             "pytest-sugar",
             "coveralls",
             "coverage<=4.5.4",
+            "black",
+            "flake8",
             "pre-commit",
             "opencv-python",
             "jupyter",
