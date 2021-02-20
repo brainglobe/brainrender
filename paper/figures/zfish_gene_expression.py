@@ -1,16 +1,18 @@
-from brainrender import Scene
-from brainrender.actors import Volume
 from rich import print
 import sys
+from pathlib import Path
 
-sys.path.append("./")
-from scripts.settings import INSET
-
+from brainrender import Scene
+from brainrender.actors import Volume
 from myterial import purple_dark as gene2_color
 from myterial import purple_light as gene1_color
 
+sys.path.append("./")
+from paper.figures import INSET
 
-print("[bold red]Running: ", __name__)
+
+print("[bold red]Running: ", Path(__file__).name)
+
 
 """
     Data downloaded from: https://fishatlas.neuro.mpg.de/lines/
@@ -19,7 +21,7 @@ print("[bold red]Running: ", __name__)
     data/T_AVG_brn3c_GFP.obj
     data/T_AVG_nk1688CGt_GFP.obj
 
-    converted to mesh with
+    converted from volumetric data to mesh with
     ```python
 
         from brainio import brainio
@@ -42,10 +44,10 @@ print("[bold red]Running: ", __name__)
         write(mesh, 'data/T_AVG_Chat_GFP.obj')
     ```
 """
-
+# shift parameters to adjust meshes position
 SHIFT = [-20, 15, 30]  # fine tune pos
 
-
+# camera parameters
 cam = {
     "pos": (-835, -1346, 1479),
     "viewup": (0, -1, 0),
@@ -54,20 +56,23 @@ cam = {
     "distance": 2660,
 }
 
-
+# create scene
 scene = Scene(
-    atlas_name="mpin_zfish_1um", inset=INSET, screenshots_folder="figures"
+    atlas_name="mpin_zfish_1um",
+    inset=INSET,
+    screenshots_folder="paper/screenshots",
 )
 scene.root.alpha(0.2)
 
-m = scene.add("data/T_AVG_nk1688CGt_GFP.obj", color=gene1_color, alpha=0)
-m2 = scene.add("data/T_AVG_brn3c_GFP.obj", color=gene2_color, alpha=0)
+# add custom meshes from file, but don't show them (alpha=0)
+m = scene.add("paper/data/T_AVG_nk1688CGt_GFP.obj", color=gene1_color, alpha=0)
+m2 = scene.add("paper/data/T_AVG_brn3c_GFP.obj", color=gene2_color, alpha=0)
 
-
+# adjust meshes position
 for mesh in (m, m2):
     mesh.mesh.addPos(dp_x=SHIFT)
-#     scene.add_silhouette(mesh, lw=1)
 
+# convert meshes to volumetric data showing gene expression density
 vol1 = Volume(m.density(), as_surface=True, min_value=20000, cmap="Reds")
 vol1.lw(1)
 scene.add(vol1)
@@ -77,7 +82,6 @@ vol2 = Volume(m2.density(), as_surface=True, min_value=600, cmap="Blues")
 vol2.lw(1)
 scene.add(vol2)
 
-# scene.slice('horizontal', actors=scene.root)
-
+# render
 scene.render(camera=cam, zoom=2.5)
 scene.screenshot(name="zfish_gene_expression")

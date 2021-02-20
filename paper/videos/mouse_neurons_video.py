@@ -1,14 +1,15 @@
+from rich import print
+import sys
+from pathlib import Path
+
 from brainrender import Scene, Animation
 from morphapi.api.mouselight import MouseLightAPI
 from brainrender.actors import make_neurons
 
-import sys
-
 sys.path.append("./")
-from settings import INSET, SILHOUETTE
+from paper.figures import INSET, SILHOUETTE
 
-from rich import print
-
+# define three camera positions
 cam0 = {
     "pos": (-27734, -17206, 30307),
     "focalPoint": (5703, 3283, -3835),
@@ -32,30 +33,16 @@ cam2 = {
     "clippingRange": (23584, 51780),
 }
 
-print("[bold red]Running: ", __name__)
+print("[bold red]Running: ", Path(__file__).name)
 
-# ----------------------------------- Scene ---------------------------------- #
 
-scene = Scene(inset=INSET, screenshots_folder="figures")
-scene.root._needs_silhouette = SILHOUETTE
-mlapi = MouseLightAPI()
-neurons_metadata = mlapi.fetch_neurons_metadata(
-    filterby="soma", filter_regions=["MOs"]
-)
-
-to_add = [neurons_metadata[47], neurons_metadata[51]]
-neurons = mlapi.download_neurons(to_add, soma_radius=500)
-neurons = scene.add(*make_neurons(*neurons, neurite_radius=12))
-
-# root_box(scene)
-th = scene.add_brain_region("TH", alpha=0.3, silhouette=SILHOUETTE)
-mos = scene.add_brain_region("MOs", alpha=0.3, silhouette=SILHOUETTE)
-scm = scene.add_brain_region("SCm", alpha=0.3, silhouette=SILHOUETTE)
-# scene.slice("sagittal", actors=[scene.root, th, mos])  #  c + neurons)
+# -------------------------- define frames callback -------------------------- #
 
 
 def slc(scene, *args):
-    scene.content
+    """
+    Slices some scene actors and makes sure silhouettes are updated
+    """
     sils = scene.get_actors(br_class="silhouette")
     scene.remove(*sils)
 
@@ -72,7 +59,25 @@ def slc(scene, *args):
     sc._needs_silhouette = True
 
 
-# scene.render(interactive=True, camera=cam1, zoom=2)
+# ----------------------------------- Scene ---------------------------------- #
+
+scene = Scene(inset=INSET, screenshots_folder="paper/screenshots")
+scene.root._needs_silhouette = SILHOUETTE
+
+# add neruons
+mlapi = MouseLightAPI()
+neurons_metadata = mlapi.fetch_neurons_metadata(
+    filterby="soma", filter_regions=["MOs"]
+)
+
+to_add = [neurons_metadata[47], neurons_metadata[51]]
+neurons = mlapi.download_neurons(to_add, soma_radius=500)
+neurons = scene.add(*make_neurons(*neurons, neurite_radius=12))
+
+# add brain regions
+th = scene.add_brain_region("TH", alpha=0.3, silhouette=SILHOUETTE)
+mos = scene.add_brain_region("MOs", alpha=0.3, silhouette=SILHOUETTE)
+scm = scene.add_brain_region("SCm", alpha=0.3, silhouette=SILHOUETTE)
 
 # ----------------------------- create animation ----------------------------- #
 
@@ -83,7 +88,6 @@ anim.add_keyframe(0, camera=cam0, zoom=1.8)
 anim.add_keyframe(5, camera=cam2, zoom=1.8, callback=slc)
 anim.add_keyframe(10, camera=cam1, zoom=3.5)
 anim.add_keyframe(15, camera=cam2, zoom=4)
-
 
 # Make videos
 anim.make_video(duration=15, fps=30)

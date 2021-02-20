@@ -1,20 +1,21 @@
-from brainrender import Scene
-from brainrender.actors import Points
 import h5py
 import pandas as pd
 import sys
-
+from rich import print
+from pathlib import Path
 from myterial import salmon as c1
 from myterial import orange_darker as c2
 from myterial import indigo as c3
 
+from brainrender import Scene
+from brainrender.actors import Points
+
 sys.path.append("./")
-from scripts.settings import INSET
-from rich import print
+from paper.figures import INSET
 
-print("[bold red]Running: ", __name__)
+print("[bold red]Running: ", Path(__file__).name)
 
-
+# camera parameters
 cam = {
     "pos": (-890, -1818, 979),
     "viewup": (1, -1, -1),
@@ -23,16 +24,19 @@ cam = {
     "distance": 2759,
 }
 
-
-cluster_data = h5py.File("data/zfish_rois_clusters.h5", "r")
+# load cluster data and get cell coordinates
+cluster_data = h5py.File("paper/data/zfish_rois_clusters.h5", "r")
 cluster_ids = cluster_data["cluster_ids"][:]
 roi_coords = cluster_data["coords"][:]
 
-# -------------------------------- make scene -------------------------------- #
+# create scene
 scene = Scene(
-    inset=INSET, screenshots_folder="figures", atlas_name="mpin_zfish_1um"
+    inset=INSET,
+    screenshots_folder="paper/screenshots",
+    atlas_name="mpin_zfish_1um",
 )
 
+# add cells colored by cluster
 colors = [c1, c2, c3]
 for i, col in enumerate(colors):
     rois_in_cluster = roi_coords[cluster_ids == i, :]
@@ -41,6 +45,6 @@ for i, col in enumerate(colors):
     pts = scene.add(Points(coords, colors=col, radius=2, alpha=1))
     scene.add_silhouette(pts, lw=1)
 
-
+# render
 scene.render(camera=cam, zoom=2.5)
 scene.screenshot(name="zfish_functional_clusters")

@@ -1,21 +1,19 @@
-from brainrender import Scene
-from brainrender.actors import Points
 from oneibl.onelight import ONE
 from PIL import Image, ImageOps
-
+from myterial import blue_grey, blue_grey_dark, salmon_light, salmon_darker
+from rich import print
 import sys
+from pathlib import Path
+
+from brainrender import Scene
+from brainrender.actors import Points
 
 sys.path.append("./")
-from scripts.settings import (
-    INSET,
-    SILHOUETTE,
-)
-from myterial import blue_grey, blue_grey_dark, salmon_light, salmon_darker
+from paper.figures import INSET, SILHOUETTE
 
-from rich import print
+print("[bold red]Running: ", Path(__file__).name)
 
-print("[bold red]Running: ", __name__)
-
+# camera settings
 cam = {
     "pos": (-16170, -7127, 31776),
     "viewup": (0, -1, 0),
@@ -24,22 +22,25 @@ cam = {
     "distance": 43901,
 }
 
-
-scene = Scene(inset=INSET, screenshots_folder="figures")
+# create scene and edit root
+scene = Scene(inset=INSET, screenshots_folder="paper/screenshots")
 scene.root._needs_silhouette = True
 scene.root._silhouette_kwargs["lw"] = 1
 scene.root.alpha(0.2)
 
+# download probe data from ONE
 one = ONE()
 one.set_figshare_url("https://figshare.com/articles/steinmetz/9974357")
 
 # select sessions with trials
 sessions = one.search(["trials"])
 
+# get probe locations
 probes_locs = []
 for sess in sessions:
     probes_locs.append(one.load_dataset(sess, "channels.brainLocation"))
 
+# get single probe tracks
 for locs in probes_locs:
     k = int(len(locs) / 374.0)
 
@@ -47,6 +48,7 @@ for locs in probes_locs:
         points = locs[i * 374 : (i + 1) * 374]
         regs = points.allen_ontology.values
 
+        # color based on if probes go through selected regions
         if "LGd" in regs and ("VISa" in regs or "VISp" in regs):
             color = salmon_darker
             alpha = 1
@@ -58,6 +60,7 @@ for locs in probes_locs:
         else:
             continue
 
+        # render channels as points
         spheres = Points(
             points[["ccf_ap", "ccf_dv", "ccf_lr"]].values,
             colors=color,
@@ -92,12 +95,12 @@ th = scene.add_brain_region(
 th.wireframe()
 scene.add_silhouette(lgd, visp, lw=2)
 
-
+# render
 scene.render(zoom=3.5, camera=cam)
 scene.screenshot(name="probes")
 scene.close()
 
 # Mirror image
-im = Image.open("figures/probes.png")
+im = Image.open("paper/screenshots/probes.png")
 im_mirror = ImageOps.mirror(im)
-im_mirror.save("figures/probes.png")
+im_mirror.save("paper/screenshots/probes.png")

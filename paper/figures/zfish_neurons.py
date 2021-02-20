@@ -1,20 +1,24 @@
-from brainrender import Scene
-from brainrender.actors import Point
-from morphapi.api.mpin_celldb import MpinMorphologyAPI
 from rich.progress import track
 from rich import print
 from random import choice
-
 from myterial import salmon as c1
 from myterial import blue_light as c2
-
 import sys
+from pathlib import Path
+
+from brainrender import Scene
+from brainrender.actors import Point
+from morphapi.api.mpin_celldb import MpinMorphologyAPI
 
 sys.path.append("./")
-from scripts.settings import INSET
+from paper.figures import INSET
 
+print("[bold red]Running: ", Path(__file__).name)
+
+# number of neurons to show, -1: all
 N = -1
 
+# camera parameters
 cam = {
     "pos": (-890, -1818, 979),
     "viewup": (1, -1, -1),
@@ -24,25 +28,26 @@ cam = {
 }
 
 
-print("[bold red]Running: ", __name__)
-
-# -------------------------------- make scene -------------------------------- #
-
+# create scene
 scene = Scene(
-    inset=INSET, screenshots_folder="figures", atlas_name="mpin_zfish_1um"
+    inset=INSET,
+    screenshots_folder="paper/screenshots",
+    atlas_name="mpin_zfish_1um",
 )
 scene.root.alpha(0.2)
 
-# -------------------------------- add neurons ------------------------------- #
-
+# get neurons data
 api = MpinMorphologyAPI()
 neurons_ids = api.get_neurons_by_structure(837)
 neurons = api.load_neurons(neurons_ids)
+
+# create neurons meshes
 neurons = [
     neuron.create_mesh(soma_radius=0.75, neurite_radius=1)
     for neuron in neurons
 ][:N]
 
+# color neurons parts and add to scene
 for (neu_dict, neu) in track(neurons, total=N):
     col = choice((c1, c2))
     neuron = scene.add(neu_dict["axon"], alpha=1, color=col)
@@ -52,12 +57,7 @@ for (neu_dict, neu) in track(neurons, total=N):
     )
     scene.add_silhouette(soma)
 
-# ---------------------------------- render ---------------------------------- #
-
-# scene.slice(
-#     "sagittal", actors=scene.root,
-# )
-
+# render
 scene.render(zoom=1.7, camera=cam)
 scene.screenshot(name="zfish_neurons")
 scene.close()

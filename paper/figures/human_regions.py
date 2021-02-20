@@ -1,18 +1,20 @@
-from brainrender import Scene
 from PIL import Image, ImageOps
 import sys
-
-sys.path.append("./")
-from scripts.settings import INSET, SILHOUETTE
 from myterial import salmon_dark as br1
 from myterial import amber as br2
 from myterial import orange_dark as br3
-
 from rich import print
+from pathlib import Path
 
-print("[bold red]Running: ", __name__)
+from brainrender import Scene
+
+sys.path.append("./")
+from paper.figures import INSET
+
+print("[bold red]Running: ", Path(__file__).name)
 
 
+# camera parameters
 cam = {
     "pos": (232278, 99919, -189689),
     "viewup": (0, -1, 0),
@@ -21,19 +23,21 @@ cam = {
     "distance": 949,
 }
 
-
+# crate a scene with the human atlas
 scene = Scene(
     inset=INSET,
-    screenshots_folder="figures",
+    screenshots_folder="paper/screenshots",
     atlas_name="allen_human_500um",
 )
-scene.root._needs_silhouette = SILHOUETTE
+scene.root._needs_silhouette = True
 
-for main in ("TemL",):  # "ParL", "OccL",
+# get the subregions of TemL from atlas hierarchy
+for main in ("TemL",):
     subs = scene.atlas.get_structure_descendants(main)
     for sub in subs:
-        reg = scene.add_brain_region(sub, silhouette=SILHOUETTE, color=br1)
+        reg = scene.add_brain_region(sub, silhouette=True, color=br1)
 
+# add more brain regions
 for reg, col in zip(
     (
         "PrCG",
@@ -41,24 +45,12 @@ for reg, col in zip(
     ),
     (br2, br3),
 ):
-    reg = scene.add_brain_region(reg, silhouette=SILHOUETTE, color=col)
+    reg = scene.add_brain_region(reg, silhouette=True, color=col)
 
-print(reg.bounds())
-bounds = scene.root.bounds()
-print(bounds)
-print(
-    f"""
-Root dimensions:
-    {round((bounds[1]-bounds[0])/1000, 2)} mm
-    {round((bounds[3]-bounds[2])/1000, 2)} mm
-    {round((bounds[5]-bounds[4])/1000, 2)} mm
-"""
-)
-
+# render scene
 scene.render(camera=cam, zoom=1.65)
 scene.screenshot(name="human_regions")
 scene.close()
-
 
 # Mirror image
 im = Image.open("figures/human_regions.png")

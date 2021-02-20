@@ -2,7 +2,7 @@ from brainrender import settings
 from vedo import Box
 
 # set brainrender settings
-settings.SHOW_AXES = True
+settings.SHOW_AXES = False
 settings.LW = 2
 settings.WHOLE_SCREEN = True
 settings.SHADER_STYLE = "cartoon"

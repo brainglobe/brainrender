@@ -1,19 +1,21 @@
-from brainrender import Scene
-from brainrender.actors import Points  # , PointsDensity
-import pandas as pd
+import numpy as np
 import sys
-
-sys.path.append("./")
-
-from scripts.settings import INSET
 from rich import print
-
+from pathlib import Path
 from myterial import blue_grey as thcol
 from myterial import salmon
 
 
-print("[bold red]Running: ", __name__)
+from brainrender import Scene
+from brainrender.actors import Points
 
+
+sys.path.append("./")
+from paper.figures import INSET
+
+print("[bold red]Running: ", Path(__file__).name)
+
+# define camera parmeters
 cam = {
     "pos": (5792, 431, 36893),
     "viewup": (0, -1, 0),
@@ -23,25 +25,21 @@ cam = {
 }
 
 
-# -------------------------------- make scene -------------------------------- #
-
-scene = Scene(inset=INSET, screenshots_folder="figures")
-
-
-coords = pd.read_hdf("data/cell-detect-paper-cells.h5")
-cells = scene.add(
-    Points(coords[["x", "y", "z"]].values, radius=30, colors=salmon)
-)
-scene.add_silhouette(cells, lw=1)
-
-
+# make scene
+scene = Scene(inset=INSET, screenshots_folder="paper/screenshots")
 scene.add_brain_region("TH", alpha=0.2, silhouette=False, color=thcol)
 
+# load cell coordinates and add as a Points actor
+coords = np.load("paper/data/cell-detect-paper-cells.npy")
+cells = scene.add(Points(coords, radius=30, colors=salmon))
 
-# ------------------------------ cut and render ------------------------------ #
+# add a silhouette around the cells
+scene.add_silhouette(cells, lw=1)
+
+# slice scene with a sagittal plane
 scene.slice("sagittal")
 
-
+# render and save screenshotq
 scene.render(camera="sagittal", zoom=2.6)
 scene.screenshot(name="cellfinder_cells")
 scene.close()
