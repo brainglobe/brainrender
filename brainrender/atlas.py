@@ -96,7 +96,7 @@ class Atlas(BrainGlobeAtlas):
             norm = norm or self.space.plane_normals[plane]
         except KeyError:  # pragma: no cover
             raise ValueError(  # pragma: no cover
-                f"Could not find normals for plane {plane}. Atlas space provides these norma ls: {self.space.plane_normals}"  # pragma: no cover
+                f"Could not find normals for plane {plane}. Atlas space provides these normals: {self.space.plane_normals}"  # pragma: no cover
             )
 
             # Get plane width and height

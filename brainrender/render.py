@@ -21,7 +21,6 @@ mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
 
 
 class Render:
-    transform_applied = False
     is_rendered = False
     plotter = None
 
@@ -96,7 +95,6 @@ class Render:
 
             Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
-        self.transform_applied = True
 
         # Flip every actor's orientation
         for actor in self.clean_actors + self.labels:
@@ -217,7 +215,7 @@ class Render:
 
             :param savepath: str, Path to a .html file to save the export
         """
-        _jupiter = self.backend
+        _backend = self.backend
 
         if not self.is_rendered:
             self.render(interactive=False)
@@ -244,7 +242,7 @@ class Render:
 
         # Reset settings
         vsettings.notebookBackend = None
-        self.backend = _jupiter
+        self.backend = _backend
 
         return str(path)
 

@@ -192,7 +192,7 @@ class Scene(JupyterMixIn, Render):
         """
             Return's the scene's actors that match some search criteria.
 
-            :param name: str or list of str, actors' names
+            :param name: strm int or list of str/int, actors' names
             :param br_class: str or list of str, actors br classes
         """
         matches = self.actors
@@ -281,13 +281,6 @@ class Scene(JupyterMixIn, Render):
             :param close_actors: If true the openings in the actors meshes
                 caused by teh cut will be closed.
         """
-        if self.transform_applied:
-            print(
-                f"[b {salmon}]Warning: [/b {salmon}][{amber}]you're attempting to cut actors with a plane "
-                + "after having rendered the scene, this might give unpredictable results."
-                + "\nIt's advised to perform all cuts before the first call to `render`"
-            )
-
         if isinstance(plane, str):
             plane = self.atlas.get_plane(plane=plane)
 
