@@ -157,7 +157,6 @@ class Scene(JupyterMixIn, Render):
                 actors.append(
                     Volume(item, name=name, br_class=_class, **kwargs)
                 )
-
             elif isinstance(item, Actor):
                 actors.append(item)
 

@@ -40,6 +40,6 @@ scene.add_silhouette(cells, lw=1)
 scene.slice("sagittal")
 
 # render and save screenshotq
-scene.render(camera="sagittal", zoom=2.6)
+scene.render(interactive=True, camera="sagittal", zoom=2.6)
 scene.screenshot(name="cellfinder_cells")
 scene.close()
