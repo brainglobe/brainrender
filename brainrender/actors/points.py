@@ -12,13 +12,13 @@ class Point(Actor):
         self, pos, radius=100, color="blackboard", alpha=1, res=25, name=None
     ):
         """
-            Creates an actor representing a single point
-            :param pos: list or np.ndarray with coordinates
-            :param radius: float
-            :param color: str,
-            :param alpha: float
-            :param res: int, resolution of mesh
-            :param name: str, actor name
+        Creates an actor representing a single point
+        :param pos: list or np.ndarray with coordinates
+        :param radius: float
+        :param color: str,
+        :param alpha: float
+        :param res: int, resolution of mesh
+        :param name: str, actor name
         """
         mesh = Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res)
         name = name or "Point"
@@ -26,15 +26,17 @@ class Point(Actor):
 
 
 class PointsBase:
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         """
-            Base class with functinality to load from file.
+        Base class with functinality to load from file.
         """
         return
 
     def _from_numpy(self, data):
         """
-            Creates the mesh
+        Creates the mesh
         """
         N = len(data)
         if not isinstance(self.colors, str):
@@ -50,9 +52,9 @@ class PointsBase:
         return mesh
 
     def _from_file(self, data, colors="salmon", alpha=1):
-        """ 
-            Loads points coordinates from a numpy file
-            before creating the mesh.
+        """
+        Loads points coordinates from a numpy file
+        before creating the mesh.
         """
         path = Path(data)
         if not path.exists():
@@ -60,7 +62,9 @@ class PointsBase:
 
         if path.suffix == ".npy":
             self.name = self.name or path.name
-            return self._from_numpy(np.load(path),)
+            return self._from_numpy(
+                np.load(path),
+            )
         else:  # pragma: no cover
             raise NotImplementedError(  # pragma: no cover
                 f"Add points from file only works with numpy file for now, not {path.suffix}."  # pragma: no cover
@@ -71,14 +75,14 @@ class PointsBase:
 class Points(PointsBase, Actor):
     def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20):
         """
-            Creates an actor representing multiple points (more efficient than 
-            creating many Point instances).
+        Creates an actor representing multiple points (more efficient than
+        creating many Point instances).
 
-            :param data: np.ndarray, Nx3 array or path to .npy file with coords data
-            :param radius: float
-            :param color: str, or list of str with color names or hex codes
-            :param alpha: float
-            :param name: str, actor name
+        :param data: np.ndarray, Nx3 array or path to .npy file with coords data
+        :param radius: float
+        :param color: str, or list of str with color names or hex codes
+        :param alpha: float
+        :param name: str, actor name
         """
         PointsBase.__init__(self)
 
@@ -104,19 +108,19 @@ class PointsDensity(Actor):
         self, data, name=None, dims=(40, 40, 40), radius=None, **kwargs
     ):
         """
-            Creates a Volume actor showing the 3d density of a set 
-            of points.
+        Creates a Volume actor showing the 3d density of a set
+        of points.
 
-            :param data: np.ndarray, Nx3 array with cell coordinates
+        :param data: np.ndarray, Nx3 array with cell coordinates
 
 
-            from vedo:
-                Generate a density field from a point cloud. Input can also be a set of 3D coordinates.
-                Output is a ``Volume``.
-                The local neighborhood is specified as the `radius` around each sample position (each voxel).
-                The density is expressed as the number of counts in the radius search.
+        from vedo:
+            Generate a density field from a point cloud. Input can also be a set of 3D coordinates.
+            Output is a ``Volume``.
+            The local neighborhood is specified as the `radius` around each sample position (each voxel).
+            The density is expressed as the number of counts in the radius search.
 
-                :param int,list dims: numer of voxels in x, y and z of the output Volume.
+            :param int,list dims: numer of voxels in x, y and z of the output Volume.
 
         """
         volume = vPoints(data).density(

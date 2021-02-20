@@ -3,9 +3,9 @@ import brainrender
 
 class CameraControl:
     """
-        Collection of functions to implement the actions of buttons
-        aimed at controlling the camera of the brainrender Scene
-        in the GUI.
+    Collection of functions to implement the actions of buttons
+    aimed at controlling the camera of the brainrender Scene
+    in the GUI.
     """
 
     def __init__(self):

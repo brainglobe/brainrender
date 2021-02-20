@@ -12,17 +12,17 @@ from brainrender.gui.style import palette
 class ActorsControl:
     def __init__(self):
         """
-            Collection of functions to control actors properties 
-            and related widget in the GUI
+        Collection of functions to control actors properties
+        and related widget in the GUI
         """
         return
 
     def update_actor_properties(self):
         """
-            Called when the text boxes for showing/editing
-            the selected actor's alpha/color are edited.
-            This function checks that the values makes sense
-            and update the atuple of the selected actor.
+        Called when the text boxes for showing/editing
+        the selected actor's alpha/color are edited.
+        This function checks that the values makes sense
+        and update the atuple of the selected actor.
         """
         # Get currently selected actor
         aname = self.actors_list.currentItem().text()
@@ -53,9 +53,9 @@ class ActorsControl:
 
     def actor_list_double_clicked(self, listitem):
         """
-            When an item in the actors list is doube clicked
-            it toggles the corresponding actor's visibility
-            and updates the list widget UI
+        When an item in the actors list is doube clicked
+        it toggles the corresponding actor's visibility
+        and updates the list widget UI
         """
         # Get actor
         aname = self.actors_list.currentItem().text()
@@ -88,9 +88,9 @@ class ActorsControl:
 
     def actor_list_clicked(self, index):
         """
-            When an item of the actors list is clicked
-            this function loads it's parameters and updates
-            the text in the alpha/color textboxes. 
+        When an item of the actors list is clicked
+        this function loads it's parameters and updates
+        the text in the alpha/color textboxes.
         """
         # Get actor
         aname = self.actors_list.currentItem().text()

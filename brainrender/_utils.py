@@ -13,14 +13,14 @@ def listdir(fld):
 
 def get_subdirs(folderpath):
     """
-        Returns the subfolders in a given folder
+    Returns the subfolders in a given folder
     """
     return [str(f) for f in Path(folderpath).glob("**/*") if f.is_dir()]
 
 
 def listify(obj):
     """
-        makes sure that the obj is a list
+    makes sure that the obj is a list
     """
     if isinstance(obj, list):
         return obj
@@ -32,9 +32,9 @@ def listify(obj):
 
 def return_list_smart(lst):
     """
-        If the list has length > returns the list
-        if it has length == 1 it returns the element
-        if it has length == 0 it returns None
+    If the list has length > returns the list
+    if it has length == 1 it returns the element
+    if it has length == 0 it returns None
     """
     if len(lst) > 1:
         return lst

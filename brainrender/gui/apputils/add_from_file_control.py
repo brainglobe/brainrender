@@ -13,22 +13,22 @@ from brainrender.actors import Points
 class AddFromFile:
     def __init__(self):
         """
-            Collection of functions to load data from files
-            and add it to the GUI's brainrender Scene.
+        Collection of functions to load data from files
+        and add it to the GUI's brainrender Scene.
         """
         return
 
     def __add_from_file(self, fun, name_from_file=True):
         """
-            General function for selecting, loading
-            and adding to scene a file.
+        General function for selecting, loading
+        and adding to scene a file.
 
-            Arguments:
-            -----------
+        Arguments:
+        -----------
 
-            fun: function. One of Scene's methods used to add the file's
-                    content to the scene.
-            name_from_file: bool, optional. If True the actor's name is the name of the files loaded
+        fun: function. One of Scene's methods used to add the file's
+                content to the scene.
+        name_from_file: bool, optional. If True the actor's name is the name of the files loaded
         """
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
@@ -71,8 +71,8 @@ class AddFromFile:
 
     def add_from_file_object(self):
         """
-            Add to scene from brainrender.stl, .obj and .vtk files.
-            Method of the corresponding button
+        Add to scene from brainrender.stl, .obj and .vtk files.
+        Method of the corresponding button
         """
         self.__add_from_file(self.scene.add)
 
@@ -82,7 +82,7 @@ class AddFromFile:
 
     def add_from_file_cells(self):
         """
-            Add to scene from brainrender.npy files with cell coordinates data.
-            Method of the corresponding button
+        Add to scene from brainrender.npy files with cell coordinates data.
+        Method of the corresponding button
         """
         self.__add_from_file(self._get_cells_mesh)

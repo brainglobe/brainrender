@@ -5,20 +5,20 @@ from brainrender.cameras import cameras
 
 def get_camera(camera):
     """
-        Returns the parameters for a pre-defined camera
+    Returns the parameters for a pre-defined camera
 
-        :param camera: str
+    :param camera: str
     """
     return cameras[camera]
 
 
 def check_camera_param(camera):
     """
-        Check that a dictionary of camera parameters
-        is complete. Must have entries:
-        ["position", "focal", "viewup", "distance", "clipping"]
+    Check that a dictionary of camera parameters
+    is complete. Must have entries:
+    ["position", "focal", "viewup", "distance", "clipping"]
 
-        :param camera: str, dict
+    :param camera: str, dict
     """
     if isinstance(camera, str):
         return get_camera(camera)
@@ -34,9 +34,9 @@ def check_camera_param(camera):
 
 def set_camera_params(camera, params):
     """
-        Set camera parameters
-        :param camera: camera obj
-        :param params: dictionary of camera parameters
+    Set camera parameters
+    :param camera: camera obj
+    :param params: dictionary of camera parameters
     """
     # Apply camera parameters
     camera.SetPosition(params["pos"])
@@ -51,12 +51,12 @@ def set_camera_params(camera, params):
 
 def set_camera(scene, camera):
     """
-        Sets the position of the camera of a brainrender scene.
+    Sets the position of the camera of a brainrender scene.
 
-        :param scene: instance of Scene
-        :param camera: either a string with the name of one of the pre-defined cameras, or
-                        a dictionary of camera parameters. 
-        
+    :param scene: instance of Scene
+    :param camera: either a string with the name of one of the pre-defined cameras, or
+                    a dictionary of camera parameters.
+
     """
     if camera is None:
         return
@@ -77,11 +77,11 @@ def set_camera(scene, camera):
 
 def get_camera_params(scene=None, camera=None):
     """
-        Given an active brainrender scene or a camera, it return
-        the camera parameters. 
+    Given an active brainrender scene or a camera, it return
+    the camera parameters.
 
-        :param scene: instance of Scene whose camera is to be used
-        :param camera: camera obj
+    :param scene: instance of Scene whose camera is to be used
+    :param camera: camera obj
     """
 
     def clean(val):

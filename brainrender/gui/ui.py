@@ -51,7 +51,7 @@ class UI(QMainWindow):
         self.setWindowTitle("BRAINGLOBE - brainrender GUI")
 
         logo_path = resource_filename(
-            "brainrender.gui.icons", f"BG_logo_mini.svg"
+            "brainrender.gui.icons", "BG_logo_mini.svg"
         )
         self.setWindowIcon(QtGui.QIcon(logo_path))
 
@@ -67,8 +67,8 @@ class UI(QMainWindow):
 
     def get_icons(self):
         """
-            Gets the correct path to the icons
-            depending on the theme chosen
+        Gets the correct path to the icons
+        depending on the theme chosen
         """
         self.palette["branch_closed_img"] = resource_filename(
             "brainrender.gui.icons", f"right_{self.theme}.svg"
@@ -85,9 +85,9 @@ class UI(QMainWindow):
 
     def make_left_navbar(self):
         """
-            Creates the structures tree hierarchy widget and populates 
-            it with structures names from the brainglobe-api's Atlas.hierarchy
-            tree view.
+        Creates the structures tree hierarchy widget and populates
+        it with structures names from the brainglobe-api's Atlas.hierarchy
+        tree view.
         """
         # Create QTree widget
         treeView = QTreeView()
@@ -144,7 +144,7 @@ class UI(QMainWindow):
 
     def make_right_navbar(self):
         """
-            Creates the widgets in the right navbar.
+        Creates the widgets in the right navbar.
         """
         # make layout
         layout = QVBoxLayout()
@@ -212,8 +212,8 @@ class UI(QMainWindow):
 
     def make_central_column(self):
         """
-            Creates vtkWidget for the vedo plotter and a few
-            useful buttons, for the central part of the GUI
+        Creates vtkWidget for the vedo plotter and a few
+        useful buttons, for the central part of the GUI
         """
         # make a vtk widget for the vedo plotter
         frame = QFrame()
@@ -261,7 +261,7 @@ class UI(QMainWindow):
 
     def initUI(self):
         """
-            Define UI elements of the app's main window
+        Define UI elements of the app's main window
         """
         # Create navbars
         self.treeView = self.make_left_navbar()

@@ -144,8 +144,8 @@ QTreeView::branch:open:has-children:!has-siblings,QTreeView::branch:open:has-chi
 
 def update_css(css, palette):
     """
-        Updates a CSS string with values
-        from the palette chosen.
+    Updates a CSS string with values
+    from the palette chosen.
     """
 
     def path(raw_path):

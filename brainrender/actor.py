@@ -21,16 +21,16 @@ def make_actor_label(
     zoffset=0,
 ):
     """
-        Adds a 2D text ancored to a point on the actor's mesh
-        to label what the actor is
+    Adds a 2D text ancored to a point on the actor's mesh
+    to label what the actor is
 
-        :param kwargs: key word arguments can be passed to determine 
-                text appearance and location:
-                    - size: int, text size. Default 300
-                    - color: str, text color. A list of colors can be passed
-                            if None the actor's color is used. Default None.
-                    - xoffset, yoffset, zoffset: integers that shift the label position
-                    - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide. 
+    :param kwargs: key word arguments can be passed to determine
+            text appearance and location:
+                - size: int, text size. Default 300
+                - color: str, text color. A list of colors can be passed
+                        if None the actor's color is used. Default None.
+                - xoffset, yoffset, zoffset: integers that shift the label position
+                - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide.
     """
     offset = [-yoffset, -zoffset, xoffset]
     default_offset = np.array([0, -200, 100])
@@ -91,19 +91,19 @@ class Actor(object):
         alpha=None,
     ):
         """
-            Actor class representing anythng shown in a brainrender scene.
-            Methods in brainrender.actors are used to creates actors specific
-            for different data types.
+        Actor class representing anythng shown in a brainrender scene.
+        Methods in brainrender.actors are used to creates actors specific
+        for different data types.
 
-            An actor has a mesh, a name and a brainrender class type.
-            It also has methods to create a silhouette or a label.
+        An actor has a mesh, a name and a brainrender class type.
+        It also has methods to create a silhouette or a label.
 
-            :param mesh: instance of vedo.Mesh
-            :param name: str, actor name
-            :param br_class: str, name of brainrende actors class
-            :param is_text: bool, is it a 2d text or annotation?
-            :param color: str, name or hex code of color to assign to actor's mesh
-            :param alpha: float, transparency to assign to actor's mesh
+        :param mesh: instance of vedo.Mesh
+        :param name: str, actor name
+        :param br_class: str, name of brainrende actors class
+        :param is_text: bool, is it a 2d text or annotation?
+        :param color: str, name or hex code of color to assign to actor's mesh
+        :param alpha: float, transparency to assign to actor's mesh
         """
         self.mesh = mesh
         self.name = name or "Actor"
@@ -117,8 +117,8 @@ class Actor(object):
 
     def __getattr__(self, attr):
         """
-            If an unknown attribute is called, try `self.mesh.attr` 
-            to get the meshe's attribute
+        If an unknown attribute is called, try `self.mesh.attr`
+        to get the meshe's attribute
         """
         if attr == "__rich__":
             return None
@@ -142,26 +142,28 @@ class Actor(object):
     @classmethod
     def make_actor(cls, mesh, name, br_class):
         """
-            Make an actor from a given mesh
+        Make an actor from a given mesh
         """
         return cls(mesh, name=name, br_class=br_class)
 
     def make_label(self, atlas):
         """
-            Create a new Actor with a sphere and a text
-            labelling this actor
+        Create a new Actor with a sphere and a text
+        labelling this actor
         """
         labels = make_actor_label(
             atlas, self, self._label_str, **self._label_kwargs
         )
         self._needs_label = False
 
-        lbls = [Actor.make_actor(l, self.name, "label") for l in labels]
+        lbls = [
+            Actor.make_actor(label, self.name, "label") for label in labels
+        ]
         return lbls
 
     def make_silhouette(self):
         """
-            Create a new silhouette actor outlining this actor
+        Create a new silhouette actor outlining this actor
         """
         lw = self._silhouette_kwargs["lw"]
         color = self._silhouette_kwargs["color"]
@@ -177,10 +179,12 @@ class Actor(object):
 
     def __rich_console__(self, *args):
         """
-            Print some useful characteristics to console.
+        Print some useful characteristics to console.
         """
         rep = pi.Report(
-            title=f"[b]brainrender.Actor: ", color=salmon, accent=orange,
+            title="[b]brainrender.Actor: ",
+            color=salmon,
+            accent=orange,
         )
 
         rep.add(f"[b {orange}]name:[/b {orange}][{amber}] {self.name}")

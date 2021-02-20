@@ -24,13 +24,13 @@ class App(
 
     def __init__(self, *args, atlas_name=None, axes=None, **kwargs):
         """
-            Initialise the qtpy app and the brainrender scene. 
+        Initialise the qtpy app and the brainrender scene.
 
-            Arguments:
-            ----------
+        Arguments:
+        ----------
 
-            atlas_name: str/None. Name of the brainglobe atlas to use
-            axes: bool. If true axes are shown in the brainrender render
+        atlas_name: str/None. Name of the brainglobe atlas to use
+        axes: bool. If true axes are shown in the brainrender render
         """
         # Initialize parent classes
         self.scene = Scene(*args, atlas_name=atlas_name, **kwargs)
@@ -96,9 +96,9 @@ class App(
     # ------------------------------ Toggle treeview ----------------------------- #
     def toggle_treeview(self):
         """
-            Method for the show structures tree button.
-            It toggles the visibility of treeView widget
-            and adjusts the button's text accordingly.
+        Method for the show structures tree button.
+        It toggles the visibility of treeView widget
+        and adjusts the button's text accordingly.
         """
         if not self.treeView.isHidden():
             self.buttons["show_structures_tree"].setText(
@@ -114,9 +114,9 @@ class App(
     # ------------------------------- Initial setup ------------------------------ #
     def setup_plotter(self):
         """
-            Changes the scene's default plotter
-            with one attached to the qtWidget in the 
-            pyqt application. 
+        Changes the scene's default plotter
+        with one attached to the qtWidget in the
+        pyqt application.
         """
         # Get embedded plotter
         new_plotter = Plotter(qtWidget=self.vtkWidget)
@@ -135,11 +135,11 @@ class App(
     # ---------------------------------- Update ---------------------------------- #
     def _update_actors(self):
         """
-            All actors that are part of the scene are stored
-            in a dictionary with key as the actor name and 
-            value as a 4-tuple with (Mesh, is_visible, color, alpha). 
-            `is_visible` is a bool that determines if the 
-            actor should be rendered
+        All actors that are part of the scene are stored
+        in a dictionary with key as the actor name and
+        value as a 4-tuple with (Mesh, is_visible, color, alpha).
+        `is_visible` is a bool that determines if the
+        actor should be rendered
         """
 
         for actor in self.scene.actors:
@@ -157,8 +157,8 @@ class App(
 
     def _update(self):
         """
-            Updates the scene's Plotter to add/remove
-            meshes
+        Updates the scene's Plotter to add/remove
+        meshes
         """
         if self.camera_orientation is not None:
             # set_camera(self.scene, self.camera_orientation)
@@ -198,6 +198,6 @@ class App(
     # ----------------------------------- Close ---------------------------------- #
     def onClose(self):
         """
-            Disable the interactor before closing to prevent it from trying to act on a already deleted items
+        Disable the interactor before closing to prevent it from trying to act on a already deleted items
         """
         self.vtkWidget.close()

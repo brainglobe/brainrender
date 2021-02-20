@@ -83,7 +83,11 @@ def test_scene_render():
     scene.render(
         interactive=False,
         camera=dict(
-            pos=(10705.845660949382, 7435.678067378925, -36936.3695486442,),
+            pos=(
+                10705.845660949382,
+                7435.678067378925,
+                -36936.3695486442,
+            ),
             viewup=(
                 -0.0050579179155257475,
                 -0.9965615097647067,
@@ -103,7 +107,9 @@ def test_scene_slice():
 
     s.slice("frontal")
 
-    ret = s.slice("frontal",)
+    ret = s.slice(
+        "frontal",
+    )
     assert ret is None
 
     s.slice("sagittal", close_actors=True)
@@ -113,7 +119,10 @@ def test_scene_slice():
 
     plane = s.atlas.get_plane(pos=[1999, 1312, 3421], norm=[1, -1, 2])
     s.slice(plane, actors=th)
-    ret = s.slice(plane, actors=[th, s.root],)
+    ret = s.slice(
+        plane,
+        actors=[th, s.root],
+    )
 
     s.render(interactive=False)
     del s

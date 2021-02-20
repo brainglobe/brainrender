@@ -30,15 +30,15 @@ class Render:
 
     def __init__(self):
         """
-            Backend for Scene, handles all rendering and exporting
-            related tasks.
+        Backend for Scene, handles all rendering and exporting
+        related tasks.
         """
         return
 
     def _get_plotter(self):
         """
-            Make a vedo plotter with
-            fancy axes and all
+        Make a vedo plotter with
+        fancy axes and all
         """
         self.plotter = Plotter(
             axes=self._make_axes() if settings.SHOW_AXES else None,
@@ -53,8 +53,8 @@ class Render:
 
     def _make_axes(self):
         """
-            Returns a dictionary with axes 
-            parameters for the vedo plotter
+        Returns a dictionary with axes
+        parameters for the vedo plotter
         """
         ax_idx = self.atlas.space.axes_order.index("frontal")
 
@@ -65,7 +65,11 @@ class Render:
 
         z_ticks = [
             (-v, str(np.abs(v).astype(np.int32)))
-            for v in np.linspace(0, atlas_shape[ax_idx], 10,)
+            for v in np.linspace(
+                0,
+                atlas_shape[ax_idx],
+                10,
+            )
         ]
 
         # make custom axes dict
@@ -89,11 +93,11 @@ class Render:
 
     def _prepare_actor(self):
         """
-            When an actor is first rendered, a transform matrix
-            is applied to its points to correct axes orientation
-            mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+        When an actor is first rendered, a transform matrix
+        is applied to its points to correct axes orientation
+        mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
 
-            Once an actor is 'corrected' it spawns labels and silhouettes as needed
+        Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
 
         # Flip every actor's orientation
@@ -115,7 +119,7 @@ class Render:
 
     def _apply_style(self):
         """
-            Sets the rendering style for each mesh
+        Sets the rendering style for each mesh
         """
         for actor in self.clean_actors:
             if settings.SHADER_STYLE != "cartoon":
@@ -134,16 +138,16 @@ class Render:
 
     def render(self, interactive=None, camera=None, zoom=1.75, **kwargs):
         """
-            Renders the scene.
+        Renders the scene.
 
-            :param interactive: bool. If note settings.INTERACTIVE is used.
-                If true the program's execution is stopped and users
-                can interact with scene.
-            :param camera: str, dict. If none the default camera is used.
-                Pass a valid camera input to specify the camera position when
-                the scene is rendered.
-            :param zoom: float
-            :param kwargs: additional arguments to pass to self.plotter.show
+        :param interactive: bool. If note settings.INTERACTIVE is used.
+            If true the program's execution is stopped and users
+            can interact with scene.
+        :param camera: str, dict. If none the default camera is used.
+            Pass a valid camera input to specify the camera position when
+            the scene is rendered.
+        :param zoom: float
+        :param kwargs: additional arguments to pass to self.plotter.show
         """
         # get vedo plotter
         if self.plotter is None:
@@ -210,10 +214,10 @@ class Render:
 
     def export(self, savepath):
         """
-            Exports the scene to a .html
-            file for online renderings.
+        Exports the scene to a .html
+        file for online renderings.
 
-            :param savepath: str, Path to a .html file to save the export
+        :param savepath: str, Path to a .html file to save the export
         """
         _backend = self.backend
 
@@ -248,13 +252,13 @@ class Render:
 
     def screenshot(self, name=None, scale=None):
         """
-            Takes a screenshot of the current view
-            and save it to file.
-            Screenshots are saved in `screenshots_folder`
-            (see Scene)
+        Takes a screenshot of the current view
+        and save it to file.
+        Screenshots are saved in `screenshots_folder`
+        (see Scene)
 
-            :param name: str, name of png file
-            :param scale: float, >1 for higher resolution
+        :param name: str, name of png file
+        :param scale: float, >1 for higher resolution
         """
         if not self.is_rendered:
             self.render(interactive=False)
@@ -294,10 +298,10 @@ class Render:
 
     def keypress(self, key):  # pragma: no cover
         """
-            Hanles key presses for interactive view
-            -s: take's a screenshot
-            -q: closes the window
-            -c: prints the current camera parameters
+        Hanles key presses for interactive view
+        -s: take's a screenshot
+        -q: closes the window
+        -c: prints the current camera parameters
         """
         if key == "s":
             self.screenshot()
