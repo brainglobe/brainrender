@@ -220,9 +220,13 @@ class Scene(JupyterMixIn, Render):
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
         """
-        silhouette = (
-            silhouette or True if settings.SHADER_STYLE == "cartoon" else False
-        )
+        if silhouette is None:
+            silhouette = (
+                silhouette or True
+                if settings.SHADER_STYLE == "cartoon"
+                else False
+            )
+
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
