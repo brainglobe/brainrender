@@ -60,6 +60,10 @@ setup(
     ],
     install_requires=requirements,
     extras_require={
+        "lint": [
+            "black",
+            "flake8",
+        ],
         "nb": ["jupyter", "k3d"],
         "dev": [
             "pytest-cov",
