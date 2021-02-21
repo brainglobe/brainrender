@@ -121,6 +121,7 @@ def test_scene_slice():
     del s
 
 
+@pytest.mark.local
 @pytest.mark.parametrize(
     "name, scale", [("test", 2), (None, None), (None, 1), ("test2", None)]
 )
