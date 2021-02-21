@@ -63,6 +63,7 @@ setup(
         "nb": ["jupyter", "k3d"],
         "dev": [
             "pytest-cov",
+            "pytest-qt",
             "pytest",
             "pytest-sugar",
             "coveralls",
@@ -73,6 +74,8 @@ setup(
             "opencv-python",
             "jupyter",
             "allensdk",
+            "PySide2>=5.12.3",
+            "k3d",
         ],
         "pyside2": ["PySide2>=5.12.3"],
         "pyqt5": ["PyQt5>=5.12.3"],
