@@ -29,10 +29,6 @@ def test_scene_specials():
     print(scene)
     str(scene)
     scene.content
-    try:
-        scene.render(interactive=False)
-    except Exception:
-        pytest.xfail(reason="Render doesnt work on")
     del scene
 
 
@@ -54,10 +50,6 @@ def test_brain_regions():
     assert isinstance(a1, Actor)
     assert isinstance(a2, Actor)
 
-    try:
-        scene.render(interactive=False)
-    except Exception:
-        pytest.xfail(reason="Render doesnt work on")
     del scene
 
 
@@ -67,10 +59,6 @@ def test_add_from_files():
     obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
     assert isinstance(obj, Actor)
 
-    try:
-        scene.render(interactive=False)
-    except Exception:
-        pytest.xfail(reason="Render doesnt work on")
     del scene
 
 
@@ -78,10 +66,6 @@ def test_labels():
     scene = Scene()
     th = scene.add_brain_region("TH")
     scene.add_label(th, "TH")
-    try:
-        scene.render(interactive=False)
-    except Exception:
-        pytest.xfail(reason="Render doesnt work on")
     del scene
 
 
@@ -109,10 +93,6 @@ def test_scene_render():
         ),
     )
 
-    try:
-        scene.render(interactive=False, camera="sagittal")
-    except Exception:
-        pytest.xfail(reason="will fail in CI")
     del scene
 
 
