@@ -18,9 +18,22 @@ class Atlas(BrainGlobeAtlas):
         :param atlas_name: str, atlas name from brainglobe's atlas API atlases
         """
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
+        self.atlas_name = atlas_name
         BrainGlobeAtlas.__init__(
             self, atlas_name=atlas_name, print_authors=False
         )
+
+    @property
+    def zoom(self):
+        """
+        Returns the best camera zoom given the atlas resolution
+        """
+        res = np.max(self.metadata["resolution"])
+
+        if self.atlas_name == "allen_human_500um":
+            return 100
+        else:
+            return 25 / res
 
     def get_region(self, *regions, alpha=1, color=None):
         """

@@ -4,7 +4,7 @@ import datetime
 
 import brainrender
 from brainrender import Scene
-from brainrender.camera import set_camera, get_camera_params
+from brainrender.camera import set_camera
 
 from brainrender.gui.ui import UI
 from brainrender.gui.apputils.camera_control import CameraControl
@@ -46,6 +46,7 @@ class App(
 
         self.setup_plotter()
         self._update()
+        self.scene.render()
         self.scene._get_inset()
 
         # Setup widgets functionality
@@ -160,13 +161,10 @@ class App(
         Updates the scene's Plotter to add/remove
         meshes
         """
-        if self.camera_orientation is not None:
-            # set_camera(self.scene, self.camera_orientation)
-            camera = self.camera_orientation
-            self.camera_orientation = None
-        else:
-            camera = get_camera_params(scene=self.scene)
-        self.scene.render(camera=camera)
+
+        # update meshes
+        self.scene._apply_style()
+        self.scene._prepare_actors()
 
         # Get actors to render
         self._update_actors()
@@ -184,6 +182,7 @@ class App(
             *meshes,
             interactorStyle=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
+            resetcam=True,
         )
 
         # Fake a button press to force canvas update
@@ -192,7 +191,6 @@ class App(
 
         # Update list widget
         update_actors_list(self.actors_list, self.actors)
-
         return meshes
 
     # ----------------------------------- Close ---------------------------------- #

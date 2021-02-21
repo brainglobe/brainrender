@@ -102,7 +102,9 @@ class ActorsControl:
         self.alpha_textbox.setText(str(actor.alpha))
 
         if isinstance(actor.color, np.ndarray):
-            color = "".join([str(c) + " " for c in actor.color]).rstrip()
+            color = "".join(
+                [str(round(c, 1)) + " " for c in actor.color]
+            ).rstrip()
         else:
             color = actor.color
 

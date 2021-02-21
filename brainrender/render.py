@@ -91,7 +91,7 @@ class Render:
 
         return axes
 
-    def _prepare_actor(self):
+    def _prepare_actors(self):
         """
         When an actor is first rendered, a transform matrix
         is applied to its points to correct axes orientation
@@ -136,7 +136,7 @@ class Render:
             except AttributeError:
                 pass
 
-    def render(self, interactive=None, camera=None, zoom=1.75, **kwargs):
+    def render(self, interactive=None, camera=None, zoom=None, **kwargs):
         """
         Renders the scene.
 
@@ -146,9 +146,12 @@ class Render:
         :param camera: str, dict. If none the default camera is used.
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
-        :param zoom: float
+        :param zoom: float, if None atlas default is used
         :param kwargs: additional arguments to pass to self.plotter.show
         """
+        # get zoom
+        zoom = zoom or self.atlas.zoom
+
         # get vedo plotter
         if self.plotter is None:
             self._get_plotter()
@@ -163,7 +166,7 @@ class Render:
             camera = set_camera(self, camera)
 
         # Apply axes correction
-        self._prepare_actor()
+        self._prepare_actors()
 
         # Apply style
         self._apply_style()
@@ -188,6 +191,7 @@ class Render:
                 offscreen=settings.OFFSCREEN,
                 camera=camera.copy() if camera else None,
                 interactorStyle=0,
+                rate=40,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
