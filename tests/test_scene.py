@@ -124,7 +124,7 @@ def test_scene_slice():
         actors=[th, s.root],
     )
 
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s
 
 
@@ -136,7 +136,7 @@ def test_scene_screenshot(name, scale):
     s.screenshot(name=name, scale=scale)
     shutil.rmtree("tests/screenshots")
 
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s
 
 

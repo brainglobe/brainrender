@@ -19,7 +19,7 @@ try:
     import imio
 except ImportError:
     raise ImportError(
-        f'You need imio to run this example: "pip install imio".\nFor more details: https://github.com/brainglobe/imio'
+        'You need imio to run this example: "pip install imio".\nFor more details: https://github.com/brainglobe/imio'
     )
 
 from bg_space import AnatomicalSpace

@@ -41,7 +41,7 @@ def test_points_working():
     assert isinstance(act3, Actor)
     assert point.name == "Point"
 
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s
 
 
@@ -52,7 +52,7 @@ def test_points_density():
     pd = s.add(PointsDensity(coordinates))
 
     assert isinstance(pd, Actor)
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s
 
 

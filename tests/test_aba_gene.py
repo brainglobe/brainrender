@@ -35,8 +35,6 @@ def test_gebe_expression_api(geapi):
     assert gene_actor.br_class == "Gene Data"
 
     s.add(gene_actor)
-    s.render(interactive=False)
-    del s
 
 
 @pytest.mark.skipif(

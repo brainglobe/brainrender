@@ -30,5 +30,5 @@ def test_streamlines():
     with pytest.raises(TypeError):
         Streamlines([1, 2, 3])
 
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s
