@@ -8,6 +8,7 @@ Note: the duration reported in the results does not include scene creation (`sce
 ## Machines tested
 * **[1]** macOS - Mojave 10.14.6 - MacBook Pro (15-inch, 2019) - 2.3 GHz Intel Core i9 - Radeon Pro 560X 4 GB GPU
 * **[2]** Ubuntu - 18.04.2 LTS x86_64 - Intel i7-8565U (x) @ 4.5GHz - Intel UHD graphics
+* **[3]** Windows - Intel(R) Core i7-7700HQ 2.8GHz, - 
 
 ## Tests
 ### N cells
@@ -34,20 +35,28 @@ Parse a numpy array to create a Volume actor (10 times) and render
 | ---- |:-------:|:---:|:--------:|:----------:|:---:|:------------:| --------------:|
 | 10k cells | [1] | yes | 3 | 1029324 | 24.76 | 0.81s | bm_cells.py |
 |  | [2] | No | 3 | 1029324 | 22.46 | 1.16s | bm_cells.py |
+|  | [3] | No | 3 | 1029324 | 20.00 | 1.41s | bm_cells.py |
 | 100k cells | [1] | yes | 3 | 9849324 | 18.87 | 3.23s | bm_cells.py |
 |  | [2] | No | 3 | 9849324 | 25.98 | 9.09s | bm_cells.py |
+|  | [3] | No | 3 | 9849324 | 0.43 | 7.94s | bm_cells.py |
 | 1M cells | [1] | yes | 3 | 98049324 | 2.65 | 31.01s | bm_cells.py |
 |  | [2] | No | 3 | 98049324 | 2.55 | 96.49s | bm_cells.py |
+|  | [3] | No | 3 | 98049324 | 0.03 | 86.75s | bm_cells.py |
 | Slicing 10k cells | [1] | yes | 3 | 237751 | 37.64 | 0.96s | bm_cells.py |
 |  | [2] | No | 3 | 237751 | 39.10 | 1.25s | bm_cells.py |
+|  | [3] | No | 3 | 237751 | 26.32 | 1.88s | bm_cells.py |
 | Slicing 100k cells | [1] | yes | 3 | 276092 | 31.79 | 7.77s | bm_cells.py |
 |  | [2] | No | 3 | 276092 | 39.10 | 1.25s | bm_cells.py |
+|  | [3] | No | 3 | 276092 | 21.28 | 16.88s | bm_cells.py |
 | Slicing 1M cells | [1] | yes | 3 | 275069 | 11.23 | 91.31s | bm_cells.py |
 |  | [2] | No | 3 | 275069 | 5.39 | 104.79s | bm_cells.py |
+|  | [3] | No | 3 | 275069 | 5.03 | 158.99s | bm_cells.py |
 | brain regions | [1] | yes | 1678 | 1864388 | 9.38 | 11.78s | bm_brain_regions.py |
 |  | [2] | No | 1678 | 1864388 | 7.61 | 27.40s | bm_brain_regions.py |
+|  | [3] | No | 1678 | 1864388 | 6.49 | 46.79s | bm_brain_regions.py |
 | animation | [1] | yes | 8 | 96615 | 9.91 | 18.98s | bm_animation.py |
 |  | [2] | No | 8 | 96615 | 22.12 | 12.63s | bm_animation.py |
+|  | [3] | No | 8 | 96615 | 15.15 | 11.92s | bm_animation.py |
 | volume | [1] | yes | 12 | 49324 | 1.79 | 2.31s | bm_volume.py |
 |  | [2] | No | 12 | 49324 | 1.66 | 1.95s | bm_volume.py |
 * the FPS measured are approximate and are meant only as an indication of the expected performance.

@@ -14,7 +14,7 @@ def geapi():
 
 
 @pytest.mark.xfail
-def test_gebe_expression_api(geapi):
+def test_gene_expression_api(geapi):
 
     s = Scene(title="BR")
 

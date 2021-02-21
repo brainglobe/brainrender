@@ -8,6 +8,7 @@ from brainrender.atlas_specific import get_streamlines_for_region
 import pytest
 
 
+@pytest.mark.local
 def test_download():
     streams = get_streamlines_for_region("TH", force_download=False)
     assert len(streams) == 54
