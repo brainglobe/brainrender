@@ -16,9 +16,8 @@ from qtpy import QtGui
 from qtpy.QtGui import QStandardItemModel
 from pkg_resources import resource_filename
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from napari.utils.theme import palettes
 
-from brainrender.gui.style import style, tree_css, update_css
+from brainrender.gui.style import style, tree_css, update_css, _themes
 from brainrender.gui.widgets.tree import StandardItem
 
 
@@ -44,7 +43,7 @@ class UI(QMainWindow):
         super().__init__()
 
         # Get palette
-        self.palette = palettes[theme]
+        self.palette = _themes[theme]
         self.theme = theme
 
         # set the title and icon of main window

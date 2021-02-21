@@ -30,7 +30,7 @@ Make a short animation
 Parse a numpy array to create a Volume actor (10 times) and render
 
 ## Results
-| Test | Machine | GPU | # actors | # vertices | FPS | run duration | benchmark file |
+| Test | Machine | GPU | # actors | # vertices | FPS* | run duration | benchmark file |
 | ---- |:-------:|:---:|:--------:|:----------:|:---:|:------------:| --------------:|
 | 10k cells | [1] | yes | 3 | 1029324 | 24.76 | 0.81s | bm_cells.py |
 |  | [2] | No | 3 | 1029324 | 22.46 | 1.16s | bm_cells.py |
@@ -49,5 +49,7 @@ Parse a numpy array to create a Volume actor (10 times) and render
 | animation | [1] | yes | 8 | 96615 | 9.91 | 18.98s | bm_animation.py |
 |  | [2] | No | 8 | 96615 | 22.12 | 12.63s | bm_animation.py |
 | volume | [1] | yes | 12 | 49324 | 1.79 | 2.31s | bm_volume.py |
+|  | [2] | No | 12 | 49324 | 1.66 | 1.95s | bm_volume.py |
+* the FPS measured are approximate and are meant only as an indication of the expected performance.
 
 Note: Volume actors don't have a number of "vertices" so are not counted heres
