@@ -31,6 +31,7 @@ def test_camera_params():
         check_camera_param(camera)
 
 
+@pytest.mark.local
 def test_get_camera_params():
     s = Scene()
     # s.render(interactive=False)
@@ -43,6 +44,7 @@ def test_get_camera_params():
     check_camera_param(params2)
 
 
+@pytest.mark.local
 def test_set_camera_params():
     s = Scene()
     params = get_camera_params(scene=s)
@@ -50,6 +52,7 @@ def test_set_camera_params():
     set_camera_params(s.plotter.camera, params)
 
 
+@pytest.mark.local
 def test_set_camera():
     s = Scene()
     # s.render(interactive=False)
