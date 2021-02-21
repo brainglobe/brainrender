@@ -34,7 +34,6 @@ def fail_on_no_connection(func):
     return inner
 
 
-@fail_on_no_connection
 def request(url):
     """
     Sends a request to a url
@@ -42,6 +41,11 @@ def request(url):
     :param url:
 
     """
+    if not connected_to_internet():  # pragma: no cover
+        raise ConnectionError(
+            "No internet connection found."
+        )  # pragma: no cover
+
     response = requests.get(url)
     if response.ok:
         return response
