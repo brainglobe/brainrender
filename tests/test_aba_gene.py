@@ -2,7 +2,6 @@ from brainrender import Scene
 from brainrender.atlas_specific import GeneExpressionAPI
 from brainrender.actor import Actor
 import pytest
-import sys
 
 gene = "Cacna2d1"
 
@@ -14,9 +13,7 @@ def geapi():
     return geapi
 
 
-@pytest.mark.skipif(
-    sys.version_info > (3, 7), reason="requires python3.7 or lower"
-)
+@pytest.mark.xfail
 def test_gebe_expression_api(geapi):
 
     s = Scene(title="BR")
@@ -37,9 +34,7 @@ def test_gebe_expression_api(geapi):
     s.add(gene_actor)
 
 
-@pytest.mark.skipif(
-    sys.version_info > (3, 7), reason="requires python3.7 or lower"
-)
+@pytest.mark.xfail
 @pytest.mark.slow
 def test_download_no_cache(geapi):
     geapi.get_gene_id_by_name(gene)

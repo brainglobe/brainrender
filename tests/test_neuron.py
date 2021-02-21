@@ -22,7 +22,6 @@ def test_neuron():
     with pytest.raises(NotImplementedError):
         Neuron("tests/files/random_cells.h5")
 
-    # s.render(interactive=False)
     del s
 
 

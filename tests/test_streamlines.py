@@ -14,13 +14,15 @@ def test_download():
     assert isinstance(streams[0], pd.DataFrame)
 
 
-@pytest.mark.slow()
+@pytest.mark.local
+@pytest.mark.slow
 def test_download_slow():
     streams = get_streamlines_for_region("TH", force_download=True)
     assert len(streams) == 54
     assert isinstance(streams[0], pd.DataFrame)
 
 
+@pytest.mark.local
 def test_streamlines():
     s = Scene(title="BR")
     streams = get_streamlines_for_region("TH", force_download=False)
