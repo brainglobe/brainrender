@@ -14,11 +14,7 @@ def test_scene_creation():
 
     noinset = Scene(inset=False, title="TEST")
     noinset.root
-    noinset.render(interactive=False)
-
-    scene.render(interactive=False)
     del scene
-    noinset.render(interactive=False)
     del noinset
 
 
