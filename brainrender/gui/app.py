@@ -20,6 +20,7 @@ from brainrender.gui.widgets.screenshot_modal import ScreenshotModal
 class App(
     Scene, UI, CameraControl, AddFromFile, RegionsControl, ActorsControl
 ):
+    startup = True  # some things only run once
     actors = {}  # stores actors and status
     camera_orientation = None  # used to manually set camera orientation
 
@@ -78,6 +79,8 @@ class App(
 
         self.alpha_textbox.textChanged.connect(self.update_actor_properties)
         self.color_textbox.textChanged.connect(self.update_actor_properties)
+
+        self.startup = False
 
     def take_screenshot(self):
         logger.debug("GUI: taking screenshot")
@@ -187,7 +190,8 @@ class App(
             *meshes,
             interactorStyle=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
-            resetcam=True,
+            resetcam=self.startup,
+            zoom=None,
         )
 
         # Fake a button press to force canvas update
