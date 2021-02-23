@@ -1,4 +1,5 @@
 import vtk
+from loguru import logger
 
 from brainrender.cameras import cameras
 
@@ -38,6 +39,7 @@ def set_camera_params(camera, params):
     :param camera: camera obj
     :param params: dictionary of camera parameters
     """
+    logger.debug(f"Setting camera parameters: {params}")
     # Apply camera parameters
     camera.SetPosition(params["pos"])
     camera.SetViewUp(params["viewup"])

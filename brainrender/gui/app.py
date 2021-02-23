@@ -1,6 +1,7 @@
 from vedo import Plotter
 from collections import namedtuple
 import datetime
+from loguru import logger
 
 import brainrender
 from brainrender import Scene
@@ -32,6 +33,8 @@ class App(
         atlas_name: str/None. Name of the brainglobe atlas to use
         axes: bool. If true axes are shown in the brainrender render
         """
+        logger.debug("Creating brainrender GUI")
+
         # Initialize parent classes
         self.scene = Scene(*args, atlas_name=atlas_name, **kwargs)
         UI.__init__(self, *args, **kwargs)
@@ -77,6 +80,7 @@ class App(
         self.color_textbox.textChanged.connect(self.update_actor_properties)
 
     def take_screenshot(self):
+        logger.debug("GUI: taking screenshot")
         self._update()
         self.scene.plotter.render()
 
@@ -101,6 +105,7 @@ class App(
         It toggles the visibility of treeView widget
         and adjusts the button's text accordingly.
         """
+        logger.debug("GUI: toggle tree view")
         if not self.treeView.isHidden():
             self.buttons["show_structures_tree"].setText(
                 "Show structures tree"

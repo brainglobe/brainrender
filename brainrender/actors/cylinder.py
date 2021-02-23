@@ -1,5 +1,6 @@
 from vedo import shapes
 from vedo import Mesh
+from loguru import logger
 
 from brainrender.actor import Actor
 
@@ -17,6 +18,7 @@ class Cylinder(Actor):
         :param alpha: float
         :param radius: float
         """
+        logger.info(f"Creating Cylinder actor at: {pos}")
         # Get pos
         if isinstance(pos, (Actor, Mesh)):
             pos = pos.centerOfMass()

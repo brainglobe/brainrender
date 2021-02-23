@@ -1,6 +1,7 @@
 import numpy as np
 from qtpy.QtGui import QColor, QIcon
 from pkg_resources import resource_filename
+from loguru import logger
 
 from brainrender.gui.utils import (
     get_color_from_string,
@@ -59,6 +60,7 @@ class ActorsControl:
         """
         # Get actor
         aname = self.actors_list.currentItem().text()
+        logger.debug(f"GUI: toggling {aname} visibility")
         if aname not in self.actors.keys():
             raise ValueError(f"Actor {aname} not in the actors record")
         else:

@@ -1,4 +1,5 @@
 import brainrender
+from loguru import logger
 from brainrender.camera import get_camera_params
 
 
@@ -21,6 +22,8 @@ class CameraControl:
 
         self.scene.render(camera=camera)
         self._update()
+
+        logger.debug(f"GUI: resetting camera to: {self.camera_orientation}")
 
     def reset_camera(self):
         self.camera_orientation = brainrender.settings.DEFAULT_CAMERA

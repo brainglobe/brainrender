@@ -4,6 +4,7 @@ from rich import print
 import os
 import numpy as np
 from myterial import amber, orange, salmon
+from loguru import logger
 
 from brainrender.camera import check_camera_param, get_camera_params
 from brainrender._video import Video
@@ -35,6 +36,10 @@ class VideoMaker:
             can do what's needed to animate the scene
         :param size: str, size of video's frames in pixels
         """
+        logger.debug(
+            f"Creating video with name {name}. Format: {fmt}, size: {size}, save folder: {save_fld}"
+        )
+
         self.scene = scene
 
         self.save_fld = Path(save_fld)
@@ -110,6 +115,7 @@ class VideoMaker:
         :param fps: int, frame rate
         :param **kwargs: any extra keyword argument to be bassed to `make_frame_func`
         """
+        logger.debug(f"Saving a video {duration}s long ({fps} fps)")
         _off = br.settings.OFFSCREEN
         br.settings.OFFSCREEN = True  # render offscreen
 
@@ -186,6 +192,7 @@ class Animation(VideoMaker):
         :param fmt: str. Video format (e.g. 'mp4')
         """
         VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt, size=size)
+        logger.debug(f"Creating animation")
 
         self.keyframes = {}
         self.keyframes[0] = dict(  # make sure first frame is a keyframe
@@ -262,6 +269,9 @@ class Animation(VideoMaker):
         :param duration: float, video duration in seconds
         :param video: vedo Video class used to create the video
         """
+        logger.debug(
+            f"Generating animation keyframes. Duration: {duration}, fps: {fps}"
+        )
         self.get_keyframe_framenumber(fps)
 
         self.nframes = int(fps * duration)

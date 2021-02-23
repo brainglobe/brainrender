@@ -10,6 +10,7 @@ from pathlib import Path
 from vedo import Mesh, Plane, Text2D, Assembly
 import pyinspect as pi
 from rich import print
+from loguru import logger
 from myterial import amber, orange, orange_darker, salmon
 
 from brainrender import settings
@@ -41,6 +42,9 @@ class Scene(JupyterMixIn, Render):
         :param title: str. If true a title is added to the top of the window
         :param screenshots_folder: str, Path. Where the screenshots will be saved
         """
+        logger.debug(
+            f"Creating scene with parameters: root: {root}, atlas_name: '{atlas_name}'', inset: {inset}, screenshots_folder: {screenshots_folder}"
+        )
         JupyterMixIn.__init__(self)
 
         self.actors = []  # stores all actors in the scene
@@ -127,6 +131,7 @@ class Scene(JupyterMixIn, Render):
         :param **kwargs: parameters to be passed to the individual
             loading functions (e.g. to load from file and specify the color)
         """
+        logger.debug(f"Adding {len(items)} actors to scene")
         names = names or [None for a in items]
         classes = classes or [None for a in items]
 
@@ -179,6 +184,7 @@ class Scene(JupyterMixIn, Render):
         """
         Removes actors from the scene.
         """
+        logger.debug(f"Removing {len(actors)} actors from scene")
         for act in actors:
             try:
                 self.actors.pop(self.actors.index(act))
@@ -219,6 +225,9 @@ class Scene(JupyterMixIn, Render):
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
         """
+        logger.debug(
+            f"Adding {len(regions)} brain regions to scene: {regions}"
+        )
         if silhouette is None:
             silhouette = (
                 silhouette or True

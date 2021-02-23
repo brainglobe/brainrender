@@ -1,4 +1,5 @@
 import numpy as np
+from loguru import logger
 
 from vedo import merge
 from vedo.shapes import Line, Sphere, Text
@@ -20,6 +21,7 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
     :param s: float size of text
 
     """
+    logger.debug(f"Creating a ruler actor between {p1} and {p2}")
     actors = []
 
     # Make two line segments
@@ -60,6 +62,7 @@ def ruler_from_surface(
     :param units: str, name of unit (e.g. 'mm')
     :param s: float size of text
     """
+    logger.debug(f"Creating a ruler actor between {p1} and brain surface")
     # Get point on brain surface
     p2 = p1.copy()
     p2[axis] = 0  # zero the choosen coordinate

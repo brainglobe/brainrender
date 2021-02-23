@@ -1,6 +1,7 @@
 from bg_atlasapi.bg_atlas import BrainGlobeAtlas
 from vedo import Plane
 import numpy as np
+from loguru import logger
 
 from brainrender import settings
 from brainrender.actor import Actor
@@ -19,6 +20,8 @@ class Atlas(BrainGlobeAtlas):
         """
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         self.atlas_name = atlas_name
+        logger.debug(f"Generating ATLAS: {atlas_name}")
+
         BrainGlobeAtlas.__init__(
             self, atlas_name=atlas_name, print_authors=False
         )
@@ -31,7 +34,10 @@ class Atlas(BrainGlobeAtlas):
         res = np.max(self.metadata["resolution"])
 
         if self.atlas_name == "allen_human_500um":
-            return 100
+            logger.debug(
+                "ATLAS: setting zoom manually for human atlas, atlas needs fixing"
+            )
+            return 350
         else:
             return 25 / res
 
@@ -112,7 +118,7 @@ class Atlas(BrainGlobeAtlas):
                 f"Could not find normals for plane {plane}. Atlas space provides these normals: {self.space.plane_normals}"  # pragma: no cover
             )
 
-            # Get plane width and height
+        # Get plane width and height
         idx_pair = (
             axes_pairs[plane]
             if plane is not None

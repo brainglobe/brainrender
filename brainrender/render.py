@@ -6,6 +6,7 @@ from rich import print
 from pathlib import Path
 from myterial import orange, amber, deep_purple_light, teal
 from rich.syntax import Syntax
+from loguru import logger
 
 from brainrender import settings
 from brainrender.camera import (
@@ -62,7 +63,7 @@ class Render:
         atlas_shape = np.array(self.atlas.metadata["shape"]) * np.array(
             self.atlas.metadata["resolution"]
         )
-
+        z_range = np.array([-atlas_shape[2], 0])
         z_ticks = [
             (-v, str(np.abs(v).astype(np.int32)))
             for v in np.linspace(
@@ -71,6 +72,13 @@ class Render:
                 10,
             )
         ]
+
+        if self.atlas.atlas_name == "allen_human_500um":
+            z_range = None
+            z_ticks = None
+            logger.debug(
+                "RENDER: manually forcing axes size for human atlas, atlas needs fixing"
+            )
 
         # make custom axes dict
         axes = dict(
@@ -82,7 +90,7 @@ class Render:
             textScale=0.8,
             xTitleRotation=0,
             xFlipText=True,
-            zrange=np.array([-atlas_shape[2], 0]),
+            zrange=z_range,
             zValuesAndLabels=z_ticks,
             xyGrid=False,
             yzGrid=False,
@@ -149,6 +157,9 @@ class Render:
         :param zoom: float, if None atlas default is used
         :param kwargs: additional arguments to pass to self.plotter.show
         """
+        logger.debug(
+            f"Rendering scene. Interactive: {interactive}, camera: {camera}, zoom: {zoom}"
+        )
         # get zoom
         zoom = zoom or self.atlas.zoom
 
@@ -223,6 +234,7 @@ class Render:
 
         :param savepath: str, Path to a .html file to save the export
         """
+        logger.debug(f"Exporting scene to {savepath}")
         _backend = self.backend
 
         if not self.is_rendered:
@@ -264,6 +276,7 @@ class Render:
         :param name: str, name of png file
         :param scale: float, >1 for higher resolution
         """
+
         if not self.is_rendered:
             self.render(interactive=False)
 
@@ -275,7 +288,9 @@ class Render:
         scale = scale or settings.SCREENSHOT_SCALE
 
         print(f"\nSaving new screenshot at {name}\n")
+
         savepath = str(self.screenshots_folder / name)
+        logger.debug(f"Saving scene at {savepath}")
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 

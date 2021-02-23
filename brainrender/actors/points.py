@@ -3,6 +3,8 @@ from vedo import Spheres, Sphere
 from vedo import Points as vPoints
 from pathlib import Path
 from pyinspect.utils import _class_name
+from loguru import logger
+
 
 from brainrender.actor import Actor
 
@@ -20,6 +22,7 @@ class Point(Actor):
         :param res: int, resolution of mesh
         :param name: str, actor name
         """
+        logger.debug(f"Creating a point actor at: {pos}")
         mesh = Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res)
         name = name or "Point"
         Actor.__init__(self, mesh, name=name, br_class="Point")
@@ -85,6 +88,7 @@ class Points(PointsBase, Actor):
         :param name: str, actor name
         """
         PointsBase.__init__(self)
+        logger.debug(f"Creating a Points actor")
 
         self.radius = radius
         self.colors = colors
@@ -123,6 +127,7 @@ class PointsDensity(Actor):
             :param int,list dims: numer of voxels in x, y and z of the output Volume.
 
         """
+        logger.debug(f"Creating a PointsDensity actor")
         volume = vPoints(data).density(
             dims=dims, radius=radius, **kwargs
         )  # returns a vedo Volume
