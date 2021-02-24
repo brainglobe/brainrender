@@ -235,6 +235,10 @@ class Scene(JupyterMixIn, Render):
                 else False
             )
 
+        # avoid adding regions already rendered
+        already_in = [r.name for r in self.get_actors(br_class="brain region")]
+        regions = [r for r in regions if r not in already_in]
+
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
