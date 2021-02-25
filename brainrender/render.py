@@ -34,7 +34,7 @@ class Render:
         Backend for Scene, handles all rendering and exporting
         related tasks.
         """
-        return
+        self._get_plotter()
 
     def _get_plotter(self):
         """
@@ -99,7 +99,7 @@ class Render:
 
         return axes
 
-    def _prepare_actors(self):
+    def _prepare_actor(self, actor):
         """
         When an actor is first rendered, a transform matrix
         is applied to its points to correct axes orientation
@@ -109,21 +109,20 @@ class Render:
         """
 
         # Flip every actor's orientation
-        for actor in self.clean_actors + self.labels:
-            if not actor._is_transformed:
-                actor.applyTransform(mtx)
-                try:
-                    actor.reverse()
-                except AttributeError:  # Volumes don't have reverse
-                    pass
-                actor._is_transformed = True
+        if not actor._is_transformed:
+            actor.applyTransform(mtx)
+            try:
+                actor.reverse()
+            except AttributeError:  # Volumes don't have reverse
+                pass
+            actor._is_transformed = True
 
-            # Add silhouette and labels
-            if actor._needs_silhouette and not self.backend:
-                self.actors.append(actor.make_silhouette())
+        # Add silhouette and labels
+        if actor._needs_silhouette and not self.backend:
+            self.plotter.add(actor.make_silhouette().mesh)
 
-            if actor._needs_label and not self.backend:
-                self.labels.extend(actor.make_label(self.atlas))
+        if actor._needs_label and not self.backend:
+            self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
         """
@@ -144,7 +143,14 @@ class Render:
             except AttributeError:
                 pass
 
-    def render(self, interactive=None, camera=None, zoom=None, **kwargs):
+    def render(
+        self,
+        interactive=None,
+        camera=None,
+        zoom=None,
+        update_camera=True,
+        **kwargs,
+    ):
         """
         Renders the scene.
 
@@ -155,6 +161,7 @@ class Render:
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
         :param zoom: float, if None atlas default is used
+        :param update_camera: bool, if False the camera is not changed
         :param kwargs: additional arguments to pass to self.plotter.show
         """
         logger.debug(
@@ -168,8 +175,9 @@ class Render:
             self._get_plotter()
 
         # Get camera
-        if camera is None:
-            camera = get_camera(settings.DEFAULT_CAMERA)
+        camera = camera or settings.DEFAULT_CAMERA
+        if isinstance(camera, str):
+            camera = get_camera(camera)
         else:
             camera = check_camera_param(camera)
 
@@ -177,7 +185,10 @@ class Render:
             camera = set_camera(self, camera)
 
         # Apply axes correction
-        self._prepare_actors()
+        for actor in self.clean_actors + self.labels:
+            if not actor._is_transformed:
+                self._prepare_actor(actor)
+                self.plotter.add(actor.mesh)
 
         # Apply style
         self._apply_style()
@@ -195,12 +206,12 @@ class Render:
                 txt.followCamera(self.plotter.camera)
 
             self.plotter.show(
-                *self.renderables,
+                # *self.renderables,
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 offscreen=settings.OFFSCREEN,
-                camera=camera.copy() if camera else None,
+                camera=camera.copy() if update_camera else None,
                 interactorStyle=0,
                 rate=40,
             )

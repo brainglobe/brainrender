@@ -81,6 +81,9 @@ class Actor(object):
     _needs_silhouette = False  # needs to make a silhouette
     _is_transformed = False  # has been transformed to correct axes orientation
 
+    labels = []
+    silhouette = None
+
     def __init__(
         self,
         mesh,
@@ -159,6 +162,7 @@ class Actor(object):
         lbls = [
             Actor.make_actor(label, self.name, "label") for label in labels
         ]
+        self.labels = lbls
         return lbls
 
     def make_silhouette(self):
@@ -174,6 +178,7 @@ class Actor(object):
         sil._is_transformed = True
 
         self._needs_silhouette = False
+        self.silhouette = sil
 
         return sil
 

@@ -131,7 +131,6 @@ class Scene(JupyterMixIn, Render):
         :param **kwargs: parameters to be passed to the individual
             loading functions (e.g. to load from file and specify the color)
         """
-        logger.debug(f"Adding {len(items)} actors to scene")
         names = names or [None for a in items]
         classes = classes or [None for a in items]
 
@@ -176,6 +175,14 @@ class Scene(JupyterMixIn, Render):
                     f"Unrecognized argument: {item} [{pi.utils._class_name(item)}]"
                 )
 
+        # transform actors
+        for actor in actors:
+            self._prepare_actor(actor)
+
+        # add actors to plotter
+        for actor in actors:
+            self.plotter.add(actor.mesh)
+
         # Add to the lists actors
         self.actors.extend(actors)
         return return_list_smart(actors)
@@ -192,6 +199,15 @@ class Scene(JupyterMixIn, Render):
                 print(
                     f"Could not remove ({act}, {pi.utils._class_name(act)}) from actors"
                 )
+            else:
+                # remove from plotter
+                self.plotter.remove(act.mesh)
+
+                if act.silhouette is not None:
+                    self.plotter.remove(act.silhouette.mesh)
+
+                for label in act.labels:
+                    self.plotter.remove(label.mesh)
 
     def get_actors(self, name=None, br_class=None):
         """
@@ -225,9 +241,6 @@ class Scene(JupyterMixIn, Render):
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
         """
-        logger.debug(
-            f"Adding {len(regions)} brain regions to scene: {regions}"
-        )
         if silhouette is None:
             silhouette = (
                 silhouette or True
@@ -238,6 +251,9 @@ class Scene(JupyterMixIn, Render):
         # avoid adding regions already rendered
         already_in = [r.name for r in self.get_actors(br_class="brain region")]
         regions = [r for r in regions if r not in already_in]
+        logger.debug(
+            f"Adding {len(regions)} brain regions to scene: {regions}"
+        )
 
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
