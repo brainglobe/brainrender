@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import sys
+from loguru import logger
+
 
 from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils import (
     check_gene_cached,
@@ -45,7 +47,7 @@ class GeneExpressionAPI:
     @fail_on_no_connection
     def get_all_genes(self):
         """
-            Download metadata about all the genes available in the Allen gene expression dataset
+        Download metadata about all the genes available in the Allen gene expression dataset
         """
         res = request(self.all_genes_url)
         return pd.DataFrame(res.json()["msg"])
@@ -79,10 +81,10 @@ class GeneExpressionAPI:
     @fail_on_no_connection
     def get_gene_experiments(self, gene):
         """
-            Given a gene_symbol it returns the list of ISH
-            experiments for this gene
+        Given a gene_symbol it returns the list of ISH
+        experiments for this gene
 
-            :param gene_symbol: str
+        :param gene_symbol: str
         """
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
         data = request(url).json()["msg"]
@@ -96,11 +98,11 @@ class GeneExpressionAPI:
     @fail_on_no_connection
     def download_gene_data(self, gene):
         """
-            Downloads a gene's data from the Allen Institute 
-            Gene Expression dataset and saves to cache. 
-            See: http://help.brain-map.org/display/api/Downloading+3-D+Expression+Grid+Data
+        Downloads a gene's data from the Allen Institute
+        Gene Expression dataset and saves to cache.
+        See: http://help.brain-map.org/display/api/Downloading+3-D+Expression+Grid+Data
 
-            :param gene: int, the gene_id for the gene being downloaded.
+        :param gene: int, the gene_id for the gene being downloaded.
         """
         # Get the gene's experiment id
         exp_ids = self.get_gene_experiments(gene)
@@ -118,8 +120,9 @@ class GeneExpressionAPI:
 
     def get_gene_data(self, gene, exp_id, use_cache=True, metric="energy"):
         """
-            Given a list of gene ids
+        Given a list of gene ids
         """
+        logger.debug(f"Getting gene data for gene: {gene} experiment {exp_id}")
         self.gene_name = self.gene_name or gene
 
         # Check if gene-experiment cached
@@ -145,18 +148,22 @@ class GeneExpressionAPI:
         return data
 
     def griddata_to_volume(
-        self, griddata, min_quantile=None, min_value=None, cmap="bwr",
+        self,
+        griddata,
+        min_quantile=None,
+        min_value=None,
+        cmap="bwr",
     ):
         """
-            Takes a 3d numpy array with volumetric gene expression
-            and returns a vedo.Volume.isosurface actor.
-            The isosurface needs a lower bound threshold, this can be
-            either a user defined hard value (min_value) or the value
-            corresponding to some percentile of the gene expression data.
+        Takes a 3d numpy array with volumetric gene expression
+        and returns a vedo.Volume.isosurface actor.
+        The isosurface needs a lower bound threshold, this can be
+        either a user defined hard value (min_value) or the value
+        corresponding to some percentile of the gene expression data.
 
-            :param griddata: np.ndarray, 3d array with gene expression data
-            :param min_quantile: float, percentile for threshold
-            :param min_value: float, value for threshold
+        :param griddata: np.ndarray, 3d array with gene expression data
+        :param min_quantile: float, percentile for threshold
+        :param min_value: float, value for threshold
         """
         return Volume(
             griddata,

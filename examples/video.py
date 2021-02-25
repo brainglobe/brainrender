@@ -7,7 +7,7 @@ scene = Scene("my video")
 scene.add_brain_region("TH")
 
 # Create an instance of video maker
-vm = VideoMaker(scene, "examples", "vid1")
+vm = VideoMaker(scene, "./examples", "vid1")
 
 # make a video with the custom make frame function
 # this just rotates the scene
@@ -26,5 +26,5 @@ def make_frame(scene, frame_number, *args, **kwargs):
 # Now make a video with our custom function
 scene = Scene("my video2")
 scene.add_brain_region("TH")
-vm = VideoMaker(scene, "examples", "vid2", make_frame_func=make_frame)
+vm = VideoMaker(scene, "./examples", "vid2", make_frame_func=make_frame)
 vm.make_video(duration=1, fps=15)

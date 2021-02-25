@@ -1,10 +1,11 @@
 from vedo import Plotter
 from collections import namedtuple
 import datetime
+from loguru import logger
 
 import brainrender
 from brainrender import Scene
-from brainrender.camera import set_camera, get_camera_params
+from brainrender.camera import set_camera
 
 from brainrender.gui.ui import UI
 from brainrender.gui.apputils.camera_control import CameraControl
@@ -19,19 +20,22 @@ from brainrender.gui.widgets.screenshot_modal import ScreenshotModal
 class App(
     Scene, UI, CameraControl, AddFromFile, RegionsControl, ActorsControl
 ):
+    startup = True  # some things only run once
     actors = {}  # stores actors and status
     camera_orientation = None  # used to manually set camera orientation
 
     def __init__(self, *args, atlas_name=None, axes=None, **kwargs):
         """
-            Initialise the qtpy app and the brainrender scene. 
+        Initialise the qtpy app and the brainrender scene.
 
-            Arguments:
-            ----------
+        Arguments:
+        ----------
 
-            atlas_name: str/None. Name of the brainglobe atlas to use
-            axes: bool. If true axes are shown in the brainrender render
+        atlas_name: str/None. Name of the brainglobe atlas to use
+        axes: bool. If true axes are shown in the brainrender render
         """
+        logger.debug("Creating brainrender GUI")
+
         # Initialize parent classes
         self.scene = Scene(*args, atlas_name=atlas_name, **kwargs)
         UI.__init__(self, *args, **kwargs)
@@ -46,6 +50,7 @@ class App(
 
         self.setup_plotter()
         self._update()
+        self.scene.render()
         self.scene._get_inset()
 
         # Setup widgets functionality
@@ -75,7 +80,10 @@ class App(
         self.alpha_textbox.textChanged.connect(self.update_actor_properties)
         self.color_textbox.textChanged.connect(self.update_actor_properties)
 
+        self.startup = False
+
     def take_screenshot(self):
+        logger.debug("GUI: taking screenshot")
         self._update()
         self.scene.plotter.render()
 
@@ -96,10 +104,11 @@ class App(
     # ------------------------------ Toggle treeview ----------------------------- #
     def toggle_treeview(self):
         """
-            Method for the show structures tree button.
-            It toggles the visibility of treeView widget
-            and adjusts the button's text accordingly.
+        Method for the show structures tree button.
+        It toggles the visibility of treeView widget
+        and adjusts the button's text accordingly.
         """
+        logger.debug("GUI: toggle tree view")
         if not self.treeView.isHidden():
             self.buttons["show_structures_tree"].setText(
                 "Show structures tree"
@@ -114,9 +123,9 @@ class App(
     # ------------------------------- Initial setup ------------------------------ #
     def setup_plotter(self):
         """
-            Changes the scene's default plotter
-            with one attached to the qtWidget in the 
-            pyqt application. 
+        Changes the scene's default plotter
+        with one attached to the qtWidget in the
+        pyqt application.
         """
         # Get embedded plotter
         new_plotter = Plotter(qtWidget=self.vtkWidget)
@@ -135,11 +144,11 @@ class App(
     # ---------------------------------- Update ---------------------------------- #
     def _update_actors(self):
         """
-            All actors that are part of the scene are stored
-            in a dictionary with key as the actor name and 
-            value as a 4-tuple with (Mesh, is_visible, color, alpha). 
-            `is_visible` is a bool that determines if the 
-            actor should be rendered
+        All actors that are part of the scene are stored
+        in a dictionary with key as the actor name and
+        value as a 4-tuple with (Mesh, is_visible, color, alpha).
+        `is_visible` is a bool that determines if the
+        actor should be rendered
         """
 
         for actor in self.scene.actors:
@@ -151,22 +160,30 @@ class App(
                     self.actors[actor.name] = self.atuple(
                         actor, True, actor.mesh.color(), actor.mesh.alpha()
                     )
+
+                    if actor.silhouette is not None:
+                        self.scene.plotter.remove(actor.silhouette.mesh)
+                        actor.make_silhouette()
+
+                        self.scene.plotter.add(actor.silhouette.mesh)
+                        self.actors[actor.silhouette.name] = self.atuple(
+                            actor.silhouette,
+                            True,
+                            actor.silhouette.mesh.color(),
+                            actor.silhouette.mesh.alpha(),
+                        )
             except AttributeError:
                 # the Assembly object representing the axes should be ignore
                 pass
 
     def _update(self):
         """
-            Updates the scene's Plotter to add/remove
-            meshes
+        Updates the scene's Plotter to add/remove
+        meshes
         """
-        if self.camera_orientation is not None:
-            # set_camera(self.scene, self.camera_orientation)
-            camera = self.camera_orientation
-            self.camera_orientation = None
-        else:
-            camera = get_camera_params(scene=self.scene)
-        self.scene.render(camera=camera)
+
+        # update meshes
+        self.scene._apply_style()
 
         # Get actors to render
         self._update_actors()
@@ -184,6 +201,8 @@ class App(
             *meshes,
             interactorStyle=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
+            resetcam=self.startup,
+            zoom=None,
         )
 
         # Fake a button press to force canvas update
@@ -192,12 +211,11 @@ class App(
 
         # Update list widget
         update_actors_list(self.actors_list, self.actors)
-
         return meshes
 
     # ----------------------------------- Close ---------------------------------- #
     def onClose(self):
         """
-            Disable the interactor before closing to prevent it from trying to act on a already deleted items
+        Disable the interactor before closing to prevent it from trying to act on a already deleted items
         """
         self.vtkWidget.close()

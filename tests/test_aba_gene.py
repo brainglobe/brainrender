@@ -13,7 +13,8 @@ def geapi():
     return geapi
 
 
-def test_gebe_expression_api(geapi):
+@pytest.mark.xfail
+def test_gene_expression_api(geapi):
 
     s = Scene(title="BR")
 
@@ -31,10 +32,9 @@ def test_gebe_expression_api(geapi):
     assert gene_actor.br_class == "Gene Data"
 
     s.add(gene_actor)
-    s.render(interactive=False)
-    del s
 
 
+@pytest.mark.xfail
 @pytest.mark.slow
 def test_download_no_cache(geapi):
     geapi.get_gene_id_by_name(gene)

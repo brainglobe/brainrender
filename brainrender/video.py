@@ -4,6 +4,7 @@ from rich import print
 import os
 import numpy as np
 from myterial import amber, orange, salmon
+from loguru import logger
 
 from brainrender.camera import check_camera_param, get_camera_params
 from brainrender._video import Video
@@ -22,19 +23,23 @@ class VideoMaker:
         make_frame_func=None,
     ):
         """
-            Creates a video by animating a scene and saving a sequence
-            of screenshots.
+        Creates a video by animating a scene and saving a sequence
+        of screenshots.
 
-            :param scene: the instance of Scene to be animated
-            :param save_fld: str, Path. Where the video will be savd
-            :param save_name: str, name of the video
-            :param fmt: str. Video format (e.g. 'mp4')
-            :param make_frame_func: None, optional. If passed it should be a
-                function that takes the Scene to be animated as the fist argument abd
-                the current frame number as second. At every frame this function
-                can do what's needed to animate the scene
-            :param size: str, size of video's frames in pixels
+        :param scene: the instance of Scene to be animated
+        :param save_fld: str, Path. Where the video will be savd
+        :param save_name: str, name of the video
+        :param fmt: str. Video format (e.g. 'mp4')
+        :param make_frame_func: None, optional. If passed it should be a
+            function that takes the Scene to be animated as the fist argument abd
+            the current frame number as second. At every frame this function
+            can do what's needed to animate the scene
+        :param size: str, size of video's frames in pixels
         """
+        logger.debug(
+            f"Creating video with name {name}. Format: {fmt}, size: {size}, save folder: {save_fld}"
+        )
+
         self.scene = scene
 
         self.save_fld = Path(save_fld)
@@ -54,17 +59,17 @@ class VideoMaker:
         scene, frame_number, tot_frames, azimuth=0, elevation=0, roll=0
     ):
         """
-            Default `make_frame_func`. Rotaets the camera in 3 directions
+        Default `make_frame_func`. Rotaets the camera in 3 directions
 
-            :param scene: scene to be animated.
-            :param frame_number: int, not used
-            :param tot_frames: int, total numner of frames
-            :param azimuth: integer, specify the rotation in degrees 
-                        per frame on the relative axis. (Default value = 0)
-            :param elevation: integer, specify the rotation in degrees 
-                        per frame on the relative axis. (Default value = 0)
-            :param roll: integer, specify the rotation in degrees 
-                        per frame on the relative axis. (Default value = 0)
+        :param scene: scene to be animated.
+        :param frame_number: int, not used
+        :param tot_frames: int, total numner of frames
+        :param azimuth: integer, specify the rotation in degrees
+                    per frame on the relative axis. (Default value = 0)
+        :param elevation: integer, specify the rotation in degrees
+                    per frame on the relative axis. (Default value = 0)
+        :param roll: integer, specify the rotation in degrees
+                    per frame on the relative axis. (Default value = 0)
         """
         scene.plotter.show(interactive=False)
         scene.plotter.camera.Elevation(elevation)
@@ -73,11 +78,11 @@ class VideoMaker:
 
     def generate_frames(self, fps, duration, video, *args, **kwargs):
         """
-            Loop to generate frames
+        Loop to generate frames
 
-            :param fps: int, frame rate
-            :param duration: float, video duration in seconds
-            :param video: vedo Video class used to create the video
+        :param fps: int, frame rate
+        :param duration: float, video duration in seconds
+        :param video: vedo Video class used to create the video
         """
         nframes = int(fps * duration)
         for i in track(range(nframes), description="Generating frames"):
@@ -86,8 +91,8 @@ class VideoMaker:
 
     def compress(self, temp_name):
         """
-            Compresses created video with ffmpeg and removes
-            uncompressed video
+        Compresses created video with ffmpeg and removes
+        uncompressed video
         """
 
         command = f"ffmpeg -hide_banner -loglevel panic -i {temp_name}.mp4 -vcodec libx264 -crf 28 {self.save_name}.mp4 -y"
@@ -110,6 +115,7 @@ class VideoMaker:
         :param fps: int, frame rate
         :param **kwargs: any extra keyword argument to be bassed to `make_frame_func`
         """
+        logger.debug(f"Saving a video {duration}s long ({fps} fps)")
         _off = br.settings.OFFSCREEN
         br.settings.OFFSCREEN = True  # render offscreen
 
@@ -151,7 +157,7 @@ class VideoMaker:
 
 def sigma(x):
     """
-        Sigmoid curve
+    Sigmoid curve
     """
     y = 1.05 / (1 + np.exp(-8 * (x - 0.5))) - 0.025
     if y < 0:
@@ -163,29 +169,30 @@ def sigma(x):
 
 class Animation(VideoMaker):
     """
-        The animation class facilitates the creation of videos
-        by specifying a series of keyframes at given moments during
-        the video. At each keyframe various parameters (e.g. camera position)
-        is specified and the video is created by interpolating
-        between consecutive key frames.
+    The animation class facilitates the creation of videos
+    by specifying a series of keyframes at given moments during
+    the video. At each keyframe various parameters (e.g. camera position)
+    is specified and the video is created by interpolating
+    between consecutive key frames.
     """
 
     _last_frame_params = None
 
     def __init__(self, scene, save_fld, name, fmt="mp4", size="1620x1050"):
         """
-            The animation class facilitates the creation of videos
-            by specifying a series of keyframes at given moments during
-            the video. At each keyframe various parameters (e.g. camera position)
-            is specified and the video is created by interpolating
-            between consecutive key frames.
+        The animation class facilitates the creation of videos
+        by specifying a series of keyframes at given moments during
+        the video. At each keyframe various parameters (e.g. camera position)
+        is specified and the video is created by interpolating
+        between consecutive key frames.
 
-            :param scene: the instance of Scene to be animated
-            :param save_fld: str, Path. Where the video will be savd
-            :param save_name: str, name of the video
-            :param fmt: str. Video format (e.g. 'mp4')
+        :param scene: the instance of Scene to be animated
+        :param save_fld: str, Path. Where the video will be savd
+        :param save_name: str, name of the video
+        :param fmt: str. Video format (e.g. 'mp4')
         """
         VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt, size=size)
+        logger.debug(f"Creating animation")
 
         self.keyframes = {}
         self.keyframes[0] = dict(  # make sure first frame is a keyframe
@@ -203,20 +210,20 @@ class Animation(VideoMaker):
         **kwargs,
     ):
         """
-            Add a keyframe to the video.
+        Add a keyframe to the video.
 
-            :param time: float, time in seconds during the video
-                at which the keyframe takes place.
-            :param duration: float, if >0 the key frame is repeated
-                every 5ms to go from start to start+duration
-            :param zoom: camera zoom
-            :param camera: dictionary of camera parameters
-            :param interpol: str, if `sigma` or `linear` specifies
-                the interpolation mode between key frames.
-            :param callback: function which takes scene, current video
-                frame and total number of frames in video as arguments.
-                can be used to make stuff happen during a key frame (e.g. remove
-                an actor)
+        :param time: float, time in seconds during the video
+            at which the keyframe takes place.
+        :param duration: float, if >0 the key frame is repeated
+            every 5ms to go from start to start+duration
+        :param zoom: camera zoom
+        :param camera: dictionary of camera parameters
+        :param interpol: str, if `sigma` or `linear` specifies
+            the interpolation mode between key frames.
+        :param callback: function which takes scene, current video
+            frame and total number of frames in video as arguments.
+            can be used to make stuff happen during a key frame (e.g. remove
+            an actor)
         """
         if camera is not None:
             camera = check_camera_param(camera)
@@ -244,10 +251,10 @@ class Animation(VideoMaker):
 
     def get_keyframe_framenumber(self, fps):
         """
-            Keyframes are defines in units of time (s), so we need
-            to know to which frame each keyframe corresponds
+        Keyframes are defines in units of time (s), so we need
+        to know to which frame each keyframe corresponds
 
-            :param fps: int, frame rate
+        :param fps: int, frame rate
         """
         self.keyframes = {
             int(np.floor(s * fps)): v for s, v in self.keyframes.items()
@@ -256,12 +263,15 @@ class Animation(VideoMaker):
 
     def generate_frames(self, fps, duration, video):
         """
-            Loop to generate frames
+        Loop to generate frames
 
-            :param fps: int, frame rate
-            :param duration: float, video duration in seconds
-            :param video: vedo Video class used to create the video
+        :param fps: int, frame rate
+        :param duration: float, video duration in seconds
+        :param video: vedo Video class used to create the video
         """
+        logger.debug(
+            f"Generating animation keyframes. Duration: {duration}, fps: {fps}"
+        )
         self.get_keyframe_framenumber(fps)
 
         self.nframes = int(fps * duration)
@@ -280,13 +290,13 @@ class Animation(VideoMaker):
 
     def get_frame_params(self, frame_number):
         """
-            Get current parameters (e.g. camera position)
-            based on frame numbe and defined key frames.
+        Get current parameters (e.g. camera position)
+        based on frame numbe and defined key frames.
 
-            If frame number is a keyframe or is after a keyframe
-            then the params are those of that/the last keyframe.
-            Else the params of two consecutive keyframes are interpolate
-            using either a linear or sigmoid function.
+        If frame number is a keyframe or is after a keyframe
+        then the params are those of that/the last keyframe.
+        Else the params of two consecutive keyframes are interpolate
+        using either a linear or sigmoid function.
         """
         if frame_number in self.keyframes_numbers:
             # Check if current frame is a key frame
@@ -320,10 +330,10 @@ class Animation(VideoMaker):
 
     def _make_frame(self, frame_number):
         """
-            Creates a frame with the correct params
-            and calls the keyframe callback function if defined.
+        Creates a frame with the correct params
+        and calls the keyframe callback function if defined.
 
-            :param frame_number: int, current frame number
+        :param frame_number: int, current frame number
         """
         frame_params = self.get_frame_params(frame_number)
 
@@ -351,7 +361,7 @@ class Animation(VideoMaker):
 
     def _interpolate_cameras(self, cam1, cam2):
         """
-            Interpolate the parameters of two cameras
+        Interpolate the parameters of two cameras
         """
         if cam1 is None:
             return cam2
@@ -370,7 +380,7 @@ class Animation(VideoMaker):
 
     def _interpolate_values(self, v1, v2):
         """
-            Interpolate two valuess
+        Interpolate two valuess
         """
         if v1 is None:
             return v2

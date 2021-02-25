@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.local
 def test_export_for_web():
     s = Scene(title="BR")
 

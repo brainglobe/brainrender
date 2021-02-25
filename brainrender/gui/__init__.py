@@ -7,7 +7,7 @@ from brainrender.gui.app import App
 
 def launch(*args, atlas_name=None, output=None, screenshots_folder=None):
     """
-        Launches the application
+    Launches the application
     """
     if output is None:
         screenshot_kwargs = output

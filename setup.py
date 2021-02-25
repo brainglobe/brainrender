@@ -1,9 +1,28 @@
 from setuptools import setup, find_namespace_packages
 from os import path
+from pathlib import Path
+import codecs
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
+
+
+def read(path):
+    with codecs.open(path, "r") as fp:
+        return fp.read()
+
+
+def get_version():
+    path = Path(this_directory) / "brainrender" / "__init__.py"
+
+    for line in read(path).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
 
 requirements = [
     "numpy",
@@ -18,13 +37,13 @@ requirements = [
     "tables",
     "pyinspect>=0.0.8",
     "qtpy",
-    "napari",
     "myterial",
+    "loguru",
 ]
 
 setup(
     name="brainrender",
-    version="2.0.0.5rc",
+    version=get_version(),
     description="Visualisation and exploration of brain atlases and other anatomical data",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -42,17 +61,26 @@ setup(
     ],
     install_requires=requirements,
     extras_require={
+        "lint": [
+            "black",
+            "flake8",
+        ],
         "nb": ["jupyter", "k3d"],
         "dev": [
             "pytest-cov",
+            "pytest-qt",
             "pytest",
             "pytest-sugar",
             "coveralls",
             "coverage<=4.5.4",
+            "black",
+            "flake8",
             "pre-commit",
             "opencv-python",
             "jupyter",
             "allensdk",
+            "PySide2>=5.12.3",
+            "k3d",
         ],
         "pyside2": ["PySide2>=5.12.3"],
         "pyqt5": ["PyQt5>=5.12.3"],

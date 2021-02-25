@@ -1,4 +1,5 @@
 import numpy as np
+from loguru import logger
 
 from vedo import merge
 from vedo.shapes import Line, Sphere, Text
@@ -8,18 +9,19 @@ from brainrender.actor import Actor
 
 
 def ruler(p1, p2, unit_scale=1, units=None, s=50):
-    """ 
-        Creates a ruler showing the distance between two points.
-        The ruler is composed of a line between the points and 
-        a text indicating the distance.
+    """
+    Creates a ruler showing the distance between two points.
+    The ruler is composed of a line between the points and
+    a text indicating the distance.
 
-        :param p1: list, np.ndarray with coordinates of first point
-        :param p2: list, np.ndarray with coordinates of second point
-        :param unit_scale: float. To scale the units (e.g. show mm instead of µm)
-        :param units: str, name of unit (e.g. 'mm')
-        :param s: float size of text
+    :param p1: list, np.ndarray with coordinates of first point
+    :param p2: list, np.ndarray with coordinates of second point
+    :param unit_scale: float. To scale the units (e.g. show mm instead of µm)
+    :param units: str, name of unit (e.g. 'mm')
+    :param s: float size of text
 
     """
+    logger.debug(f"Creating a ruler actor between {p1} and {p2}")
     actors = []
 
     # Make two line segments
@@ -52,14 +54,15 @@ def ruler_from_surface(
     p1, root, unit_scale=1, axis=1, units=None, s=50
 ) -> Actor:
     """
-        Creates a ruler between a point and the brain's surface
-        :param p1: list, np.ndarray with coordinates of  point
-        :param root: mesh or actor with brain's root
-        :param axis: int, index of axis along which distance is computed
-        :param unit_scale: float. To scale the units (e.g. show mm instead of µm)
-        :param units: str, name of unit (e.g. 'mm')
-        :param s: float size of text
+    Creates a ruler between a point and the brain's surface
+    :param p1: list, np.ndarray with coordinates of  point
+    :param root: mesh or actor with brain's root
+    :param axis: int, index of axis along which distance is computed
+    :param unit_scale: float. To scale the units (e.g. show mm instead of µm)
+    :param units: str, name of unit (e.g. 'mm')
+    :param s: float size of text
     """
+    logger.debug(f"Creating a ruler actor between {p1} and brain surface")
     # Get point on brain surface
     p2 = p1.copy()
     p2[axis] = 0  # zero the choosen coordinate

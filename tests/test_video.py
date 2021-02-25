@@ -1,9 +1,10 @@
 from brainrender.scene import Scene
 from brainrender.video import VideoMaker, Animation
-
+import pytest
 from pathlib import Path
 
 
+@pytest.mark.local
 def test_video():
 
     s = Scene(title="BR")
@@ -19,6 +20,7 @@ def test_video():
     path.unlink()
 
 
+@pytest.mark.local
 def test_video_custom():
     def custom(scene, *args, **kwargs):
         return
@@ -37,6 +39,7 @@ def test_video_custom():
     path.unlink()
 
 
+@pytest.mark.local
 def test_animation():
     # Create a brainrender scene
     scene = Scene(title="brain regions", inset=False)

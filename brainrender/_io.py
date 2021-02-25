@@ -5,10 +5,10 @@ import requests
 
 def connected_to_internet(url="http://www.google.com/", timeout=5):
     """
-        Check that there is an internet connection
+    Check that there is an internet connection
 
-        :param url: url to use for testing (Default value = 'http://www.google.com/')
-        :param timeout:  timeout to wait for [in seconds] (Default value = 5)
+    :param url: url to use for testing (Default value = 'http://www.google.com/')
+    :param timeout:  timeout to wait for [in seconds] (Default value = 5)
     """
 
     try:
@@ -21,7 +21,7 @@ def connected_to_internet(url="http://www.google.com/", timeout=5):
 
 def fail_on_no_connection(func):
     """
-        Decorator that throws an error if no internet connection is available
+    Decorator that throws an error if no internet connection is available
     """
     if not connected_to_internet():  # pragma: no cover
         raise ConnectionError(
@@ -34,14 +34,18 @@ def fail_on_no_connection(func):
     return inner
 
 
-@fail_on_no_connection
 def request(url):
     """
     Sends a request to a url
 
-    :param url: 
+    :param url:
 
     """
+    if not connected_to_internet():  # pragma: no cover
+        raise ConnectionError(
+            "No internet connection found."
+        )  # pragma: no cover
+
     response = requests.get(url)
     if response.ok:
         return response
@@ -54,8 +58,8 @@ def request(url):
 
 def check_file_exists(func):  # pragma: no cover
     """
-        Decorator that throws an error if a function;s first argument
-        is not a path to an existing file.
+    Decorator that throws an error if a function;s first argument
+    is not a path to an existing file.
     """
 
     def inner(*args, **kwargs):
@@ -70,11 +74,11 @@ def check_file_exists(func):  # pragma: no cover
 
 @check_file_exists
 def load_mesh_from_file(filepath, color=None, alpha=None):
-    """	
+    """
     Load a a mesh or volume from files like .obj, .stl, ...
 
     :param filepath: path to file
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     actor = load(str(filepath))

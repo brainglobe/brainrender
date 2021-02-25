@@ -4,9 +4,9 @@ from qtpy.QtGui import QFont, QColor, QStandardItem
 class StandardItem(QStandardItem):
     def __init__(self, txt="", tag=None, depth=0, color=None):
         """
-            Items in the tree list with some
-            extended functionality to specify/update
-            their look. 
+        Items in the tree list with some
+        extended functionality to specify/update
+        their look.
         """
         super().__init__()
         self.depth = depth  # depth in the hierarchy structure
@@ -31,9 +31,9 @@ class StandardItem(QStandardItem):
 
     def toggle_active(self):
         """
-            When a mesh corresponding to the item's region
-            get's rendered, change the font to bold
-            to highlight the fact. 
+        When a mesh corresponding to the item's region
+        get's rendered, change the font to bold
+        to highlight the fact.
         """
         fnt = QFont("Roboto", 14)
         if self._checked:

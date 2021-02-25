@@ -8,19 +8,22 @@ from brainrender.atlas_specific import get_streamlines_for_region
 import pytest
 
 
+@pytest.mark.local
 def test_download():
     streams = get_streamlines_for_region("TH", force_download=False)
     assert len(streams) == 54
     assert isinstance(streams[0], pd.DataFrame)
 
 
-@pytest.mark.slow()
+@pytest.mark.local
+@pytest.mark.slow
 def test_download_slow():
     streams = get_streamlines_for_region("TH", force_download=True)
     assert len(streams) == 54
     assert isinstance(streams[0], pd.DataFrame)
 
 
+@pytest.mark.local
 def test_streamlines():
     s = Scene(title="BR")
     streams = get_streamlines_for_region("TH", force_download=False)
@@ -30,5 +33,5 @@ def test_streamlines():
     with pytest.raises(TypeError):
         Streamlines([1, 2, 3])
 
-    s.render(interactive=False)
+    # s.render(interactive=False)
     del s

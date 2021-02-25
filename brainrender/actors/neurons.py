@@ -1,6 +1,7 @@
 from pathlib import Path
 from morphapi.morphology.morphology import Neuron as MorphoNeuron
 from vedo import Mesh
+from loguru import logger
 from pyinspect.utils import _class_name
 
 from brainrender.actor import Actor
@@ -10,13 +11,13 @@ def make_neurons(
     *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
 ):
     """
-        Returns a list of Neurons given a variable numnber of inputs
-        :param neurons: any accepted data input for Neuron
-        :param alpha: float
-        :param color: str
-        :param neuron_radius: float, radius of axon/dendrites
-        :param soma_radius: float, radius of soma
-        :param name: str, actor name
+    Returns a list of Neurons given a variable numnber of inputs
+    :param neurons: any accepted data input for Neuron
+    :param alpha: float
+    :param color: str
+    :param neuron_radius: float, radius of axon/dendrites
+    :param soma_radius: float, radius of soma
+    :param name: str, actor name
     """
     return [
         Neuron(
@@ -42,14 +43,15 @@ class Neuron(Actor):
         name=None,
     ):
         """
-            Creates an Actor representing a single neuron's morphology
-            :param neuron: path to .swc file, Mesh, Actor or Neuron from morphapi.morphology
-            :param alpha: float
-            :param color: str,
-            :param neuron_radius: float, radius of axon/dendrites
-            :param soma_radius: float, radius of soma
-            :param name: str, actor name
+        Creates an Actor representing a single neuron's morphology
+        :param neuron: path to .swc file, Mesh, Actor or Neuron from morphapi.morphology
+        :param alpha: float
+        :param color: str,
+        :param neuron_radius: float, radius of axon/dendrites
+        :param soma_radius: float, radius of soma
+        :param name: str, actor name
         """
+        logger.debug(f"Creating a Neuron actor")
         if color is None:
             color = "blackboard"
         alpha = alpha

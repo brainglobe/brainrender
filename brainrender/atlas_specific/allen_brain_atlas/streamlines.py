@@ -1,6 +1,7 @@
 import pandas as pd
 from rich.progress import track
 from rich import print
+from loguru import logger
 from myterial import orange
 
 try:
@@ -24,9 +25,9 @@ streamlines_folder.mkdir(exist_ok=True)
 
 def experiments_source_search(SOI):
     """
-        Returns data about experiments whose injection was in the SOI, structure of interest
-        :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
-        :param source:  (Default value = True)
+    Returns data about experiments whose injection was in the SOI, structure of interest
+    :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
+    :param source:  (Default value = True)
     """
 
     transgenic_id = 0  # id = 0 means use only wild type
@@ -51,11 +52,11 @@ def experiments_source_search(SOI):
 
 def get_streamlines_data(eids, force_download=False):
     """
-        Given a list of expeirmental IDs, it downloads the streamline data 
-        from the https://neuroinformatics.nl cache and saves them as
-        json files. 
+    Given a list of expeirmental IDs, it downloads the streamline data
+    from the https://neuroinformatics.nl cache and saves them as
+    json files.
 
-        :param eids: list of integers with experiments IDs
+    :param eids: list of integers with experiments IDs
     """
     data = []
     for eid in track(eids, total=len(eids), description="downloading"):
@@ -91,15 +92,18 @@ def get_streamlines_data(eids, force_download=False):
 
 def get_streamlines_for_region(region, force_download=False):
     """
-        Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
-        were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
-        are selected for only WT mice and onl when the region was the primary injection target.
+    Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
+    were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
+    are selected for only WT mice and onl when the region was the primary injection target.
 
-        :param region: str with region to use for research
+    :param region: str with region to use for research
 
     """
+    logger.debug(f"Getting streamlines data for region: {region}")
     # Get experiments whose injections were targeted to the region
     region_experiments = experiments_source_search(region)
+    if region_experiments is None:
+        return None
 
     return get_streamlines_data(
         region_experiments.id.values, force_download=force_download

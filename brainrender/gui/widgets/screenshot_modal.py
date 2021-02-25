@@ -12,14 +12,14 @@ class ScreenshotModal(QDialog):
 
     def __init__(self, main_window, palette):
         """
-            Creates a new window for user to input
-            which regions to add to scene.
+        Creates a new window for user to input
+        which regions to add to scene.
 
-            Arguments:
-            ----------
+        Arguments:
+        ----------
 
-            main_window: reference to the App's main window
-            palette: main_window's palette, used to style widgets
+        main_window: reference to the App's main window
+        palette: main_window's palette, used to style widgets
         """
         super().__init__()
         self.setWindowTitle("Add brain regions")
@@ -35,7 +35,7 @@ class ScreenshotModal(QDialog):
 
     def ui(self):
         """
-            Define UI's elements
+        Define UI's elements
         """
         self.setGeometry(self.left, self.top, self.width, self.height)
 

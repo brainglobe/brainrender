@@ -1,5 +1,6 @@
 from vedo import Volume as VedoVolume
 import numpy as np
+from loguru import logger
 
 from brainrender.actor import Actor
 
@@ -18,24 +19,25 @@ class Volume(Actor):
         **volume_kwargs,
     ):
         """
-            Takes a 3d numpy array with volumetric data
-            and returns an Actor with mesh: vedo.Volume.isosurface or a vedo.Volume.
-            BY default the volume is represented as a surface
+        Takes a 3d numpy array with volumetric data
+        and returns an Actor with mesh: vedo.Volume.isosurface or a vedo.Volume.
+        BY default the volume is represented as a surface
 
-            To extract the surface:
-                The isosurface needs a lower bound threshold, this can be
-                either a user defined hard value (min_value) or the value
-                corresponding to some percentile of the grid data.
+        To extract the surface:
+            The isosurface needs a lower bound threshold, this can be
+            either a user defined hard value (min_value) or the value
+            corresponding to some percentile of the grid data.
 
-            :param griddata: np.ndarray, 3d array with grid data
-            :param voxel_size: int, size of each voxel in microns
-            :param min_quantile: float, percentile for threshold
-            :param min_value: float, value for threshold
-            :param cmap: str, name of colormap to use
-            :param as_surface, bool. default True. If True
-                a surface mesh is returned instead of the whole volume
-            :param volume_kwargs: keyword arguments for vedo's Volume class
+        :param griddata: np.ndarray, 3d array with grid data
+        :param voxel_size: int, size of each voxel in microns
+        :param min_quantile: float, percentile for threshold
+        :param min_value: float, value for threshold
+        :param cmap: str, name of colormap to use
+        :param as_surface, bool. default True. If True
+            a surface mesh is returned instead of the whole volume
+        :param volume_kwargs: keyword arguments for vedo's Volume class
         """
+        logger.debug(f"Creating a Volume actor")
         # Create mesh
         color = volume_kwargs.pop("c", "viridis")
         if isinstance(griddata, np.ndarray):

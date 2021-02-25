@@ -25,8 +25,8 @@ class JupyterMixIn:  # pragma: no cover
 class not_on_jupyter:  # pragma: no cover
     def __init__(self, func):  # pragma: no cover
         """
-            A decorator to block some methods from
-            running in jupyter notebooks
+        A decorator to block some methods from
+        running in jupyter notebooks
         """
         update_wrapper(self, func)
         self.func = func
