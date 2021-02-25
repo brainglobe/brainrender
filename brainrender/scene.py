@@ -226,7 +226,13 @@ class Scene(JupyterMixIn, Render):
         return matches
 
     def add_brain_region(
-        self, *regions, alpha=1, color=None, silhouette=None, hemisphere="both"
+        self,
+        *regions,
+        alpha=1,
+        color=None,
+        silhouette=None,
+        hemisphere="both",
+        force=False,
     ):
         """
         Dedicated method to add brain regions to render
@@ -240,6 +246,7 @@ class Scene(JupyterMixIn, Render):
             - if "both" the complete mesh is returned
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
+        :param force: force adding of region even if already rendred
         """
         if silhouette is None:
             silhouette = (
@@ -249,8 +256,11 @@ class Scene(JupyterMixIn, Render):
             )
 
         # avoid adding regions already rendered
-        already_in = [r.name for r in self.get_actors(br_class="brain region")]
-        regions = [r for r in regions if r not in already_in]
+        if not force:
+            already_in = [
+                r.name for r in self.get_actors(br_class="brain region")
+            ]
+            regions = [r for r in regions if r not in already_in]
         if not regions:  # they were all already rendered
             logger.debug(
                 "Not adding any region because they are all already in the scene"
