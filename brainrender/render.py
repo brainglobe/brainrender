@@ -110,12 +110,16 @@ class Render:
 
         # Flip every actor's orientation
         if not actor._is_transformed:
-            actor.applyTransform(mtx)
             try:
-                actor.reverse()
-            except AttributeError:  # Volumes don't have reverse
-                pass
-            actor._is_transformed = True
+                actor.mesh.applyTransform(mtx)
+            except AttributeError:  # some types of actors dont trasform
+                actor._is_transformed = True
+            else:
+                try:
+                    actor.mesh.reverse()
+                except AttributeError:  # Volumes don't have reverse
+                    pass
+                actor._is_transformed = True
 
         # Add silhouette and labels
         if actor._needs_silhouette and not self.backend:

@@ -251,25 +251,35 @@ class Scene(JupyterMixIn, Render):
         # avoid adding regions already rendered
         already_in = [r.name for r in self.get_actors(br_class="brain region")]
         regions = [r for r in regions if r not in already_in]
+        if not regions:  # they were all already rendered
+            logger.debug(
+                "Not adding any region because they are all already in the scene"
+            )
+            return None
+
         logger.debug(
-            f"Adding {len(regions)} brain regions to scene: {regions}"
+            f"SCENE: Adding {len(regions)} brain regions to scene: {regions}"
         )
 
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
 
+        # add actors
+        if silhouette and regions and alpha:
+            self.add_silhouette(*regions)
+
+        actors = self.add(*regions)
+
+        # slice
         if hemisphere == "right":
             plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, -1))
         elif hemisphere == "left":
             plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, 1))
+
         if hemisphere in ("left", "right"):
-            self.slice(plane, actors=regions, close_actors=True)
-
-        if silhouette and regions and alpha:
-            self.add_silhouette(*regions)
-
-        return self.add(*regions)
+            self.slice(plane, actors=actors, close_actors=True)
+        return actors
 
     @not_on_jupyter
     def add_silhouette(self, *actors, lw=None, color="k"):
@@ -322,7 +332,9 @@ class Scene(JupyterMixIn, Render):
         if isinstance(plane, str):
             plane = self.atlas.get_plane(plane=plane)
 
-        actors = actors or self.clean_actors.copy()
+        if not actors or actors is None:
+            actors = self.clean_actors.copy()
+
         for actor in listify(actors):
             actor.mesh = actor.mesh.cutWithPlane(
                 origin=plane.center,
@@ -330,6 +342,10 @@ class Scene(JupyterMixIn, Render):
             )
             if close_actors:
                 actor.cap()
+
+            if actor.silhouette is not None:
+                self.plotter.remove(actor.silhouette.mesh)
+                self.plotter.add(actor.make_silhouette().mesh)
 
     @property
     def content(self):

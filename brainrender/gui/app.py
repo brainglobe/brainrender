@@ -160,6 +160,18 @@ class App(
                     self.actors[actor.name] = self.atuple(
                         actor, True, actor.mesh.color(), actor.mesh.alpha()
                     )
+
+                    if actor.silhouette is not None:
+                        self.scene.plotter.remove(actor.silhouette.mesh)
+                        actor.make_silhouette()
+
+                        self.scene.plotter.add(actor.silhouette.mesh)
+                        self.actors[actor.silhouette.name] = self.atuple(
+                            actor.silhouette,
+                            True,
+                            actor.silhouette.mesh.color(),
+                            actor.silhouette.mesh.alpha(),
+                        )
             except AttributeError:
                 # the Assembly object representing the axes should be ignore
                 pass
@@ -172,7 +184,6 @@ class App(
 
         # update meshes
         self.scene._apply_style()
-        self.scene._prepare_actors()
 
         # Get actors to render
         self._update_actors()
