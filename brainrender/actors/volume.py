@@ -1,5 +1,6 @@
 from vedo import Volume as VedoVolume
 import numpy as np
+
 from pathlib import Path
 from loguru import logger
 
@@ -31,6 +32,7 @@ class Volume(Actor):
 
         :param griddata: np.ndarray, 3d array with grid data. Can also be a vedo Volume
             or a file path pointing to a .npy file
+        :param griddata: np.ndarray, 3d array with grid data
         :param voxel_size: int, size of each voxel in microns
         :param min_quantile: float, percentile for threshold
         :param min_value: float, value for threshold

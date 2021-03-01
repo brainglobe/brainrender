@@ -78,3 +78,4 @@ Note: these tests are designed to push brainrender to the limits, in practice se
 and increase FPS. This includes decimating/smoothing Actors to reduce the number of vertices or creating meshes with lower resolution to
 begin with. For most cases a significant increase in performance can be achieved with no noticeable loss in rendering quality.
 For instance on computer [4] lowering the resolution of the Points actor from 8 to 4 when rendering 1M points tripled the FPS.
+
