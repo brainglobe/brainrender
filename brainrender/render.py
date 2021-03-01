@@ -6,6 +6,7 @@ from rich import print
 from pathlib import Path
 from myterial import orange, amber, deep_purple_light, teal
 from rich.syntax import Syntax
+from loguru import logger
 
 from brainrender import settings
 from brainrender.camera import (
@@ -33,7 +34,7 @@ class Render:
         Backend for Scene, handles all rendering and exporting
         related tasks.
         """
-        return
+        self._get_plotter()
 
     def _get_plotter(self):
         """
@@ -62,7 +63,7 @@ class Render:
         atlas_shape = np.array(self.atlas.metadata["shape"]) * np.array(
             self.atlas.metadata["resolution"]
         )
-
+        z_range = np.array([-atlas_shape[2], 0])
         z_ticks = [
             (-v, str(np.abs(v).astype(np.int32)))
             for v in np.linspace(
@@ -71,6 +72,13 @@ class Render:
                 10,
             )
         ]
+
+        if self.atlas.atlas_name == "allen_human_500um":
+            z_range = None
+            z_ticks = None
+            logger.debug(
+                "RENDER: manually forcing axes size for human atlas, atlas needs fixing"
+            )
 
         # make custom axes dict
         axes = dict(
@@ -82,7 +90,7 @@ class Render:
             textScale=0.8,
             xTitleRotation=0,
             xFlipText=True,
-            zrange=np.array([-atlas_shape[2], 0]),
+            zrange=z_range,
             zValuesAndLabels=z_ticks,
             xyGrid=False,
             yzGrid=False,
@@ -91,7 +99,7 @@ class Render:
 
         return axes
 
-    def _prepare_actors(self):
+    def _prepare_actor(self, actor):
         """
         When an actor is first rendered, a transform matrix
         is applied to its points to correct axes orientation
@@ -101,21 +109,24 @@ class Render:
         """
 
         # Flip every actor's orientation
-        for actor in self.clean_actors + self.labels:
-            if not actor._is_transformed:
-                actor.applyTransform(mtx)
+        if not actor._is_transformed:
+            try:
+                actor.mesh.applyTransform(mtx)
+            except AttributeError:  # some types of actors dont trasform
+                actor._is_transformed = True
+            else:
                 try:
-                    actor.reverse()
+                    actor.mesh.reverse()
                 except AttributeError:  # Volumes don't have reverse
                     pass
                 actor._is_transformed = True
 
-            # Add silhouette and labels
-            if actor._needs_silhouette and not self.backend:
-                self.actors.append(actor.make_silhouette())
+        # Add silhouette and labels
+        if actor._needs_silhouette and not self.backend:
+            self.plotter.add(actor.make_silhouette().mesh)
 
-            if actor._needs_label and not self.backend:
-                self.labels.extend(actor.make_label(self.atlas))
+        if actor._needs_label and not self.backend:
+            self.labels.extend(actor.make_label(self.atlas))
 
     def _apply_style(self):
         """
@@ -136,7 +147,14 @@ class Render:
             except AttributeError:
                 pass
 
-    def render(self, interactive=None, camera=None, zoom=None, **kwargs):
+    def render(
+        self,
+        interactive=None,
+        camera=None,
+        zoom=None,
+        update_camera=True,
+        **kwargs,
+    ):
         """
         Renders the scene.
 
@@ -147,8 +165,12 @@ class Render:
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
         :param zoom: float, if None atlas default is used
+        :param update_camera: bool, if False the camera is not changed
         :param kwargs: additional arguments to pass to self.plotter.show
         """
+        logger.debug(
+            f"Rendering scene. Interactive: {interactive}, camera: {camera}, zoom: {zoom}"
+        )
         # get zoom
         zoom = zoom or self.atlas.zoom
 
@@ -157,8 +179,9 @@ class Render:
             self._get_plotter()
 
         # Get camera
-        if camera is None:
-            camera = get_camera(settings.DEFAULT_CAMERA)
+        camera = camera or settings.DEFAULT_CAMERA
+        if isinstance(camera, str):
+            camera = get_camera(camera)
         else:
             camera = check_camera_param(camera)
 
@@ -166,7 +189,10 @@ class Render:
             camera = set_camera(self, camera)
 
         # Apply axes correction
-        self._prepare_actors()
+        for actor in self.clean_actors + self.labels:
+            if not actor._is_transformed:
+                self._prepare_actor(actor)
+                self.plotter.add(actor.mesh)
 
         # Apply style
         self._apply_style()
@@ -184,12 +210,12 @@ class Render:
                 txt.followCamera(self.plotter.camera)
 
             self.plotter.show(
-                *self.renderables,
+                # *self.renderables,
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 offscreen=settings.OFFSCREEN,
-                camera=camera.copy() if camera else None,
+                camera=camera.copy() if update_camera else None,
                 interactorStyle=0,
                 rate=40,
             )
@@ -223,6 +249,7 @@ class Render:
 
         :param savepath: str, Path to a .html file to save the export
         """
+        logger.debug(f"Exporting scene to {savepath}")
         _backend = self.backend
 
         if not self.is_rendered:
@@ -264,6 +291,7 @@ class Render:
         :param name: str, name of png file
         :param scale: float, >1 for higher resolution
         """
+
         if not self.is_rendered:
             self.render(interactive=False)
 
@@ -275,7 +303,9 @@ class Render:
         scale = scale or settings.SCREENSHOT_SCALE
 
         print(f"\nSaving new screenshot at {name}\n")
+
         savepath = str(self.screenshots_folder / name)
+        logger.debug(f"Saving scene at {savepath}")
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 

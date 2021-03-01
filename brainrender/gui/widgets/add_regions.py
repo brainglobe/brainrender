@@ -25,7 +25,7 @@ class AddRegionsWindow(QDialog):
         palette: main_window's palette, used to style widgets
         """
         super().__init__()
-        self.setWindowTitle("Add brain regions")
+        self.setWindowTitle("Select options")
         self.ui()
         self.main_window = main_window
         self.setStyleSheet(update_css(style, palette))

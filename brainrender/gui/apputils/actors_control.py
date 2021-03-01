@@ -1,6 +1,7 @@
 import numpy as np
 from qtpy.QtGui import QColor, QIcon
 from pkg_resources import resource_filename
+from loguru import logger
 
 from brainrender.gui.utils import (
     get_color_from_string,
@@ -26,6 +27,7 @@ class ActorsControl:
         """
         # Get currently selected actor
         aname = self.actors_list.currentItem().text()
+        logger.debug(f"Updating properties of actor: {aname}")
         if aname not in self.actors.keys():
             raise ValueError(f"Actor {aname} not in the actors record")
         else:
@@ -47,7 +49,7 @@ class ActorsControl:
                 actor.mesh, actor.is_visible, color, alpha
             )
             self._update()
-        except IndexError:  # likely something went wrong with getting of color
+        except IndexError:  # something went wrong with getting of color
             self.actors[aname] = actor
             return
 
@@ -59,6 +61,7 @@ class ActorsControl:
         """
         # Get actor
         aname = self.actors_list.currentItem().text()
+        logger.debug(f"GUI: toggling {aname} visibility")
         if aname not in self.actors.keys():
             raise ValueError(f"Actor {aname} not in the actors record")
         else:

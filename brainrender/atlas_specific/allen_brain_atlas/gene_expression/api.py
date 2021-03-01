@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import sys
+from loguru import logger
+
 
 from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils import (
     check_gene_cached,
@@ -120,6 +122,7 @@ class GeneExpressionAPI:
         """
         Given a list of gene ids
         """
+        logger.debug(f"Getting gene data for gene: {gene} experiment {exp_id}")
         self.gene_name = self.gene_name or gene
 
         # Check if gene-experiment cached

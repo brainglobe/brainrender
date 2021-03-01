@@ -1,6 +1,7 @@
 from vedo import Plotter
 from collections import namedtuple
 import datetime
+from loguru import logger
 
 import brainrender
 from brainrender import Scene
@@ -19,6 +20,7 @@ from brainrender.gui.widgets.screenshot_modal import ScreenshotModal
 class App(
     Scene, UI, CameraControl, AddFromFile, RegionsControl, ActorsControl
 ):
+    startup = True  # some things only run once
     actors = {}  # stores actors and status
     camera_orientation = None  # used to manually set camera orientation
 
@@ -32,6 +34,8 @@ class App(
         atlas_name: str/None. Name of the brainglobe atlas to use
         axes: bool. If true axes are shown in the brainrender render
         """
+        logger.debug("Creating brainrender GUI")
+
         # Initialize parent classes
         self.scene = Scene(*args, atlas_name=atlas_name, **kwargs)
         UI.__init__(self, *args, **kwargs)
@@ -76,7 +80,10 @@ class App(
         self.alpha_textbox.textChanged.connect(self.update_actor_properties)
         self.color_textbox.textChanged.connect(self.update_actor_properties)
 
+        self.startup = False
+
     def take_screenshot(self):
+        logger.debug("GUI: taking screenshot")
         self._update()
         self.scene.plotter.render()
 
@@ -101,6 +108,7 @@ class App(
         It toggles the visibility of treeView widget
         and adjusts the button's text accordingly.
         """
+        logger.debug("GUI: toggle tree view")
         if not self.treeView.isHidden():
             self.buttons["show_structures_tree"].setText(
                 "Show structures tree"
@@ -152,6 +160,18 @@ class App(
                     self.actors[actor.name] = self.atuple(
                         actor, True, actor.mesh.color(), actor.mesh.alpha()
                     )
+
+                    if actor.silhouette is not None:
+                        self.scene.plotter.remove(actor.silhouette.mesh)
+                        actor.make_silhouette()
+
+                        self.scene.plotter.add(actor.silhouette.mesh)
+                        self.actors[actor.silhouette.name] = self.atuple(
+                            actor.silhouette,
+                            True,
+                            actor.silhouette.mesh.color(),
+                            actor.silhouette.mesh.alpha(),
+                        )
             except AttributeError:
                 # the Assembly object representing the axes should be ignore
                 pass
@@ -164,7 +184,6 @@ class App(
 
         # update meshes
         self.scene._apply_style()
-        self.scene._prepare_actors()
 
         # Get actors to render
         self._update_actors()
@@ -182,7 +201,8 @@ class App(
             *meshes,
             interactorStyle=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
-            resetcam=True,
+            resetcam=self.startup,
+            zoom=None,
         )
 
         # Fake a button press to force canvas update

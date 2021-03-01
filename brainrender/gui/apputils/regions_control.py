@@ -1,5 +1,6 @@
-import brainrender
+from loguru import logger
 
+import brainrender
 from brainrender.gui.widgets.add_regions import AddRegionsWindow
 from brainrender.gui.widgets.actors_list import remove_from_list
 from brainrender.gui.utils import (
@@ -36,6 +37,7 @@ class RegionsControl:
         alpha: str, meshes transparency
         color: str, meshes color. If 'atlas' the default colors are used
         """
+        logger.debug(f"GUI: Adding brain regions: {regions}")
         # Get params
         alpha = get_alpha_from_string(alpha)
         if alpha is None:
@@ -62,6 +64,7 @@ class RegionsControl:
         When an item on the hierarchy tree is double clicked, the
         corresponding mesh is added/removed from the brainrender scene
         """
+        logger.debug("GUI: adding brain region from tree view")
         # Get item
         idxs = self.treeView.selectedIndexes()
         if idxs:

@@ -1,6 +1,7 @@
 from vedo import Volume as VedoVolume
 import numpy as np
 from pathlib import Path
+from loguru import logger
 
 from brainrender.actor import Actor
 
@@ -38,6 +39,7 @@ class Volume(Actor):
             a surface mesh is returned instead of the whole volume
         :param volume_kwargs: keyword arguments for vedo's Volume class
         """
+        logger.debug(f"Creating a Volume actor")
         # Create mesh
         color = volume_kwargs.pop("c", "viridis")
         if isinstance(griddata, np.ndarray):

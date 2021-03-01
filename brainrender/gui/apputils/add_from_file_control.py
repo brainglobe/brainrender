@@ -1,6 +1,7 @@
 from qtpy.QtWidgets import QFileDialog
 from pathlib import Path
 import numpy as np
+from loguru import logger
 
 from brainrender.gui.widgets.add_from_file import AddFromFileWindow
 from brainrender.gui.utils import (
@@ -74,6 +75,7 @@ class AddFromFile:
         Add to scene from brainrender.stl, .obj and .vtk files.
         Method of the corresponding button
         """
+        logger.debug("GUI: adding mesh (e.g. obj) form file")
         self.__add_from_file(self.scene.add)
 
     def _get_cells_mesh(self, fp):
@@ -85,4 +87,5 @@ class AddFromFile:
         Add to scene from brainrender.npy files with cell coordinates data.
         Method of the corresponding button
         """
+        logger.debug("GUI: adding CELLS from file")
         self.__add_from_file(self._get_cells_mesh)

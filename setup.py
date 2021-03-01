@@ -38,6 +38,7 @@ requirements = [
     "pyinspect>=0.0.8",
     "qtpy",
     "myterial",
+    "loguru",
 ]
 
 setup(

@@ -1,6 +1,7 @@
 from vedo import Video as VtkVideo
 from myterial import amber_light
 from rich import print
+from loguru import logger
 import os
 
 
@@ -19,6 +20,7 @@ class Video(VtkVideo):
     def close(self):
         """Render the video and write to file."""
         print(f"[{amber_light}]Saving video")
+        logger.debug(f"[{amber_light}]Saving video")
 
         fld = os.path.join(self.tmp_dir.name, "%d.png")
         fps = int(self.fps)

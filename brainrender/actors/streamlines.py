@@ -1,6 +1,9 @@
 import pandas as pd
 from vedo.shapes import Tube
 from vedo import merge
+from loguru import logger
+from pathlib import Path
+
 
 from brainrender.actor import Actor
 
@@ -34,7 +37,10 @@ class Streamlines(Actor):
         :param alpha: float, transparancy
         :param name: str, name of the actor.
         """
-        if not isinstance(data, pd.DataFrame):
+        logger.debug(f"Creating a streamlines actor")
+        if isinstance(data, (str, Path)):
+            data = pd.read_json(data)
+        elif not isinstance(data, pd.DataFrame):
             raise TypeError("Input data should be a dataframe")
 
         self.radius = radius

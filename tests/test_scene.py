@@ -39,13 +39,14 @@ def test_brain_regions():
     assert isinstance(regs, list)
     assert len(regs) == 2
 
+    nan = scene.add_brain_region("MOs", "CA1")
+    assert nan is None
     noone = scene.add_brain_region("what is this")
     assert noone is None
 
-    a1 = scene.add_brain_region("TH", hemisphere="left")
-    a2 = scene.add_brain_region("CA1", hemisphere="right")
-    assert isinstance(a1, Actor)
-    assert isinstance(a2, Actor)
+    scene.add_brain_region("TH", hemisphere="left")
+    scene.add_brain_region("CA1", hemisphere="right")
+    scene.add_brain_region("STN", hemisphere="right")
 
     del scene
 

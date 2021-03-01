@@ -10,6 +10,7 @@ from pathlib import Path
 from vedo import Mesh, Plane, Text2D, Assembly
 import pyinspect as pi
 from rich import print
+from loguru import logger
 from myterial import amber, orange, orange_darker, salmon
 
 from brainrender import settings
@@ -41,6 +42,9 @@ class Scene(JupyterMixIn, Render):
         :param title: str. If true a title is added to the top of the window
         :param screenshots_folder: str, Path. Where the screenshots will be saved
         """
+        logger.debug(
+            f"Creating scene with parameters: root: {root}, atlas_name: '{atlas_name}'', inset: {inset}, screenshots_folder: {screenshots_folder}"
+        )
         JupyterMixIn.__init__(self)
 
         self.actors = []  # stores all actors in the scene
@@ -171,6 +175,14 @@ class Scene(JupyterMixIn, Render):
                     f"Unrecognized argument: {item} [{pi.utils._class_name(item)}]"
                 )
 
+        # transform actors
+        for actor in actors:
+            self._prepare_actor(actor)
+
+        # add actors to plotter
+        for actor in actors:
+            self.plotter.add(actor.mesh)
+
         # Add to the lists actors
         self.actors.extend(actors)
         return return_list_smart(actors)
@@ -179,6 +191,7 @@ class Scene(JupyterMixIn, Render):
         """
         Removes actors from the scene.
         """
+        logger.debug(f"Removing {len(actors)} actors from scene")
         for act in actors:
             try:
                 self.actors.pop(self.actors.index(act))
@@ -186,6 +199,15 @@ class Scene(JupyterMixIn, Render):
                 print(
                     f"Could not remove ({act}, {pi.utils._class_name(act)}) from actors"
                 )
+            else:
+                # remove from plotter
+                self.plotter.remove(act.mesh)
+
+                if act.silhouette is not None:
+                    self.plotter.remove(act.silhouette.mesh)
+
+                for label in act.labels:
+                    self.plotter.remove(label.mesh)
 
     def get_actors(self, name=None, br_class=None):
         """
@@ -204,7 +226,13 @@ class Scene(JupyterMixIn, Render):
         return matches
 
     def add_brain_region(
-        self, *regions, alpha=1, color=None, silhouette=None, hemisphere="both"
+        self,
+        *regions,
+        alpha=1,
+        color=None,
+        silhouette=None,
+        hemisphere="both",
+        force=False,
     ):
         """
         Dedicated method to add brain regions to render
@@ -218,6 +246,7 @@ class Scene(JupyterMixIn, Render):
             - if "both" the complete mesh is returned
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
+        :param force: force adding of region even if already rendred
         """
         if silhouette is None:
             silhouette = (
@@ -226,21 +255,41 @@ class Scene(JupyterMixIn, Render):
                 else False
             )
 
+        # avoid adding regions already rendered
+        if not force:
+            already_in = [
+                r.name for r in self.get_actors(br_class="brain region")
+            ]
+            regions = [r for r in regions if r not in already_in]
+        if not regions:  # they were all already rendered
+            logger.debug(
+                "Not adding any region because they are all already in the scene"
+            )
+            return None
+
+        logger.debug(
+            f"SCENE: Adding {len(regions)} brain regions to scene: {regions}"
+        )
+
         # get regions actors from atlas
         regions = self.atlas.get_region(*regions, alpha=alpha, color=color)
         regions = listify(regions) or []
 
+        # add actors
+        if silhouette and regions and alpha:
+            self.add_silhouette(*regions)
+
+        actors = self.add(*regions)
+
+        # slice
         if hemisphere == "right":
             plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, -1))
         elif hemisphere == "left":
             plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, 1))
+
         if hemisphere in ("left", "right"):
-            self.slice(plane, actors=regions, close_actors=True)
-
-        if silhouette and regions and alpha:
-            self.add_silhouette(*regions)
-
-        return self.add(*regions)
+            self.slice(plane, actors=actors, close_actors=True)
+        return actors
 
     @not_on_jupyter
     def add_silhouette(self, *actors, lw=None, color="k"):
@@ -293,7 +342,9 @@ class Scene(JupyterMixIn, Render):
         if isinstance(plane, str):
             plane = self.atlas.get_plane(plane=plane)
 
-        actors = actors or self.clean_actors.copy()
+        if not actors or actors is None:
+            actors = self.clean_actors.copy()
+
         for actor in listify(actors):
             actor.mesh = actor.mesh.cutWithPlane(
                 origin=plane.center,
@@ -301,6 +352,10 @@ class Scene(JupyterMixIn, Render):
             )
             if close_actors:
                 actor.cap()
+
+            if actor.silhouette is not None:
+                self.plotter.remove(actor.silhouette.mesh)
+                self.plotter.add(actor.make_silhouette().mesh)
 
     @property
     def content(self):
