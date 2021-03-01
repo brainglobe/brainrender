@@ -40,32 +40,33 @@ def spiker(scene, framen, tot_frames, cam1=None, cam2=None, end=1, prev=0):
     Update channels meshes based on which channels
     deteted spikes
     """
-    # Remove previous spikes
-    spikes = scene.get_actors(name="spikes")
-    spikes_sil = scene.get_actors(name="spikes silhouette")
-    scene.remove(*spikes, *spikes_sil)
+    if framen%15 == 0:  # update only every .5s
+        # Remove previous spikes
+        spikes = scene.get_actors(name="spikes")
+        spikes_sil = scene.get_actors(name="spikes silhouette")
+        scene.remove(*spikes, *spikes_sil)
 
-    # turn on current spikes
-    # select spikes for this frame
-    t0 = (framen * max_t) / tot_frames
-    t1 = ((framen + 1) * max_t) / tot_frames
-    idxs = np.where((spikes_times >= t0) & (spikes_times < t1))[0]
+        # turn on current spikes
+        # select spikes for this frame
+        t0 = (framen * max_t) / tot_frames
+        t1 = ((framen + 1) * max_t) / tot_frames
+        idxs = np.where((spikes_times >= t0) & (spikes_times < t1))[0]
 
-    # get cluster -> channel -> probe location
-    clusts = spikes_clu[choices(idxs, k=1000)].ravel()
-    chs = clu_channel[clusts].ravel().astype(np.int64)
-    points = probes_locs.iloc[chs]
+        # get cluster -> channel -> probe location
+        clusts = spikes_clu[choices(idxs, k=1000)].ravel()
+        chs = clu_channel[clusts].ravel().astype(np.int64)
+        points = probes_locs.iloc[chs]
 
-    # add to scene
-    spheres = Points(
-        points[["ccf_ap", "ccf_dv", "ccf_lr"]].values,
-        colors=salmon_dark,
-        alpha=1,
-        radius=36,
-        name="spikes",
-    )
-    spheres = scene.add(spheres)
-    scene.add_silhouette(spheres, lw=LW + 1)
+        # add to scene
+        spheres = Points(
+            points[["ccf_ap", "ccf_dv", "ccf_lr"]].values,
+            colors=salmon_dark,
+            alpha=1,
+            radius=36,
+            name="spikes",
+        )
+        spheres = scene.add(spheres)
+        scene.add_silhouette(spheres, lw=LW + 1)
 
     # Interpolate cameras
     anim.segment_fact = (end - framen) / (end - prev)

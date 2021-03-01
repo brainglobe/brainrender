@@ -50,7 +50,7 @@ class PointsBase:
 
         self.name = self.name or "Points"
         mesh = Spheres(
-            data, r=self.radius, c=self.colors, alpha=self.alpha, res=8
+            data, r=self.radius, c=self.colors, alpha=self.alpha, res=self.res
         )
         return mesh
 
@@ -76,7 +76,7 @@ class PointsBase:
 
 
 class Points(PointsBase, Actor):
-    def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20):
+    def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20, res=8):
         """
         Creates an actor representing multiple points (more efficient than
         creating many Point instances).
@@ -86,6 +86,7 @@ class Points(PointsBase, Actor):
         :param color: str, or list of str with color names or hex codes
         :param alpha: float
         :param name: str, actor name
+        :param res: int. Resolution of sphere actors
         """
         PointsBase.__init__(self)
         logger.debug(f"Creating a Points actor")
@@ -94,6 +95,7 @@ class Points(PointsBase, Actor):
         self.colors = colors
         self.alpha = alpha
         self.name = name
+        self.res = res
 
         if isinstance(data, np.ndarray):
             mesh = self._from_numpy(data)
