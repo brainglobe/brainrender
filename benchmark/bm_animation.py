@@ -7,7 +7,7 @@ scene = Scene(title="brain regions", inset=False)
 
 with Timer(scene, name="Animation"):
     # Add brain regions
-    for br in ("TH", "Mos", "MOp", "CA1", "CB", "MB"):
+    for br in ("TH", "MOs", "MOp", "CA1", "CB", "MB"):
         scene.add_brain_region(br, silhouette=False)
 
     anim = Animation(scene, "examples", "vid3")
