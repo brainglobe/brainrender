@@ -63,14 +63,9 @@ class Scene(JupyterMixIn, Render):
         Render.__init__(self)
 
         # Get root mesh
-        if root:
-            root_alpha = settings.ROOT_ALPHA
-        else:
-            root_alpha = 0
-
         self.root = self.add_brain_region(
             "root",
-            alpha=root_alpha,
+            alpha=settings.ROOT_ALPHA,
             color=settings.ROOT_COLOR,
             silhouette=True
             if root and settings.SHADER_STYLE == "cartoon"
@@ -78,6 +73,8 @@ class Scene(JupyterMixIn, Render):
         )
         self.atlas.root = self.root  # give atlas access to root
         self._root_mesh = self.root.mesh.clone()
+        if not root:
+            self.remove(self.root)
 
         # keep track if we need to make an inset
         self.inset = inset
@@ -117,7 +114,7 @@ class Scene(JupyterMixIn, Render):
         if settings.SHADER_STYLE == "cartoon":
             inset.lighting("off")
 
-    def add(self, *items, names=None, classes=None, **kwargs):
+    def add(self, *items, names=None, classes=None, transform=True, **kwargs):
         """
         General method to add Actors to the scene.
 
@@ -176,8 +173,9 @@ class Scene(JupyterMixIn, Render):
                 )
 
         # transform actors
-        for actor in actors:
-            self._prepare_actor(actor)
+        if transform:
+            for actor in actors:
+                self._prepare_actor(actor)
 
         # add actors to plotter
         for actor in actors:
@@ -292,7 +290,7 @@ class Scene(JupyterMixIn, Render):
         return actors
 
     @not_on_jupyter
-    def add_silhouette(self, *actors, lw=None, color="k"):
+    def add_silhouette(self, *actors, lw=1, color="k"):
         """
         Dedicated method to add silhouette to actors
 

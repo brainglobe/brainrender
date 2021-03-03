@@ -1,4 +1,4 @@
-Code to evaluate how fast brainrender is and how it compares to other software.
+ TheseCode to evaluate how fast brainrender is and how it compares to other software.
 
 Note: the exact duration on your system will depend on various factors like if other processes are
 running or the size of the rendering window/screen.

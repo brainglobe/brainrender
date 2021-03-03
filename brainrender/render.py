@@ -194,6 +194,9 @@ class Render:
                 self._prepare_actor(actor)
                 self.plotter.add(actor.mesh)
 
+            if actor._needs_silhouette or actor._needs_label:
+                self._prepare_actor(actor)
+
         # Apply style
         self._apply_style()
 
