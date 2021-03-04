@@ -12,4 +12,5 @@ with Timer(scene, name="Brain regions"):
         except FileNotFoundError:
             pass
 
+
 scene.close()

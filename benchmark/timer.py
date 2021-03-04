@@ -88,7 +88,14 @@ class Timer:
 
         yield ""
         yield f"     [bold {amber}]Duration and FPS:"
-        yield f"[{blue_light}]Timer duration: [b {pink_light}]{self.stop - self.start:.2f} seconds"
+
+        t0 = self._pre_render_stop - self.start
+        t1 = self.stop - self.start
+        t_ratio = t0 / t1
+
+        yield f"[{blue_light}]Scene preparation timer duration: [b {pink_light}]{t0:.2f} seconds"
+        yield f"[{blue_light}]Total timer duration: [b {pink_light}]{t1:.2f} seconds"
+        yield f"[{blue_light}]Fraction of time spent preparing scene: [b {pink_light}]{t_ratio:.2f}"
         yield f"[{blue_light}]Rendering [b]FPS[/b]: [b {pink_light}]{self.render_fps:.2f} frames per second"
 
         yield ""
@@ -114,6 +121,8 @@ class Timer:
         return self
 
     def __exit__(self, *args):
+        self._pre_render_stop = time.perf_counter()
+
         try:
             self.scene.render(interactive=False)
         except AttributeError:

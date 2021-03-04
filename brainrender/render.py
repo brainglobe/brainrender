@@ -111,7 +111,8 @@ class Render:
         # Flip every actor's orientation
         if not actor._is_transformed:
             try:
-                actor.mesh.applyTransform(mtx)
+                actor._mesh = actor.mesh.clone()
+                actor._mesh.applyTransform(mtx)
             except AttributeError:  # some types of actors dont trasform
                 actor._is_transformed = True
             else:
@@ -143,7 +144,8 @@ class Render:
                 style = "off"
 
             try:
-                actor.lighting(style=style)
+                actor.mesh.lighting(style=style)
+                actor._mesh.lighting(style=style)
             except AttributeError:
                 pass
 
@@ -213,7 +215,6 @@ class Render:
                 txt.followCamera(self.plotter.camera)
 
             self.plotter.show(
-                # *self.renderables,
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,

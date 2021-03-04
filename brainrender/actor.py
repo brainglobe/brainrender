@@ -123,6 +123,11 @@ class Actor(object):
         If an unknown attribute is called, try `self.mesh.attr`
         to get the meshe's attribute
         """
+        if "mesh" not in self.__dict__.keys():
+            raise AttributeError(
+                f"Actor doesn not have attribute {attr}"
+            )  # pragma: no cover
+
         if attr == "__rich__":
             return None
         if hasattr(self.__dict__["mesh"], attr):
@@ -171,7 +176,7 @@ class Actor(object):
         """
         lw = self._silhouette_kwargs["lw"]
         color = self._silhouette_kwargs["color"]
-        sil = self.mesh.silhouette().lw(lw).c(color)
+        sil = self._mesh.silhouette().lw(lw).c(color)
 
         name = f"{self.name} silhouette"
         sil = Actor.make_actor(sil, name, "silhouette")
