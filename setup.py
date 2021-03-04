@@ -86,7 +86,9 @@ setup(
         "pyqt5": ["PyQt5>=5.12.3"],
     },
     python_requires=">=3.6",
-    packages=find_namespace_packages(exclude=("tests, examples")),
+    packages=find_namespace_packages(
+        exclude=("tests, examples, benchmark, paper")
+    ),
     entry_points={
         "console_scripts": [
             "brainrender-gui = brainrender.gui.__init__:clilaunch",
