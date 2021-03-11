@@ -1,5 +1,6 @@
 from examples import (
     add_cells,
+    add_labels,
     add_mesh_from_file,
     animation,
     brain_regions,

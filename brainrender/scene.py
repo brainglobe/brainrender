@@ -265,6 +265,7 @@ class Scene(JupyterMixIn, Render):
                 r.name for r in self.get_actors(br_class="brain region")
             ]
             regions = [r for r in regions if r not in already_in]
+
         if not regions:  # they were all already rendered
             logger.debug(
                 "Not adding any region because they are all already in the scene"
@@ -287,9 +288,13 @@ class Scene(JupyterMixIn, Render):
 
         # slice
         if hemisphere == "right":
-            plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, -1))
+            plane = self.atlas.get_plane(
+                pos=self.root._mesh.centerOfMass(), norm=(0, 0, -1)
+            )
         elif hemisphere == "left":
-            plane = self.atlas.get_plane(plane="sagittal", norm=(0, 0, 1))
+            plane = self.atlas.get_plane(
+                pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
+            )
 
         if hemisphere in ("left", "right"):
             self.slice(plane, actors=actors, close_actors=True)
@@ -350,7 +355,7 @@ class Scene(JupyterMixIn, Render):
             actors = self.clean_actors.copy()
 
         for actor in listify(actors):
-            actor.mesh = actor.mesh.cutWithPlane(
+            actor._mesh = actor._mesh.cutWithPlane(
                 origin=plane.center,
                 normal=plane.normal,
             )
