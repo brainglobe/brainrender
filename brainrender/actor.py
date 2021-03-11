@@ -88,6 +88,7 @@ class Actor(object):
     _needs_label = False  # needs to make a label
     _needs_silhouette = False  # needs to make a silhouette
     _is_transformed = False  # has been transformed to correct axes orientation
+    _is_added = False  # has the actor been added to the scene already
 
     labels = []
     silhouette = None

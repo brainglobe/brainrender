@@ -201,9 +201,13 @@ class Render:
 
         # add labels to the scene
         for label in self.labels:
-            label._mesh = label.mesh.clone()
-            self._prepare_actor(label)
-            self.plotter.add(label._mesh)
+            if label._is_added:
+                continue
+            else:
+                label._mesh = label.mesh.clone()
+                self._prepare_actor(label)
+                self.plotter.add(label._mesh)
+                label._is_added = True
 
         # Apply style
         self._apply_style()
