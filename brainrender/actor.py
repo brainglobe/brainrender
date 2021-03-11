@@ -9,6 +9,10 @@ from vedo import Text, Sphere
 from brainrender._utils import listify
 
 
+# transform matrix to fix labels orientation
+label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+
+
 def make_actor_label(
     atlas,
     actors,
@@ -40,7 +44,7 @@ def make_actor_label(
 
         # Get label color
         if color is None:
-            color = actor.c()
+            color = [0.2, 0.2, 0.2]
 
         # Get mesh's highest point
         points = actor.points().copy()
@@ -63,6 +67,10 @@ def make_actor_label(
             yoffset=yoffset,
             zoffset=zoffset,
         )
+
+        # rotate label
+        p = txt.pos()
+        txt.pos(x=0, y=0, z=0).rotateX(180).rotateY(180).pos(p)
 
         new_actors.append(txt)
 

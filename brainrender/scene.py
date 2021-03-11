@@ -202,7 +202,10 @@ class Scene(JupyterMixIn, Render):
                 )
             else:
                 # remove from plotter
-                self.plotter.remove(act.mesh)
+                try:
+                    self.plotter.remove(act._mesh)
+                except AttributeError:
+                    pass
 
                 if act.silhouette is not None:
                     self.plotter.remove(act.silhouette.mesh)

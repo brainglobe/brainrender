@@ -191,13 +191,19 @@ class Render:
             camera = set_camera(self, camera)
 
         # Apply axes correction
-        for actor in self.clean_actors + self.labels:
+        for actor in self.clean_actors:
             if not actor._is_transformed:
                 self._prepare_actor(actor)
                 self.plotter.add(actor.mesh)
 
             if actor._needs_silhouette or actor._needs_label:
                 self._prepare_actor(actor)
+
+        # add labels to the scene
+        for label in self.labels:
+            label._mesh = label.mesh.clone()
+            self._prepare_actor(label)
+            self.plotter.add(label._mesh)
 
         # Apply style
         self._apply_style()
