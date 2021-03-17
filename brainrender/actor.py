@@ -139,12 +139,23 @@ class Actor(object):
 
         if attr == "__rich__":
             return None
-        if hasattr(self.__dict__["mesh"], attr):
-            return getattr(self.__dict__["mesh"], attr)
-        else:  # pragma: no cover
-            raise AttributeError(
-                f"Actor doesn not have attribute {attr}"
-            )  # pragma: no cover
+
+        # some attributes should be from .mesh, others from ._mesh
+        mesh_attributes = ("centerOfMass",)
+        if attr in mesh_attributes:
+            if hasattr(self.__dict__["mesh"], attr):
+                return getattr(self.__dict__["mesh"], attr)
+        else:
+            try:
+                return getattr(self.__dict__["_mesh"], attr)
+            except KeyError:
+                # no ._mesh, use .mesh
+                if hasattr(self.__dict__["mesh"], attr):
+                    return getattr(self.__dict__["mesh"], attr)
+
+        raise AttributeError(
+            f"Actor doesn not have attribute {attr}"
+        )  # pragma: no cover
 
     def __repr__(self):  # pragma: no cover
         return f"brainrender.Actor: {self.name}-{self.br_class}"

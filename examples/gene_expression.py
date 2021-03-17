@@ -2,6 +2,12 @@ from brainrender import Scene
 from brainrender import settings
 from brainrender.atlas_specific import GeneExpressionAPI
 
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 settings.SHOW_AXES = False
 
 scene = Scene(inset=False)

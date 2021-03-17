@@ -2,6 +2,12 @@ from brainrender import Scene
 from brainrender.video import VideoMaker
 
 
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 # Create a scene
 scene = Scene("my video")
 scene.add_brain_region("TH")

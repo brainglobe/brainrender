@@ -29,6 +29,11 @@ from pathlib import Path
 from myterial import blue_grey
 
 
+from rich import print
+from myterial import orange
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 # specify where the data are saved
 datafile = Path("/Users/federicoclaudi/Downloads/T_AVG_brn3c_GFP.tif")
 

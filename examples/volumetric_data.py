@@ -13,6 +13,12 @@ from brainrender.actors import Volume
 settings.SHOW_AXES = False
 
 
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 scene = Scene(inset=False)
 
 data = np.load("examples/data/volume.npy")

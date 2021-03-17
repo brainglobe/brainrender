@@ -1,5 +1,12 @@
 from brainrender import Scene, Animation
 
+
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 """
     This example shows how to create an animated video by specifying
     the camera parameters at a number of key frames

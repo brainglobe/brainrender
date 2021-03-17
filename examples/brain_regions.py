@@ -1,5 +1,11 @@
 from brainrender import Scene
 
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 # Create a brainrender scene
 scene = Scene(title="brain regions")
 

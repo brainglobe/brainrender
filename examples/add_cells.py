@@ -4,6 +4,12 @@ import numpy as np
 from brainrender import Scene
 from brainrender.actors import Points
 
+from rich import print
+from myterial import orange
+from pathlib import Path
+
+print(f"[{orange}]Running example: {Path(__file__).name}")
+
 
 def get_n_random_points_in_region(region, N):
     """
