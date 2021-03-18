@@ -144,7 +144,10 @@ class Render:
                 style = "off"
 
             try:
+                actor.mesh.reverse()  # flip normals
                 actor.mesh.lighting(style=style)
+
+                actor._mesh.reverse()
                 actor._mesh.lighting(style=style)
             except AttributeError:
                 pass
