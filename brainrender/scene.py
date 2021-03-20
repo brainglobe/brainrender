@@ -289,11 +289,11 @@ class Scene(JupyterMixIn, Render):
         # slice
         if hemisphere == "right":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, -1)
+                pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
             )
         elif hemisphere == "left":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
+                pos=self.root._mesh.centerOfMass(), norm=(0, 0, -1)
             )
 
         if hemisphere in ("left", "right"):

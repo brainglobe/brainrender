@@ -18,10 +18,12 @@ class Cylinder(Actor):
         :param alpha: float
         :param radius: float
         """
-        logger.info(f"Creating Cylinder actor at: {pos}")
+        logger.debug(f"Creating Cylinder actor at: {pos}")
         # Get pos
-        if isinstance(pos, (Actor, Mesh)):
-            pos = pos.centerOfMass()
+        if isinstance(pos, Mesh):
+            pos = pos.points().mean(axis=0)
+        elif isinstance(pos, Actor):
+            pos = pos.center
 
         # Get point at top of cylinder
         top = pos.copy()

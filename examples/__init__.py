@@ -2,6 +2,7 @@ from examples import (
     add_cells,
     add_labels,
     add_mesh_from_file,
+    add_cylinder,
     animation,
     brain_regions,
     brainglobe_atlases,

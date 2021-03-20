@@ -167,6 +167,11 @@ class Actor(object):
 
         return buf.getvalue()
 
+    @property
+    def center(self):
+        """ returns the coordinates of the mesh's center """
+        return self.mesh.points().mean(axis=0)
+
     @classmethod
     def make_actor(cls, mesh, name, br_class):
         """
