@@ -7,8 +7,6 @@ import shutil
 def test_scene_creation():
     scene = Scene(root=False)
     scene.root
-    assert scene.root.alpha() == 0
-
     noinset = Scene(inset=False, title="TEST")
     noinset.root
     del scene

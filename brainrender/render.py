@@ -88,13 +88,18 @@ class Render:
             ytitle="DV (μm)",
             ztitle="LR (μm)",
             textScale=0.8,
-            xTitleRotation=0,
-            xFlipText=True,
+            xTitleRotation=180,
             zrange=z_range,
             zValuesAndLabels=z_ticks,
             xyGrid=False,
             yzGrid=False,
             zxGrid=False,
+            xUseBounds=True,
+            yUseBounds=True,
+            zUseBounds=True,
+            xLabelRotation=180,
+            yLabelRotation=180,
+            zLabelRotation=90,
         )
 
         return axes
@@ -189,6 +194,9 @@ class Render:
             camera = get_camera(camera)
         else:
             camera = check_camera_param(camera)
+
+        if camera["focalPoint"] is None:
+            camera["focalPoint"] = self.root._mesh.centerOfMass()
 
         if not self.backend and camera is not None:
             camera = set_camera(self, camera)

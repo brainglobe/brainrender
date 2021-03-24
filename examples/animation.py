@@ -5,6 +5,10 @@ from rich import print
 from myterial import orange
 from pathlib import Path
 
+import brainrender
+
+brainrender.set_logging("DEBUG")
+
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 """
@@ -23,9 +27,12 @@ anim = Animation(scene, "./examples", "vid3")
 # Specify camera position and zoom at some key frames
 # each key frame defines the scene's state after n seconds have passed
 anim.add_keyframe(0, camera="top", zoom=1.3)
-anim.add_keyframe(1, camera="sagittal", zoom=2.1)
-anim.add_keyframe(2, camera="frontal", zoom=3)
-anim.add_keyframe(3, camera="frontal", zoom=2)
+anim.add_keyframe(1, camera="sagittal", zoom=3)
+anim.add_keyframe(2, camera="frontal", zoom=0.8)
+anim.add_keyframe(
+    3,
+    camera="frontal",
+)
 
 # Make videos
 anim.make_video(duration=3, fps=10)

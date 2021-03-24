@@ -2,7 +2,7 @@ import numpy as np
 from loguru import logger
 
 from vedo import merge
-from vedo.shapes import Line, Sphere, Text
+from vedo.shapes import Line, Sphere, Text3D
 from vedo.utils import precision, mag
 
 from brainrender.actor import Actor
@@ -37,7 +37,7 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
         units = ""  # pragma: no cover
     dist = mag(p2 - p1) * unit_scale
     label = precision(dist, 3) + " " + units
-    lbl = Text(label, pos=midpoint, s=s + 100, justify="center")
+    lbl = Text3D(label, pos=midpoint, s=s + 100, justify="center")
     lbl.SetOrientation([0, 0, 180])
     actors.append(lbl)
 

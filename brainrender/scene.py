@@ -82,7 +82,7 @@ class Scene(JupyterMixIn, Render):
         # add title
         if title:
             self.add(
-                Text2D(title, pos=8, s=2.5, c="k", alpha=1, font="Montserrat"),
+                Text2D(title, pos="top-center", s=2.5, c="k", alpha=1),
                 names="title",
                 classes="title",
             )
@@ -109,7 +109,7 @@ class Scene(JupyterMixIn, Render):
 
         inset = self._root_mesh.clone()
         inset.alpha(1)  # scale(0.5)
-        self.plotter.showInset(inset, pos=(0.95, 0.1), draggable=False)
+        self.plotter.addInset(inset, pos=(0.95, 0.1), draggable=False)
 
         if settings.SHADER_STYLE == "cartoon":
             inset.lighting("off")
@@ -140,7 +140,7 @@ class Scene(JupyterMixIn, Render):
             if isinstance(item, (Mesh, Assembly)):
                 actors.append(Actor(item, name=name, br_class=_class))
 
-            elif pi.utils._class_name(item) == "vtkCornerAnnotation":
+            elif isinstance(item, Text2D):
                 # Mark text actors differently because they don't behave like
                 # other 3d actors
                 actors.append(

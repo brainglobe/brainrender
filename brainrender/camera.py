@@ -30,6 +30,8 @@ def check_camera_param(camera):
                 raise ValueError(
                     f"Camera parameters dict should include the following keys: {params}, missing: {param}"
                 )
+        if "focalPoint" not in camera.keys():
+            camera["focalPoint"] = None
         return camera
 
 

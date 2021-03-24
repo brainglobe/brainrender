@@ -3,7 +3,7 @@ from io import StringIO
 from rich.console import Console
 import numpy as np
 from myterial import orange, salmon, amber
-from vedo import Text, Sphere
+from vedo import Text3D, Sphere
 
 
 from brainrender._utils import listify
@@ -58,7 +58,7 @@ def make_actor_label(
             pass
 
         # Create label
-        txt = Text(label, point, s=size, c=color)
+        txt = Text3D(label, point, s=size, c=color)
         txt._kwargs = dict(
             size=size,
             color=color,
@@ -136,9 +136,6 @@ class Actor(object):
             raise AttributeError(
                 f"Actor doesn not have attribute {attr}"
             )  # pragma: no cover
-
-        if attr == "__rich__":
-            return None
 
         # some attributes should be from .mesh, others from ._mesh
         mesh_attributes = ("centerOfMass",)

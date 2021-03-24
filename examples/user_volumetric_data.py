@@ -66,11 +66,7 @@ vol = Volume(transformed_stack, origin=scene.root.origin()).medianSmooth()
 print("Extracting surface")
 SHIFT = [-20, 15, 30]  # fine tune mesh position
 mesh = (
-    vol.isosurface(threshold=20)
-    .c(blue_grey)
-    .decimate()
-    .clean()
-    .addPos(dp_x=SHIFT)
+    vol.isosurface(threshold=20).c(blue_grey).decimate().clean().addPos(*SHIFT)
 )
 
 # 5. render

@@ -177,6 +177,7 @@ class Animation(VideoMaker):
     """
 
     _last_frame_params = None
+    _first_zoom = 0
 
     def __init__(self, scene, save_fld, name, fmt="mp4", size="1620x1050"):
         """
@@ -203,8 +204,8 @@ class Animation(VideoMaker):
         self,
         time,
         duration=0,
-        zoom=None,
         camera=None,
+        zoom=None,
         interpol="sigma",
         callback=None,
         **kwargs,
@@ -231,6 +232,10 @@ class Animation(VideoMaker):
         if time in self.keyframes.keys() and time > 0:
             print(f"[b {orange}]Keyframe {time} already exists, overwriting!")
 
+        # if zoom is not None:
+        #     previous_zoom = list(self.keyframes.values())[0]['zoom'] or 0
+        #     zoom = zoom - previous_zoom
+
         if not duration:
             self.keyframes[time] = dict(
                 zoom=zoom,
@@ -242,7 +247,7 @@ class Animation(VideoMaker):
         else:
             for time in np.arange(time, time + duration, 0.001):
                 self.keyframes[time] = dict(
-                    zoom=zoom,
+                    zoom=zoom if time == 0 else None,
                     camera=camera,
                     callback=callback,
                     interpol=interpol,
@@ -319,7 +324,7 @@ class Animation(VideoMaker):
 
             params = dict(
                 camera=self._interpolate_cameras(kf1["camera"], kf2["camera"]),
-                zoom=self._interpolate_values(kf1["zoom"], kf2["zoom"]),
+                zoom=1,
                 callback=None,
             )
 
@@ -336,6 +341,7 @@ class Animation(VideoMaker):
         :param frame_number: int, current frame number
         """
         frame_params = self.get_frame_params(frame_number)
+        logger.debug(f"Frame {frame_number}, params: {frame_params}")
 
         # callback
         if frame_params["callback"] is not None:
