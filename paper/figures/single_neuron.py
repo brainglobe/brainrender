@@ -30,7 +30,6 @@ scene.root.alpha(0.5)
 pag = scene.add_brain_region("PAG", alpha=0.4, silhouette=False, color=pagcol)
 scm = scene.add_brain_region("SCm", alpha=0.3, silhouette=False, color=scmcol)
 
-
 # add neuron mesh
 neuron = scene.add("paper/data/yulins_neuron.stl")
 neuron.c(neuroncol)
@@ -40,7 +39,6 @@ soma_pos = [9350.51912036, 2344.33986638, 5311.18297796]
 point = scene.add(Point(soma_pos, color=neuroncol, radius=25))
 scene.add_silhouette(point, lw=1, color="k")
 scene.add_silhouette(neuron, lw=1, color="k")
-
 
 # slice scene repeatedly to cut out region of interest
 p = [9700, 1, 800]
