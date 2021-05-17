@@ -239,7 +239,6 @@ class Render:
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
-                offscreen=settings.OFFSCREEN,
                 camera=camera.copy() if update_camera else None,
                 interactorStyle=0,
                 rate=40,
