@@ -1,4 +1,4 @@
-from vedo import Plotter, closePlotter, plotter
+from vedo import Plotter, closePlotter
 from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime

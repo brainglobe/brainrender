@@ -8,7 +8,7 @@ Scene
 import sys
 from pathlib import Path
 from typing import List
-from vedo import Mesh, Plane, Text2D, Assembly, plotter
+from vedo import Mesh, Plane, Text2D, Assembly
 import pyinspect as pi
 from rich import print
 from loguru import logger
