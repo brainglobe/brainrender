@@ -1,4 +1,4 @@
-from vedo import Plotter, closePlotter
+from vedo import Plotter, closePlotter, plotter
 from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime
@@ -29,12 +29,16 @@ class Render:
     axes_lookup = {"x": "AP", "y": "DV", "z": "LR"}
     axes_indices = {"AP": 0, "DV": 1, "LR": 2}
 
-    def __init__(self):
+    def __init__(self, plotter=None):
         """
         Backend for Scene, handles all rendering and exporting
         related tasks.
         """
-        self._get_plotter()
+        if plotter is None:
+            self._get_plotter()
+        else:
+            self.plotter = plotter
+            self.plotter.keyPressFunction = self.keypress
 
     def _get_plotter(self):
         """
