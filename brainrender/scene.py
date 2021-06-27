@@ -7,6 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
+from typing import List
 from vedo import Mesh, Plane, Text2D, Assembly
 import pyinspect as pi
 from rich import print
@@ -31,6 +32,7 @@ class Scene(JupyterMixIn, Render):
         inset=True,
         title=None,
         screenshots_folder=None,
+        plotter=None
     ):
         """
         Main scene in brainrender.
@@ -60,7 +62,7 @@ class Scene(JupyterMixIn, Render):
         self.screenshots_folder.mkdir(exist_ok=True)
 
         # Initialise render class
-        Render.__init__(self)
+        Render.__init__(self, plotter)
 
         # Get root mesh
         self.root = self.add_brain_region(
@@ -333,7 +335,7 @@ class Scene(JupyterMixIn, Render):
 
     def slice(
         self,
-        plane: [str, Plane],
+        plane: List[str, Plane],
         actors=None,
         close_actors=False,
     ):
