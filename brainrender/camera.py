@@ -47,7 +47,7 @@ def set_camera_params(camera, params):
     camera.SetViewUp(params["viewup"])
     camera.SetClippingRange(params["clippingRange"])
 
-    if "focalPoint" in params.keys():
+    if "focalPoint" in params.keys() and params["focalPoint"] is not None:
         camera.SetFocalPoint(params["focalPoint"])
     if "distance" in params.keys():
         camera.SetDistance(params["distance"])

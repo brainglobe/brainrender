@@ -2,6 +2,8 @@ from vedo import Plotter
 from collections import namedtuple
 import datetime
 from loguru import logger
+from qtpy.QtWidgets import QFrame
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 import brainrender
 from brainrender import Scene
@@ -36,8 +38,17 @@ class App(
         """
         logger.debug("Creating brainrender GUI")
 
+        # make a vtk widget for the vedo plotter
+        frame = QFrame()
+        self.vtkWidget = QVTKRenderWindowInteractor(frame)
+
+        # Get vtkWidget plotter and creates a scene embedded in it
+        new_plotter = Plotter(qtWidget=self.vtkWidget)
+        self.scene = Scene(
+            *args, atlas_name=atlas_name, plotter=new_plotter, **kwargs
+        )
+
         # Initialize parent classes
-        self.scene = Scene(*args, atlas_name=atlas_name, **kwargs)
         UI.__init__(self, *args, **kwargs)
         CameraControl.__init__(self)
         AddFromFile.__init__(self)
@@ -48,7 +59,7 @@ class App(
         self.axes = axes
         self.atuple = namedtuple("actor", "mesh, is_visible, color, alpha")
 
-        self.setup_plotter()
+        self.setup_scene()
         self._update()
         self.scene.render()
         self.scene._get_inset()
@@ -121,16 +132,10 @@ class App(
         self.treeView.setHidden(not self.treeView.isHidden())
 
     # ------------------------------- Initial setup ------------------------------ #
-    def setup_plotter(self):
+    def setup_scene(self):
         """
-        Changes the scene's default plotter
-        with one attached to the qtWidget in the
-        pyqt application.
+        Set scene's axes and camera
         """
-        # Get embedded plotter
-        new_plotter = Plotter(qtWidget=self.vtkWidget)
-        self.scene.plotter = new_plotter
-
         # Get axes
         if self.axes:
             self.axes = self._make_axes()

@@ -29,12 +29,16 @@ class Render:
     axes_lookup = {"x": "AP", "y": "DV", "z": "LR"}
     axes_indices = {"AP": 0, "DV": 1, "LR": 2}
 
-    def __init__(self):
+    def __init__(self, plotter=None):
         """
         Backend for Scene, handles all rendering and exporting
         related tasks.
         """
-        self._get_plotter()
+        if plotter is None:
+            self._get_plotter()
+        else:
+            self.plotter = plotter
+            self.plotter.keyPressFunction = self.keypress
 
     def _get_plotter(self):
         """
@@ -195,7 +199,7 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if camera["focalPoint"] is None:
+        if "focalPoint" in camera.keys() and camera["focalPoint"] is None:
             camera["focalPoint"] = self.root._mesh.centerOfMass()
 
         if not self.backend and camera is not None:
@@ -239,7 +243,6 @@ class Render:
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
-                offscreen=settings.OFFSCREEN,
                 camera=camera.copy() if update_camera else None,
                 interactorStyle=0,
                 rate=40,
@@ -289,7 +292,7 @@ class Render:
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.renderables)
+        plt.add(self.clean_renderables, render=False)
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 

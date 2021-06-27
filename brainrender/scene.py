@@ -7,7 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Plane, Text2D, Assembly
+from vedo import Mesh, Text2D, Assembly
 import pyinspect as pi
 from rich import print
 from loguru import logger
@@ -31,6 +31,7 @@ class Scene(JupyterMixIn, Render):
         inset=True,
         title=None,
         screenshots_folder=None,
+        plotter=None,
     ):
         """
         Main scene in brainrender.
@@ -60,7 +61,7 @@ class Scene(JupyterMixIn, Render):
         self.screenshots_folder.mkdir(exist_ok=True)
 
         # Initialise render class
-        Render.__init__(self)
+        Render.__init__(self, plotter)
 
         # Get root mesh
         self.root = self.add_brain_region(
@@ -333,7 +334,7 @@ class Scene(JupyterMixIn, Render):
 
     def slice(
         self,
-        plane: [str, Plane],
+        plane,
         actors=None,
         close_actors=False,
     ):
@@ -402,3 +403,10 @@ class Scene(JupyterMixIn, Render):
         returns only ators that are not Text objects and similar
         """
         return [a for a in self.actors if not a.is_text]
+
+    @property
+    def clean_renderables(self):
+        """
+        Returns meshses only for 'clean actors' (i.e. not text)
+        """
+        return [a.mesh for a in self.actors if not a.is_text]
