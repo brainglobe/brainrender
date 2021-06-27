@@ -2,6 +2,7 @@ from brainrender import settings
 
 settings.INTERACTIVE = False
 settings.OFFSCREEN = True
+settings.DEFAULT_ATLAS = "allen_mouse_100um"
 
 from vedo import settings as vsettings
 
