@@ -403,3 +403,10 @@ class Scene(JupyterMixIn, Render):
         returns only ators that are not Text objects and similar
         """
         return [a for a in self.actors if not a.is_text]
+
+    @property
+    def clean_renderables(self):
+        """
+        Returns meshses only for 'clean actors' (i.e. not text)
+        """
+        return [a.mesh for a in self.actors if not a.is_text]

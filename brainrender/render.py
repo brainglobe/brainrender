@@ -199,7 +199,7 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if camera["focalPoint"] is None:
+        if "focalPoint" in camera.keys() and camera["focalPoint"] is None:
             camera["focalPoint"] = self.root._mesh.centerOfMass()
 
         if not self.backend and camera is not None:
@@ -292,7 +292,7 @@ class Render:
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.renderables)
+        plt.add(self.clean_renderables, render=False)
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 

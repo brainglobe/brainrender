@@ -9,11 +9,8 @@ def test_scene_creation():
     scene.root
     noinset = Scene(inset=False, title="TEST")
     noinset.root
-    del scene
-    del noinset
 
 
-@pytest.mark.local
 def test_scene_render_simple():
     scene = Scene()
     scene.render(interactive=False)
@@ -24,7 +21,6 @@ def test_scene_specials():
     print(scene)
     str(scene)
     scene.content
-    del scene
 
 
 def test_brain_regions():
@@ -46,26 +42,13 @@ def test_brain_regions():
     scene.add_brain_region("CA1", hemisphere="right")
     scene.add_brain_region("STN", hemisphere="right")
 
-    del scene
-
-
-@pytest.mark.xfail(reason="No data in repo")
-def test_add_from_files():
-    scene = Scene()
-    obj = scene.add("tests/files/CC_134_1_ch1inj.obj", color="red")
-    assert isinstance(obj, Actor)
-
-    del scene
-
 
 def test_labels():
     scene = Scene()
     th = scene.add_brain_region("TH")
     scene.add_label(th, "TH")
-    del scene
 
 
-@pytest.mark.local
 def test_scene_render():
     scene = Scene()
     scene.add_brain_region("TH")
@@ -88,8 +71,6 @@ def test_scene_render():
             clippingRange=(30461.81976236306, 58824.38622122339),
         ),
     )
-
-    del scene
 
 
 def test_scene_slice():
@@ -117,7 +98,6 @@ def test_scene_slice():
     del s
 
 
-@pytest.mark.local
 @pytest.mark.parametrize(
     "name, scale", [("test", 2), (None, None), (None, 1), ("test2", None)]
 )
