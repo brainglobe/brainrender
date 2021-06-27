@@ -7,8 +7,7 @@ Scene
 """
 import sys
 from pathlib import Path
-from typing import List
-from vedo import Mesh, Plane, Text2D, Assembly
+from vedo import Mesh, Text2D, Assembly
 import pyinspect as pi
 from rich import print
 from loguru import logger
@@ -32,7 +31,7 @@ class Scene(JupyterMixIn, Render):
         inset=True,
         title=None,
         screenshots_folder=None,
-        plotter=None
+        plotter=None,
     ):
         """
         Main scene in brainrender.
@@ -335,7 +334,7 @@ class Scene(JupyterMixIn, Render):
 
     def slice(
         self,
-        plane: List[str, Plane],
+        plane,
         actors=None,
         close_actors=False,
     ):

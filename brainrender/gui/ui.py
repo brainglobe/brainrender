@@ -9,13 +9,11 @@ from qtpy.QtWidgets import (
     QLineEdit,
     QTreeView,
     QSplitter,
-    QFrame,
 )
 from qtpy.QtCore import Qt
 from qtpy import QtGui
 from qtpy.QtGui import QStandardItemModel
 from pkg_resources import resource_filename
-from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 from brainrender.gui.style import style, tree_css, update_css, _themes
 from brainrender.gui.widgets.tree import StandardItem
@@ -214,10 +212,6 @@ class UI(QMainWindow):
         Creates vtkWidget for the vedo plotter and a few
         useful buttons, for the central part of the GUI
         """
-        # make a vtk widget for the vedo plotter
-        frame = QFrame()
-        self.vtkWidget = QVTKRenderWindowInteractor(frame)
-
         # Create layout, add canvas and buttons
         layout = QVBoxLayout()
         layout.addWidget(self.vtkWidget)

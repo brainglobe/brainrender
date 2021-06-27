@@ -39,7 +39,7 @@ class Atlas(BrainGlobeAtlas):
             )
             return 350
         else:
-            return 25 / res
+            return 18 / res
 
     def get_region(self, *regions, alpha=1, color=None):
         """

@@ -2,6 +2,8 @@ from vedo import Plotter
 from collections import namedtuple
 import datetime
 from loguru import logger
+from qtpy.QtWidgets import QFrame
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 import brainrender
 from brainrender import Scene
@@ -36,17 +38,22 @@ class App(
         """
         logger.debug("Creating brainrender GUI")
 
+        # make a vtk widget for the vedo plotter
+        frame = QFrame()
+        self.vtkWidget = QVTKRenderWindowInteractor(frame)
+
+        # Get vtkWidget plotter and creates a scene embedded in it
+        new_plotter = Plotter(qtWidget=self.vtkWidget)
+        self.scene = Scene(
+            *args, atlas_name=atlas_name, plotter=new_plotter, **kwargs
+        )
+
         # Initialize parent classes
         UI.__init__(self, *args, **kwargs)
         CameraControl.__init__(self)
         AddFromFile.__init__(self)
         RegionsControl.__init__(self)
         ActorsControl.__init__(self)
-
-        # Get vtkWidget plotter and creates a scene embedded in it
-        new_plotter = Plotter(qtWidget=self.vtkWidget)
-        self.scene = Scene(*args, atlas_name=atlas_name, plotter=new_plotter, **kwargs)
-
 
         # Setup brainrender plotter
         self.axes = axes
