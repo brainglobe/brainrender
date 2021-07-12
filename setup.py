@@ -88,7 +88,7 @@ setup(
     },
     python_requires=">=3.6",
     packages=find_namespace_packages(
-        exclude=("tests, examples, benchmark, paper")
+        exclude=("tests, examples, benchmark, paper, imgs, videos")
     ),
     entry_points={
         "console_scripts": [
