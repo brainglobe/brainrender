@@ -199,7 +199,7 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if "focalPoint" in camera.keys() and camera["focalPoint"] is None:
+        if "focalPoint" not in camera.keys() or camera["focalPoint"] is None:
             camera["focalPoint"] = self.root._mesh.centerOfMass()
 
         if not self.backend and camera is not None:
