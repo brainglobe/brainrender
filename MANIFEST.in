@@ -1,2 +1,9 @@
 global-include *.svg
 include brainrender/gui/icons*
+
+recursive-exclude paper *
+recursive-exclude tests *
+recursive-exclude examples *
+recursive-exclude imgs *
+recursive-exclude videos *
+recursive-exclude benchmark *

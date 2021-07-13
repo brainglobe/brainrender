@@ -19,7 +19,7 @@ from brainrender.video import VideoMaker, Animation
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
 
-__version__ = "2.0.3.5rc"
+__version__ = "2.0.3.7rc"
 
 # set logger level
 
