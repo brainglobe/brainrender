@@ -282,12 +282,9 @@ class Scene(JupyterMixIn, Render):
         regions = listify(regions) or []
 
         # add actors
-        if silhouette and regions and alpha:
-            self.add_silhouette(*regions)
-
         actors = self.add(*regions)
 
-        # slice
+        # slice to keep only one hemisphere
         if hemisphere == "right":
             plane = self.atlas.get_plane(
                 pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
@@ -298,7 +295,17 @@ class Scene(JupyterMixIn, Render):
             )
 
         if hemisphere in ("left", "right"):
-            self.slice(plane, actors=actors, close_actors=True)
+            for actor in actors:
+                actor._mesh.cutWithPlane(
+                    origin=plane.center,
+                    normal=plane.normal,
+                )
+                actor.cap()
+
+        # make silhouettes
+        if silhouette and regions and alpha:
+            self.add_silhouette(*regions)
+
         return actors
 
     @not_on_jupyter
