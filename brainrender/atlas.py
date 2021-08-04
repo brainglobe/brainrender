@@ -41,6 +41,14 @@ class Atlas(BrainGlobeAtlas):
         else:
             return 18 / res
 
+    def _get_region_color(self, region):
+        """
+        Get's the rgb color of a region in the atlas
+        """
+        return [
+            x / 255 for x in self._get_from_structure(region, "rgb_triplet")
+        ]
+
     def get_region(self, *regions, alpha=1, color=None):
         """
         Get brain regions meshes as Actors
@@ -68,11 +76,7 @@ class Atlas(BrainGlobeAtlas):
             mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
 
             # Get color
-            if color is None:
-                color = [
-                    x / 255
-                    for x in self._get_from_structure(region, "rgb_triplet")
-                ]
+            color = color or self._get_region_color(region)
 
             # Make actor
             actor = Actor(mesh, name=region, br_class="brain region")

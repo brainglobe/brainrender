@@ -7,8 +7,15 @@ DEBUG = False  # set to True to see more detailed logs
 vsettings.pointSmoothing = False
 vsettings.lineSmoothing = False
 vsettings.polygonSmoothing = False
-vsettings.useDepthPeeling = True
+vsettings.immediateRendering = False
 
+vsettings.useDepthPeeling = True
+# only relevant if depthpeeling is on
+vsettings.alphaBitPlanes = 1
+vsettings.maxNumberOfPeels = 12
+vsettings.occlusionRatio = 0.1
+
+vsettings.useSSAO = True
 
 # For transparent background with screenshots
 vsettings.screenshotTransparentBackground = True  # vedo for transparent bg

@@ -102,7 +102,8 @@ def get_streamlines_for_region(region, force_download=False):
     logger.debug(f"Getting streamlines data for region: {region}")
     # Get experiments whose injections were targeted to the region
     region_experiments = experiments_source_search(region)
-    if region_experiments is None:
+    if region_experiments is None or region_experiments.empty:
+        logger.debug("No experiments found from allen data")
         return None
 
     return get_streamlines_data(

@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from os import path
 from pathlib import Path
 import codecs
@@ -87,23 +87,7 @@ setup(
         "pyqt5": ["PyQt5>=5.12.3"],
     },
     python_requires=">=3.6",
-    packages=find_packages(
-        include=("brianrender", "brainrender.*"),
-        exclude=(
-            "tests",
-            "examples",
-            "benchmark",
-            ".paper",
-            "imgs",
-            "videos",
-            "tests.*",
-            "examples.*",
-            "benchmark.*",
-            ".paper.*",
-            "imgs.*",
-            "videos.*",
-        ),
-    ),
+    packages=find_namespace_packages(exclude=("tests",)),
     entry_points={
         "console_scripts": [
             "brainrender-gui = brainrender.gui.__init__:clilaunch",

@@ -295,16 +295,23 @@ class Scene(JupyterMixIn, Render):
             )
 
         if hemisphere in ("left", "right"):
-            for actor in actors:
-                actor._mesh.cutWithPlane(
+            if not isinstance(actors, list):
+                actors._mesh.cutWithPlane(
                     origin=plane.center,
                     normal=plane.normal,
                 )
-                actor.cap()
+                actors.cap()
+            else:
+                for actor in actors:
+                    actor._mesh.cutWithPlane(
+                        origin=plane.center,
+                        normal=plane.normal,
+                    )
+                    actor.cap()
 
         # make silhouettes
         if silhouette and regions and alpha:
-            self.add_silhouette(*regions)
+            self.add_silhouette(*regions, lw=2)
 
         return actors
 
