@@ -39,6 +39,7 @@ requirements = [
     "qtpy",
     "myterial",
     "loguru",
+    "vtk<=9.0.0",
 ]
 
 setup(

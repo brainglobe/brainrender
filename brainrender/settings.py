@@ -7,19 +7,19 @@ DEBUG = False  # set to True to see more detailed logs
 vsettings.pointSmoothing = False
 vsettings.lineSmoothing = False
 vsettings.polygonSmoothing = False
-vsettings.immediateRendering = False
+vsettings.immediateRendering = True
 
-vsettings.useDepthPeeling = True
+vsettings.useDepthPeeling = False
 # only relevant if depthpeeling is on
-vsettings.alphaBitPlanes = 1
-vsettings.maxNumberOfPeels = 12
-vsettings.occlusionRatio = 0.1
+# vsettings.alphaBitPlanes = 1
+# vsettings.maxNumberOfPeels = 12
+# vsettings.occlusionRatio = 0.1
 
-vsettings.useSSAO = True
+vsettings.useSSAO = False
 
 # For transparent background with screenshots
-vsettings.screenshotTransparentBackground = True  # vedo for transparent bg
-vsettings.useFXAA = False  # This needs to be false for transparent bg
+vsettings.screenshotTransparentBackground = False  # vedo for transparent bg
+vsettings.useFXAA = True  # This needs to be false for transparent bg
 
 
 # --------------------------- brainrender settings --------------------------- #
