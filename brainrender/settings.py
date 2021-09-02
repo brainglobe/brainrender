@@ -1,4 +1,5 @@
 from vedo import settings as vsettings
+import sys
 
 DEBUG = False  # set to True to see more detailed logs
 
@@ -7,15 +8,15 @@ DEBUG = False  # set to True to see more detailed logs
 vsettings.pointSmoothing = False
 vsettings.lineSmoothing = False
 vsettings.polygonSmoothing = False
-vsettings.immediateRendering = True
+vsettings.immediateRendering = False
 
-vsettings.useDepthPeeling = False
-# only relevant if depthpeeling is on
-# vsettings.alphaBitPlanes = 1
-# vsettings.maxNumberOfPeels = 12
-# vsettings.occlusionRatio = 0.1
+vsettings.useDepthPeeling = True
+vsettings.alphaBitPlanes = 1
+vsettings.maxNumberOfPeels = 12
+vsettings.occlusionRatio = 0.1
+vsettings.multiSamples = 0 if sys.platform == "darwin" else 8
 
-vsettings.useSSAO = False
+vsettings.useSSAO = True
 
 # For transparent background with screenshots
 vsettings.screenshotTransparentBackground = False  # vedo for transparent bg

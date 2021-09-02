@@ -1,4 +1,4 @@
-from vedo import Plotter, closePlotter
+from vedo import Plotter
 from vedo import settings as vsettings
 import numpy as np
 from datetime import datetime
@@ -268,7 +268,7 @@ class Render:
             )
 
     def close(self):
-        closePlotter()
+        self.plotter.close()
 
     def export(self, savepath):
         """
