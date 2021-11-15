@@ -50,6 +50,7 @@ def make_actor_label(
         points = actor.points().copy()
         point = points[np.argmin(points[:, 1]), :]
         point += np.array(offset) + default_offset
+        point[2] = -point[2]
 
         try:
             if atlas.hemisphere_from_coords(point, as_string=True) == "left":
@@ -77,6 +78,7 @@ def make_actor_label(
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
             pt = actor.closestPoint(point)
+            pt[2] = -pt[2]
             sphere = Sphere(pt, r=radius, c=color)
             sphere.ancor = pt
             new_actors.append(sphere)
