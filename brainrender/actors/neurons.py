@@ -77,7 +77,8 @@ class Neuron(Actor):
 
     def _from_morphapi_neuron(self, neuron: (MorphoNeuron)):
         mesh = neuron.create_mesh(
-            neurite_radius=self.neurite_radius, soma_radius=self.soma_radius
+            neurite_radius=self.neurite_radius,
+            soma_radius=self.soma_radius,
         )[1]
         return mesh
 
@@ -92,4 +93,5 @@ class Neuron(Actor):
             )
 
         self.name = self.name or path.name
+
         return self._from_morphapi_neuron(MorphoNeuron(data_file=neuron))
