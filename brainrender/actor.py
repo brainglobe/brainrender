@@ -47,7 +47,7 @@ def make_actor_label(
             color = [0.2, 0.2, 0.2]
 
         # Get mesh's highest point
-        points = actor.points().copy()
+        points = actor.mesh.points().copy()
         point = points[np.argmin(points[:, 1]), :]
         point += np.array(offset) + default_offset
         point[2] = -point[2]
@@ -59,29 +59,21 @@ def make_actor_label(
             pass
 
         # Create label
-        txt = Text3D(label, point, s=size, c=color)
-        txt._kwargs = dict(
-            size=size,
-            color=color,
-            radius=radius,
-            xoffset=xoffset,
-            yoffset=yoffset,
-            zoffset=zoffset,
+        txt = Text3D(
+            label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
         )
-
-        # rotate label
-        p = txt.pos()
-        txt.pos(x=0, y=0, z=0).rotateX(180).rotateY(180).pos(p)
-
-        new_actors.append(txt)
+        new_actors.append(
+            txt.rotateX(180, locally=True).rotateY(180, locally=True)
+        )
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
             pt = actor.closestPoint(point)
             pt[2] = -pt[2]
-            sphere = Sphere(pt, r=radius, c=color)
+            sphere = Sphere(pt, r=radius, c=color, res=8)
             sphere.ancor = pt
             new_actors.append(sphere)
+            sphere.computeNormals()
 
     return new_actors
 

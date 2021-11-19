@@ -221,7 +221,7 @@ class Render:
             else:
                 label._mesh = label.mesh.clone()
                 self._prepare_actor(label)
-                self.plotter.add(label._mesh)
+                self.plotter.add(label._mesh.reverse())
                 label._is_added = True
 
         # Apply style
@@ -235,9 +235,6 @@ class Render:
         if not self.backend:  # not running in a python script
             if interactive is None:
                 interactive = settings.INTERACTIVE
-
-            for txt in self.labels:
-                txt.followCamera(self.plotter.camera)
 
             self.plotter.show(
                 interactive=interactive,
