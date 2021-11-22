@@ -232,9 +232,9 @@ class Animation(VideoMaker):
         if time in self.keyframes.keys() and time > 0:
             print(f"[b {orange}]Keyframe {time} already exists, overwriting!")
 
-        # if zoom is not None:
-        #     previous_zoom = list(self.keyframes.values())[0]['zoom'] or 0
-        #     zoom = zoom - previous_zoom
+        if zoom is None:
+            previous_zoom = list(self.keyframes.values())[0]["zoom"] or 0
+            zoom = previous_zoom
 
         if not duration:
             self.keyframes[time] = dict(
@@ -291,7 +291,9 @@ class Animation(VideoMaker):
             range(self.nframes), description="Generating frames..."
         ):
             self._make_frame(framen)
-            video.addFrame()
+
+            if framen > 1:
+                video.addFrame()
 
     def get_frame_params(self, frame_number):
         """
@@ -324,7 +326,7 @@ class Animation(VideoMaker):
 
             params = dict(
                 camera=self._interpolate_cameras(kf1["camera"], kf2["camera"]),
-                zoom=1,
+                zoom=self._interpolate_values(kf1["zoom"], kf2["zoom"]),
                 callback=None,
             )
 
