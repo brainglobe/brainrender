@@ -19,11 +19,9 @@ from brainrender.video import VideoMaker, Animation
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
 
-__version__ = "2.0.4.4"
+__version__ = "2.0.4.5"
 
 # set logger level
-
-
 def set_logging(level="INFO", path=None):
     """
     Sets loguru to save all logs to a file i
