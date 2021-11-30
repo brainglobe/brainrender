@@ -76,7 +76,9 @@ class PointsBase:
 
 
 class Points(PointsBase, Actor):
-    def __init__(self, data, name=None, colors="salmon", alpha=1, radius=20, res=8):
+    def __init__(
+        self, data, name=None, colors="salmon", alpha=1, radius=20, res=8
+    ):
         """
         Creates an actor representing multiple points (more efficient than
         creating many Point instances).
@@ -89,7 +91,7 @@ class Points(PointsBase, Actor):
         :param res: int. Resolution of sphere actors
         """
         PointsBase.__init__(self)
-        logger.debug(f"Creating a Points actor")
+        logger.debug("Creating a Points actor")
 
         self.radius = radius
         self.colors = colors
@@ -129,8 +131,17 @@ class PointsDensity(Actor):
             :param int,list dims: numer of voxels in x, y and z of the output Volume.
 
         """
-        logger.debug(f"Creating a PointsDensity actor")
-        volume = vPoints(data).density(
-            dims=dims, radius=radius, **kwargs
+        logger.debug("Creating a PointsDensity actor")
+
+        # flip coordinates on XY axis to match brainrender coordinates system
+        data[:, 2] = -data[:, 2]
+
+        # create volume and then actor
+        volume = (
+            vPoints(data)
+            .density(dims=dims, radius=radius, **kwargs)
+            .c("Dark2")
+            .alpha([0, 0.9])
+            .mode(1)
         )  # returns a vedo Volume
         Actor.__init__(self, volume, name=name, br_class="density")
