@@ -74,7 +74,7 @@ class RegionsControl:
         item = item.model().itemFromIndex(val)
 
         # Get region name
-        region = item.tag
+        region = str(item.tag).split(" ")[0]
 
         # Toggle checkbox
         if not item._checked:
@@ -88,13 +88,15 @@ class RegionsControl:
         if get_region_actors(self.scene.actors, region) is None:
             # Add region
             self.scene.add_brain_region(
-                region.split(" ")[0],
+                region,
             )
         else:
             # remove regiona and update list
             # del get_region_actors(self.scene.actors, region)
             del self.actors[region]
             remove_from_list(self.actors_list, region)
+            del self.scene.actors[[actor.name for actor in self.scene.actors].index(region)]
+
 
         # Update hierarchy's item font
         item.toggle_active()
