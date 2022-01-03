@@ -3,6 +3,8 @@ from collections import namedtuple
 import datetime
 from loguru import logger
 from qtpy.QtWidgets import QFrame
+import vtk.qt
+vtk.qt.QVTKRWIBase = "QGLWidget"
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 import brainrender
