@@ -33,9 +33,9 @@ values = dict(  # scalar values for each region
 heatmap(
     values,
     position=-400,  # displacement along the AP axis relative to midpoint
-    orientation="sagittal",  # or 'sagittal', or 'top'
+    orientation="frontal",  # or 'sagittal', or 'top'
     thickness=1000,  # thickness of the slices used for rendering (in microns)
-    title="sagittal",
+    title="frontal",
     vmin=-5,
     vmax=3,
 )
