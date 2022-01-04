@@ -32,6 +32,7 @@ class Scene(JupyterMixIn, Render):
         title=None,
         screenshots_folder=None,
         plotter=None,
+        title_color: str = "k",
     ):
         """
         Main scene in brainrender.
@@ -83,7 +84,7 @@ class Scene(JupyterMixIn, Render):
         # add title
         if title:
             self.add(
-                Text2D(title, pos="top-center", s=2.5, c="k", alpha=1),
+                Text2D(title, pos="top-center", s=2.5, c=title_color, alpha=1),
                 names="title",
                 classes="title",
             )

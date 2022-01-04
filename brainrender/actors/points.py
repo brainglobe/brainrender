@@ -134,7 +134,7 @@ class PointsDensity(Actor):
         logger.debug("Creating a PointsDensity actor")
 
         # flip coordinates on XY axis to match brainrender coordinates system
-        data[:, 2] = -data[:, 2]
+        # data[:, 2] = -data[:, 2]
 
         # create volume and then actor
         volume = (
@@ -144,4 +144,5 @@ class PointsDensity(Actor):
             .alpha([0, 0.9])
             .mode(1)
         )  # returns a vedo Volume
+        volume.mirror("z")
         Actor.__init__(self, volume, name=name, br_class="density")
