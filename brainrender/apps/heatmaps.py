@@ -132,7 +132,7 @@ def heatmap(
     # Set settings for heatmap visualization
     settings.SHOW_AXES = False
     settings.SHADER_STYLE = "cartoon"
-    settings.BACKGROUND_COLOR = "#050505"
+    settings.BACKGROUND_COLOR = "#242424"
     settings.ROOT_ALPHA = 0.7
     settings.ROOT_COLOR = "w"
 
