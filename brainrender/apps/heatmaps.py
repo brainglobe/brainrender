@@ -205,19 +205,22 @@ def heatmap(
         else:
             camera = orientation
     else:
-        # orientation = np.array(orientation)
-        # camera = {
-        #     "pos": scene.root.centerOfMass() + orientation * 1000,
-        #     "viewup":-orientation,
-        #     "clippingRange": (19531, 40903),
-        # }
-        camera = None
+        orientation = np.array(orientation)
+        com = plane0.centerOfMass()
+        camera = {
+            "pos": com - orientation * 2 * np.linalg.norm(com),
+            "viewup": (0, -1, 0),
+            "clippingRange": (19531, 40903),
+            # 'focalPoint':com,
+            # 'distance':np.linalg.norm(com)
+        }
+        # camera = None
     scene.render(camera=camera, interactive=interactive, zoom=zoom)
     return scene, projected
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
     values = dict(  # scalar values for each region
         TH=1,
@@ -240,7 +243,7 @@ if __name__ == "__main__":
     scene, projected = heatmap(
         values,
         position=5200,  # displacement along the AP axis relative to midpoint
-        orientation=(1, 0, 0),  # or 'sagittal', or 'top'
+        orientation="frontal",  # or 'sagittal', or 'top' or a tuple (x,y,z)
         thickness=10,  # thickness of the slices used for rendering (in microns)
         title="frontal",
         vmin=-5,
@@ -248,10 +251,10 @@ if __name__ == "__main__":
     )
     scene.close()  # avoid showing it
 
-    print("showing plot")
-    f, ax = plt.subplots(figsize=(9, 9))
-    for r, coords in projected.items():
-        ax.scatter(coords[:, 0], coords[:, 1], label=r)
+    # print("showing plot")
+    # f, ax = plt.subplots(figsize=(9, 9))
+    # for r, coords in projected.items():
+    #     ax.fill(coords[:, 0], coords[:, 1], label=r)
 
-    ax.legend()
+    # ax.legend()
     # plt.show()
