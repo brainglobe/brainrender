@@ -144,4 +144,5 @@ class PointsDensity(Actor):
             .alpha([0, 0.9])
             .mode(1)
         )  # returns a vedo Volume
+        volume.mirror("z")
         Actor.__init__(self, volume, name=name, br_class="density")
