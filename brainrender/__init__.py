@@ -4,17 +4,19 @@ import sys
 from pathlib import Path
 from rich.logging import RichHandler
 
+from brainrender import settings
+
 try:
     from pyinspect import install_traceback
 
-    install_traceback()
+    install_traceback(hide_locals=not settings.DEBUG)
 except ImportError:
     pass  # fails in notebooks
 
-from brainrender import settings
 from brainrender.scene import Scene
 import brainrender.actors
 from brainrender.video import VideoMaker, Animation
+from brainrender.atlas import Atlas
 
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
