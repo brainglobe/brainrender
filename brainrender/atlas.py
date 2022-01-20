@@ -43,7 +43,7 @@ class Atlas(BrainGlobeAtlas):
 
     def _get_region_color(self, region):
         """
-        Get's the rgb color of a region in the atlas
+        Gets the rgb color of a region in the atlas
         """
         return [
             x / 255 for x in self._get_from_structure(region, "rgb_triplet")

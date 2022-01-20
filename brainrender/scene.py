@@ -244,7 +244,7 @@ class Scene(JupyterMixIn, Render):
         Dedicated method to add brain regions to render
 
         :param regions: str. String of regions names
-        :param alpha: float
+        :param alpha: float. How opaque the regions are rendered.
         :param color: str. If None the atlas default color is used
         :param silhouette: bool. If true regions Actors will have
             a silhouette
@@ -252,7 +252,8 @@ class Scene(JupyterMixIn, Render):
             - if "both" the complete mesh is returned
             - if "left"/"right" only the corresponding half
                 of the mesh is returned
-        :param force: force adding of region even if already rendred
+        :param force: bool. If true force adding of region even 
+            if already rendered
         """
         if silhouette is None:
             silhouette = (
