@@ -15,6 +15,7 @@ from brainrender import settings
 from brainrender.scene import Scene
 import brainrender.actors
 from brainrender.video import VideoMaker, Animation
+from brainrender.atlas import Atlas
 
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
