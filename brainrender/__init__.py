@@ -4,14 +4,16 @@ import sys
 from pathlib import Path
 from rich.logging import RichHandler
 
-try:
-    from pyinspect import install_traceback
-
-    install_traceback()
-except ImportError:
-    pass  # fails in notebooks
-
 from brainrender import settings
+
+if settings.RICH_TRACEBACK:
+    try:
+        from pyinspect import install_traceback
+
+        install_traceback()
+    except ImportError:
+        pass  # fails in notebooks
+
 from brainrender.scene import Scene
 import brainrender.actors
 from brainrender.video import VideoMaker, Animation
