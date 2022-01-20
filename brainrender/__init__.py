@@ -6,13 +6,12 @@ from rich.logging import RichHandler
 
 from brainrender import settings
 
-if settings.RICH_TRACEBACK:
-    try:
-        from pyinspect import install_traceback
+try:
+    from pyinspect import install_traceback
 
-        install_traceback()
-    except ImportError:
-        pass  # fails in notebooks
+    install_traceback(hide_locals=not settings.DEBUG)
+except ImportError:
+    pass  # fails in notebooks
 
 from brainrender.scene import Scene
 import brainrender.actors

@@ -37,4 +37,3 @@ SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metalli
 SHOW_AXES = True
 WHOLE_SCREEN = True  # If true render window is full screen
 OFFSCREEN = False
-RICH_TRACEBACK = True # If true use a rich traceback which shows local variables
