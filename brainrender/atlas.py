@@ -22,9 +22,13 @@ class Atlas(BrainGlobeAtlas):
         self.atlas_name = atlas_name
         logger.debug(f"Generating ATLAS: {atlas_name}")
 
-        super().__init__(
-            atlas_name=atlas_name, print_authors=False
-        )
+        try:
+            super().__init__(
+                atlas_name=atlas_name, print_authors=False
+            )
+        except TypeError:
+            # The latest version of BGatlas has no print_authors argument
+            super().__init__(atlas_name=atlas_name)
 
     @property
     def zoom(self):
