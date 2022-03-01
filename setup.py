@@ -27,7 +27,7 @@ def get_version():
 requirements = [
     "numpy",
     "pandas",
-    "vedo>=2021.0.5",
+    "vedo>=2021.0.5,<2022.1.0",
     "k3d==2.7.4",
     "msgpack",
     "pyyaml>=5.3",
@@ -39,7 +39,6 @@ requirements = [
     "qtpy",
     "myterial",
     "loguru",
-    "vtk<=9.1.0",
 ]
 
 setup(
