@@ -134,7 +134,7 @@ class PointsDensity(Actor):
         logger.debug("Creating a PointsDensity actor")
 
         # flip coordinates on XY axis to match brainrender coordinates system
-        data[:, 2] = -data[:, 2]
+        # data[:, 2] = -data[:, 2]
 
         # create volume and then actor
         volume = (
