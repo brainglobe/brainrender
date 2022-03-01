@@ -170,7 +170,7 @@ class GeneExpressionAPI:
             min_quantile=min_quantile,
             voxel_size=self.voxel_size,
             min_value=min_value,
-            cmap=cmap,
+            color=cmap,
             name=self.gene_name,
             br_class="Gene Data",
         )

@@ -12,7 +12,6 @@ class Volume(Actor):
         self,
         griddata,
         voxel_size=1,
-        cmap="bwr",
         min_quantile=None,
         min_value=None,
         name=None,
@@ -36,20 +35,27 @@ class Volume(Actor):
         :param voxel_size: int, size of each voxel in microns
         :param min_quantile: float, percentile for threshold
         :param min_value: float, value for threshold
-        :param cmap: str, name of colormap to use
         :param as_surface, bool. default True. If True
             a surface mesh is returned instead of the whole volume
         :param volume_kwargs: keyword arguments for vedo's Volume class
         """
-        logger.debug(f"Creating a Volume actor")
+        logger.debug("Creating a Volume actor")
         # Create mesh
-        color = volume_kwargs.pop("c", "viridis")
+        color = (
+            volume_kwargs.pop("c", "viridis")
+            if "color" not in volume_kwargs.keys()
+            else volume_kwargs.pop("color", "viridis")
+        )
         if isinstance(griddata, np.ndarray):
             # create volume from data
-            mesh = self._from_numpy(griddata, voxel_size, color, **volume_kwargs)
+            mesh = self._from_numpy(
+                griddata, voxel_size, color, **volume_kwargs
+            )
         elif isinstance(griddata, (str, Path)):
             # create from .npy file
-            mesh = self._from_file(griddata, voxel_size, color, **volume_kwargs)
+            mesh = self._from_file(
+                griddata, voxel_size, color, **volume_kwargs
+            )
         else:
             mesh = griddata  # assume a vedo Volume was passed
 
@@ -62,35 +68,38 @@ class Volume(Actor):
             else:
                 th = np.percentile(griddata.ravel(), min_quantile)
 
-            mesh = mesh.legosurface(vmin=th, cmap=cmap)
+            mesh = mesh.legosurface(vmin=th, cmap=color)
 
         Actor.__init__(
             self, mesh, name=name or "Volume", br_class=br_class or "Volume"
         )
 
     def _from_numpy(self, griddata, voxel_size, color, **volume_kwargs):
-        ''' 
-            Creates a vedo.Volume actor from a 3D numpy array
-            with volume data
-        '''
+        """
+        Creates a vedo.Volume actor from a 3D numpy array
+        with volume data
+        """
         return VedoVolume(
-                griddata,
-                spacing=[voxel_size, voxel_size, voxel_size],
-                c=color,
-                **volume_kwargs,
-            )
+            griddata,
+            spacing=[voxel_size, voxel_size, voxel_size],
+            c=color,
+            **volume_kwargs,
+        )
 
     def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
-        ''' 
-            Loads a .npy file and returns a vedo Volume actor.
-        '''
+        """
+        Loads a .npy file and returns a vedo Volume actor.
+        """
         filepath = Path(filepath)
         if not filepath.exists():
-            raise FileExistsError(f'Loading volume from file, file not found: {filepath}')
-        if not filepath.suffix == '.npy':
-            raise ValueError('Loading volume from file only accepts .npy files')
+            raise FileExistsError(
+                f"Loading volume from file, file not found: {filepath}"
+            )
+        if not filepath.suffix == ".npy":
+            raise ValueError(
+                "Loading volume from file only accepts .npy files"
+            )
 
         return self._from_numpy(
-            np.load(str(filepath)),
-            voxel_size, color, **volume_kwargs
+            np.load(str(filepath)), voxel_size, color, **volume_kwargs
         )
