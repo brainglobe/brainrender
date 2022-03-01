@@ -1,4 +1,4 @@
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 from os import path
 from pathlib import Path
 import codecs
@@ -27,7 +27,7 @@ def get_version():
 requirements = [
     "numpy",
     "pandas",
-    "vedo>=2021.0.5",
+    "vedo==2021.0.5",
     "k3d==2.7.4",
     "msgpack",
     "pyyaml>=5.3",
@@ -87,7 +87,7 @@ setup(
         "pyqt5": ["PyQt5>=5.12.3"],
     },
     python_requires=">=3.6",
-    packages=find_namespace_packages(exclude=("tests",)),
+    packages=find_packages(include=("tests",)),
     entry_points={
         "console_scripts": [
             "brainrender-gui = brainrender.gui.__init__:clilaunch",
