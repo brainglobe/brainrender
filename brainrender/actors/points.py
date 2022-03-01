@@ -45,7 +45,7 @@ class PointsBase:
         if not isinstance(self.colors, str):
             if not N == len(self.colors):  # pragma: no cover
                 raise ValueError(  # pragma: no cover
-                    "When passing a list of colors, the number of colors shou  # pragma: no coverld match the number of cells"  # pragma: no cover
+                    "When passing a list of colors, the number of colors shoud match the number of cells"  # pragma: no cover
                 )  # pragma: no cover
 
         self.name = self.name or "Points"
