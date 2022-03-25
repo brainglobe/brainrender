@@ -371,7 +371,7 @@ class Scene(JupyterMixIn, Render):
                 norm = self.atlas.space.plane_normals[plane]
             elif invert == True:
                 norm = tuple(x*-1 for x in self.atlas.space.plane_normals[plane])
-            plane = self.atlas.get_plane(plane=plane)
+            plane = self.atlas.get_plane(plane=plane, norm=norm)
 
         if not actors or actors is None:
             actors = self.clean_actors.copy()
