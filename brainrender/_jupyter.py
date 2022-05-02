@@ -9,9 +9,11 @@ from myterial import orange_dark, salmon
 class JupyterMixIn:  # pragma: no cover
     def __init__(self):  # pragma: no cover
         # keep track if we are in a jupyter notebook
-        if vedo.settings.notebookBackend == "k3d":
+        if (hasattr(vedo.settings,'notebookBackend') and vedo.settings.notebookBackend == "k3d") or (
+             hasattr(vedo,'notebookBackend') and vedo.notebookBackend == "k3d"):
             self.backend = "k3d"
-        elif vedo.settings.notebookBackend == "itkwidgets":
+        elif (hasattr(vedo.settings,'notebookBackend') and vedo.settings.notebookBackend == "itkwidgets") or (
+              hasattr(vedo,'notebookBackend') and vedo.notebookBackend == "itkwidgets"):
             self.backend = "itkwidgets"
         else:
             self.backend = False
