@@ -1,4 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
+
+# from setuptools import setup, find_namespace_packages
 from os import path
 from pathlib import Path
 import codecs
@@ -87,13 +89,13 @@ setup(
         "pyqt5": ["PyQt5>=5.12.3"],
     },
     python_requires=">=3.6",
-    packages=find_packages(include=("tests",)),
+    packages=find_namespace_packages(),
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "brainrender-gui = brainrender.gui.__init__:clilaunch",
         ]
     },
-    include_package_data=True,
     url="https://github.com/brainglobe/brainrender",
     author="Federico Claudi, Adam Tyson, Luigi Petrucco",
     zip_safe=False,
