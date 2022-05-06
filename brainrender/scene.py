@@ -364,9 +364,14 @@ class Scene(JupyterMixIn, Render):
             will be sliced
         :param close_actors: If true the openings in the actors meshes
             caused by teh cut will be closed.
+        :param invert: Invert the slice direction.
         """
         if isinstance(plane, str):
-            plane = self.atlas.get_plane(plane=plane)
+            if invert == False:
+                norm = self.atlas.space.plane_normals[plane]
+            elif invert == True:
+                norm = tuple(x*-1 for x in self.atlas.space.plane_normals[plane])
+            plane = self.atlas.get_plane(plane=plane, norm=norm)
 
         if not actors or actors is None:
             actors = self.clean_actors.copy()
