@@ -353,6 +353,7 @@ class Scene(JupyterMixIn, Render):
         plane,
         actors=None,
         close_actors=False,
+        invert=False
     ):
         """
         Slices actors with a plane.
