@@ -31,6 +31,9 @@ You can [install `brainrender`](https://docs.brainrender.info/installation/insta
 pip install brainrender
 ``` 
 
+## Contributing
+Contributions to brainrender are more than welcome. Please see the [contributing guide](https://github.com/brainglobe/.github/blob/main/CONTRIBUTING.md).
+
 ## Citing brainrender
 If you use `brainrender` in your work, please cite:
 ```
