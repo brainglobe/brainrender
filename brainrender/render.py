@@ -262,17 +262,17 @@ class Render:
             self.remove(*self.get_actors(br_class="silhouette"))
             print(
                 f"[{teal}]Your scene is ready for rendering, use:\n",
-                Syntax("from vedo import show", lexer_name="python"),
-                Syntax("vedo.show(*scene.renderables)", lexer_name="python"),
+                Syntax("from vedo import show", lexer="python"),
+                Syntax("vedo.show(*scene.renderables)", lexer="python"),
                 sep="\n",
             )
         else:  # pragma: no cover
             print(
                 f"[{teal}]Your scene is ready for rendering, use:\n",
-                Syntax("from itkwidgets import view", lexer_name="python"),
+                Syntax("from itkwidgets import view", lexer="python"),
                 Syntax(
                     "view(scene.plotter.show(*scene.renderables))",
-                    lexer_name="python",
+                    lexer="python",
                 ),
                 sep="\n",
             )
