@@ -43,7 +43,7 @@ class not_on_jupyter:  # pragma: no cover
             print(
                 f"[{orange_dark}]Cannot run function [bold {salmon}]{self.func.__name__}[/ bold {salmon}] in a jupyter notebook",
                 f"[{orange_dark}]Try setting the correct backend before creating your scene:\n",
-                Syntax("from vedo import embedWindow", lexer_name="python"),
-                Syntax("embedWindow(None)", lexer_name="python"),
+                Syntax("from vedo import embedWindow", lexer="python"),
+                Syntax("embedWindow(None)", lexer="python"),
             )
             return None
