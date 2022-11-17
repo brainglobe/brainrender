@@ -21,7 +21,7 @@ from brainrender.atlas import Atlas
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
 
-__version__ = "2.0.5.5"
+__version__ = "2.0.5.6"
 
 # set logger level
 def set_logging(level="INFO", path=None):
