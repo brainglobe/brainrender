@@ -27,7 +27,7 @@ pip install brainrender
 ``` 
 
 ## Contributing
-Contributions to brainrender are more than welcome. Please see the [contributing guide](https://brainglobe.info/developers/index.html).
+Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/developers/index.html).
 
 ## Citing brainrender
 If you use `brainrender` in your work, please cite:
