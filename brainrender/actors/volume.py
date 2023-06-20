@@ -46,10 +46,14 @@ class Volume(Actor):
         color = volume_kwargs.pop("c", "viridis")
         if isinstance(griddata, np.ndarray):
             # create volume from data
-            mesh = self._from_numpy(griddata, voxel_size, color, **volume_kwargs)
+            mesh = self._from_numpy(
+                griddata, voxel_size, color, **volume_kwargs
+            )
         elif isinstance(griddata, (str, Path)):
             # create from .npy file
-            mesh = self._from_file(griddata, voxel_size, color, **volume_kwargs)
+            mesh = self._from_file(
+                griddata, voxel_size, color, **volume_kwargs
+            )
         else:
             mesh = griddata  # assume a vedo Volume was passed
 
@@ -69,28 +73,31 @@ class Volume(Actor):
         )
 
     def _from_numpy(self, griddata, voxel_size, color, **volume_kwargs):
-        ''' 
-            Creates a vedo.Volume actor from a 3D numpy array
-            with volume data
-        '''
+        """
+        Creates a vedo.Volume actor from a 3D numpy array
+        with volume data
+        """
         return VedoVolume(
-                griddata,
-                spacing=[voxel_size, voxel_size, voxel_size],
-                c=color,
-                **volume_kwargs,
-            )
+            griddata,
+            spacing=[voxel_size, voxel_size, voxel_size],
+            c=color,
+            **volume_kwargs,
+        )
 
     def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
-        ''' 
-            Loads a .npy file and returns a vedo Volume actor.
-        '''
+        """
+        Loads a .npy file and returns a vedo Volume actor.
+        """
         filepath = Path(filepath)
         if not filepath.exists():
-            raise FileExistsError(f'Loading volume from file, file not found: {filepath}')
-        if not filepath.suffix == '.npy':
-            raise ValueError('Loading volume from file only accepts .npy files')
+            raise FileExistsError(
+                f"Loading volume from file, file not found: {filepath}"
+            )
+        if not filepath.suffix == ".npy":
+            raise ValueError(
+                "Loading volume from file only accepts .npy files"
+            )
 
         return self._from_numpy(
-            np.load(str(filepath)),
-            voxel_size, color, **volume_kwargs
+            np.load(str(filepath)), voxel_size, color, **volume_kwargs
         )

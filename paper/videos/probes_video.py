@@ -40,7 +40,7 @@ def spiker(scene, framen, tot_frames, cam1=None, cam2=None, end=1, prev=0):
     Update channels meshes based on which channels
     deteted spikes
     """
-    if framen%15 == 0:  # update only every .5s
+    if framen % 15 == 0:  # update only every .5s
         # Remove previous spikes
         spikes = scene.get_actors(name="spikes")
         spikes_sil = scene.get_actors(name="spikes silhouette")

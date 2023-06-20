@@ -21,9 +21,7 @@ brainrender.settings.BACKGROUND_COLOR = [
 brainrender.settings.WHOLE_SCREEN = (
     False  # make the rendering window be smaller
 )
-brainrender.settings.SHOW_AXES = (
-    False  # turn off the axes display
-)
+brainrender.settings.SHOW_AXES = False  # turn off the axes display
 
 # make scenes with different shader styles
 for shader in ("plastic", "cartoon"):

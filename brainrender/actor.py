@@ -41,7 +41,6 @@ def make_actor_label(
 
     new_actors = []
     for n, (actor, label) in enumerate(zip(listify(actors), listify(labels))):
-
         # Get label color
         if color is None:
             color = [0.2, 0.2, 0.2]

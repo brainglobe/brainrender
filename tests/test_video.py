@@ -6,7 +6,6 @@ from pathlib import Path
 
 @pytest.mark.local
 def test_video():
-
     s = Scene(title="BR")
 
     s.add_brain_region("TH")
