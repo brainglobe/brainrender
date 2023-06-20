@@ -17,7 +17,6 @@ import os
 
 
 def is_GPU_available():
-
     """
     Check NVIDIA with nvidia-smi command
     Returning code 0 if no error, it means NVIDIA is installed

@@ -48,7 +48,7 @@ neurons = [
 ][:N]
 
 # color neurons parts and add to scene
-for (neu_dict, neu) in track(neurons, total=N):
+for neu_dict, neu in track(neurons, total=N):
     col = choice((c1, c2))
     neuron = scene.add(neu_dict["axon"], alpha=1, color=col)
 

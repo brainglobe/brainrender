@@ -23,9 +23,7 @@ class Atlas(BrainGlobeAtlas):
         logger.debug(f"Generating ATLAS: {atlas_name}")
 
         try:
-            super().__init__(
-                atlas_name=atlas_name, print_authors=False
-            )
+            super().__init__(atlas_name=atlas_name, print_authors=False)
         except TypeError:
             # The latest version of BGatlas has no print_authors argument
             super().__init__(atlas_name=atlas_name)

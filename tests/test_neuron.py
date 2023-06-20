@@ -6,7 +6,6 @@ import pytest
 
 
 def test_neuron():
-
     s = Scene(title="BR")
 
     neuron = s.add(Neuron("tests/files/neuron1.swc"))

@@ -95,8 +95,9 @@ class RegionsControl:
             # del get_region_actors(self.scene.actors, region)
             del self.actors[region]
             remove_from_list(self.actors_list, region)
-            del self.scene.actors[[actor.name for actor in self.scene.actors].index(region)]
-
+            del self.scene.actors[
+                [actor.name for actor in self.scene.actors].index(region)
+            ]
 
         # Update hierarchy's item font
         item.toggle_active()
