@@ -1,13 +1,12 @@
-import pyinspect as pi
 from io import StringIO
-from rich.console import Console
-import numpy as np
-from myterial import orange, salmon, amber
-from vedo import Text3D, Sphere
 
+import numpy as np
+import pyinspect as pi
+from myterial import amber, orange, salmon
+from rich.console import Console
+from vedo import Sphere, Text3D
 
 from brainrender._utils import listify
-
 
 # transform matrix to fix labels orientation
 label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
@@ -61,9 +60,7 @@ def make_actor_label(
         txt = Text3D(
             label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
         )
-        new_actors.append(
-            txt.rotate_x(180).rotate_y(180)
-        )
+        new_actors.append(txt.rotate_x(180).rotate_y(180))
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:

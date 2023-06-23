@@ -1,5 +1,6 @@
-from vedo import settings as vsettings
 import sys
+
+from vedo import settings as vsettings
 
 DEBUG = False  # set to True to see more detailed logs
 

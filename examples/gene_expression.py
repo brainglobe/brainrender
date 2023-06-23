@@ -1,10 +1,10 @@
-from brainrender import Scene
-from brainrender import settings
-from brainrender.atlas_specific import GeneExpressionAPI
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
+
+from brainrender import Scene, settings
+from brainrender.atlas_specific import GeneExpressionAPI
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

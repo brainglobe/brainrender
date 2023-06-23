@@ -1,21 +1,21 @@
 """
     This example shows how to render volumetric (i.e. organized in voxel)
-    data in brainrender. The data used are is the localized expression of 
+    data in brainrender. The data used are is the localized expression of
     'Gpr161' from the Allen Atlas database, downloaded with brainrender
     and saved to a numpy file
 """
 import numpy as np
-from brainrender import Scene
-from brainrender import settings
 
+from brainrender import Scene, settings
 from brainrender.actors import Volume
 
 settings.SHOW_AXES = False
 
 
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

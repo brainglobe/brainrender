@@ -7,20 +7,21 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Text2D, Assembly
+
 import pyinspect as pi
-from rich import print
 from loguru import logger
 from myterial import amber, orange, orange_darker, salmon
+from rich import print
+from vedo import Assembly, Mesh, Text2D
 
 from brainrender import settings
-from brainrender.atlas import Atlas
-from brainrender.render import Render
+from brainrender._io import load_mesh_from_file
+from brainrender._jupyter import JupyterMixIn, not_on_jupyter
+from brainrender._utils import listify, return_list_smart
 from brainrender.actor import Actor
 from brainrender.actors import Volume
-from brainrender._utils import return_list_smart, listify
-from brainrender._io import load_mesh_from_file
-from brainrender._jupyter import not_on_jupyter, JupyterMixIn
+from brainrender.atlas import Atlas
+from brainrender.render import Render
 
 
 class Scene(JupyterMixIn, Render):
@@ -362,9 +363,9 @@ class Scene(JupyterMixIn, Render):
         :param invert: Invert the slice direction.
         """
         if isinstance(plane, str):
-            if invert == False:
+            if invert is False:
                 norm = self.atlas.space.plane_normals[plane]
-            elif invert == True:
+            elif invert is True:
                 norm = tuple(
                     x * -1 for x in self.atlas.space.plane_normals[plane]
                 )

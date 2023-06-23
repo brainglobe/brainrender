@@ -1,10 +1,10 @@
-import numpy as np
-from vedo import Spheres, Sphere
-from vedo import Points as vPoints
 from pathlib import Path
-from pyinspect.utils import _class_name
-from loguru import logger
 
+import numpy as np
+from loguru import logger
+from pyinspect.utils import _class_name
+from vedo import Points as vPoints
+from vedo import Sphere, Spheres
 
 from brainrender.actor import Actor
 

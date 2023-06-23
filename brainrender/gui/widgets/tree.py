@@ -1,4 +1,4 @@
-from qtpy.QtGui import QFont, QColor, QStandardItem
+from qtpy.QtGui import QColor, QFont, QStandardItem
 
 
 class StandardItem(QStandardItem):

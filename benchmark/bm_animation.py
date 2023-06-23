@@ -1,6 +1,5 @@
-from brainrender import Scene, Animation
 from benchmark.timer import Timer
-
+from brainrender import Animation, Scene
 
 # Create a brainrender scene
 scene = Scene(title="brain regions", inset=False)

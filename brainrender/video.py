@@ -1,15 +1,16 @@
-from pathlib import Path
-from rich.progress import track
-from rich import print
 import os
-import numpy as np
-from myterial import amber, orange, salmon
-from loguru import logger
+from pathlib import Path
 
-from brainrender.camera import check_camera_param, get_camera_params
-from brainrender._video import Video
+import numpy as np
+from loguru import logger
+from myterial import amber, orange, salmon
+from rich import print
+from rich.progress import track
+
 import brainrender as br
 from brainrender._jupyter import not_on_jupyter
+from brainrender._video import Video
+from brainrender.camera import check_camera_param, get_camera_params
 
 
 class VideoMaker:
@@ -193,7 +194,7 @@ class Animation(VideoMaker):
         :param fmt: str. Video format (e.g. 'mp4')
         """
         VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt, size=size)
-        logger.debug(f"Creating animation")
+        logger.debug("Creating animation")
 
         self.keyframes = {}
         self.keyframes[0] = dict(  # make sure first frame is a keyframe

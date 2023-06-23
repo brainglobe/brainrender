@@ -1,18 +1,17 @@
-import pandas as pd
 import os
 import sys
+
+import pandas as pd
 from loguru import logger
 
-
+from brainrender import base_dir
+from brainrender._io import fail_on_no_connection, request
+from brainrender.actors import Volume
 from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils import (
     check_gene_cached,
-    load_cached_gene,
     download_and_cache,
+    load_cached_gene,
 )
-
-from brainrender import base_dir
-from brainrender._io import request, fail_on_no_connection
-from brainrender.actors import Volume
 
 
 class GeneExpressionAPI:

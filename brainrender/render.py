@@ -1,23 +1,23 @@
+from datetime import datetime
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
+from loguru import logger
+from myterial import amber, deep_purple_light, orange, teal
+from rich import print
+from rich.syntax import Syntax
 from vedo import Plotter
 from vedo import settings as vsettings
-import numpy as np
-from datetime import datetime
-from rich import print
-from pathlib import Path
-from myterial import orange, amber, deep_purple_light, teal
-from rich.syntax import Syntax
-from loguru import logger
 
 from brainrender import settings
-from brainrender.camera import (
-    get_camera,
-    check_camera_param,
-    set_camera,
-    get_camera_params,
-)
 from brainrender.actors.points import PointsDensity
-
+from brainrender.camera import (
+    check_camera_param,
+    get_camera,
+    get_camera_params,
+    set_camera,
+)
 
 # mtx used to transform meshes to sort axes orientation
 mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]

@@ -1,10 +1,11 @@
-from brainrender import Scene
-from brainrender.actors import Points, Point, PointsDensity
-import numpy as np
-from brainrender.actor import Actor
 import random
 
+import numpy as np
 import pytest
+
+from brainrender import Scene
+from brainrender.actor import Actor
+from brainrender.actors import Point, Points, PointsDensity
 
 
 def get_n_random_points_in_region(region, N):

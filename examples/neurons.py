@@ -1,10 +1,11 @@
-from brainrender import Scene
-from brainrender.actors import make_neurons, Neuron
-from morphapi.api.mouselight import MouseLightAPI
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from morphapi.api.mouselight import MouseLightAPI
+from myterial import orange
+from rich import print
+
+from brainrender import Scene
+from brainrender.actors import Neuron, make_neurons
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

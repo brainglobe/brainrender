@@ -1,9 +1,10 @@
 import sys
+from pathlib import Path
+
+from myterial import blue_darker as zicol
 from myterial import indigo as scmcol
 from myterial import indigo_dark as scscol
-from myterial import blue_darker as zicol
 from rich import print
-from pathlib import Path
 
 from brainrender import Scene
 

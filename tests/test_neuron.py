@@ -1,8 +1,9 @@
-from brainrender import Scene
-from brainrender.actors import Neuron, make_neurons
-from brainrender.actor import Actor
-from vedo import Sphere
 import pytest
+from vedo import Sphere
+
+from brainrender import Scene
+from brainrender.actor import Actor
+from brainrender.actors import Neuron, make_neurons
 
 
 def test_neuron():

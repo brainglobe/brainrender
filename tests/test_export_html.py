@@ -1,6 +1,8 @@
-from brainrender import Scene
 from pathlib import Path
+
 import pytest
+
+from brainrender import Scene
 
 
 @pytest.mark.local

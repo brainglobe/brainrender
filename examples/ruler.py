@@ -1,9 +1,10 @@
+from pathlib import Path
+
+from myterial import orange
+from rich import print
+
 from brainrender import Scene
 from brainrender.actors import ruler, ruler_from_surface
-
-from rich import print
-from myterial import orange
-from pathlib import Path
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

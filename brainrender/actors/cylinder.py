@@ -1,6 +1,5 @@
-from vedo import shapes
-from vedo import Mesh
 from loguru import logger
+from vedo import Mesh, shapes
 
 from brainrender.actor import Actor
 

@@ -1,13 +1,13 @@
+import sys
+from pathlib import Path
+from random import choices
+
+import numpy as np
 from myterial import salmon_dark
 from oneibl.onelight import ONE
-import numpy as np
-from random import choices
-import sys
 from rich import print
-from pathlib import Path
 
-
-from brainrender import Scene, Animation
+from brainrender import Animation, Scene
 from brainrender.actors import Points
 from brainrender.cameras import cameras
 

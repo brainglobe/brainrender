@@ -1,9 +1,10 @@
-from rich import print
-from myterial import blue_grey_darker, blue_grey
+import sys
+from pathlib import Path
+
+from myterial import blue_grey, blue_grey_darker
 from myterial import salmon_darker as inj1col
 from myterial import salmon_light as inj2col
-from pathlib import Path
-import sys
+from rich import print
 
 from brainrender import Scene
 

@@ -76,7 +76,7 @@ QVTKRenderWindowInteractor{
     width: 200px;
 }
 
-QPushButton { 
+QPushButton {
     background-color: FGCOLOR;
     color: TXTCOLOR;
     border-radius: 8px;
@@ -151,16 +151,16 @@ QPushButton#RegionsButton {
 # for ref: https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtreeview
 tree_css = """
 QTreeView {
-    background-color: BGCOLOR; 
-    border-radius: 12px; 
+    background-color: BGCOLOR;
+    border-radius: 12px;
     padding: 20px 12px;
-} 
+}
 QTreeView::indicator:checked {
     image: url(CHECKED_IMG);
 }
 QTreeView::indicator:unchecked {
     image: url(UNCHECKED_IMG);
-} 
+}
 
 
 QTreeView::branch:has-children:!has-siblings:closed,QTreeView::branch:closed:has-children:has-siblings {

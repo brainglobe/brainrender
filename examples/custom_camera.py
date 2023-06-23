@@ -1,6 +1,6 @@
 """
     This example shows how to create a scene and render it with a custom camera.
-    This is done by specifying a dictionary of camera parameters, to get the 
+    This is done by specifying a dictionary of camera parameters, to get the
     parameters you need for your camera:
     - render an interactive scene with any camera
     - move the camera to where you need it to be
@@ -9,11 +9,12 @@
         parameters in your script
 """
 
-from brainrender import Scene
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
+
+from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

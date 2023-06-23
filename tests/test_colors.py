@@ -1,5 +1,6 @@
-from brainrender._colors import map_color, make_palette, get_random_colors
 import pytest
+
+from brainrender._colors import get_random_colors, make_palette, map_color
 
 
 @pytest.mark.parametrize(

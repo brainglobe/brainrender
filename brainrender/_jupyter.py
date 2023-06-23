@@ -1,9 +1,11 @@
+from functools import partial, update_wrapper
+
 import vedo
-from functools import update_wrapper, partial
-from brainrender import settings
+from myterial import orange_dark, salmon
 from rich import print
 from rich.syntax import Syntax
-from myterial import orange_dark, salmon
+
+from brainrender import settings
 
 
 class JupyterMixIn:  # pragma: no cover

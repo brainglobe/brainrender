@@ -22,15 +22,14 @@ except ImportError:
         'You need imio to run this example: "pip install imio".\nFor more details: https://github.com/brainglobe/imio'
     )
 
-from bg_space import AnatomicalSpace
-from vedo import Volume
-from brainrender import Scene
 from pathlib import Path
-from myterial import blue_grey
 
-
+from bg_space import AnatomicalSpace
+from myterial import blue_grey, orange
 from rich import print
-from myterial import orange
+from vedo import Volume
+
+from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

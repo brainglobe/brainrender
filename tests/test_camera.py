@@ -1,12 +1,13 @@
+import pytest
+
 from brainrender import Scene
 from brainrender.camera import (
-    get_camera,
     check_camera_param,
-    set_camera_params,
-    set_camera,
+    get_camera,
     get_camera_params,
+    set_camera,
+    set_camera_params,
 )
-import pytest
 
 cameras = [
     "sagittal",

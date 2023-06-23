@@ -1,8 +1,9 @@
-from brainrender import Scene
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
+
+from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

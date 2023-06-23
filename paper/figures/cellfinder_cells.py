@@ -1,14 +1,13 @@
-import numpy as np
 import sys
-from rich import print
 from pathlib import Path
+
+import numpy as np
 from myterial import blue_grey as thcol
 from myterial import salmon
-
+from rich import print
 
 from brainrender import Scene
 from brainrender.actors import Points
-
 
 sys.path.append("./")
 from paper.figures import INSET

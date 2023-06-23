@@ -1,5 +1,5 @@
-import numpy as np
 import napari
+import numpy as np
 
 from benchmark.timer import SimpleTimer
 from brainrender import Scene

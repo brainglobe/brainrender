@@ -1,5 +1,6 @@
-from brainrender import Scene
 import numpy as np
+
+from brainrender import Scene
 from brainrender.actors import Volume
 
 

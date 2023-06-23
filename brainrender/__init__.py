@@ -1,9 +1,8 @@
 import os
 from loguru import logger
-import sys
 from pathlib import Path
 from rich.logging import RichHandler
-
+from importlib.metadata import PackageNotFoundError, version
 from brainrender import settings
 
 try:
@@ -18,10 +17,15 @@ import brainrender.actors
 from brainrender.video import VideoMaker, Animation
 from brainrender.atlas import Atlas
 
+
+try:
+    __version__ = version("brainrender")
+except PackageNotFoundError:
+    # package is not installed
+    pass
+
 base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
 base_dir.mkdir(exist_ok=True)
-
-__version__ = "2.0.5.6"
 
 
 # set logger level

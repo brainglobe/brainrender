@@ -1,8 +1,8 @@
 import pandas as pd
-from rich.progress import track
-from rich import print
 from loguru import logger
 from myterial import orange
+from rich import print
+from rich.progress import track
 
 try:
     from allensdk.api.queries.mouse_connectivity_api import (
@@ -15,9 +15,9 @@ except ModuleNotFoundError:  # pragma: no cover
     allen_sdk_installed = False  # pragma: no cover
 
 
-from brainrender._utils import listify
-from brainrender._io import request
 from brainrender import base_dir
+from brainrender._io import request
+from brainrender._utils import listify
 
 streamlines_folder = base_dir / "streamlines"
 streamlines_folder.mkdir(exist_ok=True)

@@ -1,9 +1,21 @@
 repos:
--   repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-    - id: black
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-    - id: flake8
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: check-docstring-first
+          - id: check-executables-have-shebangs
+          - id: check-merge-conflict
+          - id: check-toml
+          - id: end-of-file-fixer
+          - id: mixed-line-ending
+            args: [--fix=lf]
+          - id: requirements-txt-fixer
+          - id: trailing-whitespace
+    - repo: https://github.com/charliermarsh/ruff-pre-commit
+      rev: v0.0.272
+      hooks:
+        - id: ruff
+    - repo: https://github.com/psf/black
+      rev: 23.3.0
+      hooks:
+          - id: black

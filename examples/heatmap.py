@@ -4,7 +4,6 @@ sys.path.append("./")
 
 from brainrender.apps import heatmap
 
-
 """
     This example shows how to use brainrender to show a 'heatmap' visualization
     in which brain regions are assigned different colors based on  a dictionary

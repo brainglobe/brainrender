@@ -1,14 +1,15 @@
-from qtpy.QtWidgets import QFileDialog
 from pathlib import Path
+
 import numpy as np
 from loguru import logger
+from qtpy.QtWidgets import QFileDialog
 
-from brainrender.gui.widgets.add_from_file import AddFromFileWindow
-from brainrender.gui.utils import (
-    get_color_from_string,
-    get_alpha_from_string,
-)
 from brainrender.actors import Points
+from brainrender.gui.utils import (
+    get_alpha_from_string,
+    get_color_from_string,
+)
+from brainrender.gui.widgets.add_from_file import AddFromFileWindow
 
 
 class AddFromFile:

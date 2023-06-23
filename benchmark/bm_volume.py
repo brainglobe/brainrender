@@ -1,7 +1,8 @@
 import numpy as np
+
+from benchmark.timer import Timer
 from brainrender import Scene
 from brainrender.actors import Volume
-from benchmark.timer import Timer
 
 scene = Scene(inset=False)
 data = np.load("benchmark/volume.npy")

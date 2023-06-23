@@ -1,15 +1,16 @@
 """
 Brainrender provides several default settins (e.g. for shader style)
-which can be changed to personalize your rendering. 
+which can be changed to personalize your rendering.
 This example shows you how
 """
 
+from pathlib import Path
+
+from myterial import orange
+from rich import print
+
 import brainrender
 from brainrender import Scene
-
-from rich import print
-from myterial import orange
-from pathlib import Path
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

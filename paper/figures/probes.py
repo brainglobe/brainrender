@@ -1,9 +1,10 @@
-from oneibl.onelight import ONE
-from PIL import Image, ImageOps
-from myterial import blue_grey, blue_grey_dark, salmon_light, salmon_darker
-from rich import print
 import sys
 from pathlib import Path
+
+from myterial import blue_grey, blue_grey_dark, salmon_darker, salmon_light
+from oneibl.onelight import ONE
+from PIL import Image, ImageOps
+from rich import print
 
 from brainrender import Scene
 from brainrender.actors import Points

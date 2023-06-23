@@ -24,7 +24,7 @@ You can [install `brainrender`](https://brainglobe.info/documentation/brainrende
 
 ```
 pip install brainrender
-``` 
+```
 
 ## Contributing
 Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/developers/index.html).

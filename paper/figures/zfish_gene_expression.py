@@ -1,15 +1,15 @@
-from rich import print
 import sys
 from pathlib import Path
 
-from brainrender import Scene
-from brainrender.actors import Volume
 from myterial import purple_dark as gene2_color
 from myterial import purple_light as gene1_color
+from rich import print
+
+from brainrender import Scene
+from brainrender.actors import Volume
 
 sys.path.append("./")
 from paper.figures import INSET
-
 
 print("[bold red]Running: ", Path(__file__).name)
 

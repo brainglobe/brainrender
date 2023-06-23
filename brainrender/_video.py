@@ -1,8 +1,9 @@
-from vedo import Video as VtkVideo
+import os
+
+from loguru import logger
 from myterial import amber_light
 from rich import print
-from loguru import logger
-import os
+from vedo import Video as VtkVideo
 
 
 class Video(VtkVideo):

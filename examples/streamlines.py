@@ -1,10 +1,11 @@
-from brainrender import Scene
-from brainrender.atlas_specific import get_streamlines_for_region
-from brainrender.actors.streamlines import make_streamlines
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
+
+from brainrender import Scene
+from brainrender.actors.streamlines import make_streamlines
+from brainrender.atlas_specific import get_streamlines_for_region
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

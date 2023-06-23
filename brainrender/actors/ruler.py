@@ -1,9 +1,8 @@
 import numpy as np
 from loguru import logger
-
 from vedo import merge
 from vedo.shapes import Line, Sphere, Text3D
-from vedo.utils import precision, mag
+from vedo.utils import mag, precision
 
 from brainrender.actor import Actor
 

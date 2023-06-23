@@ -1,7 +1,9 @@
-from brainrender.scene import Scene
-from brainrender.video import VideoMaker, Animation
-import pytest
 from pathlib import Path
+
+import pytest
+
+from brainrender.scene import Scene
+from brainrender.video import Animation, VideoMaker
 
 
 @pytest.mark.local

@@ -1,6 +1,7 @@
-import numpy as np
-from benchmark.timer import SimpleTimer
 import napari
+import numpy as np
+
+from benchmark.timer import SimpleTimer
 
 data = np.load("benchmark/volume.npy")
 

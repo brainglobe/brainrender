@@ -1,11 +1,12 @@
 import sys
 from pathlib import Path
+
+from morphapi.api.mouselight import MouseLightAPI
 from myterial import blue_grey_dark as thcol
-from myterial import salmon_dark, salmon_darker, orange_darker, grey_darker
+from myterial import grey_darker, orange_darker, salmon_dark, salmon_darker
 from rich import print
 
 from brainrender import Scene
-from morphapi.api.mouselight import MouseLightAPI
 
 sys.path.append("./")
 from paper.figures import INSET

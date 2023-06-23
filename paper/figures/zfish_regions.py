@@ -1,8 +1,9 @@
-from rich import print
-from myterial import cyan as cbcol
-from myterial import teal as tcol
 import sys
 from pathlib import Path
+
+from myterial import cyan as cbcol
+from myterial import teal as tcol
+from rich import print
 
 from brainrender import Scene
 

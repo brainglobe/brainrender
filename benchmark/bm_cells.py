@@ -1,7 +1,9 @@
+import random
+
+import numpy as np
+
 from benchmark.timer import Timer
 from brainrender import Scene, actors
-import numpy as np
-import random
 
 # create N random cells coordinates
 

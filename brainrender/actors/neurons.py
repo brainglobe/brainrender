@@ -1,8 +1,9 @@
 from pathlib import Path
-from morphapi.morphology.morphology import Neuron as MorphoNeuron
-from vedo import Mesh
+
 from loguru import logger
+from morphapi.morphology.morphology import Neuron as MorphoNeuron
 from pyinspect.utils import _class_name
+from vedo import Mesh
 
 from brainrender.actor import Actor
 
@@ -51,7 +52,7 @@ class Neuron(Actor):
         :param soma_radius: float, radius of soma
         :param name: str, actor name
         """
-        logger.debug(f"Creating a Neuron actor")
+        logger.debug("Creating a Neuron actor")
         if color is None:
             color = "blackboard"
         alpha = alpha

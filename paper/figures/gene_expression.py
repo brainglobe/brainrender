@@ -1,7 +1,8 @@
 import sys
+from pathlib import Path
+
 from myterial import blue_grey_dark, salmon_dark
 from rich import print
-from pathlib import Path
 
 from brainrender import Scene
 from brainrender.atlas_specific import GeneExpressionAPI
