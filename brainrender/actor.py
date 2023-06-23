@@ -61,9 +61,7 @@ def make_actor_label(
         txt = Text3D(
             label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
         )
-        new_actors.append(
-            txt.rotate_x(180).rotate_y(180)
-        )
+        new_actors.append(txt.rotate_x(180).rotate_y(180))
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
