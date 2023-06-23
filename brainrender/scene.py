@@ -111,7 +111,7 @@ class Scene(JupyterMixIn, Render):
 
         inset = self._root_mesh.clone()
         inset.alpha(1)  # scale(0.5)
-        self.plotter.addInset(inset, pos=(0.95, 0.1), draggable=False)
+        self.plotter.add_inset(inset, pos=(0.95, 0.1), draggable=False)
 
         if settings.SHADER_STYLE == "cartoon":
             inset.lighting("off")

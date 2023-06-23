@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from vedo import Plotter
 from vedo import settings as vsettings
 import numpy as np
@@ -213,7 +214,7 @@ class Render:
             camera = check_camera_param(camera)
 
         if "focalPoint" not in camera.keys() or camera["focalPoint"] is None:
-            camera["focalPoint"] = self.root._mesh.centerOfMass()
+            camera["focalPoint"] = self.root._mesh.center_of_mass()
 
         if not self.backend and camera is not None:
             camera = set_camera(self, camera)
@@ -254,7 +255,6 @@ class Render:
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
                 camera=camera.copy() if update_camera else None,
-                interactorStyle=0,
                 rate=40,
             )
         elif self.backend == "k3d":  # pragma: no cover
@@ -278,7 +278,7 @@ class Render:
             )
 
     def close(self):
-        self.plotter.close()
+        plt.close()
 
     def export(self, savepath):
         """

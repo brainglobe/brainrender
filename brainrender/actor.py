@@ -62,7 +62,7 @@ def make_actor_label(
             label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
         )
         new_actors.append(
-            txt.rotateX(180, locally=True).rotateY(180, locally=True)
+            txt.rotate_x(180).rotate_y(180)
         )
 
         # Mark a point on Mesh that corresponds to the label location

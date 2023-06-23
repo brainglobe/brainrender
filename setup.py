@@ -29,8 +29,8 @@ def get_version():
 requirements = [
     "numpy",
     "pandas",
-    "vedo==2021.0.5",
-    "k3d==2.7.4",
+    "vedo",
+    "k3d",
     "msgpack",
     "pyyaml>=5.3",
     "morphapi>=0.1.3.0",
