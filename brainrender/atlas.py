@@ -115,7 +115,7 @@ class Atlas(BrainGlobeAtlas):
         axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 
         if pos is None:
-            pos = self.root._mesh.centerOfMass()
+            pos = self.root._mesh.center_of_mass()
 
         try:
             norm = norm or self.space.plane_normals[plane]
@@ -146,7 +146,7 @@ class Atlas(BrainGlobeAtlas):
 
         # return plane
         return Actor(
-            Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha),
+            Plane(pos=pos, normal=norm, s=(sx, sy), c=color, alpha=alpha),
             name=f"Plane at {pos} norm: {norm}",
             br_class="plane",
         )

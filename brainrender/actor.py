@@ -215,7 +215,7 @@ class Actor(object):
         rep.add(f"[b {orange}]type:[/b {orange}][{amber}] {self.br_class}")
         rep.line()
         rep.add(
-            f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.centerOfMass().astype(np.int32)}"
+            f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.center_of_mass().astype(np.int32)}"
         )
         rep.add(
             f"[{orange}]number of vertices:[/{orange}][{amber}] {len(self.mesh.points())}"

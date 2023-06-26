@@ -1,5 +1,5 @@
 """
-Brainrender provides several default settins (e.g. for shader style)
+Brainrender provides several default settings (e.g. for shader style)
 which can be changed to personalize your rendering.
 This example shows you how
 """

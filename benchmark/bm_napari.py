@@ -1,12 +1,11 @@
+"""
+Compare performance on napari
+"""
 import napari
 import numpy as np
 
 from benchmark.timer import SimpleTimer
 from brainrender import Scene
-
-"""
-    Compare performance on napari
-"""
 
 # get a couple meshes with brainrender
 scene = Scene()

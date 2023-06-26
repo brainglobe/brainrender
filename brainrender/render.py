@@ -129,7 +129,7 @@ class Render:
         if not actor._is_transformed:
             try:
                 actor._mesh = actor.mesh.clone()
-                actor._mesh.applyTransform(mtx)
+                actor._mesh.apply_transform(mtx)
             except AttributeError:  # some types of actors dont trasform
                 logger.debug(
                     f'Failed to transform actor: "{actor.name} (type: {actor.br_class})"'

@@ -88,7 +88,7 @@ class VideoMaker:
         nframes = int(fps * duration)
         for i in track(range(nframes), description="Generating frames"):
             self.make_frame_func(self.scene, i, nframes, *args, **kwargs)
-            video.addFrame()
+            video.add_frame()
 
     def compress(self, temp_name):
         """

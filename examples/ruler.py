@@ -13,8 +13,8 @@ scene = Scene(title="rulers")
 th, mos = scene.add_brain_region("TH", "MOs", alpha=0.3)
 
 # Get a ruler between the two regions
-p1 = th.centerOfMass()
-p2 = mos.centerOfMass()
+p1 = th.center_of_mass()
+p2 = mos.center_of_mass()
 
 rul1 = ruler(p1, p2, unit_scale=0.01, units="mm")
 

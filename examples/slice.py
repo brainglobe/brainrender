@@ -21,7 +21,7 @@ mos, ca1 = scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
 scene.slice("frontal", actors=[th])
 
 # Slice with a custom plane
-plane = scene.atlas.get_plane(pos=mos.centerOfMass(), norm=(1, 1, 0))
+plane = scene.atlas.get_plane(pos=mos.center_of_mass(), norm=(1, 1, 0))
 scene.slice(plane, actors=[mos, ca1])
 
 # Render!

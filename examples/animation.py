@@ -1,3 +1,7 @@
+"""
+This example shows how to create an animated video by specifying
+the camera parameters at a number of key frames
+"""
 from pathlib import Path
 
 from myterial import orange
@@ -7,10 +11,6 @@ from brainrender import Animation, Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
-"""
-    This example shows how to create an animated video by specifying
-    the camera parameters at a number of key frames
-"""
 
 # Create a brainrender scene
 scene = Scene(title="brain regions", inset=False)

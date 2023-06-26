@@ -290,16 +290,16 @@ class Scene(JupyterMixIn, Render):
         # slice to keep only one hemisphere
         if hemisphere == "right":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
+                pos=self.root._mesh.center_of_mass(), norm=(0, 0, 1)
             )
         elif hemisphere == "left":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, -1)
+                pos=self.root._mesh.center_of_mass(), norm=(0, 0, -1)
             )
 
         if hemisphere in ("left", "right"):
             if not isinstance(actors, list):
-                actors._mesh.cutWithPlane(
+                actors._mesh.cut_with_plane(
                     origin=plane.center,
                     normal=plane.normal,
                 )
@@ -375,7 +375,7 @@ class Scene(JupyterMixIn, Render):
             actors = self.clean_actors.copy()
 
         for actor in listify(actors):
-            actor._mesh = actor._mesh.cutWithPlane(
+            actor._mesh = actor._mesh.cut_with_plane(
                 origin=plane.center,
                 normal=plane.normal,
             )

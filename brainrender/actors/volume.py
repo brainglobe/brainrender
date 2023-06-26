@@ -66,7 +66,8 @@ class Volume(Actor):
             else:
                 th = np.percentile(griddata.ravel(), min_quantile)
 
-            mesh = mesh.legosurface(vmin=th, cmap=cmap)
+            mesh = mesh.legosurface(vmin=th)
+            mesh.cmap(cmap)
 
         Actor.__init__(
             self, mesh, name=name or "Volume", br_class=br_class or "Volume"

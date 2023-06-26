@@ -27,7 +27,7 @@ def get_n_random_points_in_region(region, N):
     Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
     pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
 
-    ipts = region.mesh.insidePoints(pts).points()
+    ipts = region.mesh.inside_points(pts).points()
     return np.vstack(random.choices(ipts, k=N))
 
 
