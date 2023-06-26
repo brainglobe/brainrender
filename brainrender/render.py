@@ -65,7 +65,7 @@ class Render:
         """
         ax_idx = self.atlas.space.axes_order.index("frontal")
 
-        # make acustom axes dict
+        # make a custom axes dict
         atlas_shape = np.array(self.atlas.metadata["shape"]) * np.array(
             self.atlas.metadata["resolution"]
         )
@@ -130,7 +130,7 @@ class Render:
             try:
                 actor._mesh = actor.mesh.clone()
                 actor._mesh.apply_transform(mtx)
-            except AttributeError:  # some types of actors dont trasform
+            except AttributeError:  # some types of actors don't transform
                 logger.debug(
                     f'Failed to transform actor: "{actor.name} (type: {actor.br_class})"'
                 )
@@ -370,7 +370,7 @@ class Render:
 
     def keypress(self, key):  # pragma: no cover
         """
-        Hanles key presses for interactive view
+        Handles key presses for interactive view
         -s: take's a screenshot
         -q: closes the window
         -c: prints the current camera parameters

@@ -32,7 +32,7 @@ class StandardItem(QStandardItem):
     def toggle_active(self):
         """
         When a mesh corresponding to the item's region
-        get's rendered, change the font to bold
+        gets rendered, change the font to bold
         to highlight the fact.
         """
         fnt = QFont("Roboto", 14)

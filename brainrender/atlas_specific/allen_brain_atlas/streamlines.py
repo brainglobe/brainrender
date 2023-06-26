@@ -26,7 +26,7 @@ streamlines_folder.mkdir(exist_ok=True)
 def experiments_source_search(SOI):
     """
     Returns data about experiments whose injection was in the SOI, structure of interest
-    :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
+    :param SOI: str, structure of interest. Acronym of structure to use as seed for the search
     :param source:  (Default value = True)
     """
 
@@ -94,7 +94,7 @@ def get_streamlines_for_region(region, force_download=False):
     """
     Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
     were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
-    are selected for only WT mice and onl when the region was the primary injection target.
+    are selected for only WT mice and only when the region was the primary injection target.
 
     :param region: str with region to use for research
 

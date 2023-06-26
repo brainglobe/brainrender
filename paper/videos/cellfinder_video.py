@@ -37,7 +37,7 @@ cam2 = {
 def slce(scene, framen, totframes):
     """
     Slices selected actors and makes sure
-    that silhouttes are updated accordingly
+    that silhouettes are updated accordingly
     """
     root, pts, rsp, th, box, roots, rsps, ths = scene.actors
 

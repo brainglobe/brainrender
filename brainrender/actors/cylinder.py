@@ -11,7 +11,7 @@ class Cylinder(Actor):
         point and the brain's surface.
 
         :param pos: list, np.array of ap, dv, ml coordinates.
-            If an actor is passed, get's the center of mass instead
+            If an actor is passed, gets the center of mass instead
         :param root: brain root Actor or mesh object
         :param color: str, color
         :param alpha: float

@@ -64,7 +64,7 @@ def ruler_from_surface(
     logger.debug(f"Creating a ruler actor between {p1} and brain surface")
     # Get point on brain surface
     p2 = p1.copy()
-    p2[axis] = 0  # zero the choosen coordinate
+    p2[axis] = 0  # zero the chosen coordinate
 
     pts = root.mesh.intersectWithLine(p1, p2)
     surface_point = pts[0]

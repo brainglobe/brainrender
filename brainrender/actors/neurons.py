@@ -12,11 +12,11 @@ def make_neurons(
     *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
 ):
     """
-    Returns a list of Neurons given a variable numnber of inputs
+    Returns a list of Neurons given a variable number of inputs
     :param neurons: any accepted data input for Neuron
     :param alpha: float
     :param color: str
-    :param neuron_radius: float, radius of axon/dendrites
+    :param neurite_radius: float, radius of axon/dendrites
     :param soma_radius: float, radius of soma
     :param name: str, actor name
     """
@@ -86,7 +86,7 @@ class Neuron(Actor):
     def _from_file(self, neuron: (str, Path)):
         path = Path(neuron)
         if not path.exists():
-            raise FileExistsError(f"Neuron file doesnt exist: {path}")
+            raise FileExistsError(f"Neuron file doesn't exist: {path}")
 
         if not path.suffix == ".swc":
             raise NotImplementedError(

@@ -7,7 +7,7 @@ from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
-# Explicitly initiliase a scene with the screenshot folder set
+# Explicitly initialise a scene with the screenshot folder set
 # If the screenshot folder is not set, by default screenshots
 # Will save to the current working directory
 screenshot_folder = "./examples/screenshots"

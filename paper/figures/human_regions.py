@@ -24,7 +24,7 @@ cam = {
     "distance": 949,
 }
 
-# crate a scene with the human atlas
+# create a scene with the human atlas
 scene = Scene(
     inset=INSET,
     screenshots_folder="paper/screenshots",

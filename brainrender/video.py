@@ -60,11 +60,11 @@ class VideoMaker:
         scene, frame_number, tot_frames, azimuth=0, elevation=0, roll=0
     ):
         """
-        Default `make_frame_func`. Rotaets the camera in 3 directions
+        Default `make_frame_func`. Rotates the camera in 3 directions
 
         :param scene: scene to be animated.
         :param frame_number: int, not used
-        :param tot_frames: int, total numner of frames
+        :param tot_frames: int, total number of frames
         :param azimuth: integer, specify the rotation in degrees
                     per frame on the relative axis. (Default value = 0)
         :param elevation: integer, specify the rotation in degrees
@@ -299,7 +299,7 @@ class Animation(VideoMaker):
     def get_frame_params(self, frame_number):
         """
         Get current parameters (e.g. camera position)
-        based on frame numbe and defined key frames.
+        based on frame number and defined key frames.
 
         If frame number is a keyframe or is after a keyframe
         then the params are those of that/the last keyframe.
@@ -389,7 +389,7 @@ class Animation(VideoMaker):
 
     def _interpolate_values(self, v1, v2):
         """
-        Interpolate two valuess
+        Interpolate two values
         """
         if v1 is None:
             return v2

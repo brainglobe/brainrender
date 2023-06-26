@@ -55,7 +55,7 @@ class ActorsControl:
 
     def actor_list_double_clicked(self, listitem):
         """
-        When an item in the actors list is doube clicked
+        When an item in the actors list is double clicked
         it toggles the corresponding actor's visibility
         and updates the list widget UI
         """

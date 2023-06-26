@@ -58,7 +58,7 @@ class GeneExpressionAPI:
 
         if gene_name not in self.genes.gene_symbol.values:
             print(
-                f"Gene name {gene_name} doesnt appear in the genes dataset, nothing to return\n"
+                f"Gene name {gene_name} doesn't appear in the genes dataset, nothing to return\n"
                 + "You can search for you gene here: https://mouse.brain-map.org/"
             )
             return None

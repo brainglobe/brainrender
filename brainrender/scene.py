@@ -127,7 +127,7 @@ class Scene(JupyterMixIn, Render):
                 before adding it to the scne
 
         :param names: names to be assigned to the Actors
-        :param classs: br_classes to be assigned to the Actors
+        :param classes: br_classes to be assigned to the Actors
         :param **kwargs: parameters to be passed to the individual
             loading functions (e.g. to load from file and specify the color)
         """
@@ -339,10 +339,10 @@ class Scene(JupyterMixIn, Render):
     @not_on_jupyter
     def add_label(self, actor, label, **kwargs):
         """
-        Dedicated method to add lables to actors
+        Dedicated method to add labels to actors
 
         :param actor: Actors
-        :param llabelw: str. Text of label
+        :param label: str. Text of label
         :param **kwargs: see brainrender._actor.make_actor_label for kwargs
         """
         actor._needs_label = True
@@ -359,7 +359,7 @@ class Scene(JupyterMixIn, Render):
         :param actors: list of actors to be sliced. If None all actors
             will be sliced
         :param close_actors: If true the openings in the actors meshes
-            caused by teh cut will be closed.
+            caused by the cut will be closed.
         :param invert: Invert the slice direction.
         """
         if isinstance(plane, str):

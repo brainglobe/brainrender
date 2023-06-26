@@ -7,7 +7,7 @@ from vedo import Video as VtkVideo
 
 
 class Video(VtkVideo):
-    # Redifine vedo.Video close method
+    # Redefine vedo.Video close method
     def __init__(self, *args, fmt="mp4", size="1620x1050", **kwargs):
         """
         Video class, takes care of storing screenshots (frames)

@@ -17,7 +17,7 @@ def make_streamlines(
     :param streamlines: pd.dataframes with streamlines data
     :param radius: float. Radius of the Tube mesh used to render streamlines
     :param color: str, name of the color to be used
-    :param alpha: float, transparancy
+    :param alpha: float, transparency
     :param show_injection: bool. If true spheres mark the injection sites
     """
     return [
@@ -52,7 +52,7 @@ class Streamlines(Actor):
         :param data: pd.DataFrame with streamlines points data
         :param radius: float. Radius of the Tube mesh used to render streamlines
         :param color: str, name of the color to be used
-        :param alpha: float, transparancy
+        :param alpha: float, transparency
         :param name: str, name of the actor.
         :param show_injection: bool. If true spheres mark the injection sites
         """

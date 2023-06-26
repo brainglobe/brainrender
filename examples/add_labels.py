@@ -11,7 +11,7 @@ from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
-# crate a scene and add brain regions
+# create a scene and add brain regions
 scene = Scene()
 th, mos = scene.add_brain_region("TH", "MOs")
 scene.add_label(th, "TH")

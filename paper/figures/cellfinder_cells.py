@@ -14,7 +14,7 @@ from paper.figures import INSET
 
 print("[bold red]Running: ", Path(__file__).name)
 
-# define camera parmeters
+# define camera parameters
 cam = {
     "pos": (5792, 431, 36893),
     "viewup": (0, -1, 0),

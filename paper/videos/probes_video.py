@@ -38,7 +38,7 @@ cam1 = {
 def spiker(scene, framen, tot_frames, cam1=None, cam2=None, end=1, prev=0):
     """
     Update channels meshes based on which channels
-    deteted spikes
+    detected spikes
     """
     if framen % 15 == 0:  # update only every .5s
         # Remove previous spikes
