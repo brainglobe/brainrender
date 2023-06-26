@@ -55,11 +55,11 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
-    "PySide2>5.12.3"
+    "PySide2"
 ]
 nb = ["jupyter", "k3d"]
-        pyside2= ["PySide2>=5.12.3"]
-        pyqt5= ["PyQt5>=5.12.3"]
+        pyside2= ["PySide2"]
+        pyqt5= ["PyQt5"]
 [project.scripts]
 brainrender-gui = "brainrender.gui.__init__:clilaunch"
 
