@@ -55,6 +55,7 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
+    "PySide2>5.12.3"
 ]
 nb = ["jupyter", "k3d"]
         pyside2= ["PySide2>=5.12.3"]
