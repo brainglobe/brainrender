@@ -20,7 +20,7 @@ from brainrender.camera import (
 )
 
 # mtx used to transform meshes to sort axes orientation
-mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
+mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 
 class Render:
