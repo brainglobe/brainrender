@@ -80,6 +80,10 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=brainrender"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "local: marks test as local (not for CI)",
+]
 
 [tool.black]
 target-version = ['py38', 'py39', 'py310', 'py311']
