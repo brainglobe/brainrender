@@ -1,3 +1,7 @@
+## Update 2023-10-05:  brainrender is currently unsupported
+### brainrender has a number of critical bugs that we are aiming to address. Until these issues are fixed, we will be able to offer very limited support. 
+### For further details please see [this issue](https://github.com/brainglobe/brainrender/issues/247).
+
 
 # Brainrender
 <p align="center">
