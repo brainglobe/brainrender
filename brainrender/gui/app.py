@@ -45,7 +45,7 @@ class App(
         self.vtkWidget = QVTKRenderWindowInteractor(frame)
 
         # Get vtkWidget plotter and creates a scene embedded in it
-        new_plotter = Plotter(qtWidget=self.vtkWidget)
+        new_plotter = Plotter(qt_widget=self.vtkWidget)
         self.scene = Scene(
             *args, atlas_name=atlas_name, plotter=new_plotter, **kwargs
         )
@@ -206,7 +206,7 @@ class App(
         # update actors rendered
         self.scene.plotter.show(
             *meshes,
-            interactorStyle=0,
+            mode=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
             resetcam=self.startup,
             zoom=None,

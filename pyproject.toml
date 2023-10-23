@@ -48,14 +48,14 @@ user_support = "https://github.com/brainglobe/brainrender/issues"
 dev = [
   "pytest",
   "pytest-cov",
+  "pytest-qt",
   "coverage",
   "tox",
   "black",
   "mypy",
   "pre-commit",
   "ruff",
-  "setuptools_scm",
-    "PySide2"
+  "setuptools_scm"
 ]
 nb = ["jupyter", "k3d"]
         pyside2= ["PySide2"]
