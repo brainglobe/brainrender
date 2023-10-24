@@ -294,7 +294,7 @@ class Animation(VideoMaker):
             self._make_frame(framen)
 
             if framen > 1:
-                video.addFrame()
+                video.add_frame()
 
     def get_frame_params(self, frame_number):
         """
