@@ -39,7 +39,9 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 retrieved_paths = pooch.retrieve(
     url="https://api.mapzebrain.org/media/Lines/brn3cGFP/average_data/T_AVG_s356tTg.zip",
     known_hash="54b59146ba08b4d7eea64456bcd67741db4b5395235290044545263f61453a61",
-    path=Path.home() / ".brainglobe" / "brainrender-example-data",  # zip will be downloaded here
+    path=Path.home()
+    / ".brainglobe"
+    / "brainrender-example-data",  # zip will be downloaded here
     progressbar=True,
     processor=pooch.Unzip(
         extract_dir=""
@@ -48,7 +50,7 @@ retrieved_paths = pooch.retrieve(
     ),
 )
 
-datafile = Path(retrieved_paths[1]) # [0] is zip file
+datafile = Path(retrieved_paths[1])  # [0] is zip file
 
 if not datafile.exists():
     raise ValueError(
@@ -80,7 +82,7 @@ print("Extracting surface")
 mesh = vol.isosurface(value=20).c(blue_grey).decimate().clean()
 SHIFT = [-20, 15, 30]  # fine tune mesh position
 current_position = mesh.pos()
-new_position = [SHIFT[i]+current_position[i] for i in range(3)]
+new_position = [SHIFT[i] + current_position[i] for i in range(3)]
 mesh.pos(*new_position)
 
 # 5. render

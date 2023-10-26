@@ -18,11 +18,11 @@ def test_examples():
     examples.cell_density
     examples.custom_camera
     examples.gene_expression
-    #examples.neurons
-    #examples.ruler
+    # examples.neurons
+    # examples.ruler
     examples.settings
     examples.slice
-    #examples.streamlines
+    # examples.streamlines
     examples.user_volumetric_data
     examples.video
     examples.volumetric_data
