@@ -298,7 +298,7 @@ class Render:
             raise ValueError("Savepath should point to a .html file")
 
         # prepare settings
-        vsettings.notebookBackend = "k3d"
+        vsettings.default_backend = "k3d"
 
         # Create new plotter and save to file
         plt = Plotter()
