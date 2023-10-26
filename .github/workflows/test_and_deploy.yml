@@ -21,14 +21,14 @@ jobs:
     strategy:
       matrix:
         # Run all supported Python versions on linux
-        python-version: ["3.8", "3.9", "3.10",]
+        python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
         # Include one windows and macos run
         include:
         - os: macos-latest
-          python-version: "3.10"
+          python-version: "3.11"
         - os: windows-latest
-          python-version: "3.10"
+          python-version: "3.11"
 
     steps:
       # Run tests
