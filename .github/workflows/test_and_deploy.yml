@@ -19,6 +19,7 @@ jobs:
     name: ${{ matrix.os }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         # Run all supported Python versions on linux
         python-version: ["3.9", "3.10", "3.11"]
