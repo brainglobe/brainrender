@@ -57,7 +57,8 @@ dev = [
   "mypy",
   "pre-commit",
   "ruff",
-  "setuptools_scm"
+  "setuptools_scm",
+  "pyside2"
 ]
 nb = ["jupyter", "k3d"]
         pyside2= ["PySide2"]
