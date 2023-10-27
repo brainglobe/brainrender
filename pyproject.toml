@@ -30,7 +30,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -57,7 +56,8 @@ dev = [
   "mypy",
   "pre-commit",
   "ruff",
-  "setuptools_scm"
+  "setuptools_scm",
+  "pyside2"
 ]
 nb = ["jupyter", "k3d"]
         pyside2= ["PySide2"]
