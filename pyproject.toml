@@ -9,6 +9,7 @@ dynamic = ["version"]
 dependencies = [
     "numpy",
     "pandas",
+    "h5py<=3.9", # vedo requires hdf5 <=1.12.x but hdf5 is 1.14+ from h5py 3.10 onwards
     "vedo",
     "k3d",
     "imio",
