@@ -66,7 +66,7 @@ def ruler_from_surface(
     p2 = p1.copy()
     p2[axis] = 0  # zero the chosen coordinate
 
-    pts = root.mesh.intersectWithLine(p1, p2)
+    pts = root.mesh.intersect_with_line(p1, p2)
     surface_point = pts[0]
 
     return ruler(p1, surface_point, unit_scale=unit_scale, units=units, s=s)
