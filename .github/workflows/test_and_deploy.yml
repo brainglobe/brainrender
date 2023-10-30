@@ -32,6 +32,10 @@ jobs:
           python-version: "3.10"
 
     steps:
+      - name: Install hdf5 libs for Mac
+        if: runner.os == 'macOS'
+        run: brew install hdf5
+
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
         with:
