@@ -32,6 +32,19 @@ jobs:
           python-version: "3.11"
 
     steps:
+      - name: Setup conda on Windows
+        if: runner.os == 'Windows'
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: conda-forge
+
+      - name: Install Windows-specific conda-forge dependencies
+        if: runner.os == 'Windows'
+        run: conda install -c conda-forge pyside2
+
+
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
         with:
