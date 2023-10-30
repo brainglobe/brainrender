@@ -103,10 +103,11 @@ def test_scene_slice():
 @pytest.mark.parametrize(
     "name, scale", [("test", 2), (None, None), (None, 1), ("test2", None)]
 )
-def test_scene_screenshot(name, scale):
-    s = Scene(screenshots_folder="tests/screenshots")
+def test_scene_screenshot(name, scale, tmp_path):
+    d = tmp_path / "screenshots"
+    d.mkdir()
+    s = Scene(screenshots_folder=d)
     s.screenshot(name=name, scale=scale)
-    shutil.rmtree("tests/screenshots")
     del s
 
 
