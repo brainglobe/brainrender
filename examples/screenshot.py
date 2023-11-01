@@ -32,7 +32,7 @@ camera = {
     "focalPoint": (7718, 4290, -3507),
     "distance": 40610,
 }
-zoom = 1.5
+zoom = 2.5
 
 # If you only want a screenshot and don't want to move the camera
 # around the scene, set interactive to False.

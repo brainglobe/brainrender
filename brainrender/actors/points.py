@@ -140,7 +140,7 @@ class PointsDensity(Actor):
         volume = (
             vPoints(data)
             .density(dims=dims, radius=radius, **kwargs)
-            .c("Dark2")
+            .cmap("Dark2")
             .alpha([0, 0.9])
             .mode(1)
         )  # returns a vedo Volume

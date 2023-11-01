@@ -3,7 +3,7 @@ import random
 import matplotlib.cm as cm_mpl
 import numpy as np
 from vedo.colors import colors as vcolors
-from vedo.colors import getColor
+from vedo.colors import get_color as getColor
 
 
 def map_color(value, name="jet", vmin=None, vmax=None):

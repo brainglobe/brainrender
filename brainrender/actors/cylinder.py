@@ -20,7 +20,7 @@ class Cylinder(Actor):
 
         # Get pos
         if isinstance(pos, Mesh):
-            pos = pos.points().mean(axis=0)
+            pos = pos.center_of_mass()
         elif isinstance(pos, Actor):
             pos = pos.center
         logger.debug(f"Creating Cylinder actor at: {pos}")

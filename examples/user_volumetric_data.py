@@ -74,7 +74,7 @@ transformed_stack = source_space.map_stack_to(target_space, data)
 
 # 3. create a Volume vedo actor and smooth
 print("Creating volume")
-vol = Volume(transformed_stack, origin=scene.root.origin()).smooth_median()
+vol = Volume(transformed_stack).smooth_median()
 
 
 # 4. Extract a surface mesh from the volume actor
