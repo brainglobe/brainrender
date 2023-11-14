@@ -37,7 +37,7 @@ class SceneContent:
         )
         for act in self.scene.clean_actors:
             try:
-                points = len(act.points())
+                points = act.npoints
             except AttributeError:
                 points = 0
             actors.add(
@@ -71,7 +71,7 @@ class Timer:
         points = []
         for act in self.scene.clean_actors:
             try:
-                points.append(len(act.points()))
+                points.append(act.npoints)
             except AttributeError:
                 pass
         tot_points = sum(points)
