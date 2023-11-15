@@ -302,7 +302,7 @@ class Render:
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.clean_renderables, render=False)
+        plt.add(self.clean_renderables).render()
         plt = plt.show(interactive=False)
         plt.camera[-2] = -1
 
