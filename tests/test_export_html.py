@@ -14,7 +14,6 @@ def scene():
     return s
 
 
-@pytest.mark.local
 def test_export_for_web(scene):
     """Check that exporting to html creates the expected file"""
     path = scene.export("test.html")
@@ -26,7 +25,6 @@ def test_export_for_web(scene):
     path.unlink()
 
 
-@pytest.mark.local
 def test_export_for_web_raises(scene):
     """Check that exporting with invalid file extention raises ValueError"""
     with pytest.raises(ValueError):
