@@ -289,6 +289,7 @@ class Render:
         """
         logger.debug(f"Exporting scene to {savepath}")
         _backend = self.backend
+        _default_backend = vsettings.default_backend
 
         if not self.is_rendered:
             self.render(interactive=False)
@@ -302,9 +303,8 @@ class Render:
 
         # Create new plotter and save to file
         plt = Plotter()
-        plt.add(self.clean_renderables, render=False)
+        plt.add(self.clean_renderables).render()
         plt = plt.show(interactive=False)
-        plt.camera[-2] = -1
 
         with open(path, "w") as fp:
             fp.write(plt.get_snapshot())
@@ -314,7 +314,7 @@ class Render:
         )
 
         # Reset settings
-        vsettings.notebookBackend = None
+        vsettings.default_backend = _default_backend
         self.backend = _backend
 
         return str(path)
