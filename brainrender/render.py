@@ -289,6 +289,7 @@ class Render:
         """
         logger.debug(f"Exporting scene to {savepath}")
         _backend = self.backend
+        _default_backend = vsettings.default_backend
 
         if not self.is_rendered:
             self.render(interactive=False)
@@ -314,7 +315,7 @@ class Render:
         )
 
         # Reset settings
-        vsettings.notebookBackend = None
+        vsettings.default_backend = _default_backend
         self.backend = _backend
 
         return str(path)
