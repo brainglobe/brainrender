@@ -305,7 +305,6 @@ class Render:
         plt = Plotter()
         plt.add(self.clean_renderables).render()
         plt = plt.show(interactive=False)
-        plt.camera[-2] = -1
 
         with open(path, "w") as fp:
             fp.write(plt.get_snapshot())
