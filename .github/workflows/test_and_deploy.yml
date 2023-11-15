@@ -36,6 +36,9 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install hdf5
 
+      # Helps set up VTK with a headless display
+      - uses: pyvista/setup-headless-display-action@v2
+
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
         with:
