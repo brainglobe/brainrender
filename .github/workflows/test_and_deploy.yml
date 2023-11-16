@@ -36,6 +36,13 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install hdf5
 
+      # Helps set up VTK with a headless display
+      - uses: pyvista/setup-headless-display-action@v2
+
+      # Sets up ffmpeg to we can run video tests on CI
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
         with:

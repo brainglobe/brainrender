@@ -78,14 +78,12 @@ class Volume(Actor):
         Creates a vedo.Volume actor from a 3D numpy array
         with volume data
         """
-        # c no longer valid parameter for Vedo Volume
-        volume = VedoVolume(
+
+        return VedoVolume(
             griddata,
             spacing=[voxel_size, voxel_size, voxel_size],
             **volume_kwargs,
-        )
-        volume.cmap(color)
-        return volume
+        ).cmap(color)
 
     def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
         """
