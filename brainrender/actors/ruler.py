@@ -37,7 +37,7 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
     dist = mag(p2 - p1) * unit_scale
     label = precision(dist, 3) + " " + units
     lbl = Text3D(label, pos=midpoint, s=s + 100, justify="center")
-    # lbl.SetOrientation([0, 0, 180])
+    lbl.rotate_z(180, around=midpoint)
     actors.append(lbl)
 
     # Add spheres add end
@@ -46,6 +46,7 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
 
     act = Actor(merge(*actors), name="Ruler", br_class="Ruler")
     act.c((0.3, 0.3, 0.3)).alpha(1).lw(2)
+
     return act
 
 
@@ -66,7 +67,7 @@ def ruler_from_surface(
     p2 = p1.copy()
     p2[axis] = 0  # zero the chosen coordinate
 
-    pts = root.mesh.intersect_with_line(p1, p2)
+    pts = root._mesh.intersect_with_line(p1, p2)
     surface_point = pts[0]
 
     return ruler(p1, surface_point, unit_scale=unit_scale, units=units, s=s)

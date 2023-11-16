@@ -8,6 +8,7 @@ from myterial import amber, deep_purple_light, orange, teal
 from rich import print
 from rich.syntax import Syntax
 from vedo import Plotter
+from vedo import Volume as VedoVolume
 from vedo import settings as vsettings
 
 from brainrender import settings
@@ -21,6 +22,7 @@ from brainrender.camera import (
 
 # mtx used to transform meshes to sort axes orientation
 mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
+mtx_swap_x_z = [[0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1]]
 
 
 class Render:
@@ -88,24 +90,24 @@ class Render:
 
         # make custom axes dict
         axes = dict(
-            axesLineWidth=3,
-            tipSize=0,
+            axes_linewidth=3,
+            tip_size=0,
             xtitle="AP (μm)",
             ytitle="DV (μm)",
             ztitle="LR (μm)",
-            textScale=0.8,
-            xTitleRotation=180,
+            text_scale=0.8,
+            xtitle_rotation=180,
             zrange=z_range,
-            zValuesAndLabels=z_ticks,
-            xyGrid=False,
-            yzGrid=False,
-            zxGrid=False,
-            xUseBounds=True,
-            yUseBounds=True,
-            zUseBounds=True,
-            xLabelRotation=180,
-            yLabelRotation=180,
-            zLabelRotation=90,
+            z_values_and_labels=z_ticks,
+            xygrid=False,
+            yzgrid=False,
+            zxgrid=False,
+            x_use_bounds=True,
+            y_use_bounds=True,
+            z_use_bounds=True,
+            xlabel_rotation=180,
+            ylabel_rotation=180,
+            zlabel_rotation=90,
         )
 
         return axes
@@ -118,8 +120,8 @@ class Render:
 
         Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
-        # don't apply transforms to points density actors
-        if isinstance(actor, PointsDensity):
+        # don't apply transforms to points density actors or rulers
+        if isinstance(actor, PointsDensity) or actor.br_class == "Ruler":
             logger.debug(
                 f'Not transforming actor "{actor.name} (type: {actor.br_class})"'
             )
@@ -129,7 +131,16 @@ class Render:
         if not actor._is_transformed:
             try:
                 actor._mesh = actor.mesh.clone()
-                # actor._mesh.apply_transform(mtx)
+
+                if isinstance(actor._mesh, VedoVolume):
+                    actor._mesh.permute_axes(2, 1, 0)
+                    actor._mesh.apply_transform(mtx, True)
+                elif actor.br_class in ["None", "Gene Data"]:
+                    actor._mesh.apply_transform(mtx_swap_x_z)
+                    actor._mesh.apply_transform(mtx)
+                else:
+                    actor._mesh.apply_transform(mtx)
+
             except AttributeError:  # some types of actors don't transform
                 logger.debug(
                     f'Failed to transform actor: "{actor.name} (type: {actor.br_class})"'
@@ -256,6 +267,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 camera=camera.copy() if update_camera else None,
                 rate=40,
+                axes=self.plotter.axes,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes

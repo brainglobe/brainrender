@@ -95,4 +95,6 @@ class Neuron(Actor):
 
         self.name = self.name or path.name
 
-        return self._from_morphapi_neuron(MorphoNeuron(data_file=neuron))
+        return self._from_morphapi_neuron(
+            MorphoNeuron(data_file=neuron, invert_dims=True)
+        )
