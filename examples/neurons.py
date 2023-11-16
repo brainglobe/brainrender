@@ -13,7 +13,7 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 scene = Scene(title="neurons")
 
 # Add a neuron from file
-# scene.add(Neuron("data/neuron1.swc"))
+scene.add(Neuron("data/neuron1.swc"))
 
 # Download neurons data with morphapi
 mlapi = MouseLightAPI()
