@@ -45,7 +45,7 @@ def make_actor_label(
             color = [0.2, 0.2, 0.2]
 
         # Get mesh's highest point
-        points = actor.mesh.vertices.copy()
+        points = actor.mesh.points().copy()
         point = points[np.argmin(points[:, 1]), :]
         point += np.array(offset) + default_offset
         point[2] = -point[2]
