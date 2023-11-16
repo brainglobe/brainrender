@@ -24,7 +24,7 @@ def make_actor_label(
     zoffset=0,
 ):
     """
-    Adds a 2D text ancored to a point on the actor's mesh
+    Adds a 2D text anchored to a point on the actor's mesh
     to label what the actor is
 
     :param kwargs: keyword arguments can be passed to determine
@@ -64,12 +64,12 @@ def make_actor_label(
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
-            pt = actor.closestPoint(point)
+            pt = actor.closest_point(point)
             pt[2] = -pt[2]
             sphere = Sphere(pt, r=radius, c=color, res=8)
             sphere.ancor = pt
             new_actors.append(sphere)
-            sphere.computeNormals()
+            sphere.compute_normals()
 
     return new_actors
 
@@ -159,7 +159,7 @@ class Actor(object):
         """
         Returns the coordinates of the mesh's center
         """
-        return self.mesh.points().mean(axis=0)
+        return self.mesh.center_of_mass()
 
     @classmethod
     def make_actor(cls, mesh, name, br_class):
@@ -218,7 +218,7 @@ class Actor(object):
             f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.center_of_mass().astype(np.int32)}"
         )
         rep.add(
-            f"[{orange}]number of vertices:[/{orange}][{amber}] {len(self.mesh.points())}"
+            f"[{orange}]number of vertices:[/{orange}][{amber}] {self.mesh.npoints}"
         )
         rep.add(
             f"[{orange}]dimensions:[/{orange}][{amber}] {np.array(self.mesh.bounds()).astype(np.int32)}"

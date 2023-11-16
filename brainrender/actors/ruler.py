@@ -37,7 +37,7 @@ def ruler(p1, p2, unit_scale=1, units=None, s=50):
     dist = mag(p2 - p1) * unit_scale
     label = precision(dist, 3) + " " + units
     lbl = Text3D(label, pos=midpoint, s=s + 100, justify="center")
-    lbl.SetOrientation([0, 0, 180])
+    # lbl.SetOrientation([0, 0, 180])
     actors.append(lbl)
 
     # Add spheres add end
