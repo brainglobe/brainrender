@@ -280,16 +280,12 @@ def test_ruler(scene):
 
 
 def test_screenshot(scene, pytestconfig):
-    root_path = pytestconfig.rootpath
-    screenshot_folder = root_path / "tests"
-    scene.screenshots_folder = screenshot_folder
     scene.add_brain_region("TH")
 
     scene.render(interactive=False)
     scene.screenshot(name="test_screenshot", scale=2)
-    screenshot_path = screenshot_folder / "test_screenshot.png"
+    screenshot_path = Path.cwd() / "test_screenshot.png"
 
-    assert screenshot_folder.exists()
     assert screenshot_path.exists()
 
     screenshot_path.unlink()
