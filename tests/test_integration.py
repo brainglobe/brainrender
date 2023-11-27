@@ -47,7 +47,7 @@ def check_bounds(bounds, parent_bounds):
 
 @pytest.fixture
 def scene():
-    scene = Scene(inset=False)
+    scene = Scene(atlas_name="allen_mouse_100um", inset=False)
     yield scene
     scene.close()
     del scene
@@ -169,14 +169,14 @@ def test_adding_multiple_brain_regions(scene):
 
 
 def test_brainglobe_atlas():
-    scene = Scene(atlas_name="mpin_zfish_1um", title="zebrafish")
+    scene = Scene(atlas_name="example_mouse_100um", title="example_mouse")
 
     scene.render(interactive=False)
 
     assert len(scene.actors) == 2
     assert scene.actors[0].name == "root"
     assert scene.actors[1].name == "title"
-    assert scene.atlas.atlas_name == "mpin_zfish_1um"
+    assert scene.atlas.atlas_name == "example_mouse_100um"
 
 
 def test_cell_density(scene):
@@ -312,6 +312,8 @@ def test_slice(scene):
     assert ca1_clone.bounds() != ca1.bounds()
 
 
+@pytest.mark.slow
+@pytest.mark.local
 def test_user_volumetric_data():
     scene = Scene(atlas_name="mpin_zfish_1um")
     retrieved_paths = pooch.retrieve(
