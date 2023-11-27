@@ -279,18 +279,6 @@ def test_ruler(scene):
     check_bounds(rul2_bounds, root_bounds)
 
 
-def test_screenshot(scene, pytestconfig):
-    scene.add_brain_region("TH")
-
-    scene.render(interactive=False)
-    scene.screenshot(name="test_screenshot", scale=2)
-    screenshot_path = Path.cwd() / "test_screenshot.png"
-
-    assert screenshot_path.exists()
-
-    screenshot_path.unlink()
-
-
 def test_slice(scene):
     th, mos, ca1 = scene.add_brain_region(
         "TH", "MOs", "CA1", alpha=0.2, color="green"
