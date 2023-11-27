@@ -124,9 +124,10 @@ def test_add_mesh_from_file(scene, pytestconfig):
 
 def test_animation(scene, pytestconfig):
     root_path = pytestconfig.rootpath
+    vid_directory = root_path / "tests" / "examples"
 
     scene.add_brain_region("TH")
-    anim = Animation(scene, "./examples", "vid3")
+    anim = Animation(scene, vid_directory, "vid3")
 
     anim.add_keyframe(0, camera="top", zoom=1)
     anim.add_keyframe(1.5, camera="sagittal", zoom=0.95)
@@ -142,7 +143,7 @@ def test_animation(scene, pytestconfig):
 
     assert vid_path.exists()
     vid_path.unlink()
-    Path.rmdir(Path(root_path / "tests" / "examples"))
+    Path.rmdir(vid_directory)
 
 
 def test_adding_multiple_brain_regions(scene):
