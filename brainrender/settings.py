@@ -21,6 +21,7 @@ vsettings.multi_samples = 0 if sys.platform == "darwin" else 8
 
 # For transparent background with screenshots
 vsettings.screenshot_transparent_background = False  # vedo for transparent bg
+vsettings.use_fxaa = False
 
 
 # --------------------------- brainrender settings --------------------------- #
