@@ -10,7 +10,7 @@ dependencies = [
     "numpy",
     "pandas",
     "h5py<=3.9", # vedo requires hdf5 <=1.12.x but hdf5 is 1.14+ from h5py 3.10 onwards
-    "vedo",
+    "vedo>=2023.5.0",
     "k3d",
     "imio",
     "msgpack",
@@ -58,7 +58,8 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
-  "pyside2"
+  "pyside2",
+  "imio",
 ]
 nb = ["jupyter", "k3d"]
         pyside2= ["PySide2"]

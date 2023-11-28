@@ -28,9 +28,10 @@ import pooch
 from bg_space import AnatomicalSpace
 from myterial import blue_grey, orange
 from rich import print
-from vedo import Volume
+from vedo import Volume as VedoVolume
 
 from brainrender import Scene
+from brainrender.actors import Volume
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
@@ -74,14 +75,14 @@ transformed_stack = source_space.map_stack_to(target_space, data)
 
 # 3. create a Volume vedo actor and smooth
 print("Creating volume")
-vol = Volume(transformed_stack).permute_axes(2, 1, 0)
+vol = VedoVolume(transformed_stack)
 vol.smooth_median()
 
 
 # 4. Extract a surface mesh from the volume actor
 print("Extracting surface")
 mesh = vol.isosurface(value=20).c(blue_grey).decimate().clean()
-SHIFT = [-20, 15, 30]  # fine tune mesh position
+SHIFT = [30, 15, -20]  # fine tune mesh position
 current_position = mesh.pos()
 new_position = [SHIFT[i] + current_position[i] for i in range(3)]
 mesh.pos(*new_position)

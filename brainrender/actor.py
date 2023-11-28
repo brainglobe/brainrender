@@ -45,7 +45,7 @@ def make_actor_label(
             color = [0.2, 0.2, 0.2]
 
         # Get mesh's highest point
-        points = actor.mesh.points().copy()
+        points = actor.mesh.vertices.copy()
         point = points[np.argmin(points[:, 1]), :]
         point += np.array(offset) + default_offset
         point[2] = -point[2]
@@ -58,7 +58,7 @@ def make_actor_label(
 
         # Create label
         txt = Text3D(
-            label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
+            label, point * np.array([-1, -1, -1]), s=size, c=color, depth=0.1
         )
         new_actors.append(txt.rotate_x(180).rotate_y(180))
 

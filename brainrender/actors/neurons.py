@@ -77,9 +77,12 @@ class Neuron(Actor):
         self.mesh.c(color).alpha(alpha)
 
     def _from_morphapi_neuron(self, neuron: (MorphoNeuron)):
+        # Temporarily set cache to false as meshes were being corrupted
+        # on second load
         mesh = neuron.create_mesh(
             neurite_radius=self.neurite_radius,
             soma_radius=self.soma_radius,
+            use_cache=False,
         )[1]
         return mesh
 
@@ -95,4 +98,6 @@ class Neuron(Actor):
 
         self.name = self.name or path.name
 
-        return self._from_morphapi_neuron(MorphoNeuron(data_file=neuron))
+        return self._from_morphapi_neuron(
+            MorphoNeuron(data_file=neuron, invert_dims=True)
+        )
