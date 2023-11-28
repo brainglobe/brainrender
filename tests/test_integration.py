@@ -1,3 +1,4 @@
+from importlib.resources import files
 from pathlib import Path
 
 import imio
@@ -107,12 +108,10 @@ def test_add_labels(scene):
     check_bounds(th_label_bounds, root_bounds)
 
 
-def test_add_mesh_from_file(scene, pytestconfig):
-    root_path = pytestconfig.rootpath
+def test_add_mesh_from_file(scene):
+    data_path = files("brainrender").joinpath("resources/CC_134_1_ch1inj.obj")
     scene.add_brain_region("SCm", alpha=0.2)
-    file_mesh = scene.add(
-        root_path / "tests" / "files" / "CC_134_1_ch1inj.obj", color="tomato"
-    )
+    file_mesh = scene.add(data_path, color="tomato")
 
     scene.render(interactive=False)
 
@@ -233,9 +232,9 @@ def test_gene_expression(scene):
 
 
 def test_neurons(scene, pytestconfig):
-    root_path = pytestconfig.rootpath
+    data_path = files("brainrender").joinpath("resources/neuron1.swc")
 
-    neuron = Neuron(root_path / "tests" / "files" / "neuron1.swc")
+    neuron = Neuron(data_path)
     scene.add(neuron)
     scene.render(interactive=False)
 
@@ -363,9 +362,9 @@ def test_video(scene, pytestconfig):
     Path.rmdir(video_directory)
 
 
-def test_volumetric_data(scene, pytestconfig):
-    root_path = pytestconfig.rootpath
-    data = np.load(root_path / "tests" / "files" / "volume.npy")
+def test_volumetric_data(scene):
+    data_path = files("brainrender").joinpath("resources/volume.npy")
+    data = np.load(data_path)
     actor = Volume(
         data,
         voxel_size=200,
@@ -382,6 +381,8 @@ def test_volumetric_data(scene, pytestconfig):
     actor_bounds = actor.bounds()
 
     # Have to expand root bounds by 450 px
+    # This will fail if the volume is misaligned along z
+    # or rotated in relation with the root
     expanded_bounds = [
         bound - 550 if i % 2 == 0 else bound + 550
         for i, bound in enumerate(root_bounds)
