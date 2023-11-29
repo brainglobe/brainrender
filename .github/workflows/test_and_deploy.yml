@@ -54,7 +54,7 @@ jobs:
 
       - name: Install pyside2 for Windows
         if: runner.os == 'Windows'
-        run: conda install -c conda-forge pyside2
+        run: conda install -c conda-forge pyside2 --yes
 
       # Helps set up VTK with a headless display
       - uses: pyvista/setup-headless-display-action@v2
