@@ -27,7 +27,7 @@ pip install brainrender
 ```
 
 ## Contributing
-Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/developers/index.html).
+Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html). Note that some tests are only run locally, by specifying `--runslow --runlocal` in `pytest`.
 
 ## Citing brainrender
 If you use `brainrender` in your work, please cite:
