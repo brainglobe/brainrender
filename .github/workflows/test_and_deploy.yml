@@ -36,11 +36,14 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install hdf5
 
-      - name: Install pyside2 for Windows
+      - name: Setup Conda
         if: runner.os == 'Windows'
         uses: s-wiegand/setup-conda@v1
         with:
           activate-conda: false
+
+      - name: Install pyside2 for Windows
+        if: runner.os == 'Windows'
         run: conda install -c conda-forge pyside2
 
       # Helps set up VTK with a headless display
