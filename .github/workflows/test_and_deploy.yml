@@ -36,6 +36,12 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install hdf5
 
+      - name: Set up Python ${{ matrix.python-version }}
+        if: runner.os == 'Windows'
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Setup Conda
         if: runner.os == 'Windows'
         uses: s-weigand/setup-conda@v1
