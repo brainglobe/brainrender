@@ -45,8 +45,6 @@ jobs:
       - name: Setup Conda
         if: runner.os == 'Windows'
         uses: s-weigand/setup-conda@v1
-        with:
-          activate-conda: false
 
       - name: Change Conda solver
         if: runner.os == 'Windows'
