@@ -48,6 +48,10 @@ jobs:
         with:
           activate-conda: false
 
+      - name: Change Conda solver
+        if: runner.os == 'Windows'
+        run: conda config --set solver libmamba
+
       - name: Install pyside2 for Windows
         if: runner.os == 'Windows'
         run: conda install -c conda-forge pyside2
