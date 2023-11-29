@@ -29,12 +29,16 @@ jobs:
         - os: macos-latest
           python-version: "3.11"
         - os: windows-latest
-          python-version: "3.10"
+          python-version: "3.11"
 
     steps:
       - name: Install hdf5 libs for Mac
         if: runner.os == 'macOS'
         run: brew install hdf5
+
+      - name: Install pyside2 for Windows
+        if: runner.os == 'Windows'
+        run: conda install -c conda-forge pyside2
 
       # Helps set up VTK with a headless display
       - uses: pyvista/setup-headless-display-action@v2
