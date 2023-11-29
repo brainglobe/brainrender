@@ -36,24 +36,6 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install hdf5
 
-      - name: Set up Python ${{ matrix.python-version }}
-        if: runner.os == 'Windows'
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Setup Conda
-        if: runner.os == 'Windows'
-        uses: s-weigand/setup-conda@v1
-
-      - name: Change Conda solver
-        if: runner.os == 'Windows'
-        run: conda config --set solver libmamba
-
-      - name: Install pyside2 for Windows
-        if: runner.os == 'Windows'
-        run: conda install -c conda-forge pyside2 --yes
-
       # Helps set up VTK with a headless display
       - uses: pyvista/setup-headless-display-action@v2
 
@@ -63,8 +45,39 @@ jobs:
 
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
+        if: runner.os != 'Windows'
         with:
           python-version: ${{ matrix.python-version }}
+
+      # Windows custom steps
+      - name: Setup Conda on Windows
+        if: runner.os == 'Windows'
+        uses: s-weigand/setup-conda@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Change Conda solver and install Pyside2
+        if: runner.os == 'Windows'
+        run: |
+          conda config --set solver libmamba
+          conda install -c conda-forge pyside2 --yes
+
+      - uses: actions/checkout@v3
+        if: runner.os == 'Windows'
+
+      - name: Install tox
+        if: runner.os == 'Windows'
+        run: |
+          pip install tox
+          tox --version
+
+      - name: Run tests
+        if: runner.os == 'Windows'
+        run: tox
+
+      - name: Report coverage to codecov
+        if: runner.os == 'Windows'
+        uses: codecov/codecov-action@v3
 
   build_sdist_wheels:
     name: Build source distribution
