@@ -75,7 +75,13 @@ class Atlas(BrainGlobeAtlas):
 
             # Get mesh
             obj_file = str(self.meshfile_from_structure(region))
-            mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
+            try:
+                mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
+            except FileNotFoundError:
+                print(
+                    f"The region {region} is in the onthology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"
+                )
+                continue
 
             # Get color
             color = color or self._get_region_color(region)
