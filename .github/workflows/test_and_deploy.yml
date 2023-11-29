@@ -38,7 +38,7 @@ jobs:
 
       - name: Setup Conda
         if: runner.os == 'Windows'
-        uses: s-wiegand/setup-conda@v1
+        uses: s-weigand/setup-conda@v1
         with:
           activate-conda: false
 
