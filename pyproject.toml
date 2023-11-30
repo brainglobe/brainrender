@@ -58,7 +58,7 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
-  "pyside2",
+  "pyqt5",
   "imio",
 ]
 nb = ["jupyter", "k3d"]
