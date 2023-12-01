@@ -1,13 +1,12 @@
-import pyinspect as pi
 from io import StringIO
-from rich.console import Console
-import numpy as np
-from myterial import orange, salmon, amber
-from vedo import Text3D, Sphere
 
+import numpy as np
+import pyinspect as pi
+from myterial import amber, orange, salmon
+from rich.console import Console
+from vedo import Sphere, Text3D
 
 from brainrender._utils import listify
-
 
 # transform matrix to fix labels orientation
 label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
@@ -25,7 +24,7 @@ def make_actor_label(
     zoffset=0,
 ):
     """
-    Adds a 2D text ancored to a point on the actor's mesh
+    Adds a 2D text anchored to a point on the actor's mesh
     to label what the actor is
 
     :param kwargs: keyword arguments can be passed to determine
@@ -46,7 +45,7 @@ def make_actor_label(
             color = [0.2, 0.2, 0.2]
 
         # Get mesh's highest point
-        points = actor.mesh.points().copy()
+        points = actor.mesh.vertices.copy()
         point = points[np.argmin(points[:, 1]), :]
         point += np.array(offset) + default_offset
         point[2] = -point[2]
@@ -59,20 +58,18 @@ def make_actor_label(
 
         # Create label
         txt = Text3D(
-            label, point * np.array([1, 1, -1]), s=size, c=color, depth=0.1
+            label, point * np.array([-1, -1, -1]), s=size, c=color, depth=0.1
         )
-        new_actors.append(
-            txt.rotateX(180, locally=True).rotateY(180, locally=True)
-        )
+        new_actors.append(txt.rotate_x(180).rotate_y(180))
 
         # Mark a point on Mesh that corresponds to the label location
         if radius is not None:
-            pt = actor.closestPoint(point)
+            pt = actor.closest_point(point)
             pt[2] = -pt[2]
             sphere = Sphere(pt, r=radius, c=color, res=8)
             sphere.ancor = pt
             new_actors.append(sphere)
-            sphere.computeNormals()
+            sphere.compute_normals()
 
     return new_actors
 
@@ -162,7 +159,7 @@ class Actor(object):
         """
         Returns the coordinates of the mesh's center
         """
-        return self.mesh.points().mean(axis=0)
+        return self.mesh.center_of_mass()
 
     @classmethod
     def make_actor(cls, mesh, name, br_class):
@@ -218,10 +215,10 @@ class Actor(object):
         rep.add(f"[b {orange}]type:[/b {orange}][{amber}] {self.br_class}")
         rep.line()
         rep.add(
-            f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.centerOfMass().astype(np.int32)}"
+            f"[{orange}]center of mass:[/{orange}][{amber}] {self.mesh.center_of_mass().astype(np.int32)}"
         )
         rep.add(
-            f"[{orange}]number of vertices:[/{orange}][{amber}] {len(self.mesh.points())}"
+            f"[{orange}]number of vertices:[/{orange}][{amber}] {self.mesh.npoints}"
         )
         rep.add(
             f"[{orange}]dimensions:[/{orange}][{amber}] {np.array(self.mesh.bounds()).astype(np.int32)}"

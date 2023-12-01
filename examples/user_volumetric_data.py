@@ -22,20 +22,36 @@ except ImportError:
         'You need imio to run this example: "pip install imio".\nFor more details: https://github.com/brainglobe/imio'
     )
 
-from bg_space import AnatomicalSpace
-from vedo import Volume
-from brainrender import Scene
 from pathlib import Path
-from myterial import blue_grey
+import pooch
 
-
+from bg_space import AnatomicalSpace
+from myterial import blue_grey, orange
 from rich import print
-from myterial import orange
+from vedo import Volume as VedoVolume
+
+from brainrender import Scene
+from brainrender.actors import Volume
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 # specify where the data are saved
-datafile = Path("/Users/federicoclaudi/Downloads/T_AVG_brn3c_GFP.tif")
+
+retrieved_paths = pooch.retrieve(
+    url="https://api.mapzebrain.org/media/Lines/brn3cGFP/average_data/T_AVG_s356tTg.zip",
+    known_hash="54b59146ba08b4d7eea64456bcd67741db4b5395235290044545263f61453a61",
+    path=Path.home()
+    / ".brainglobe"
+    / "brainrender-example-data",  # zip will be downloaded here
+    progressbar=True,
+    processor=pooch.Unzip(
+        extract_dir=""
+        # path to unzipped dir,
+        # *relative* to the path set in 'path'
+    ),
+)
+
+datafile = Path(retrieved_paths[1])  # [0] is zip file
 
 if not datafile.exists():
     raise ValueError(
@@ -59,15 +75,17 @@ transformed_stack = source_space.map_stack_to(target_space, data)
 
 # 3. create a Volume vedo actor and smooth
 print("Creating volume")
-vol = Volume(transformed_stack, origin=scene.root.origin()).medianSmooth()
+vol = VedoVolume(transformed_stack)
+vol.smooth_median()
 
 
 # 4. Extract a surface mesh from the volume actor
 print("Extracting surface")
-SHIFT = [-20, 15, 30]  # fine tune mesh position
-mesh = (
-    vol.isosurface(threshold=20).c(blue_grey).decimate().clean().addPos(*SHIFT)
-)
+mesh = vol.isosurface(value=20).c(blue_grey).decimate().clean()
+SHIFT = [30, 15, -20]  # fine tune mesh position
+current_position = mesh.pos()
+new_position = [SHIFT[i] + current_position[i] for i in range(3)]
+mesh.pos(*new_position)
 
 # 5. render
 print("Rendering")

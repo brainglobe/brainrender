@@ -1,12 +1,13 @@
 import sys
-from rich import print
 from pathlib import Path
+
 from myterial import blue_grey
 from myterial import salmon_dark as streamlinescol
+from rich import print
 
 from brainrender import Scene
-from brainrender.atlas_specific import get_streamlines_for_region
 from brainrender.actors.streamlines import Streamlines
+from brainrender.atlas_specific import get_streamlines_for_region
 
 sys.path.append("./")
 from paper.figures import INSET

@@ -1,12 +1,12 @@
-from bg_atlasapi.bg_atlas import BrainGlobeAtlas
-from vedo import Plane
 import numpy as np
+from bg_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
+from vedo import Plane
 
 from brainrender import settings
-from brainrender.actor import Actor
 from brainrender._io import load_mesh_from_file
 from brainrender._utils import return_list_smart
+from brainrender.actor import Actor
 
 
 class Atlas(BrainGlobeAtlas):
@@ -121,7 +121,7 @@ class Atlas(BrainGlobeAtlas):
         axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 
         if pos is None:
-            pos = self.root._mesh.centerOfMass()
+            pos = self.root._mesh.center_of_mass()
 
         try:
             norm = norm or self.space.plane_normals[plane]
@@ -152,7 +152,7 @@ class Atlas(BrainGlobeAtlas):
 
         # return plane
         return Actor(
-            Plane(pos=pos, normal=norm, sx=sx, sy=sy, c=color, alpha=alpha),
+            Plane(pos=pos, normal=norm, s=(sx, sy), c=color, alpha=alpha),
             name=f"Plane at {pos} norm: {norm}",
             br_class="plane",
         )

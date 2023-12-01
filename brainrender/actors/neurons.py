@@ -1,8 +1,9 @@
 from pathlib import Path
-from morphapi.morphology.morphology import Neuron as MorphoNeuron
-from vedo import Mesh
+
 from loguru import logger
+from morphapi.morphology.morphology import Neuron as MorphoNeuron
 from pyinspect.utils import _class_name
+from vedo import Mesh
 
 from brainrender.actor import Actor
 
@@ -11,11 +12,11 @@ def make_neurons(
     *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
 ):
     """
-    Returns a list of Neurons given a variable numnber of inputs
+    Returns a list of Neurons given a variable number of inputs
     :param neurons: any accepted data input for Neuron
     :param alpha: float
     :param color: str
-    :param neuron_radius: float, radius of axon/dendrites
+    :param neurite_radius: float, radius of axon/dendrites
     :param soma_radius: float, radius of soma
     :param name: str, actor name
     """
@@ -51,7 +52,7 @@ class Neuron(Actor):
         :param soma_radius: float, radius of soma
         :param name: str, actor name
         """
-        logger.debug(f"Creating a Neuron actor")
+        logger.debug("Creating a Neuron actor")
         if color is None:
             color = "blackboard"
         alpha = alpha
@@ -76,16 +77,19 @@ class Neuron(Actor):
         self.mesh.c(color).alpha(alpha)
 
     def _from_morphapi_neuron(self, neuron: (MorphoNeuron)):
+        # Temporarily set cache to false as meshes were being corrupted
+        # on second load
         mesh = neuron.create_mesh(
             neurite_radius=self.neurite_radius,
             soma_radius=self.soma_radius,
+            use_cache=False,
         )[1]
         return mesh
 
     def _from_file(self, neuron: (str, Path)):
         path = Path(neuron)
         if not path.exists():
-            raise FileExistsError(f"Neuron file doesnt exist: {path}")
+            raise FileExistsError(f"Neuron file doesn't exist: {path}")
 
         if not path.suffix == ".swc":
             raise NotImplementedError(
@@ -94,4 +98,6 @@ class Neuron(Actor):
 
         self.name = self.name or path.name
 
-        return self._from_morphapi_neuron(MorphoNeuron(data_file=neuron))
+        return self._from_morphapi_neuron(
+            MorphoNeuron(data_file=neuron, invert_dims=True)
+        )

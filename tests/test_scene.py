@@ -1,7 +1,9 @@
+import shutil
+
+import pytest
+
 from brainrender import Scene
 from brainrender.actor import Actor
-import pytest
-import shutil
 
 
 def test_scene_creation():

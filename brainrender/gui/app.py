@@ -1,9 +1,10 @@
-from vedo import Plotter
-from collections import namedtuple
 import datetime
+from collections import namedtuple
+
+import vtk.qt
 from loguru import logger
 from qtpy.QtWidgets import QFrame
-import vtk.qt
+from vedo import Plotter
 
 vtk.qt.QVTKRWIBase = "QGLWidget"
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
@@ -11,13 +12,11 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import brainrender
 from brainrender import Scene
 from brainrender.camera import set_camera
-
-from brainrender.gui.ui import UI
-from brainrender.gui.apputils.camera_control import CameraControl
-from brainrender.gui.apputils.add_from_file_control import AddFromFile
-from brainrender.gui.apputils.regions_control import RegionsControl
 from brainrender.gui.apputils.actors_control import ActorsControl
-
+from brainrender.gui.apputils.add_from_file_control import AddFromFile
+from brainrender.gui.apputils.camera_control import CameraControl
+from brainrender.gui.apputils.regions_control import RegionsControl
+from brainrender.gui.ui import UI
 from brainrender.gui.widgets.actors_list import update_actors_list
 from brainrender.gui.widgets.screenshot_modal import ScreenshotModal
 
@@ -46,7 +45,7 @@ class App(
         self.vtkWidget = QVTKRenderWindowInteractor(frame)
 
         # Get vtkWidget plotter and creates a scene embedded in it
-        new_plotter = Plotter(qtWidget=self.vtkWidget)
+        new_plotter = Plotter(qt_widget=self.vtkWidget)
         self.scene = Scene(
             *args, atlas_name=atlas_name, plotter=new_plotter, **kwargs
         )
@@ -207,7 +206,7 @@ class App(
         # update actors rendered
         self.scene.plotter.show(
             *meshes,
-            interactorStyle=0,
+            mode=0,
             bg=brainrender.settings.BACKGROUND_COLOR,
             resetcam=self.startup,
             zoom=None,

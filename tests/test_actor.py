@@ -1,7 +1,8 @@
+from rich import print as rprint
+from vedo import Mesh
+
 from brainrender import Scene
 from brainrender.actor import Actor
-from vedo import Mesh
-from rich import print as rprint
 
 
 def test_actor():

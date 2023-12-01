@@ -7,5 +7,5 @@ def test_cylinder():
 
     th = s.add_brain_region("TH")
     s.add(Cylinder(th, s.root))
-    s.add(Cylinder(th.centerOfMass(), s.root))
+    s.add(Cylinder(th.center_of_mass(), s.root))
     del s

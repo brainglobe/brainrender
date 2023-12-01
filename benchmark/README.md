@@ -8,7 +8,7 @@ Note: the duration reported in the results does not include scene creation (`sce
 ## Machines tested
 * **[1]** macOS - Mojave 10.14.6 - MacBook Pro (15-inch, 2019) - 2.3 GHz Intel Core i9 - Radeon Pro 560X 4 GB GPU
 * **[2]** Ubuntu - 18.04.2 LTS x86_64 - Intel i7-8565U (x) @ 4.5GHz - NO GPU
-* **[3]** Windows 10 - Intel(R) Core i7-7700HQ 2.8GHz - NO GPU 
+* **[3]** Windows 10 - Intel(R) Core i7-7700HQ 2.8GHz - NO GPU
 * **[4]** Windows 10 - Intel(R) Xeon(R) CPU E5-2643 v3 3.4GHz - NVIDIA GeForce GTX 1080 Ti
 
 ## Tests
@@ -23,7 +23,7 @@ through the midline, as well as rendering the scene full screen.
 
 ### Brain regions
 Render >1k brain region meshes. Measures how long it takes to fetch and render the meshes
-for almost all brain regions in the mouse brain. 
+for almost all brain regions in the mouse brain.
 
 ### Animation
 Make a short animation
@@ -78,4 +78,3 @@ Note: these tests are designed to push brainrender to the limits, in practice se
 and increase FPS. This includes decimating/smoothing Actors to reduce the number of vertices or creating meshes with lower resolution to
 begin with. For most cases a significant increase in performance can be achieved with no noticeable loss in rendering quality.
 For instance on computer [4] lowering the resolution of the Points actor from 8 to 4 when rendering 1M points tripled the FPS.
-

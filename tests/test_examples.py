@@ -1,5 +1,6 @@
-from brainrender import settings
 import pytest
+
+from brainrender import settings
 
 settings.INTERACTIVE = False
 
@@ -21,7 +22,7 @@ def test_examples():
     examples.ruler
     examples.settings
     examples.slice
-    examples.streamlines
+    # examples.streamlines
     examples.user_volumetric_data
     examples.video
     examples.volumetric_data

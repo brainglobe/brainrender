@@ -1,18 +1,17 @@
-import pandas as pd
 import os
 import sys
+
+import pandas as pd
 from loguru import logger
 
-
+from brainrender import base_dir
+from brainrender._io import fail_on_no_connection, request
+from brainrender.actors import Volume
 from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils import (
     check_gene_cached,
-    load_cached_gene,
     download_and_cache,
+    load_cached_gene,
 )
-
-from brainrender import base_dir
-from brainrender._io import request, fail_on_no_connection
-from brainrender.actors import Volume
 
 
 class GeneExpressionAPI:
@@ -59,7 +58,7 @@ class GeneExpressionAPI:
 
         if gene_name not in self.genes.gene_symbol.values:
             print(
-                f"Gene name {gene_name} doesnt appear in the genes dataset, nothing to return\n"
+                f"Gene name {gene_name} doesn't appear in the genes dataset, nothing to return\n"
                 + "You can search for you gene here: https://mouse.brain-map.org/"
             )
             return None

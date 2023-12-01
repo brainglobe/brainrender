@@ -1,10 +1,12 @@
-from brainrender import Scene
-from brainrender.actors import make_neurons, Neuron
-from morphapi.api.mouselight import MouseLightAPI
-
-from rich import print
-from myterial import orange
 from pathlib import Path
+from importlib.resources import files
+
+from morphapi.api.mouselight import MouseLightAPI
+from myterial import orange
+from rich import print
+
+from brainrender import Scene
+from brainrender.actors import Neuron, make_neurons
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
@@ -12,7 +14,7 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 scene = Scene(title="neurons")
 
 # Add a neuron from file
-scene.add(Neuron("examples/data/neuron1.swc"))
+scene.add(Neuron(files("brainrender").joinpath("resources/neuron1.swc")))
 
 # Download neurons data with morphapi
 mlapi = MouseLightAPI()

@@ -1,10 +1,10 @@
-import numpy as np
-from vedo import Spheres, Sphere
-from vedo import Points as vPoints
 from pathlib import Path
-from pyinspect.utils import _class_name
-from loguru import logger
 
+import numpy as np
+from loguru import logger
+from pyinspect.utils import _class_name
+from vedo import Points as vPoints
+from vedo import Sphere, Spheres
 
 from brainrender.actor import Actor
 
@@ -33,7 +33,7 @@ class PointsBase:
         self,
     ):
         """
-        Base class with functinality to load from file.
+        Base class with functionality to load from file.
         """
         return
 
@@ -45,7 +45,7 @@ class PointsBase:
         if not isinstance(self.colors, str):
             if not N == len(self.colors):  # pragma: no cover
                 raise ValueError(  # pragma: no cover
-                    "When passing a list of colors, the number of colors shoud match the number of cells"  # pragma: no cover
+                    "When passing a list of colors, the number of colors should match the number of cells"  # pragma: no cover
                 )  # pragma: no cover
 
         self.name = self.name or "Points"
@@ -128,19 +128,19 @@ class PointsDensity(Actor):
             The local neighborhood is specified as the `radius` around each sample position (each voxel).
             The density is expressed as the number of counts in the radius search.
 
-            :param int,list dims: numer of voxels in x, y and z of the output Volume.
+            :param int,list dims: number of voxels in x, y and z of the output Volume.
 
         """
         logger.debug("Creating a PointsDensity actor")
 
         # flip coordinates on XY axis to match brainrender coordinates system
-        # data[:, 2] = -data[:, 2]
+        data[:, 2] = -data[:, 2]
 
         # create volume and then actor
         volume = (
             vPoints(data)
             .density(dims=dims, radius=radius, **kwargs)
-            .c("Dark2")
+            .cmap("Dark2")
             .alpha([0, 0.9])
             .mode(1)
         )  # returns a vedo Volume

@@ -1,11 +1,12 @@
+import sys
+from pathlib import Path
+
 import h5py
 import pandas as pd
-import sys
-from rich import print
-from pathlib import Path
-from myterial import salmon as c1
-from myterial import orange_darker as c2
 from myterial import indigo as c3
+from myterial import orange_darker as c2
+from myterial import salmon as c1
+from rich import print
 
 from brainrender import Scene
 from brainrender.actors import Points

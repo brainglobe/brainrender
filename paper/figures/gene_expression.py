@@ -1,7 +1,8 @@
 import sys
+from pathlib import Path
+
 from myterial import blue_grey_dark, salmon_dark
 from rich import print
-from pathlib import Path
 
 from brainrender import Scene
 from brainrender.atlas_specific import GeneExpressionAPI
@@ -35,7 +36,7 @@ geapi = GeneExpressionAPI()
 expids = geapi.get_gene_experiments(gene)
 data = geapi.get_gene_data(gene, expids[1])
 
-# createa a Volume actor and add to scene
+# create a Volume actor and add to scene
 gene_actor = geapi.griddata_to_volume(data, min_quantile=99, cmap="Reds")
 gene_actor.c(salmon_dark)
 act = scene.add(gene_actor)

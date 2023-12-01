@@ -1,7 +1,7 @@
-from brainrender.gui.app import App
-
 # from qtpy import QtCore
 import pytest
+
+from brainrender.gui.app import App
 
 
 @pytest.mark.local

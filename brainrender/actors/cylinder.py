@@ -1,6 +1,5 @@
-from vedo import shapes
-from vedo import Mesh
 from loguru import logger
+from vedo import Mesh, shapes
 
 from brainrender.actor import Actor
 
@@ -12,7 +11,7 @@ class Cylinder(Actor):
         point and the brain's surface.
 
         :param pos: list, np.array of ap, dv, ml coordinates.
-            If an actor is passed, get's the center of mass instead
+            If an actor is passed, gets the center of mass instead
         :param root: brain root Actor or mesh object
         :param color: str, color
         :param alpha: float
@@ -21,7 +20,7 @@ class Cylinder(Actor):
 
         # Get pos
         if isinstance(pos, Mesh):
-            pos = pos.points().mean(axis=0)
+            pos = pos.center_of_mass()
         elif isinstance(pos, Actor):
             pos = pos.center
         logger.debug(f"Creating Cylinder actor at: {pos}")

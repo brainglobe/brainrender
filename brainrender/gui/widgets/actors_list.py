@@ -1,6 +1,6 @@
-from qtpy.QtGui import QIcon
-from pkg_resources import resource_filename
 from loguru import logger
+from pkg_resources import resource_filename
+from qtpy.QtGui import QIcon
 
 
 def get_in_alist(qlist):

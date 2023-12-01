@@ -1,19 +1,18 @@
 """
-    This example shows how to add a cylinder actor to a scene (e.g. 
+    This example shows how to add a cylinder actor to a scene (e.g.
     to represent the location of an implanted optic canula)
 """
-from brainrender import Scene
-from brainrender import settings
-
+from brainrender import Scene, settings
 from brainrender.actors import Cylinder
 
 settings.SHOW_AXES = False
 settings.WHOLE_SCREEN = False
 
 
-from rich import print
-from myterial import orange
 from pathlib import Path
+
+from myterial import orange
+from rich import print
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

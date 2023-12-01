@@ -1,9 +1,10 @@
-from rich import print
 import sys
 from pathlib import Path
 
-from brainrender import Scene, Animation
 from morphapi.api.mouselight import MouseLightAPI
+from rich import print
+
+from brainrender import Animation, Scene
 from brainrender.actors import make_neurons
 
 sys.path.append("./")

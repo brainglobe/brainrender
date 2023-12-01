@@ -1,11 +1,12 @@
-from rich import print
 from pathlib import Path
-from brainrender import Scene
-from myterial import blue_grey_light as scmcol
+
 from myterial import blue_grey as pagcol
+from myterial import blue_grey_light as scmcol
 from myterial import salmon_dark as neuroncol
+from rich import print
 
 import brainrender
+from brainrender import Scene
 from brainrender.actors import Point
 
 brainrender.settings.SHOW_AXES = False

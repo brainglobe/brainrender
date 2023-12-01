@@ -1,10 +1,12 @@
-from brainrender import Scene
-from brainrender.actors import Points, Point, PointsDensity
-import numpy as np
-from brainrender.actor import Actor
 import random
+from importlib.resources import files
 
+import numpy as np
 import pytest
+
+from brainrender import Scene
+from brainrender.actor import Actor
+from brainrender.actors import Point, Points, PointsDensity
 
 
 def get_n_random_points_in_region(region, N):
@@ -18,16 +20,16 @@ def get_n_random_points_in_region(region, N):
     Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
     pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
 
-    ipts = region.mesh.insidePoints(pts).points()
+    ipts = region.mesh.inside_points(pts).points()
     return np.vstack(random.choices(ipts, k=N))
 
 
 def test_points_working():
     s = Scene(title="BR")
-
-    act = Points(np.load("tests/files/random_cells.npy"))
-    act2 = Points("tests/files/random_cells.npy", colors="k")
-    act3 = Points("tests/files/random_cells.npy", name="test")
+    data_path = files("brainrender").joinpath("resources/random_cells.npy")
+    act = Points(np.load(data_path))
+    act2 = Points(data_path, colors="k")
+    act3 = Points(data_path, name="test")
     assert act3.name == "test"
 
     s.add(act)
@@ -56,6 +58,12 @@ def test_points_density():
 
 def test_points_error():
     with pytest.raises(FileExistsError):
-        Points("tests/files/testsfsdfs.npy", colors="k")
+        Points(
+            files("brainrender").joinpath("resources/testsfsdfs.npy"),
+            colors="k",
+        )
     with pytest.raises(NotImplementedError):
-        Points("tests/files/random_cells.h5", colors="k")
+        Points(
+            files("brainrender").joinpath("resources/random_cells.h5"),
+            colors="k",
+        )

@@ -1,13 +1,13 @@
-from brainrender import Scene
-
-from rich import print
-from myterial import orange
-from myterial import salmon
 from pathlib import Path
+
+from myterial import orange, salmon
+from rich import print
+
+from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
-# Explicitly initiliase a scene with the screenshot folder set
+# Explicitly initialise a scene with the screenshot folder set
 # If the screenshot folder is not set, by default screenshots
 # Will save to the current working directory
 screenshot_folder = "./examples/screenshots"
@@ -32,7 +32,7 @@ camera = {
     "focalPoint": (7718, 4290, -3507),
     "distance": 40610,
 }
-zoom = 1.5
+zoom = 2.5
 
 # If you only want a screenshot and don't want to move the camera
 # around the scene, set interactive to False.

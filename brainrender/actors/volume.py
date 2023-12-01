@@ -1,8 +1,8 @@
-from vedo import Volume as VedoVolume
-import numpy as np
-
 from pathlib import Path
+
+import numpy as np
 from loguru import logger
+from vedo import Volume as VedoVolume
 
 from brainrender.actor import Actor
 
@@ -41,7 +41,7 @@ class Volume(Actor):
             a surface mesh is returned instead of the whole volume
         :param volume_kwargs: keyword arguments for vedo's Volume class
         """
-        logger.debug(f"Creating a Volume actor")
+        logger.debug("Creating a Volume actor")
         # Create mesh
         color = volume_kwargs.pop("c", "viridis")
         if isinstance(griddata, np.ndarray):
@@ -66,7 +66,8 @@ class Volume(Actor):
             else:
                 th = np.percentile(griddata.ravel(), min_quantile)
 
-            mesh = mesh.legosurface(vmin=th, cmap=cmap)
+            mesh = mesh.legosurface(vmin=th)
+            mesh.cmap(cmap)
 
         Actor.__init__(
             self, mesh, name=name or "Volume", br_class=br_class or "Volume"
@@ -77,12 +78,12 @@ class Volume(Actor):
         Creates a vedo.Volume actor from a 3D numpy array
         with volume data
         """
+
         return VedoVolume(
             griddata,
             spacing=[voxel_size, voxel_size, voxel_size],
-            c=color,
             **volume_kwargs,
-        )
+        ).cmap(color)
 
     def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
         """

@@ -1,26 +1,27 @@
-from vedo import settings as vsettings
 import sys
+
+from vedo import settings as vsettings
 
 DEBUG = False  # set to True to see more detailed logs
 
 # ------------------------------- vedo settings ------------------------------ #
 
-vsettings.pointSmoothing = False
-vsettings.lineSmoothing = False
-vsettings.polygonSmoothing = False
-vsettings.immediateRendering = False
+vsettings.point_smoothing = False
+vsettings.line_smoothing = False
+vsettings.polygon_smoothing = False
+vsettings.immediate_rendering = False
 
-vsettings.useDepthPeeling = True
-vsettings.alphaBitPlanes = 1
-vsettings.maxNumberOfPeels = 12
-vsettings.occlusionRatio = 0.1
-vsettings.multiSamples = 0 if sys.platform == "darwin" else 8
+vsettings.use_depth_peeling = True
+vsettings.alpha_bit_planes = 1
+vsettings.max_number_of_peels = 12
+vsettings.occlusion_ratio = 0.1
+vsettings.multi_samples = 0 if sys.platform == "darwin" else 8
 
-vsettings.useSSAO = True
+# vsettings.useSSAO = True
 
 # For transparent background with screenshots
-vsettings.screenshotTransparentBackground = False  # vedo for transparent bg
-vsettings.useFXAA = True  # This needs to be false for transparent bg
+vsettings.screenshot_transparent_background = False  # vedo for transparent bg
+vsettings.use_fxaa = False
 
 
 # --------------------------- brainrender settings --------------------------- #

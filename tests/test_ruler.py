@@ -9,7 +9,10 @@ def test_ruler():
 
     s.add(
         ruler(
-            th.centerOfMass(), mos.centerOfMass(), unit_scale=0.01, units="mm"
+            th.center_of_mass(),
+            mos.center_of_mass(),
+            unit_scale=0.01,
+            units="mm",
         )
     )
 
@@ -23,7 +26,7 @@ def test_ruler_from_surface():
 
     s.add(
         ruler_from_surface(
-            th.centerOfMass(), s.root, unit_scale=0.01, units="mm"
+            th.center_of_mass(), s.root, unit_scale=0.01, units="mm"
         )
     )
 

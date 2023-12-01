@@ -1,19 +1,20 @@
-from rich.layout import Layout
-from rich import print
-from rich.panel import Panel
-import time
-import sys
-import pyinspect as pi
-from myterial import (
-    salmon,
-    orange,
-    orange_darker,
-    amber,
-    pink_light,
-    blue_light,
-)
 import multiprocessing
 import os
+import sys
+import time
+
+import pyinspect as pi
+from myterial import (
+    amber,
+    blue_light,
+    orange,
+    orange_darker,
+    pink_light,
+    salmon,
+)
+from rich import print
+from rich.layout import Layout
+from rich.panel import Panel
 
 
 def is_GPU_available():
@@ -36,7 +37,7 @@ class SceneContent:
         )
         for act in self.scene.clean_actors:
             try:
-                points = len(act.points())
+                points = act.npoints
             except AttributeError:
                 points = 0
             actors.add(
@@ -70,7 +71,7 @@ class Timer:
         points = []
         for act in self.scene.clean_actors:
             try:
-                points.append(len(act.points()))
+                points.append(act.npoints)
             except AttributeError:
                 pass
         tot_points = sum(points)

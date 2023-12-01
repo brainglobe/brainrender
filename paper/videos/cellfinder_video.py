@@ -1,11 +1,12 @@
 import sys
-from rich import print
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 from myterial import salmon
+from rich import print
 
 import brainrender
-from brainrender import Scene, Animation
+from brainrender import Animation, Scene
 from brainrender.actors import Points
 from brainrender.actors.streamlines import make_streamlines
 from brainrender.atlas_specific import get_streamlines_for_region
@@ -13,8 +14,7 @@ from brainrender.atlas_specific import get_streamlines_for_region
 brainrender.settings.SHOW_AXES = False
 
 sys.path.append("./")
-from paper.figures import INSET, root_box, SILHOUETTE
-
+from paper.figures import INSET, SILHOUETTE, root_box
 
 print("[bold red]Running: ", Path(__file__).name)
 
@@ -37,7 +37,7 @@ cam2 = {
 def slce(scene, framen, totframes):
     """
     Slices selected actors and makes sure
-    that silhouttes are updated accordingly
+    that silhouettes are updated accordingly
     """
     root, pts, rsp, th, box, roots, rsps, ths = scene.actors
 

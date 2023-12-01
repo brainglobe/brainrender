@@ -1,11 +1,12 @@
-from pathlib import Path
-from rich import print
 import sys
+from pathlib import Path
 
-from brainrender import Scene, Animation
+from rich import print
+
+from brainrender import Animation, Scene
 
 sys.path.append("./")
-from paper.figures import INSET, root_box, SILHOUETTE
+from paper.figures import INSET, SILHOUETTE, root_box
 
 print("[bold red]Running: ", Path(__file__).name)
 

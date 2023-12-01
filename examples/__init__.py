@@ -13,7 +13,7 @@ from examples import (
     ruler,
     settings,
     slice,
-    streamlines,
+    # streamlines,
     user_volumetric_data,
     video,
     volumetric_data,

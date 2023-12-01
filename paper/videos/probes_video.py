@@ -1,13 +1,13 @@
+import sys
+from pathlib import Path
+from random import choices
+
+import numpy as np
 from myterial import salmon_dark
 from oneibl.onelight import ONE
-import numpy as np
-from random import choices
-import sys
 from rich import print
-from pathlib import Path
 
-
-from brainrender import Scene, Animation
+from brainrender import Animation, Scene
 from brainrender.actors import Points
 from brainrender.cameras import cameras
 
@@ -38,7 +38,7 @@ cam1 = {
 def spiker(scene, framen, tot_frames, cam1=None, cam2=None, end=1, prev=0):
     """
     Update channels meshes based on which channels
-    deteted spikes
+    detected spikes
     """
     if framen % 15 == 0:  # update only every .5s
         # Remove previous spikes

@@ -18,7 +18,7 @@ def root_box(scene):
     """
     Creates a transparent box around the root mesh
     of a brainrender region. This forces the camera to stay in place
-    even if ther root mesh is changed (e.g. sliced)
+    even if the root mesh is changed (e.g. sliced)
     """
     pos = scene.root.centerOfMass()
     bounds = scene.root.bounds()

@@ -1,6 +1,7 @@
 from pathlib import Path
-from vedo import load
+
 import requests
+from vedo import load
 
 
 def connected_to_internet(url="http://www.google.com/", timeout=5):

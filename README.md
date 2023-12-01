@@ -1,7 +1,3 @@
-## Update 2023-10-05:  brainrender is currently unsupported
-### brainrender has a number of critical bugs that we are aiming to address. Until these issues are fixed, we will be able to offer very limited support. 
-### For further details please see [this issue](https://github.com/brainglobe/brainrender/issues/247).
-
 
 # Brainrender
 <p align="center">
@@ -28,10 +24,10 @@ You can [install `brainrender`](https://brainglobe.info/documentation/brainrende
 
 ```
 pip install brainrender
-``` 
+```
 
 ## Contributing
-Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/developers/index.html).
+Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html). Note that some tests are only run locally, by specifying `--runslow --runlocal` in `pytest`.
 
 ## Citing brainrender
 If you use `brainrender` in your work, please cite:

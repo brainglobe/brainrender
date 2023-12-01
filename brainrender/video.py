@@ -1,15 +1,16 @@
-from pathlib import Path
-from rich.progress import track
-from rich import print
 import os
-import numpy as np
-from myterial import amber, orange, salmon
-from loguru import logger
+from pathlib import Path
 
-from brainrender.camera import check_camera_param, get_camera_params
-from brainrender._video import Video
+import numpy as np
+from loguru import logger
+from myterial import amber, orange, salmon
+from rich import print
+from rich.progress import track
+
 import brainrender as br
 from brainrender._jupyter import not_on_jupyter
+from brainrender._video import Video
+from brainrender.camera import check_camera_param, get_camera_params
 
 
 class VideoMaker:
@@ -59,11 +60,11 @@ class VideoMaker:
         scene, frame_number, tot_frames, azimuth=0, elevation=0, roll=0
     ):
         """
-        Default `make_frame_func`. Rotaets the camera in 3 directions
+        Default `make_frame_func`. Rotates the camera in 3 directions
 
         :param scene: scene to be animated.
         :param frame_number: int, not used
-        :param tot_frames: int, total numner of frames
+        :param tot_frames: int, total number of frames
         :param azimuth: integer, specify the rotation in degrees
                     per frame on the relative axis. (Default value = 0)
         :param elevation: integer, specify the rotation in degrees
@@ -87,7 +88,7 @@ class VideoMaker:
         nframes = int(fps * duration)
         for i in track(range(nframes), description="Generating frames"):
             self.make_frame_func(self.scene, i, nframes, *args, **kwargs)
-            video.addFrame()
+            video.add_frame()
 
     def compress(self, temp_name):
         """
@@ -193,7 +194,7 @@ class Animation(VideoMaker):
         :param fmt: str. Video format (e.g. 'mp4')
         """
         VideoMaker.__init__(self, scene, save_fld, name, fmt=fmt, size=size)
-        logger.debug(f"Creating animation")
+        logger.debug("Creating animation")
 
         self.keyframes = {}
         self.keyframes[0] = dict(  # make sure first frame is a keyframe
@@ -293,12 +294,12 @@ class Animation(VideoMaker):
             self._make_frame(framen)
 
             if framen > 1:
-                video.addFrame()
+                video.add_frame()
 
     def get_frame_params(self, frame_number):
         """
         Get current parameters (e.g. camera position)
-        based on frame numbe and defined key frames.
+        based on frame number and defined key frames.
 
         If frame number is a keyframe or is after a keyframe
         then the params are those of that/the last keyframe.
@@ -388,7 +389,7 @@ class Animation(VideoMaker):
 
     def _interpolate_values(self, v1, v2):
         """
-        Interpolate two valuess
+        Interpolate two values
         """
         if v1 is None:
             return v2

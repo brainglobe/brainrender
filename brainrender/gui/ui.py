@@ -1,21 +1,21 @@
-from qtpy.QtWidgets import (
-    QMainWindow,
-    QLabel,
-    QVBoxLayout,
-    QPushButton,
-    QWidget,
-    QListWidget,
-    QHBoxLayout,
-    QLineEdit,
-    QTreeView,
-    QSplitter,
-)
-from qtpy.QtCore import Qt
-from qtpy import QtGui
-from qtpy.QtGui import QStandardItemModel
 from pkg_resources import resource_filename
+from qtpy import QtGui
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QStandardItemModel
+from qtpy.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMainWindow,
+    QPushButton,
+    QSplitter,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
+)
 
-from brainrender.gui.style import style, tree_css, update_css, _themes
+from brainrender.gui.style import _themes, style, tree_css, update_css
 from brainrender.gui.widgets.tree import StandardItem
 
 

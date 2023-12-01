@@ -1,14 +1,15 @@
-from rich.progress import track
-from rich import print
-from random import choice
-from myterial import salmon as c1
-from myterial import blue_light as c2
 import sys
 from pathlib import Path
+from random import choice
+
+from morphapi.api.mpin_celldb import MpinMorphologyAPI
+from myterial import blue_light as c2
+from myterial import salmon as c1
+from rich import print
+from rich.progress import track
 
 from brainrender import Scene
 from brainrender.actors import Point
-from morphapi.api.mpin_celldb import MpinMorphologyAPI
 
 sys.path.append("./")
 from paper.figures import INSET

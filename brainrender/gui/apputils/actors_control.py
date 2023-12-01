@@ -1,13 +1,13 @@
 import numpy as np
-from qtpy.QtGui import QColor, QIcon
-from pkg_resources import resource_filename
 from loguru import logger
+from pkg_resources import resource_filename
+from qtpy.QtGui import QColor, QIcon
 
-from brainrender.gui.utils import (
-    get_color_from_string,
-    get_alpha_from_string,
-)
 from brainrender.gui.style import palette
+from brainrender.gui.utils import (
+    get_alpha_from_string,
+    get_color_from_string,
+)
 
 
 class ActorsControl:
@@ -55,7 +55,7 @@ class ActorsControl:
 
     def actor_list_double_clicked(self, listitem):
         """
-        When an item in the actors list is doube clicked
+        When an item in the actors list is double clicked
         it toggles the corresponding actor's visibility
         and updates the list widget UI
         """

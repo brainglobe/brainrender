@@ -7,20 +7,21 @@ Scene
 """
 import sys
 from pathlib import Path
-from vedo import Mesh, Text2D, Assembly
+
 import pyinspect as pi
-from rich import print
 from loguru import logger
 from myterial import amber, orange, orange_darker, salmon
+from rich import print
+from vedo import Assembly, Mesh, Text2D
 
 from brainrender import settings
-from brainrender.atlas import Atlas
-from brainrender.render import Render
+from brainrender._io import load_mesh_from_file
+from brainrender._jupyter import JupyterMixIn, not_on_jupyter
+from brainrender._utils import listify, return_list_smart
 from brainrender.actor import Actor
 from brainrender.actors import Volume
-from brainrender._utils import return_list_smart, listify
-from brainrender._io import load_mesh_from_file
-from brainrender._jupyter import not_on_jupyter, JupyterMixIn
+from brainrender.atlas import Atlas
+from brainrender.render import Render
 
 
 class Scene(JupyterMixIn, Render):
@@ -111,7 +112,7 @@ class Scene(JupyterMixIn, Render):
 
         inset = self._root_mesh.clone()
         inset.alpha(1)  # scale(0.5)
-        self.plotter.addInset(inset, pos=(0.95, 0.1), draggable=False)
+        self.plotter.add_inset(inset, pos=(0.95, 0.1), draggable=False)
 
         if settings.SHADER_STYLE == "cartoon":
             inset.lighting("off")
@@ -126,7 +127,7 @@ class Scene(JupyterMixIn, Render):
                 before adding it to the scne
 
         :param names: names to be assigned to the Actors
-        :param classs: br_classes to be assigned to the Actors
+        :param classes: br_classes to be assigned to the Actors
         :param **kwargs: parameters to be passed to the individual
             loading functions (e.g. to load from file and specify the color)
         """
@@ -289,16 +290,16 @@ class Scene(JupyterMixIn, Render):
         # slice to keep only one hemisphere
         if hemisphere == "right":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, 1)
+                pos=self.root._mesh.center_of_mass(), norm=(0, 0, 1)
             )
         elif hemisphere == "left":
             plane = self.atlas.get_plane(
-                pos=self.root._mesh.centerOfMass(), norm=(0, 0, -1)
+                pos=self.root._mesh.center_of_mass(), norm=(0, 0, -1)
             )
 
         if hemisphere in ("left", "right"):
             if not isinstance(actors, list):
-                actors._mesh.cutWithPlane(
+                actors._mesh.cut_with_plane(
                     origin=plane.center,
                     normal=plane.normal,
                 )
@@ -338,10 +339,10 @@ class Scene(JupyterMixIn, Render):
     @not_on_jupyter
     def add_label(self, actor, label, **kwargs):
         """
-        Dedicated method to add lables to actors
+        Dedicated method to add labels to actors
 
         :param actor: Actors
-        :param llabelw: str. Text of label
+        :param label: str. Text of label
         :param **kwargs: see brainrender._actor.make_actor_label for kwargs
         """
         actor._needs_label = True
@@ -358,13 +359,13 @@ class Scene(JupyterMixIn, Render):
         :param actors: list of actors to be sliced. If None all actors
             will be sliced
         :param close_actors: If true the openings in the actors meshes
-            caused by teh cut will be closed.
+            caused by the cut will be closed.
         :param invert: Invert the slice direction.
         """
         if isinstance(plane, str):
-            if invert == False:
+            if invert is False:
                 norm = self.atlas.space.plane_normals[plane]
-            elif invert == True:
+            elif invert is True:
                 norm = tuple(
                     x * -1 for x in self.atlas.space.plane_normals[plane]
                 )
@@ -374,7 +375,7 @@ class Scene(JupyterMixIn, Render):
             actors = self.clean_actors.copy()
 
         for actor in listify(actors):
-            actor._mesh = actor._mesh.cutWithPlane(
+            actor._mesh = actor._mesh.cut_with_plane(
                 origin=plane.center,
                 normal=plane.normal,
             )

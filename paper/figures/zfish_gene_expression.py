@@ -1,19 +1,3 @@
-from rich import print
-import sys
-from pathlib import Path
-
-from brainrender import Scene
-from brainrender.actors import Volume
-from myterial import purple_dark as gene2_color
-from myterial import purple_light as gene1_color
-
-sys.path.append("./")
-from paper.figures import INSET
-
-
-print("[bold red]Running: ", Path(__file__).name)
-
-
 """
     Data downloaded from: https://fishatlas.neuro.mpg.de/lines/
     for this line: https://zfin.org/ZDB-ALT-050728-2
@@ -44,6 +28,23 @@ print("[bold red]Running: ", Path(__file__).name)
         write(mesh, 'data/T_AVG_Chat_GFP.obj')
     ```
 """
+
+import sys
+from pathlib import Path
+
+from myterial import purple_dark as gene2_color
+from myterial import purple_light as gene1_color
+from rich import print
+
+from brainrender import Scene
+from brainrender.actors import Volume
+
+sys.path.append("./")
+from paper.figures import INSET
+
+print("[bold red]Running: ", Path(__file__).name)
+
+
 # shift parameters to adjust meshes position
 SHIFT = [-20, 15, 30]  # fine tune pos
 

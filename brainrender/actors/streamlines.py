@@ -1,10 +1,10 @@
-import pandas as pd
-from vedo.shapes import Tube, Spheres
-from vedo import merge
-from loguru import logger
-import numpy as np
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+from loguru import logger
+from vedo import merge
+from vedo.shapes import Spheres, Tube
 
 from brainrender.actor import Actor
 
@@ -17,7 +17,7 @@ def make_streamlines(
     :param streamlines: pd.dataframes with streamlines data
     :param radius: float. Radius of the Tube mesh used to render streamlines
     :param color: str, name of the color to be used
-    :param alpha: float, transparancy
+    :param alpha: float, transparency
     :param show_injection: bool. If true spheres mark the injection sites
     """
     return [
@@ -52,11 +52,11 @@ class Streamlines(Actor):
         :param data: pd.DataFrame with streamlines points data
         :param radius: float. Radius of the Tube mesh used to render streamlines
         :param color: str, name of the color to be used
-        :param alpha: float, transparancy
+        :param alpha: float, transparency
         :param name: str, name of the actor.
         :param show_injection: bool. If true spheres mark the injection sites
         """
-        logger.debug(f"Creating a streamlines actor")
+        logger.debug("Creating a streamlines actor")
         if isinstance(data, (str, Path)):
             data = pd.read_json(data)
         elif not isinstance(data, pd.DataFrame):

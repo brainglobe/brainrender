@@ -1,11 +1,12 @@
-from brainrender import Scene
 import pandas as pd
+import pytest
+
+from brainrender import Scene
 from brainrender.actors.streamlines import (
     Streamlines,
     make_streamlines,
 )
 from brainrender.atlas_specific import get_streamlines_for_region
-import pytest
 
 
 @pytest.mark.local

@@ -1,0 +1,72 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neuroinformatics-unit/actions/lint@v2
+
+  test:
+    needs: [linting]
+    name: ${{ matrix.os }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run all supported Python versions on linux
+        python-version: ["3.9", "3.10", "3.11"]
+        os: [ubuntu-latest]
+        # Include one windows and macos run
+        include:
+        - os: macos-latest
+          python-version: "3.11"
+        - os: windows-latest
+          python-version: "3.11"
+
+    steps:
+      - name: Install hdf5 libs for Mac
+        if: runner.os == 'macOS'
+        run: brew install hdf5
+
+      # Helps set up VTK with a headless display
+      - uses: pyvista/setup-headless-display-action@v2
+
+      # Sets up ffmpeg to we can run video tests on CI
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+
+      # Run tests
+      - uses: neuroinformatics-unit/actions/test@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+  build_sdist_wheels:
+    name: Build source distribution
+    needs: [test]
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+
+
+  upload_all:
+    name: Publish build distributions
+    needs: [build_sdist_wheels]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: artifact
+        path: dist
+    - uses: pypa/gh-action-pypi-publish@v1.5.0
+      with:
+        user: __token__
+        password: ${{ secrets.TWINE_API_KEY }}

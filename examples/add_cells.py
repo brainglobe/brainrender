@@ -1,12 +1,12 @@
 import random
+from pathlib import Path
+
 import numpy as np
+from myterial import orange
+from rich import print
 
 from brainrender import Scene
 from brainrender.actors import Points
-
-from rich import print
-from myterial import orange
-from pathlib import Path
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
@@ -22,7 +22,7 @@ def get_n_random_points_in_region(region, N):
     Z = np.random.randint(region_bounds[4], region_bounds[5], size=10000)
     pts = [[x, y, z] for x, y, z in zip(X, Y, Z)]
 
-    ipts = region.mesh.insidePoints(pts).points()
+    ipts = region.mesh.inside_points(pts).coordinates
     return np.vstack(random.choices(ipts, k=N))
 
 

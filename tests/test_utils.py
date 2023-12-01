@@ -1,4 +1,4 @@
-from brainrender._utils import listdir, get_subdirs, listify, return_list_smart
+from brainrender._utils import get_subdirs, listdir, listify, return_list_smart
 
 
 def test_listdir():

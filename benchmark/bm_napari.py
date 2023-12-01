@@ -1,12 +1,11 @@
-import numpy as np
+"""
+Compare performance on napari
+"""
 import napari
+import numpy as np
 
 from benchmark.timer import SimpleTimer
 from brainrender import Scene
-
-"""
-    Compare performance on napari
-"""
 
 # get a couple meshes with brainrender
 scene = Scene()
@@ -22,7 +21,7 @@ for reg in regions[:400]:
 surfaces = []
 for act in scene.clean_actors:
     surfaces.append(
-        (act.points(), act.faces(), np.ones(len(act.points())) * 0.5)
+        (act.vertices, act.cells, np.ones(len(act.vertices)) * 0.5)
     )
 
 # render stuff in napar

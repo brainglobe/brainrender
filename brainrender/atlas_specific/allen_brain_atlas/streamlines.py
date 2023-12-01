@@ -1,8 +1,8 @@
 import pandas as pd
-from rich.progress import track
-from rich import print
 from loguru import logger
 from myterial import orange
+from rich import print
+from rich.progress import track
 
 try:
     from allensdk.api.queries.mouse_connectivity_api import (
@@ -15,9 +15,9 @@ except ModuleNotFoundError:  # pragma: no cover
     allen_sdk_installed = False  # pragma: no cover
 
 
-from brainrender._utils import listify
-from brainrender._io import request
 from brainrender import base_dir
+from brainrender._io import request
+from brainrender._utils import listify
 
 streamlines_folder = base_dir / "streamlines"
 streamlines_folder.mkdir(exist_ok=True)
@@ -26,7 +26,7 @@ streamlines_folder.mkdir(exist_ok=True)
 def experiments_source_search(SOI):
     """
     Returns data about experiments whose injection was in the SOI, structure of interest
-    :param SOI: str, structure of interest. Acronym of structure to use as seed for teh search
+    :param SOI: str, structure of interest. Acronym of structure to use as seed for the search
     :param source:  (Default value = True)
     """
 
@@ -94,7 +94,7 @@ def get_streamlines_for_region(region, force_download=False):
     """
     Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
     were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
-    are selected for only WT mice and onl when the region was the primary injection target.
+    are selected for only WT mice and only when the region was the primary injection target.
 
     :param region: str with region to use for research
 

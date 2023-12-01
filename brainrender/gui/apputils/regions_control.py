@@ -1,13 +1,13 @@
 from loguru import logger
 
 import brainrender
-from brainrender.gui.widgets.add_regions import AddRegionsWindow
-from brainrender.gui.widgets.actors_list import remove_from_list
 from brainrender.gui.utils import (
-    get_region_actors,
-    get_color_from_string,
     get_alpha_from_string,
+    get_color_from_string,
+    get_region_actors,
 )
+from brainrender.gui.widgets.actors_list import remove_from_list
+from brainrender.gui.widgets.add_regions import AddRegionsWindow
 
 
 class RegionsControl:

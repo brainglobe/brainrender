@@ -1,10 +1,10 @@
-# Generated 2019/08/21. 
+# Generated 2019/08/21.
 # Please consult Terms-of-Use at https://mouselight.janelia.org when referencing this reconstruction.
 # DOI:     10.25378/janelia.7780856
 # Neuron Id:   AA0905
 # Sample Date:   Mon, 02 Jul 2018 18:52:28 GMT
 # Sample Strain:  C57BL/6N
-# Label Virus:   AAV2/1 Syn-iCre + AAV2/1 CAG-Flex GFP 
+# Label Virus:   AAV2/1 Syn-iCre + AAV2/1 CAG-Flex GFP
 # Label Fluorophore: anti-GFP
 1 1 6957.015539 2478.262394 3250.181397 1.000000 -1
 2 2 6958.226485 2477.661115 3249.171194 1.000000 1

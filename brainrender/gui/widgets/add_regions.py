@@ -1,4 +1,5 @@
-from qtpy.QtWidgets import QDialog, QLineEdit, QPushButton, QLabel, QVBoxLayout
+from qtpy.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout
+
 from brainrender.gui.style import style, update_css
 
 

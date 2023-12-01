@@ -1,5 +1,6 @@
-import brainrender
 from loguru import logger
+
+import brainrender
 from brainrender.camera import get_camera_params
 
 

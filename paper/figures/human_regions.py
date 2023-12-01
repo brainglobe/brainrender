@@ -1,10 +1,11 @@
-from PIL import Image, ImageOps
 import sys
-from myterial import salmon_dark as br1
+from pathlib import Path
+
 from myterial import amber as br2
 from myterial import orange_dark as br3
+from myterial import salmon_dark as br1
+from PIL import Image, ImageOps
 from rich import print
-from pathlib import Path
 
 from brainrender import Scene
 
@@ -23,7 +24,7 @@ cam = {
     "distance": 949,
 }
 
-# crate a scene with the human atlas
+# create a scene with the human atlas
 scene = Scene(
     inset=INSET,
     screenshots_folder="paper/screenshots",
