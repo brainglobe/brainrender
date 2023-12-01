@@ -1,6 +1,5 @@
-from vtkmodules.vtkRenderingCore import vtkCamera
-
 from loguru import logger
+from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
 

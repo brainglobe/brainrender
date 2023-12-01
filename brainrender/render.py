@@ -134,7 +134,9 @@ class Render:
                 if isinstance(actor._mesh, VedoVolume):
                     actor._mesh.permute_axes(2, 1, 0)
                     actor._mesh.apply_transform(mtx)
-                    actor._mesh.transform = None  # otherwise it gets applied twice
+                    actor._mesh.transform = (
+                        None  # otherwise it gets applied twice
+                    )
                 elif actor.br_class in ["None", "Gene Data"]:
                     actor._mesh.apply_transform(mtx_swap_x_z)
                     actor._mesh.apply_transform(mtx)
@@ -389,7 +391,7 @@ class Render:
         if key == "s":
             self.screenshot()
 
-        elif key in ('q', 'Esc'):
+        elif key in ("q", "Esc"):
             self.close()
 
         elif key == "c":
