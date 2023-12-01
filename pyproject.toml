@@ -16,7 +16,7 @@ dependencies = [
     "msgpack",
     "pyyaml>=5.3",
     "pooch",
-    "morphapi>=0.1.3.0",
+    "morphapi>=0.2",
     "requests",
     "bg-atlasapi>=1.0.0",
     "tables",

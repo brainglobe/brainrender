@@ -75,15 +75,20 @@ class Volume(Actor):
 
     def _from_numpy(self, griddata, voxel_size, color, **volume_kwargs):
         """
-        Creates a vedo.Volume actor from a 3D numpy array
-        with volume data
+        Creates a vedo.Volume actor from a 3D numpy array with volume data.
         """
-
-        return VedoVolume(
+        vvol = VedoVolume(
             griddata,
             spacing=[voxel_size, voxel_size, voxel_size],
             **volume_kwargs,
-        ).cmap(color)
+        )
+        vvol.cmap(color)
+        # THIS IS DONE IN render.py
+        # Flip volume so that it's oriented as in the atlas
+        # vvol.permute_axes(2, 1, 0)
+        # mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
+        # vvol.apply_transform(mtx)
+        return vvol
 
     def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
         """
