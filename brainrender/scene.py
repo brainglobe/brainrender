@@ -70,9 +70,7 @@ class Scene(JupyterMixIn, Render):
             "root",
             alpha=settings.ROOT_ALPHA,
             color=settings.ROOT_COLOR,
-            silhouette=True
-            if root and settings.SHADER_STYLE == "cartoon"
-            else False,
+            silhouette=bool(root and settings.SHADER_STYLE == "cartoon"),
         )
         self.atlas.root = self.root  # give atlas access to root
         self._root_mesh = self.root.mesh.clone()
@@ -108,7 +106,7 @@ class Scene(JupyterMixIn, Render):
         Creates a small inset showing the brain's orientation
         """
         if settings.OFFSCREEN:
-            return None
+            return
 
         inset = self._root_mesh.clone()
         inset.alpha(1)  # scale(0.5)
@@ -401,7 +399,7 @@ class Scene(JupyterMixIn, Render):
                 f"[bold][{amber}]- {act.name}[/bold][{orange_darker}] (type: [{orange}]{act.br_class}[/{orange}])"
             )
 
-        if "win32" != sys.platform:
+        if sys.platform != "win32":
             actors.print()
         else:
             print(pi.utils.stringify(actors, maxlen=-1))

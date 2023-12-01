@@ -153,7 +153,6 @@ class Render:
                     logger.debug(
                         f'Failed to reverse actor: "{actor.name} (type: {actor.br_class})"'
                     )
-                    pass
                 actor._is_transformed = True
 
         # Add silhouette and labels
@@ -390,7 +389,7 @@ class Render:
         if key == "s":
             self.screenshot()
 
-        elif key == "q" or key == "Esc":
+        elif key in ('q', 'Esc'):
             self.close()
 
         elif key == "c":

@@ -61,10 +61,9 @@ def set_camera(scene, camera):
     :param scene: instance of Scene
     :param camera: either a string with the name of one of the pre-defined cameras, or
                     a dictionary of camera parameters.
-
     """
     if camera is None:
-        return
+        return None
 
     if not isinstance(camera, vtkCamera):
         # Get camera params

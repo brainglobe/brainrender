@@ -200,6 +200,10 @@ class Animation(VideoMaker):
         self.keyframes[0] = dict(  # make sure first frame is a keyframe
             zoom=None, camera=None, callback=None
         )
+        self.keyframes_numbers = 0
+        self.nframes = 0
+        self.last_keyframe = 0
+        self.segment_fact = 0
 
     def add_keyframe(
         self,
