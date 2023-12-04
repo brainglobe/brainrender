@@ -83,7 +83,7 @@ class Volume(Actor):
             **volume_kwargs,
         )
         vvol.cmap(color)
-        # The transformation below is ALREADY applied 
+        # The transformation below is ALREADY applied
         # to vedo.Volume instances in render.py
         # so we should not apply it here.
         # Flip volume so that it's oriented as in the atlas
