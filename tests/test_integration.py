@@ -135,14 +135,11 @@ def test_animation(scene, pytestconfig):
 
     anim.make_video(duration=5, fps=15)
 
-    scene.render(interactive=False)
-    scene.close()
-
     vid_path = Path(root_path / "tests" / "examples" / "vid3.mp4")
 
     assert vid_path.exists()
     vid_path.unlink()
-    Path.rmdir(vid_directory)
+    assert not vid_path.exists()
 
 
 def test_adding_multiple_brain_regions(scene):

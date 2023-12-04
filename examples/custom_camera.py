@@ -21,7 +21,7 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 custom_camera = {
     "pos": (41381, -16104, 27222),
     "viewup": (0, -1, 0),
-    "clippingRange": (31983, 76783),
+    "clipping_range": (31983, 76783),
 }
 
 
