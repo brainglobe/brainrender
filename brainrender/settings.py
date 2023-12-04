@@ -17,8 +17,6 @@ vsettings.max_number_of_peels = 12
 vsettings.occlusion_ratio = 0.1
 vsettings.multi_samples = 0 if sys.platform == "darwin" else 8
 
-# vsettings.useSSAO = True
-
 # For transparent background with screenshots
 vsettings.screenshot_transparent_background = False  # vedo for transparent bg
 vsettings.use_fxaa = False
@@ -36,5 +34,5 @@ ROOT_ALPHA = 0.2  # transparency of the overall brain model's actor'
 SCREENSHOT_SCALE = 1
 SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metallic, plastic, shiny, glossy]
 SHOW_AXES = True
-WHOLE_SCREEN = True  # If true render window is full screen
+WHOLE_SCREEN = False  # If true render window is full screen
 OFFSCREEN = False

@@ -1,5 +1,5 @@
-import vtk
 from loguru import logger
+from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
 
@@ -24,14 +24,14 @@ def check_camera_param(camera):
     if isinstance(camera, str):
         return get_camera(camera)
     else:
-        params = ["pos", "viewup", "clippingRange"]
+        params = ["pos", "viewup", "clipping_range"]
         for param in params:
             if param not in list(camera.keys()):
                 raise ValueError(
                     f"Camera parameters dict should include the following keys: {params}, missing: {param}"
                 )
-        if "focalPoint" not in camera.keys():
-            camera["focalPoint"] = None
+        if "focal_point" not in camera.keys():
+            camera["focal_point"] = None
         return camera
 
 
@@ -45,10 +45,10 @@ def set_camera_params(camera, params):
     # Apply camera parameters
     camera.SetPosition(params["pos"])
     camera.SetViewUp(params["viewup"])
-    camera.SetClippingRange(params["clippingRange"])
+    camera.SetClippingRange(params["clipping_range"])
 
-    if "focalPoint" in params.keys() and params["focalPoint"] is not None:
-        camera.SetFocalPoint(params["focalPoint"])
+    if "focal_point" in params.keys() and params["focal_point"] is not None:
+        camera.SetFocalPoint(params["focal_point"])
     if "distance" in params.keys():
         camera.SetDistance(params["distance"])
 
@@ -60,12 +60,11 @@ def set_camera(scene, camera):
     :param scene: instance of Scene
     :param camera: either a string with the name of one of the pre-defined cameras, or
                     a dictionary of camera parameters.
-
     """
     if camera is None:
-        return
+        return None
 
-    if not isinstance(camera, vtk.vtkCamera):
+    if not isinstance(camera, vtkCamera):
         # Get camera params
         camera = check_camera_param(camera)
 
@@ -103,10 +102,10 @@ def get_camera_params(scene=None, camera=None):
 
     params = dict(
         pos=clean(cam.GetPosition()),
-        focalPoint=clean(cam.GetFocalPoint()),
+        focal_point=clean(cam.GetFocalPoint()),
         viewup=clean(cam.GetViewUp()),
         distance=clean(cam.GetDistance()),
-        clippingRange=clean(cam.GetClippingRange()),
+        clipping_range=clean(cam.GetClippingRange()),
         # orientation=clean(cam.GetOrientation()),
     )
     return params

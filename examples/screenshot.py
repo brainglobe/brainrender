@@ -10,7 +10,7 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 # Explicitly initialise a scene with the screenshot folder set
 # If the screenshot folder is not set, by default screenshots
 # Will save to the current working directory
-screenshot_folder = "./examples/screenshots"
+screenshot_folder = "."
 scene = Scene(
     title=f"Screenshots will be saved to {screenshot_folder}",
     inset=True,
@@ -28,8 +28,8 @@ scene.slice("sagittal")
 camera = {
     "pos": (8777, 1878, -44032),
     "viewup": (0, -1, 0),
-    "clippingRange": (24852, 54844),
-    "focalPoint": (7718, 4290, -3507),
+    "clipping_range": (24852, 54844),
+    "focal_point": (7718, 4290, -3507),
     "distance": 40610,
 }
 zoom = 2.5

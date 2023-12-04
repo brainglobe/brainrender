@@ -39,7 +39,7 @@ def make_actor_label(
     default_offset = np.array([0, -200, 100])
 
     new_actors = []
-    for n, (actor, label) in enumerate(zip(listify(actors), listify(labels))):
+    for _, (actor, label) in enumerate(zip(listify(actors), listify(labels))):
         # Get label color
         if color is None:
             color = [0.2, 0.2, 0.2]
@@ -74,7 +74,7 @@ def make_actor_label(
     return new_actors
 
 
-class Actor(object):
+class Actor:
     _needs_label = False  # needs to make a label
     _needs_silhouette = False  # needs to make a silhouette
     _is_transformed = False  # has been transformed to correct axes orientation

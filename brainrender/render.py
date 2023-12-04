@@ -1,7 +1,6 @@
 from datetime import datetime
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 from loguru import logger
 from myterial import amber, deep_purple_light, orange, teal
@@ -55,7 +54,7 @@ class Render:
             title="brainrender",
             bg=settings.BACKGROUND_COLOR,
             offscreen=settings.OFFSCREEN,
-            size="full" if settings.WHOLE_SCREEN else "auto",
+            size="full" if settings.WHOLE_SCREEN else (1600, 1200),
         )
 
         self.plotter.keyPressFunction = self.keypress
@@ -134,7 +133,10 @@ class Render:
 
                 if isinstance(actor._mesh, VedoVolume):
                     actor._mesh.permute_axes(2, 1, 0)
-                    actor._mesh.apply_transform(mtx, True)
+                    actor._mesh.apply_transform(mtx)
+                    actor._mesh.transform = (
+                        None  # otherwise it gets applied twice
+                    )
                 elif actor.br_class in ["None", "Gene Data"]:
                     actor._mesh.apply_transform(mtx_swap_x_z)
                     actor._mesh.apply_transform(mtx)
@@ -153,7 +155,6 @@ class Render:
                     logger.debug(
                         f'Failed to reverse actor: "{actor.name} (type: {actor.br_class})"'
                     )
-                    pass
                 actor._is_transformed = True
 
         # Add silhouette and labels
@@ -224,8 +225,8 @@ class Render:
         else:
             camera = check_camera_param(camera)
 
-        if "focalPoint" not in camera.keys() or camera["focalPoint"] is None:
-            camera["focalPoint"] = self.root._mesh.center_of_mass()
+        if "focal_point" not in camera.keys() or camera["focal_point"] is None:
+            camera["focal_point"] = self.root._mesh.center_of_mass()
 
         if not self.backend and camera is not None:
             camera = set_camera(self, camera)
@@ -290,7 +291,7 @@ class Render:
             )
 
     def close(self):
-        plt.close()
+        self.plotter.close()
 
     def export(self, savepath):
         """
@@ -362,7 +363,7 @@ class Render:
     def _print_camera(self):
         pms = get_camera_params(scene=self)
 
-        focal = pms.pop("focalPoint", None)
+        focal = pms.pop("focal_point", None)
         dst = pms.pop("distance", None)
 
         names = [
@@ -375,7 +376,7 @@ class Render:
             *names,
             f"[{orange}]   }}",
             f"[{deep_purple_light}]Additional, (optional) parameters:",
-            f"[green bold]     'focalPoint'[/green bold]: [{amber}]{focal},",
+            f"[green bold]     'focal_point'[/green bold]: [{amber}]{focal},",
             f"[green bold]     'distance'[/green bold]: [{amber}]{dst},",
             sep="\n",
         )
@@ -390,7 +391,7 @@ class Render:
         if key == "s":
             self.screenshot()
 
-        elif key == "q" or key == "Esc":
+        elif key in ("q", "Esc"):
             self.close()
 
         elif key == "c":
