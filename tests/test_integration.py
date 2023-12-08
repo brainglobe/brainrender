@@ -359,7 +359,6 @@ def test_video(scene, pytestconfig):
     Path.rmdir(video_directory)
 
 
-@pytest.mark.skip(reason="Temporarily skip until 294 is fixed.")
 def test_volumetric_data(scene):
     data_path = files("brainrender").joinpath("resources/volume.npy")
     data = np.load(data_path)
