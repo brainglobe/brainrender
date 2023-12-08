@@ -198,6 +198,13 @@ def test_cell_density(scene):
     check_bounds(points_bounds, root_bounds)
     check_bounds(points_density_bounds, root_bounds)
 
+    ids = points_density.mesh.isosurface().inside_points(
+        coordinates, return_ids=True
+    )
+
+    # Check that at least 75% of the points are inside the mesh
+    assert len(ids) >= 0.75 * len(coordinates)
+
 
 def test_gene_expression(scene):
     gene = "Gpr161"
