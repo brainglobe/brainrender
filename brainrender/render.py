@@ -133,7 +133,7 @@ class Render:
 
                 if isinstance(actor._mesh, VedoVolume):
                     actor._mesh.permute_axes(2, 1, 0)
-                    actor._mesh.apply_transform(mtx)
+                    actor._mesh.apply_transform(mtx, True)
                     actor._mesh.transform = (
                         None  # otherwise it gets applied twice
                     )
