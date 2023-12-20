@@ -128,7 +128,7 @@ class Actor:
             )  # pragma: no cover
 
         # some attributes should be from .mesh, others from ._mesh
-        mesh_attributes = ("centerOfMass",)
+        mesh_attributes = ("center_of_mass",)
         if attr in mesh_attributes:
             if hasattr(self.__dict__["mesh"], attr):
                 return getattr(self.__dict__["mesh"], attr)

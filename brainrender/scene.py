@@ -304,7 +304,7 @@ class Scene(JupyterMixIn, Render):
                 actors.cap()
             else:
                 for actor in actors:
-                    actor._mesh.cutWithPlane(
+                    actor._mesh.cut_with_plane(
                         origin=plane.center,
                         normal=plane.normal,
                     )

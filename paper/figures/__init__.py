@@ -20,7 +20,7 @@ def root_box(scene):
     of a brainrender region. This forces the camera to stay in place
     even if the root mesh is changed (e.g. sliced)
     """
-    pos = scene.root.centerOfMass()
+    pos = scene.root.center_of_mass()
     bounds = scene.root.bounds()
     bds = [
         bounds[1] - bounds[0],
