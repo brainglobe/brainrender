@@ -54,7 +54,7 @@ for neu_dict, neu in track(neurons, total=N):
     neuron = scene.add(neu_dict["axon"], alpha=1, color=col)
 
     soma = scene.add(
-        Point(neu_dict["soma"].centerOfMass(), color=col, radius=8, alpha=1)
+        Point(neu_dict["soma"].center_of_mass(), color=col, radius=8, alpha=1)
     )
     scene.add_silhouette(soma)
 

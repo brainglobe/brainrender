@@ -119,8 +119,8 @@ class Render:
 
         Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
-        # don't apply transforms to points density actors or rulers
-        if isinstance(actor, PointsDensity) or actor.br_class == "Ruler":
+        # don't apply transforms to points density actors
+        if isinstance(actor, PointsDensity):
             logger.debug(
                 f'Not transforming actor "{actor.name} (type: {actor.br_class})"'
             )
