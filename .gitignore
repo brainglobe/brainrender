@@ -28,7 +28,6 @@ brexport.html
 *.vtk
 *.nrrd
 *.tdms
-paper/created_videos
 *.mp4
 
 
