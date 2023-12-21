@@ -21,7 +21,6 @@ dependencies = [
     "bg-atlasapi>=1.0.0",
     "tables",
     "pyinspect>=0.0.8",
-    "qtpy",
     "myterial",
     "loguru",
 ]
@@ -51,7 +50,6 @@ Documentation = "https://brainglobe.info/documentation/brainrender/index.html"
 dev = [
   "pytest",
   "pytest-cov",
-  "pytest-qt",
   "coverage",
   "tox",
   "black",
@@ -59,14 +57,10 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
-  "pyqt5",
   "imio",
 ]
 nb = ["jupyter", "k3d"]
-        pyside2= ["PySide2"]
-        pyqt5= ["PyQt5"]
-[project.scripts]
-brainrender-gui = "brainrender.gui.__init__:clilaunch"
+
 
 [build-system]
 requires = [
