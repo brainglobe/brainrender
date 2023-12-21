@@ -41,10 +41,11 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://brainglobe.info"
-bug_tracker = "https://github.com/brainglobe/brainrender/issues"
-source_code = "https://github.com/brainglobe/brainrender"
-user_support = "https://github.com/brainglobe/brainrender/issues"
+Homepage = "https://brainglobe.info/"
+"Source Code" = "https://github.com/brainglobe/brainrender"
+"Bug Tracker" = "https://github.com/brainglobe/brainrender/issues"
+Documentation = "https://brainglobe.info/documentation/brainrender/index.html"
+"User Support" = "https://forum.image.sc/tag/brainglobe"
 
 [project.optional-dependencies]
 dev = [
