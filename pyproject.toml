@@ -112,7 +112,7 @@ ignore = [
 # should revisit some of these.
 [tool.ruff]
 line-length = 79
-exclude = ["__init__.py","build",".eggs","paper","examples"]
+exclude = ["__init__.py","build",".eggs","examples"]
 select = ["I", "E", "F"]
 fix = true
 ignore = ["E501", "E402"]
