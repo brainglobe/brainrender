@@ -35,8 +35,8 @@ def experiments_source_search(SOI):
 
     if not allen_sdk_installed:
         print(
-            f"[{orange}]Allen skd package is not installed, cannot download streamlines data."
-            "Please install `allensdk` with `pip install allensdk` (note: this requires python < 3.8)"
+            f"[{orange}]Streamlines cannot be download because the AllenSDK package is not installed. "
+            "Please install `allensdk` with `pip install allensdk`"
         )
         return None
 
