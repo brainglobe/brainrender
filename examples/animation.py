@@ -18,7 +18,7 @@ scene = Scene(title="brain regions", inset=False)
 # Add brain regions
 scene.add_brain_region("TH")
 
-anim = Animation(scene, "./examples", "vid3")
+anim = Animation(scene, Path.cwd(), "brainrender_animation")
 
 # Specify camera position and zoom at some key frames
 # each key frame defines the scene's state after n seconds have passed
