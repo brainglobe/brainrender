@@ -3,7 +3,7 @@ name = "brainrender"
 authors = [{name = "Federico Claudi, Adam Tyson, Luigi Petrucco", email="hello@brainglobe.info"}]
 description = "Visualisation and exploration of brain atlases and other anatomical data"
 readme = "README.md"
-requires-python = ">=3.8.0"
+requires-python = ">=3.9.0"
 dynamic = ["version"]
 
 dependencies = [
@@ -41,10 +41,11 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://brainglobe.info"
-bug_tracker = "https://github.com/brainglobe/brainrender/issues"
-source_code = "https://github.com/brainglobe/brainrender"
-user_support = "https://github.com/brainglobe/brainrender/issues"
+Homepage = "https://brainglobe.info/"
+"Source Code" = "https://github.com/brainglobe/brainrender"
+"Bug Tracker" = "https://github.com/brainglobe/brainrender/issues"
+Documentation = "https://brainglobe.info/documentation/brainrender/index.html"
+"User Support" = "https://forum.image.sc/tag/brainglobe"
 
 [project.optional-dependencies]
 dev = [
@@ -91,7 +92,7 @@ markers = [
 ]
 
 [tool.black]
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py39', 'py310', 'py311']
 skip-string-normalization = false
 line-length = 79
 
@@ -111,7 +112,34 @@ ignore = [
 # should revisit some of these.
 [tool.ruff]
 line-length = 79
-exclude = ["__init__.py","build",".eggs","paper","examples"]
+exclude = ["__init__.py","build",".eggs","examples"]
 select = ["I", "E", "F"]
 fix = true
 ignore = ["E501", "E402"]
+
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{39,310,311}
+isolated_build = True
+
+[gh-actions]
+python =
+    3.9: py39
+    3.10: py310
+    3.11: py311
+
+[testenv]
+extras =
+    dev
+commands =
+    pytest -v --color=yes --cov=brainrender --cov-report=xml
+passenv =
+    CI
+    GITHUB_ACTIONS
+    DISPLAY
+    XAUTHORITY
+    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
+    PYVISTA_OFF_SCREEN
+"""
