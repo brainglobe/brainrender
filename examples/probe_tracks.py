@@ -1,27 +1,27 @@
-import os
-from pathlib import Path
+"""
+This example visualizes `.npy` files exported from brainglobe-segmentation
+"""
 
+from pathlib import Path
 import numpy as np
-from myterial import orange
-from rich import print
 
 from brainrender import Scene
 from brainrender.actors import Points
 
-data_path = "/home/jingjie/repos/brainrender/brainrender/resources"
-# this should be the path of `.npy` files exported from brainglobe-segmentation
+data_path = Path(__file__).parent.parent / "brainrender" / "resources"
 
-scene = Scene(title="Probe Visualization for M-0022")
+scene = Scene(title="Silicon Probe Visualization")
 
-# Highlight the brain region that we are targetting
+# Visualise the probe target regions
 cp = scene.add_brain_region("CP", alpha=0.15)
 rsp = scene.add_brain_region("RSP", alpha=0.15)
 
-# Add to scene,
-# Display the probe track, for each probe that should be a numpy array with coordinations of each sites
+# Add probes to the scene.
+# Each .npy file should contain a numpy array with the coordinates of each
+# part of the probe.
 scene.add(
     Points(
-        np.load(os.path.join(data_path, "probe_1_straitum.npy")),
+        np.load(data_path / "probe_1_striatum.npy"),
         name="probe_1",
         colors="darkred",
         radius=50,
@@ -29,12 +29,12 @@ scene.add(
 )
 scene.add(
     Points(
-        np.load(os.path.join(data_path, "probe_2_RSC.npy")),
+        np.load(data_path / "probe_2_RSP.npy"),
         name="probe_2",
         colors="darkred",
         radius=50,
     )
 )
+
 # render
-scene.content
 scene.render()
