@@ -11,7 +11,7 @@ print(f"[{orange}]Running example: {Path(__file__).name}")
 scene = Scene(title="brainrender web export")
 
 # Add brain regions
-scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
+scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green", hemisphere="right")
 
 # Render!
 scene.render()
