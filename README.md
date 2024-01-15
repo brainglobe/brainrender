@@ -1,7 +1,7 @@
 
 # Brainrender
 <p align="center">
-  <img width="1200" src="imgs/three_atlases.png">
+  <img width="1200" src="https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/three_atlases.png">
 </p>
 
 [![Python Version](https://img.shields.io/pypi/pyversions/brainrender.svg)](https://pypi.org/project/brainrender)
@@ -39,29 +39,29 @@ Claudi, F., Tyson, A. L., Petrucco, L., Margrie, T.W., Portugues, R.,  Branco, T
 The following images were created for the publication of the [brainrender paper](https://doi.org/10.7554/eLife.65751). References to the original data being visualised can also be found in the paper.
 
 <p align="center">
-<img src='imgs/cellfinder_cells_3.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/cellfinder_cells_3.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/gene_expression.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/gene_expression.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/human_regions.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/human_regions.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/injection_2.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/injection_2.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/mouse_neurons_2.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/mouse_neurons_2.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/probes.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/probes.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/zfish_functional_clusters_2.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/zfish_functional_clusters_2.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/zfish_neurons.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/zfish_neurons.png' width=500 style='margin:auto'></img>
 </p>
 <p align="center">
-<img src='imgs/zfish_regions.png' width=500 style='margin:auto'></img>
+<img src='https://raw.githubusercontent.com/brainglobe/brainrender/main/imgs/zfish_regions.png' width=500 style='margin:auto'></img>
 </p>
