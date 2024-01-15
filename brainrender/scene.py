@@ -417,13 +417,14 @@ class Scene(JupyterMixIn, Render):
     @property
     def clean_actors(self):
         """
-        returns only ators that are not Text objects and similar
+        returns only actors that are not Text objects and similar
         """
         return [a for a in self.actors if not a.is_text]
 
     @property
     def clean_renderables(self):
         """
-        Returns meshses only for 'clean actors' (i.e. not text)
+        Returns meshes only for 'clean actors' (i.e. not text).
+        _mesh is returned to account for internal rotations.
         """
-        return [a.mesh for a in self.actors if not a.is_text]
+        return [a._mesh for a in self.actors if not a.is_text]
