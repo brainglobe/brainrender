@@ -25,7 +25,7 @@ except ImportError:
 from pathlib import Path
 import pooch
 
-from bg_space import AnatomicalSpace
+from brainglobe_space import AnatomicalSpace
 from myterial import blue_grey, orange
 from rich import print
 from vedo import Volume as VedoVolume
@@ -69,7 +69,7 @@ scene = Scene(atlas_name="mpin_zfish_1um")
 
 source_space = AnatomicalSpace(
     "ira"
-)  # for more info: https://docs.brainglobe.info/bg-space/usage
+)  # for more info: https://docs.brainglobe.info/brainglobe-space/usage
 target_space = scene.atlas.space
 transformed_stack = source_space.map_stack_to(target_space, data)
 
