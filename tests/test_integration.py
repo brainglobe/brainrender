@@ -5,7 +5,7 @@ import imio
 import numpy as np
 import pooch
 import pytest
-from bg_space import AnatomicalSpace
+from brainglobe_space import AnatomicalSpace
 from vedo import Volume as VedoVolume
 
 from brainrender import Animation, Scene, VideoMaker
