@@ -1,3 +1,5 @@
+include CITATION.cff
+
 global-include *.svg
 
 recursive-exclude tests *
