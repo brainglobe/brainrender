@@ -113,13 +113,20 @@ class Points(PointsBase, Actor):
 
 class PointsDensity(Actor):
     def __init__(
-        self, data, name=None, dims=(40, 40, 40), radius=None, **kwargs
+        self,
+        data,
+        name=None,
+        dims=(40, 40, 40),
+        radius=None,
+        colors="Dark2",
+        **kwargs,
     ):
         """
         Creates a Volume actor showing the 3d density of a set
         of points.
 
         :param data: np.ndarray, Nx3 array with cell coordinates
+        :param colors: str, matplotlib colormap
 
 
         from vedo:
@@ -140,7 +147,7 @@ class PointsDensity(Actor):
         volume = (
             vPoints(data)
             .density(dims=dims, radius=radius, **kwargs)
-            .cmap("Dark2")
+            .cmap(colors)
             .alpha([0, 0.9])
             .mode(1)
         )  # returns a vedo Volume
