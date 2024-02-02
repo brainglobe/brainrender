@@ -70,11 +70,6 @@ jobs:
     needs: [build_sdist_wheels]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: neuroinformatics-unit/actions/upload_pypi@v2
       with:
-        name: artifact
-        path: dist
-    - uses: pypa/gh-action-pypi-publish@v1.5.0
-      with:
-        user: __token__
-        password: ${{ secrets.TWINE_API_KEY }}
+        secret-pypi-key: ${{ secrets.TWINE_API_KEY }}
