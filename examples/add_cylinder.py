@@ -2,6 +2,7 @@
     This example shows how to add a cylinder actor to a scene (e.g.
     to represent the location of an implanted optic canula)
 """
+
 from brainrender import Scene, settings
 from brainrender.actors import Cylinder
 
