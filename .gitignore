@@ -9,9 +9,9 @@ __pycache__
 .ipynb_checkpoints
 .pytest_cache/*
 .pytest_cache/
-__pycache__/*
+__pycache__/**
 __pycache__/
-*/__pycache__
+**/__pycache__
 brainrender/atlas_specific/gene_expression/__pycache__
 brainrender/atlas_specific/gene_expression/__pycache__/*
 brainrender/atlas_specific/__pycache__

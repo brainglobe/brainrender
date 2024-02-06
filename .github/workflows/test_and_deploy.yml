@@ -22,8 +22,14 @@ jobs:
     steps:
       - uses: neuroinformatics-unit/actions/lint@v2
 
+  manifest:
+    name: Check Manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neuroinformatics-unit/actions/check_manifest@v2
+
   test:
-    needs: [linting]
+    needs: [linting, manifest]
     name: ${{ matrix.os }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
