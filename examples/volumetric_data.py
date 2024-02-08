@@ -4,6 +4,7 @@
     'Gpr161' from the Allen Atlas database, downloaded with brainrender
     and saved to a numpy file
 """
+
 import numpy as np
 
 from brainrender import Scene, settings

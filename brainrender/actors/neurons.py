@@ -76,7 +76,7 @@ class Neuron(Actor):
         Actor.__init__(self, mesh, name=self.name, br_class="Neuron")
         self.mesh.c(color).alpha(alpha)
 
-    def _from_morphapi_neuron(self, neuron: (MorphoNeuron)):
+    def _from_morphapi_neuron(self, neuron: MorphoNeuron):
         # Temporarily set cache to false as meshes were being corrupted
         # on second load
         mesh = neuron.create_mesh(
