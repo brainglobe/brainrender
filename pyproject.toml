@@ -74,7 +74,7 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["brainrender*"]
-exclude = ["tests", "docs*"]
+exclude = ["tests*", "docs*", "examples*", "imgs*"]
 
 
 [tool.pytest.ini_options]

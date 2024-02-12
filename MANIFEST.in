@@ -1,8 +1,13 @@
+exclude .pre-commit-config.yaml
 include CITATION.cff
 
 global-include *.svg
 
-recursive-exclude tests *
-recursive-exclude examples *
-recursive-exclude imgs *
-recursive-exclude videos *
+prune tests
+prune examples
+prune imgs
+prune videos
+
+graft brainrender
+
+global-exclude */__pycache__/*
