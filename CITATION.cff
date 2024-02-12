@@ -26,7 +26,6 @@ abstract: >-
 license: BSD-3-Clause
 date-released: '2024-01-25'
 year: 2024
-citation-sentence: "This work uses the brainrender visualisation tool for anatomical data."
 preferred-citation:
   type: article
   title: "Visualizing anatomically registered data with brainrender"
