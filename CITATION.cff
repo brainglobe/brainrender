@@ -1,0 +1,52 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: brainrender
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Federico
+    family-names: Claudi
+  - given-names: Adam
+    family-names: Tyson
+    email: hello@brainglobe.info
+  - given-names: Luigi
+    family-names: Petrucco
+  - given-names: BrainGlobe
+    family-names: Developers
+    email: hello@brainglobe.info
+repository-code: 'https://github.com/brainglobe/brainrender'
+url: 'https://brainglobe.info'
+abstract: >-
+  Visualisation and exploration of brain atlases and other
+  anatomical data.
+license: BSD-3-Clause
+date-released: '2024-01-25'
+year: 2024
+preferred-citation:
+  type: article
+  title: "Visualizing anatomically registered data with brainrender"
+  authors:
+  - given-names: Federico
+    family-names: Claudi
+  - given-names: Adam
+    family-names: Tyson
+  - given-names: Luigi
+    family-names: Petrucco
+  - given-names: Troy W.
+    family-names: Margrie
+  - given-names: Ruben
+    family-names: Portugues
+  - given-names: Tiago
+    family-names: Branco
+  year: 2021
+  month: 3
+  doi: 10.7554/eLife.65751
+  url: https://doi.org/10.7554/eLife.65751
+  journal: eLife
+  volume: 10
+  issn: "2050-084X"
+  pages: e65761

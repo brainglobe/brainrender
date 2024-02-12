@@ -1,4 +1,5 @@
 exclude .pre-commit-config.yaml
+include CITATION.cff
 
 global-include *.svg
 
