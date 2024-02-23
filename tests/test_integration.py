@@ -295,9 +295,9 @@ def test_slice(scene):
     scene.slice(plane, actors=[ca1])
     scene.render(interactive=False)
 
-    assert th_clone.bounds() == th.bounds()
-    assert mos_clone.bounds() != mos.bounds()
-    assert ca1_clone.bounds() != ca1.bounds()
+    assert np.all(th_clone.bounds() == th.bounds())
+    assert np.all(mos_clone.bounds() != mos.bounds())
+    assert np.all(ca1_clone.bounds() != ca1.bounds())
 
 
 @pytest.mark.slow

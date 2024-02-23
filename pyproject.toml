@@ -25,7 +25,7 @@ dependencies = [
     "pyyaml>=5.3",
     "requests",
     "tables",
-    "vedo>=2023.5.0",
+    "vedo==2024.5.1",
 ]
 
 license = { text = "BSD-3-Clause" }
