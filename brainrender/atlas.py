@@ -1,5 +1,5 @@
 import numpy as np
-from bg_atlasapi.bg_atlas import BrainGlobeAtlas
+from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
 from vedo import Plane
 
