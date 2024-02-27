@@ -9,7 +9,7 @@ requires-python = ">=3.9.0"
 dynamic = ["version"]
 
 dependencies = [
-    "bg-atlasapi>=1.0.0",
+    "brainglobe-atlasapi>=2.0.1",
     "brainglobe-space>=1.0.0",
     "h5py",
     "imio",
@@ -106,10 +106,11 @@ ignore = [
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs", "examples"]
-select = ["I", "E", "F"]
 fix = true
 ignore = ["E501", "E402"]
 
+[tool.ruff.lint]
+select = ["I", "E", "F"]
 
 [tool.tox]
 legacy_tox_ini = """

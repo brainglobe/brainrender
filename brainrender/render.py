@@ -115,7 +115,7 @@ class Render:
         """
         When an actor is first rendered, a transform matrix
         is applied to its points to correct axes orientation
-        mismatches: https://github.com/brainglobe/bg-atlasapi/issues/73
+        mismatches: https://github.com/brainglobe/brainglobe-atlasapi/issues/73
 
         Once an actor is 'corrected' it spawns labels and silhouettes as needed
         """
