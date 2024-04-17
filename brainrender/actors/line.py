@@ -1,9 +1,12 @@
 from vedo import shapes
+
 from brainrender.actor import Actor
 
 
 class Line(Actor):
-    def __init__(self, coordinates, color="black", alpha=1, linewidth=2, name=None):
+    def __init__(
+        self, coordinates, color="black", alpha=1, linewidth=2, name=None
+    ):
         """
         Creates an actor representing a single line.
 
