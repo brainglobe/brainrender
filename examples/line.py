@@ -1,6 +1,7 @@
 import numpy as np
 import vedo
-vedo.settings.default_backend= 'vtk'
+
+vedo.settings.default_backend = "vtk"
 
 from brainrender import Scene
 from brainrender.actors import Points, Line
@@ -12,10 +13,7 @@ scene = Scene(atlas_name="allen_mouse_25um")
 scene.add_brain_region("CTX", alpha=0.2, color="green")
 
 # Add two points identifying the positions of two cortical neurons.
-point_coordinates = np.array([
-    [4575, 5050, 9750],
-    [4275, 2775, 6100]
-])
+point_coordinates = np.array([[4575, 5050, 9750], [4275, 2775, 6100]])
 
 points = Points(point_coordinates, radius=100, colors="blue")
 scene.add(points)
