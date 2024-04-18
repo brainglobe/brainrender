@@ -17,7 +17,8 @@ point_coordinates = np.array([
     [4275, 2775, 6100]
 ])
 
-scene.add(Points(point_coordinates, radius=100, colors="blue"))
+points = Points(point_coordinates, radius=100, colors="blue")
+scene.add(points)
 
 # Display the shortest path within cortex between the two points.
 # The path was pre-calculated with https://github.com/seung-lab/dijkstra3d/.
@@ -40,7 +41,8 @@ path_coordinates = np.array([
     [4275, 2775, 6100],
 ])
 
-scene.add(Line(path_coordinates, linewidth=3, color="black"))
+line = Line(path_coordinates, linewidth=3, color="black")
+scene.add(line)
 
 # Render the scene and display the figure.
 scene.render()
