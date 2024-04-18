@@ -8,8 +8,8 @@ from brainrender.actors import Points, Line
 # Display the Allen Brain mouse atlas.
 scene = Scene(atlas_name="allen_mouse_25um")
 
-# Highlight the cerebral cortex; 688 is the corresponding Allen Brain Atlas ID.
-scene.add_brain_region(688, alpha=0.2, color="green")
+# Highlight the cerebral cortex.
+scene.add_brain_region("CTX", alpha=0.2, color="green")
 
 # Add two points identifying the positions of two cortical neurons.
 point_coordinates = np.array([
