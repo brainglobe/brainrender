@@ -19,7 +19,8 @@ point_coordinates = np.array([
 
 scene.add(Points(point_coordinates, radius=100, colors="blue"))
 
-# Display the shortest path within cortex boundaries between the two points.
+# Display the shortest path within cortex between the two points.
+# The path was pre-calculated with https://github.com/seung-lab/dijkstra3d/.
 path_coordinates = np.array([
     [4575, 5050, 9750],
     [4575, 4800, 9500],
