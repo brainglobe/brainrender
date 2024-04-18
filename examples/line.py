@@ -5,7 +5,7 @@ vedo.settings.default_backend= 'vtk'
 from brainrender import Scene
 from brainrender.actors import Points, Line
 
-# Display the Allen Brain mouse atlas at 25 micrometer resolution.
+# Display the Allen Brain mouse atlas.
 scene = Scene(atlas_name="allen_mouse_25um")
 
 # Highlight the cerebral cortex; 688 is the corresponding Allen Brain Atlas ID.
