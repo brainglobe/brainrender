@@ -10,9 +10,9 @@
 &nbsp;
 &nbsp;
 
-![Example gallery](https://iiif.elifesciences.org/lax/65751%2Felife-65751-fig3-v3.tif/full/,1500/0/default.jpg){ width=80% }
+![Example gallery](https://iiif.elifesciences.org/lax/65751%2Felife-65751-fig3-v3.tif/full/,1500/0/default.jpg)
 
-From Claudi et al. (2021) Visualizing anatomically registered data with brainrender. eLife
+From: Claudi et al. (2021) Visualizing anatomically registered data with brainrender. eLife
 
 
 ## Documentation
