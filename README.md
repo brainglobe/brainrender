@@ -12,11 +12,14 @@
 
 ## Installation
 
-You can [install `brainrender`](https://brainglobe.info/documentation/brainrender/installation.html) with:
+From PyPI:
 
 ```
 pip install brainrender
 ```
+
+If you encounter any issues, please consult our troubleshooting guide [here](https://brainglobe.info/documentation/brainrender/installation.html):
+
 
 ## Documentation
 
