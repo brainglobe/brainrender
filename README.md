@@ -31,7 +31,7 @@ From PyPI:
 pip install brainrender
 ```
 
-If you encounter any issues, please consult our troubleshooting guide [here](https://brainglobe.info/documentation/brainrender/installation.html).
+If you encounter any issues, please ask a question on the [image.sc forum](https://forum.image.sc/tag/brainglobe) tagging your question with `brainglobe`.
 
 
 ## Quickstart
