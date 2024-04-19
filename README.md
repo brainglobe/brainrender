@@ -26,6 +26,34 @@ Contributions to brainrender are more than welcome. Please see the [developers g
 Furthermore, a open-access journal article describing `brainrender` has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
 
 
+## Quickstart
+
+``` python
+from brainrender import Scene
+from brainrender.actors import Neuron
+
+# Display the Allen Brain mouse atlas.
+scene = Scene(atlas_name="allen_mouse_25um")
+
+# Highlight the cerebral cortex.
+scene.add_brain_region("CTX", alpha=0.2, color="green")
+
+# Add a neuron morphological reconstruction,
+# with coordinates pre-registered to the Allen Brain Atlas.
+neuron = Neuron("/path/to/neuron/morphology.swc")
+scene.add(neuron)
+
+# Display the figure.
+scene.render()
+
+# Export to PNG.
+scene.screenshot("figure.png")
+
+# Export to HTML
+scene.screenshot("figure.html")
+
+```
+
 ## Citing `brainrender`
 
 If you use `brainrender` in your scientific work, please cite:
