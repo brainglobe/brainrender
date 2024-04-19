@@ -26,9 +26,27 @@ Contributions to brainrender are more than welcome. Please see the [developers g
 Furthermore, a open-access journal article describing `brainrender` has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
 
 
-## Citing brainrender
-If you use `brainrender` in your work, please cite:
+## Citing `brainrender`
+
+If you use `brainrender` in your scientific work, please cite:
 ```
 Claudi, F., Tyson, A. L., Petrucco, L., Margrie, T.W., Portugues, R.,  Branco, T. (2021) "Visualizing anatomically registered data with Brainrender&quot; <i>eLife</i> 2021;10:e65751 [doi.org/10.7554/eLife.65751](https://doi.org/10.7554/eLife.65751)
+```
+
+BibTeX:
+
+``` bibtex
+@article{Claudi2021,
+author = {Claudi, Federico and Tyson, Adam L. and Petrucco, Luigi and Margrie, Troy W. and Portugues, Ruben and Branco, Tiago},
+doi = {10.7554/eLife.65751},
+issn = {2050084X},
+journal = {eLife},
+pages = {1--16},
+pmid = {33739286},
+title = {{Visualizing anatomically registered data with brainrender}},
+volume = {10},
+year = {2021}
+}
+
 ```
 
