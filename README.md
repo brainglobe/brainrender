@@ -7,7 +7,14 @@
 
 **`brainrender` is a python package for the visualization of three dimensional neuro-anatomical data. It can be used to render data from publicly available data set (e.g. Allen Brain atlas) as well as user generated experimental data. The goal of brainrender is to facilitate the exploration and dissemination of neuro-anatomical data by providing a user-friendly platform to create high-quality 3D renderings.**
 
-![Example gallery](https://iiif.elifesciences.org/lax/65751%2Felife-65751-fig3-v3.tif/full/,1500/0/default.jpg)
+&nbsp;
+&nbsp;
+
+![Example gallery](https://iiif.elifesciences.org/lax/65751%2Felife-65751-fig3-v3.tif/full/,1500/0/default.jpg){ width=80% }
+
+From Claudi et al. (2021) Visualizing anatomically registered data with brainrender. eLife
+
+
 ## Documentation
 
 `brainrender` is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
