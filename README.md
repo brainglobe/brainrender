@@ -11,14 +11,13 @@
 
 
 ## Installation
+
 You can [install `brainrender`](https://brainglobe.info/documentation/brainrender/installation.html) with:
 
 ```
 pip install brainrender
 ```
 
-## Contributing
-Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html). Note that some tests are only run locally, by specifying `--runslow --runlocal` in `pytest`.
 ## Documentation
 
 `brainrender` is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
@@ -78,3 +77,6 @@ year = {2021}
 
 ```
 
+## Contributing
+
+Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html). Note that some tests are only run locally, by specifying `--runslow --runlocal` in `pytest`.
