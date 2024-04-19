@@ -20,7 +20,7 @@ From: Claudi et al. (2021) Visualizing anatomically registered data with brainre
 
 BrainRender is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
 
-Furthermore, a open-access journal article describing BrainRender has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
+Furthermore, an open-access journal article describing BrainRender has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
 
 
 ## Installation
@@ -57,7 +57,7 @@ scene.render()
 # Export to PNG.
 scene.screenshot("figure.png")
 
-# Export to HTML
+# Export to HTML.
 scene.screenshot("figure.html")
 
 ```
