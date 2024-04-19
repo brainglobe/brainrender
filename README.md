@@ -8,9 +8,6 @@
 [![PyPI](https://img.shields.io/pypi/v/brainrender.svg)](https://pypi.org/project/brainrender)
 [![tests](https://github.com/brainglobe/brainrender/workflows/tests/badge.svg)](https://github.com/brainglobe/brainrender/actions)
 [![codecov](https://codecov.io/gh/brainglobe/brainrender/graph/badge.svg)](https://codecov.io/gh/brainglobe/brainrender)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
-
 
 **`brainrender` is a python package for the visualization of three dimensional neuro-anatomical data. It can be used to render data from publicly available data set (e.g. Allen Brain atlas) as well as user generated experimental data. The goal of brainrender is to facilitate the exploration and dissemination of neuro-anatomical data by providing a user-friendly platform to create high-quality 3D renderings.**
 
