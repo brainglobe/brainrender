@@ -1,4 +1,4 @@
-# BrainRender
+# brainrender
 
 *A user-friendly python library to create high-quality, 3D neuro-anatomical renderings combining data from publicly available brain atlases with user-generated experimental data.*
 
@@ -18,7 +18,7 @@ From: Claudi et al. (2021) Visualizing anatomically registered data with brainre
 
 ## Documentation
 
-BrainRender is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
+brainrender is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
 
 Furthermore, an open-access journal article describing BrainRender has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
 
@@ -62,7 +62,7 @@ scene.screenshot("figure.html")
 
 ```
 
-## Citing BrainRender
+## Citing brainrender
 
 If you use BrainRender in your scientific work, please cite:
 ```
