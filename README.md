@@ -9,6 +9,7 @@
 
 ## Docs
 :books: [brainrender docs](https://brainglobe.info/documentation/brainrender/index.html)
+![Example gallery](ttps://iiif.elifesciences.org/lax/65751%2Felife-65751-fig3-v3.tif/full/,1500/0/default.jpg)
 
 📖 [brainrender paper](https://doi.org/10.7554/eLife.65751)
 
