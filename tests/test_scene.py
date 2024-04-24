@@ -102,7 +102,8 @@ def test_scene_slice():
 
 
 @pytest.mark.parametrize(
-    "name, scale, expected_suffix", [
+    "name, scale, expected_suffix",
+    [
         ("test", 2, ".png"),
         (None, None, ".png"),
         (None, 1, ".png"),
@@ -112,7 +113,7 @@ def test_scene_slice():
         ("test.svg", 1, ".svg"),
         ("test.pdf", 1, ".pdf"),
         ("test.tiff", 1, ".png"),
-    ]
+    ],
 )
 def test_scene_screenshot(name, scale, expected_suffix):
     screenshot_folder = Path.home() / "test_screenshots"
