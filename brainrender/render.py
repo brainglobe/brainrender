@@ -347,9 +347,11 @@ class Render:
             self.render(interactive=False)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        name = name or f"brainrender_screenshot_{timestamp}"
-        if ".png" not in name:
-            name += ".png"
+        name = Path(name or f"brainrender_screenshot_{timestamp}")
+
+        # If no suffix is provided or it an unsupported format, default to .png
+        if name.suffix not in [".png", ".eps", ".pdf", ".svg", ".jpg"]:
+            name = name.with_suffix(".png")
 
         scale = scale or settings.SCREENSHOT_SCALE
 
