@@ -38,8 +38,10 @@ jobs:
         # Run all supported Python versions on linux
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
-        # Include one windows and macos run
+        # Include one windows and macos run each of Intel/ARM
         include:
+        - os: macos-13
+          python-version: "3.11"
         - os: macos-latest
           python-version: "3.11"
         - os: windows-latest
