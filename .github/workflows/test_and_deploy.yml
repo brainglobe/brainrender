@@ -53,7 +53,12 @@ jobs:
 
       # Sets up ffmpeg to we can run video tests on CI
       - uses: FedericoCarboni/setup-ffmpeg@v2
+        if: matrix.os != 'macos-latest'
         id: setup-ffmpeg
+
+      - name: setup ffmpeg on latest Mac with brew
+        if: matrix.os == 'macos-latest'
+        run: brew install ffmpeg
 
       # Run tests
       - uses: neuroinformatics-unit/actions/test@v2
