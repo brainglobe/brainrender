@@ -48,10 +48,6 @@ jobs:
           python-version: "3.11"
 
     steps:
-      - name: Install hdf5 libs for Mac
-        if: runner.os == 'macOS'
-        run: brew install hdf5
-
       # Helps set up VTK with a headless display
       - uses: pyvista/setup-headless-display-action@v2
 
