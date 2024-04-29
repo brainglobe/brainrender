@@ -19,7 +19,7 @@ dependencies = [
     "msgpack",
     "myterial",
     "numpy",
-    "pandas[hdf5]",
+    "pandas",
     "pooch",
     "pyinspect>=0.0.8",
     "pyyaml>=5.3",
