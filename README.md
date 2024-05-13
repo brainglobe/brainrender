@@ -84,7 +84,7 @@ scene.render()
 
 ## Citing brainrender
 
-If you use BrainRender in your scientific work, please cite:
+If you use brainrender in your scientific work, please cite:
 ```
 Claudi, F., Tyson, A. L., Petrucco, L., Margrie, T.W., Portugues, R.,  Branco, T. (2021) "Visualizing anatomically registered data with Brainrender&quot; <i>eLife</i> 2021;10:e65751 [doi.org/10.7554/eLife.65751](https://doi.org/10.7554/eLife.65751)
 ```
