@@ -300,8 +300,6 @@ def test_slice(scene):
     assert np.all(ca1_clone.bounds() != ca1.bounds())
 
 
-@pytest.mark.slow
-@pytest.mark.local
 def test_user_volumetric_data():
     scene = Scene(atlas_name="mpin_zfish_1um")
     retrieved_paths = pooch.retrieve(
