@@ -24,7 +24,7 @@ except PackageNotFoundError:
     # package is not installed
     pass
 
-base_dir = Path(os.path.join(os.path.expanduser("~"), ".brainrender"))
+base_dir = Path.home() / ".brainglobe" / "brainrender"
 base_dir.mkdir(exist_ok=True)
 
 
@@ -36,7 +36,6 @@ def set_logging(level="INFO", path=None):
     to stdout only logs >= to a given level
     """
     logger.remove()
-    # logger.add(sys.stdout, level=level)
 
     path = path or str(base_dir / "log.log")
     if Path(path).exists():
