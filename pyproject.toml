@@ -11,6 +11,7 @@ dynamic = ["version"]
 dependencies = [
     "brainglobe-atlasapi>=2.0.1",
     "brainglobe-space>=1.0.0",
+    "brainglobe-utils>0.5.0",
     "h5py",
     "imio",
     "k3d",
