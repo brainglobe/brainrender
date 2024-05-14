@@ -8,13 +8,17 @@ from rich import print
 from brainrender import Scene
 from brainrender.actors import Neuron, make_neurons
 
+neuron_file = resources_dir = (
+    Path(__file__).parent.parent / "resources" / "neuron1.swc"
+)
+
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 # Create a brainrender scene
 scene = Scene(title="neurons")
 
 # Add a neuron from file
-scene.add(Neuron(files("brainrender").joinpath("resources/neuron1.swc")))
+scene.add(Neuron(neuron_file))
 
 # Download neurons data with morphapi
 mlapi = MouseLightAPI()

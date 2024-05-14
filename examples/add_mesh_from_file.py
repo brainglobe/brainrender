@@ -1,10 +1,13 @@
 from pathlib import Path
-from importlib.resources import files
 
 from myterial import orange
 from rich import print
 
 from brainrender import Scene
+
+obj_file = resources_dir = (
+    Path(__file__).parent.parent / "resources" / "CC_134_1_ch1inj.obj"
+)
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
@@ -15,10 +18,7 @@ scene = Scene(title="Injection in SCm")
 scene.add_brain_region("SCm", alpha=0.2)
 
 # Add from file
-scene.add(
-    files("brainrender").joinpath("resources/CC_134_1_ch1inj.obj"),
-    color="tomato",
-)
+scene.add(obj_file, color="tomato")
 
 # Render!
 scene.render()
