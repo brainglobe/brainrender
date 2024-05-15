@@ -5,9 +5,7 @@ from rich import print
 
 from brainrender import Scene
 
-obj_file = resources_dir = (
-    Path(__file__).parent.parent / "resources" / "CC_134_1_ch1inj.obj"
-)
+obj_file = Path(__file__).parent.parent / "resources" / "CC_134_1_ch1inj.obj"
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 

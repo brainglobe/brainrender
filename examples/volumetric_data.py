@@ -16,9 +16,7 @@ from myterial import orange
 from rich import print
 
 settings.SHOW_AXES = False
-volume_file = resources_dir = (
-    Path(__file__).parent.parent / "resources" / "volume.npy"
-)
+volume_file = Path(__file__).parent.parent / "resources" / "volume.npy"
 
 
 print(f"[{orange}]Running example: {Path(__file__).name}")

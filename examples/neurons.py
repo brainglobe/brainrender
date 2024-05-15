@@ -8,9 +8,7 @@ from rich import print
 from brainrender import Scene
 from brainrender.actors import Neuron, make_neurons
 
-neuron_file = resources_dir = (
-    Path(__file__).parent.parent / "resources" / "neuron1.swc"
-)
+neuron_file = Path(__file__).parent.parent / "resources" / "neuron1.swc"
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
