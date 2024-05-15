@@ -192,7 +192,6 @@ class Render:
         interactive=None,
         camera=None,
         zoom=None,
-        update_camera=True,
         **kwargs,
     ):
         """
@@ -205,7 +204,6 @@ class Render:
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
         :param zoom: float, if None atlas default is used
-        :param update_camera: bool, if False the camera is not changed
         :param kwargs: additional arguments to pass to self.plotter.show
         """
         logger.debug(
@@ -229,7 +227,7 @@ class Render:
             camera["focal_point"] = self.root._mesh.center_of_mass()
 
         if not self.backend and camera is not None:
-            camera = set_camera(self, camera)
+            _ = set_camera(self, camera)
 
         # Apply axes correction
         for actor in self.clean_actors:
@@ -266,7 +264,6 @@ class Render:
                 interactive=interactive,
                 zoom=zoom,
                 bg=settings.BACKGROUND_COLOR,
-                camera=camera.copy() if update_camera else None,
                 rate=40,
                 axes=self.plotter.axes,
             )
