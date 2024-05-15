@@ -25,7 +25,7 @@ except PackageNotFoundError:
     pass
 
 base_dir = Path.home() / ".brainglobe" / "brainrender"
-base_dir.mkdir(exist_ok=True)
+base_dir.mkdir(parents=True, exist_ok=True)
 
 
 # set logger level
