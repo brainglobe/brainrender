@@ -192,9 +192,11 @@ class Render:
         interactive=None,
         camera=None,
         zoom=None,
+        **kwargs,
     ):
         """
         Renders the scene.
+
         :param interactive: bool. If note settings.INTERACTIVE is used.
             If true the program's execution is stopped and users
             can interact with scene.
@@ -202,6 +204,7 @@ class Render:
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
         :param zoom: float, if None atlas default is used
+        :param kwargs: additional arguments to pass to self.plotter.show
         """
         logger.debug(
             f"Rendering scene. Interactive: {interactive}, camera: {camera}, zoom: {zoom}"
