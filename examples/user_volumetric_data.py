@@ -15,27 +15,19 @@
 
 """
 
-try:
-    import imio
-except ImportError:
-    raise ImportError(
-        'You need imio to run this example: "pip install imio".\nFor more details: https://github.com/brainglobe/imio'
-    )
-
 from pathlib import Path
 import pooch
 
 from brainglobe_space import AnatomicalSpace
+from brainglobe_utils.IO.image.load import load_any
 from myterial import blue_grey, orange
 from rich import print
 from vedo import Volume as VedoVolume
 
 from brainrender import Scene
-from brainrender.actors import Volume
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
-# specify where the data are saved
 
 retrieved_paths = pooch.retrieve(
     url="https://api.mapzebrain.org/media/Lines/brn3cGFP/average_data/T_AVG_s356tTg.zip",
@@ -52,17 +44,12 @@ retrieved_paths = pooch.retrieve(
     ),
 )
 
-datafile = Path(retrieved_paths[1])  # [0] is zip file
-
-if not datafile.exists():
-    raise ValueError(
-        "Before running this example you need to download the data for gene expression of the line brn3c:GFP from https://fishatlas.neuro.mpg.de/lines/"
-    )
+datafile = Path(retrieved_paths[0])  # [0] is zip file
 
 
 # 1. load the data
 print("Loading data")
-data = imio.load.load_any(datafile)
+data = load_any(datafile)
 
 # 2. aligned the data to the scene's atlas' axes
 print("Transforming data")

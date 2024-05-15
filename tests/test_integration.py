@@ -1,11 +1,11 @@
 from importlib.resources import files
 from pathlib import Path
 
-import imio
 import numpy as np
 import pooch
 import pytest
 from brainglobe_space import AnatomicalSpace
+from brainglobe_utils.IO.image.load import load_any
 from vedo import Volume as VedoVolume
 
 from brainrender import Animation, Scene, VideoMaker
@@ -319,8 +319,8 @@ def test_user_volumetric_data():
         ),
     )
 
-    datafile = Path(retrieved_paths[1])  # [0] is zip file
-    data = imio.load.load_any(datafile)
+    datafile = Path(retrieved_paths[0])
+    data = load_any(datafile)
     source_space = AnatomicalSpace("ira")
     target_space = scene.atlas.space
     transformed_data = source_space.map_stack_to(target_space, data)
