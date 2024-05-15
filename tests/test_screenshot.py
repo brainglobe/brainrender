@@ -1,12 +1,17 @@
 from pathlib import Path
 
-from myterial import orange, salmon
-from rich import print
+import numpy as np
+import pytest
 from PIL import Image
+
 from brainrender import Scene
 
-def test_screenshot(tmp_path):
-    filename = "screenshot.png"
+validate_directory = Path(__file__).parent / "data"
+
+
+@pytest.mark.parametrize("extension", ["png", "jpg", "svg", "eps", "pdf"])
+def test_screenshot(tmp_path, extension):
+    filename = "screenshot." + extension
     scene = Scene(
         screenshots_folder=tmp_path,
     )
@@ -16,7 +21,21 @@ def test_screenshot(tmp_path):
     scene.close()
 
     test_filepath = tmp_path / filename
+
+    # These are saved compressed
+    if extension in ["eps", "svg"]:
+        test_filepath = test_filepath.parent / (test_filepath.name + ".gz")
+
     assert test_filepath.exists()
 
-    img1 = Image.open(test_filepath)
-    assert img1.size == (1600, 1200)
+    # These are the only raster formats
+    if extension in ["png", "jpg"]:
+        test_image = Image.open(test_filepath)
+        validate_filepath = validate_directory / filename
+        validate_image = Image.open(validate_filepath)
+
+        assert test_image.size == validate_image.size
+
+        np.testing.assert_array_almost_equal(
+            np.asarray(test_image), np.asarray(validate_image), decimal=2
+        )
