@@ -12,7 +12,6 @@
 
 #     return geapi
 
-
 # @pytest.mark.xfail
 # def test_gene_expression_api(geapi):
 
