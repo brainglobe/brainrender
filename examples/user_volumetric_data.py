@@ -28,23 +28,21 @@ from brainrender import Scene
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
+download_path = Path.home() / ".brainglobe" / "brainrender" / "example-data"
+filename = "T_AVG_s356tTg.tif"
+scene = Scene(atlas_name="mpin_zfish_1um")
 
-retrieved_paths = pooch.retrieve(
+# for some reason the list of returned by pooch does not seem to be
+# in the same order every time
+_ = pooch.retrieve(
     url="https://api.mapzebrain.org/media/Lines/brn3cGFP/average_data/T_AVG_s356tTg.zip",
     known_hash="54b59146ba08b4d7eea64456bcd67741db4b5395235290044545263f61453a61",
-    path=Path.home()
-    / ".brainglobe"
-    / "brainrender"
-    / "example-data",  # zip will be downloaded here
+    path=download_path,
     progressbar=True,
-    processor=pooch.Unzip(
-        extract_dir=""
-        # path to unzipped dir,
-        # *relative* to the path set in 'path'
-    ),
+    processor=pooch.Unzip(extract_dir="."),
 )
 
-datafile = Path(retrieved_paths[0])  # [0] is zip file
+datafile = download_path / filename
 
 
 # 1. load the data
