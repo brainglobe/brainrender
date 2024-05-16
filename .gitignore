@@ -16,6 +16,8 @@ brainrender/atlas_specific/gene_expression/__pycache__
 brainrender/atlas_specific/gene_expression/__pycache__/*
 brainrender/atlas_specific/__pycache__
 
+example_brainrender_shot*
+
 workspace.py
 workspace.ipynb
 brexport.html
