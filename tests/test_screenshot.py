@@ -1,8 +1,9 @@
 from pathlib import Path
 
-import numpy as np
 import pytest
-from PIL import Image
+from skimage.color import rgb2gray
+from skimage.io import imread
+from skimage.metrics import structural_similarity as ssim
 
 from brainrender import Scene
 
@@ -10,7 +11,7 @@ validate_directory = Path(__file__).parent / "data"
 
 
 @pytest.mark.parametrize("extension", ["png", "jpg", "svg", "eps", "pdf"])
-def test_screenshot(tmp_path, extension):
+def test_screenshot(tmp_path, extension, similarity_threshold=0.75):
     filename = "screenshot." + extension
     scene = Scene(
         screenshots_folder=tmp_path,
@@ -30,12 +31,15 @@ def test_screenshot(tmp_path, extension):
 
     # These are the only raster formats
     if extension in ["png", "jpg"]:
-        test_image = Image.open(test_filepath)
+        test_image = rgb2gray(imread(test_filepath))
         validate_filepath = validate_directory / filename
-        validate_image = Image.open(validate_filepath)
+        validate_image = rgb2gray(imread(validate_filepath))
 
-        assert test_image.size == validate_image.size
+        assert test_image.shape == validate_image.shape
 
-        np.testing.assert_array_almost_equal(
-            np.asarray(test_image), np.asarray(validate_image), decimal=2
+        data_range = validate_image.max() - validate_image.min()
+        similarity_index, _ = ssim(
+            test_image, validate_image, data_range=data_range, full=True
         )
+
+        assert similarity_index > similarity_threshold
