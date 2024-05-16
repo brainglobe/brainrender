@@ -1,4 +1,3 @@
-from importlib.resources import files
 from pathlib import Path
 
 import numpy as np
@@ -18,6 +17,8 @@ from brainrender.actors import (
     ruler_from_surface,
 )
 from brainrender.atlas_specific import GeneExpressionAPI
+
+resources_dir = Path(__file__).parent.parent / "resources"
 
 
 def get_n_points_in_region(region, N):
@@ -109,7 +110,7 @@ def test_add_labels(scene):
 
 
 def test_add_mesh_from_file(scene):
-    data_path = files("brainrender").joinpath("resources/CC_134_1_ch1inj.obj")
+    data_path = resources_dir / "CC_134_1_ch1inj.obj"
     scene.add_brain_region("SCm", alpha=0.2)
     file_mesh = scene.add(data_path, color="tomato")
 
@@ -236,7 +237,7 @@ def test_gene_expression(scene):
 
 
 def test_neurons(scene, pytestconfig):
-    data_path = files("brainrender").joinpath("resources/neuron1.swc")
+    data_path = resources_dir / "neuron1.swc"
 
     neuron = Neuron(data_path)
     scene.add(neuron)
@@ -368,7 +369,7 @@ def test_video(scene, pytestconfig):
 
 
 def test_volumetric_data(scene):
-    data_path = files("brainrender").joinpath("resources/volume.npy")
+    data_path = resources_dir / "volume.npy"
     data = np.load(data_path)
     actor = Volume(
         data,

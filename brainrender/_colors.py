@@ -1,6 +1,6 @@
 import random
 
-import matplotlib.cm as cm_mpl
+import matplotlib as mpl
 import numpy as np
 from vedo.colors import colors as vcolors
 from vedo.colors import get_color as getColor
@@ -20,7 +20,7 @@ def map_color(value, name="jet", vmin=None, vmax=None):
     if vmax < vmin:
         raise ValueError("vmax should be larger than vmin")
 
-    mp = cm_mpl.get_cmap(name=name)
+    mp = mpl.colormaps.get_cmap(name)
 
     value -= vmin
     value /= vmax - vmin

@@ -1,5 +1,5 @@
 import random
-from importlib.resources import files
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -7,6 +7,8 @@ import pytest
 from brainrender import Scene
 from brainrender.actor import Actor
 from brainrender.actors import Point, Points, PointsDensity
+
+resources_dir = Path(__file__).parent.parent / "resources"
 
 
 def get_n_random_points_in_region(region, N):
@@ -26,7 +28,7 @@ def get_n_random_points_in_region(region, N):
 
 def test_points_working():
     s = Scene(title="BR")
-    data_path = files("brainrender").joinpath("resources/random_cells.npy")
+    data_path = resources_dir / "random_cells.npy"
     act = Points(np.load(data_path))
     act2 = Points(data_path, colors="k")
     act3 = Points(data_path, name="test")
@@ -59,11 +61,11 @@ def test_points_density():
 def test_points_error():
     with pytest.raises(FileExistsError):
         Points(
-            files("brainrender").joinpath("resources/testsfsdfs.npy"),
+            resources_dir / "testsfsdfs.npy",
             colors="k",
         )
     with pytest.raises(NotImplementedError):
         Points(
-            files("brainrender").joinpath("resources/random_cells.h5"),
+            resources_dir / "random_cells.h5",
             colors="k",
         )

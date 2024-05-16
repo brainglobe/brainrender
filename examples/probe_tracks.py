@@ -8,7 +8,7 @@ import numpy as np
 from brainrender import Scene
 from brainrender.actors import Points
 
-data_path = Path(__file__).parent.parent / "brainrender" / "resources"
+resource_path = Path(__file__).parent.parent / "resources"
 
 scene = Scene(title="Silicon Probe Visualization")
 
@@ -21,7 +21,7 @@ rsp = scene.add_brain_region("RSP", alpha=0.15)
 # part of the probe.
 scene.add(
     Points(
-        np.load(data_path / "probe_1_striatum.npy"),
+        np.load(resource_path / "probe_1_striatum.npy"),
         name="probe_1",
         colors="darkred",
         radius=50,
@@ -29,7 +29,7 @@ scene.add(
 )
 scene.add(
     Points(
-        np.load(data_path / "probe_2_RSP.npy"),
+        np.load(resource_path / "probe_2_RSP.npy"),
         name="probe_2",
         colors="darkred",
         radius=50,
