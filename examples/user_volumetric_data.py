@@ -34,7 +34,8 @@ retrieved_paths = pooch.retrieve(
     known_hash="54b59146ba08b4d7eea64456bcd67741db4b5395235290044545263f61453a61",
     path=Path.home()
     / ".brainglobe"
-    / "brainrender-example-data",  # zip will be downloaded here
+    / "brainrender"
+    / "example-data",  # zip will be downloaded here
     progressbar=True,
     processor=pooch.Unzip(
         extract_dir=""
