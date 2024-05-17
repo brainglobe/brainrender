@@ -48,6 +48,12 @@ jobs:
           python-version: "3.11"
 
     steps:
+      - name: Cache atlases
+        uses: actions/cache@v3
+        with:
+          path: ~/.brainglobe
+          key: brainglobe
+
       - name: Install hdf5 libs for Mac
         if: runner.os == 'macOS'
         run: brew install hdf5

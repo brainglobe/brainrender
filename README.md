@@ -108,4 +108,4 @@ year = {2021}
 
 ## Contributing
 
-Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html). Note that some tests are only run locally, by specifying `--runslow --runlocal` in `pytest`.
+Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html).

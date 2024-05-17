@@ -301,26 +301,24 @@ def test_slice(scene):
     assert np.all(ca1_clone.bounds() != ca1.bounds())
 
 
-@pytest.mark.slow
-@pytest.mark.local
 def test_user_volumetric_data():
+    download_path = (
+        Path.home() / ".brainglobe" / "brainrender" / "example-data"
+    )
+    filename = "T_AVG_s356tTg.tif"
     scene = Scene(atlas_name="mpin_zfish_1um")
-    retrieved_paths = pooch.retrieve(
+
+    # for some reason the list of returned by pooch does not seem to be
+    # in the same order every time
+    _ = pooch.retrieve(
         url="https://api.mapzebrain.org/media/Lines/brn3cGFP/average_data/T_AVG_s356tTg.zip",
         known_hash="54b59146ba08b4d7eea64456bcd67741db4b5395235290044545263f61453a61",
-        path=Path.home()
-        / ".brainglobe"
-        / "brainrender"
-        / "example-data",  # zip will be downloaded here
+        path=download_path,
         progressbar=True,
-        processor=pooch.Unzip(
-            extract_dir=""
-            # path to unzipped dir,
-            # *relative* to the path set in 'path'
-        ),
+        processor=pooch.Unzip(extract_dir="."),
     )
 
-    datafile = Path(retrieved_paths[0])
+    datafile = download_path / filename
     data = load_any(datafile)
     source_space = AnatomicalSpace("ira")
     target_space = scene.atlas.space
