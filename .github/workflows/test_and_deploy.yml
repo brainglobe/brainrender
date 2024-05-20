@@ -51,7 +51,9 @@ jobs:
       - name: Cache atlases
         uses: actions/cache@v3
         with:
-          path: ~/.brainglobe
+          path: | # ensure we don't cache any interrupted atlas download and extraction, if e.g. we cancel the workflow manually
+            ~/.brainglobe
+            !~/.brainglobe/atlas.tar.gz
           key: brainglobe
 
       - name: Install hdf5 libs for Mac
