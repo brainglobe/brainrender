@@ -48,6 +48,14 @@ jobs:
           python-version: "3.11"
 
     steps:
+      - name: Cache brainglobe directory
+        uses: actions/cache@v3
+        with:
+          path: | # ensure we don't cache any interrupted atlas download and extraction, if e.g. we cancel the workflow manually
+            ~/.brainglobe
+            !~/.brainglobe/atlas.tar.gz
+          key: brainglobe
+
       - name: Install hdf5 libs for Mac
         if: runner.os == 'macOS'
         run: brew install hdf5

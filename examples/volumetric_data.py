@@ -11,18 +11,19 @@ from brainrender import Scene, settings
 from brainrender.actors import Volume
 
 from pathlib import Path
-from importlib.resources import files
 
 from myterial import orange
 from rich import print
 
 settings.SHOW_AXES = False
+volume_file = Path(__file__).parent.parent / "resources" / "volume.npy"
+
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 scene = Scene(inset=False)
 
-data = np.load(files("brainrender").joinpath("resources/volume.npy"))
+data = np.load(volume_file)
 print(data.shape)
 
 # make a volume actor and add
