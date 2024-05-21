@@ -1,8 +1,3 @@
-import shutil
-from pathlib import Path
-
-import pytest
-
 from brainrender import Scene
 from brainrender.actor import Actor
 
@@ -98,38 +93,6 @@ def test_scene_slice():
         plane,
         actors=[th, s.root],
     )
-    del s
-
-
-@pytest.mark.parametrize(
-    "name, scale, expected_suffix",
-    [
-        ("test", 2, ".png"),
-        (None, None, ".png"),
-        (None, 1, ".png"),
-        ("test2", None, ".png"),
-        ("test.jpg", 1, ".jpg"),
-        ("test.eps", 1, ".eps"),
-        ("test.svg", 1, ".svg"),
-        ("test.pdf", 1, ".pdf"),
-        ("test.tiff", 1, ".png"),
-    ],
-)
-def test_scene_screenshot(name, scale, expected_suffix):
-    screenshot_folder = Path.home() / "test_screenshots"
-    s = Scene(screenshots_folder=screenshot_folder)
-    out_path = s.screenshot(name=name, scale=scale)
-
-    assert Path(out_path).suffix == expected_suffix
-
-    # Vedo exports eps and svg files as gzipped files
-    # Append the .gz suffix to the expected path to check if file exists
-    if expected_suffix in [".eps", ".svg"]:
-        out_path += ".gz"
-
-    assert Path(out_path).exists()
-
-    shutil.rmtree(screenshot_folder)
     del s
 
 

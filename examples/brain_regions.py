@@ -8,13 +8,12 @@ from brainrender import Scene
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 # Create a brainrender scene
-scene = Scene(title="brain regions")
+scene = Scene(title="brain regions", atlas_name="allen_human_500um")
 
 # Add brain regions
-scene.add_brain_region("TH")
+scene.add_brain_region("FGM")
 
 # You can specify color, transparency...
-scene.add_brain_region("MOs", "CA1", alpha=0.2, color="green")
 
 # Render!
 scene.render()

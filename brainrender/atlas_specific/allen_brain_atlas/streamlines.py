@@ -92,8 +92,8 @@ def get_streamlines_data(eids, force_download=False):
 
 def get_streamlines_for_region(region, force_download=False):
     """
-    Using the Allen Mouse Connectivity data and corresponding API, this function finds expeirments whose injections
-    were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiements
+    Using the Allen Mouse Connectivity data and corresponding API, this function finds experiments whose injections
+    were targeted to the region of interest and downloads the corresponding streamlines data. By default, experiments
     are selected for only WT mice and only when the region was the primary injection target.
 
     :param region: str with region to use for research

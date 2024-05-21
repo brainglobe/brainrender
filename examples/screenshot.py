@@ -45,6 +45,6 @@ scale = 2
 
 # Take a screenshot - passing no name uses current time
 # Screenshots can be also created during runtime by pressing "s"
-scene.screenshot(name="example_brainrender_shot", scale=scale)
+scene.screenshot(name="example_brainrender_shot.pdf", scale=scale)
 
 scene.close()
