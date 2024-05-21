@@ -1,5 +1,3 @@
-import pytest
-
 from brainrender import Scene
 from brainrender.actor import Actor
 
@@ -98,20 +96,6 @@ def test_scene_slice():
     del s
 
 
-@pytest.mark.parametrize(
-    "name, scale, expected_suffix",
-    [
-        ("test", 2, ".png"),
-        (None, None, ".png"),
-        (None, 1, ".png"),
-        ("test2", None, ".png"),
-        ("test.jpg", 1, ".jpg"),
-        ("test.eps", 1, ".eps"),
-        ("test.svg", 1, ".svg"),
-        ("test.pdf", 1, ".pdf"),
-        ("test.tiff", 1, ".png"),
-    ],
-)
 def test_actor_removal():
     s = Scene()
     th = s.add_brain_region("TH")
