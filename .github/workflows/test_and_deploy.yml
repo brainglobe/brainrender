@@ -36,16 +36,16 @@ jobs:
       fail-fast: false
       matrix:
         # Run all supported Python versions on linux
-        python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
-        # Include one windows and macos run each of Intel/ARM
+        python-version: ["3.10", "3.11", "3.12"]
+        # Include one windows and two macOS (intel based and arm based) runs
         include:
-        - os: macos-13
-          python-version: "3.11"
-        - os: macos-latest
-          python-version: "3.11"
-        - os: windows-latest
-          python-version: "3.11"
+          - os: macos-13
+            python-version: "3.12"
+          - os: macos-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.12"
 
     steps:
       - name: Cache brainglobe directory
