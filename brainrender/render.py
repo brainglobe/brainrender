@@ -227,7 +227,7 @@ class Render:
             camera["focal_point"] = self.root._mesh.center_of_mass()
 
         if not self.backend and camera is not None:
-            camera = set_camera(self, camera)
+            _ = set_camera(self, camera)
 
         # Apply axes correction
         for actor in self.clean_actors:
