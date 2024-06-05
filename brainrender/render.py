@@ -227,7 +227,7 @@ class Render:
             camera["focal_point"] = self.root._mesh.center_of_mass()
 
         if not self.backend and camera is not None:
-            _ = set_camera(self, camera)
+            camera = set_camera(self, camera)
 
         # Apply axes correction
         for actor in self.clean_actors:
@@ -266,6 +266,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 rate=40,
                 axes=self.plotter.axes,
+                resetcam=False,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
