@@ -218,10 +218,13 @@ class Render:
 
         # Get camera
         camera = camera or settings.DEFAULT_CAMERA
+        reset_cam = True
         if isinstance(camera, str):
             camera = get_camera(camera)
         else:
             camera = check_camera_param(camera)
+            # Don't reset the camera if custom dict is passed
+            reset_cam = False
 
         if "focal_point" not in camera.keys() or camera["focal_point"] is None:
             camera["focal_point"] = self.root._mesh.center_of_mass()
@@ -266,7 +269,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 rate=40,
                 axes=self.plotter.axes,
-                resetcam=False,
+                resetcam=reset_cam,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
