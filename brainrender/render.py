@@ -266,6 +266,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 rate=40,
                 axes=self.plotter.axes,
+                resetcam=False,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
