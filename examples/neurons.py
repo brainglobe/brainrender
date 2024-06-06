@@ -1,5 +1,4 @@
 from pathlib import Path
-from importlib.resources import files
 
 import requests.exceptions
 from morphapi.api.mouselight import MouseLightAPI
@@ -29,7 +28,7 @@ try:
     to_add = [neurons_metadata[47], neurons_metadata[51]]
     neurons = mlapi.download_neurons(to_add)
     neurons = scene.add(*make_neurons(*neurons, neurite_radius=12))
-except ConnectionError as e:
+except ConnectionError or requests.exceptions.ReadTimeout as e:
     print("Failed to download neurons data from neuromorpho.org.")
 
 # Render!
