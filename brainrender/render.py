@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 from loguru import logger
-from myterial import amber, deep_purple_light, orange, teal
+from myterial import teal
 from rich import print
 from rich.syntax import Syntax
 from vedo import Plotter
@@ -15,7 +15,6 @@ from brainrender.actors.points import PointsDensity
 from brainrender.camera import (
     check_camera_param,
     get_camera,
-    get_camera_params,
     set_camera,
 )
 
@@ -266,6 +265,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 rate=40,
                 axes=self.plotter.axes,
+                resetcam=False,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes
@@ -359,27 +359,6 @@ class Render:
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 
-    def _print_camera(self):
-        pms = get_camera_params(scene=self)
-
-        focal = pms.pop("focal_point", None)
-        dst = pms.pop("distance", None)
-
-        names = [
-            f"[green bold]     '{k}'[/green bold]: [{amber}]{v},"
-            for k, v in pms.items()
-        ]
-        print(
-            f"[{deep_purple_light}]Camera parameters:",
-            f"[{orange}]    {{",
-            *names,
-            f"[{orange}]   }}",
-            f"[{deep_purple_light}]Additional, (optional) parameters:",
-            f"[green bold]     'focal_point'[/green bold]: [{amber}]{focal},",
-            f"[green bold]     'distance'[/green bold]: [{amber}]{dst},",
-            sep="\n",
-        )
-
     def keypress(self, key):  # pragma: no cover
         """
         Handles key presses for interactive view
@@ -392,6 +371,3 @@ class Render:
 
         elif key in ("q", "Esc"):
             self.close()
-
-        elif key == "c":
-            self._print_camera()

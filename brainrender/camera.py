@@ -17,7 +17,7 @@ def check_camera_param(camera):
     """
     Check that a dictionary of camera parameters
     is complete. Must have entries:
-    ["position", "focal", "viewup", "distance", "clipping"]
+    ["pos", "viewup", "clipping_range"]
 
     :param camera: str, dict
     """
@@ -106,6 +106,5 @@ def get_camera_params(scene=None, camera=None):
         viewup=clean(cam.GetViewUp()),
         distance=clean(cam.GetDistance()),
         clipping_range=clean(cam.GetClippingRange()),
-        # orientation=clean(cam.GetOrientation()),
     )
     return params

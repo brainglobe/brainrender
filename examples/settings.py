@@ -29,3 +29,6 @@ for shader in ("plastic", "cartoon"):
     brainrender.settings.SHADER_STYLE = shader
     scene = Scene(title=shader)
     scene.render()
+
+brainrender.settings.BACKGROUND_COLOR = "white"  # reset background color
+brainrender.settings.SHOW_AXES = True  # reset axes display
