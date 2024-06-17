@@ -290,7 +290,7 @@ class Render:
     def close(self):
         self.plotter.close()
 
-    def export(self, savepath):
+    def export(self, savepath, **kwargs):
         """
         Exports the scene to a .html
         file for online renderings.
@@ -302,7 +302,7 @@ class Render:
         _default_backend = vsettings.default_backend
 
         if not self.is_rendered:
-            self.render(interactive=False)
+            self.render(interactive=False, **kwargs)
 
         path = Path(savepath)
         if path.suffix != ".html":
@@ -329,7 +329,7 @@ class Render:
 
         return str(path)
 
-    def screenshot(self, name=None, scale=None):
+    def screenshot(self, name=None, scale=None, **kwargs):
         """
         Takes a screenshot of the current view
         and save it to file.
@@ -341,7 +341,7 @@ class Render:
         """
 
         if not self.is_rendered:
-            self.render(interactive=False)
+            self.render(interactive=False, **kwargs)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         name = Path(name or f"brainrender_screenshot_{timestamp}")
