@@ -82,6 +82,9 @@ scene.render()
 
 ```
 
+## Seeking help or contributing
+We are always happy to help users of our tools, and welcome any contributions. If you would like to get in contact with us for any reason, please see the [contact page of our website](https://brainglobe.info/contact.html).
+
 ## Citing brainrender
 
 If you use brainrender in your scientific work, please cite:
@@ -105,7 +108,3 @@ year = {2021}
 }
 
 ```
-
-## Contributing
-
-Contributions to brainrender are more than welcome. Please see the [developers guide](https://brainglobe.info/community/developers/index.html).
