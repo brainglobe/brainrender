@@ -20,9 +20,9 @@ scene.add_brain_region(*regions, silhouette=True)
 def slc(scene, framen, totframes):
     # Get new slicing plane
     fact = framen / totframes
-    shape = list(scene.atlas.shape_um)
+    shape_um = scene.atlas.shape_um
     # Multiply by fact to move the plane, add buffer to go past the brain
-    point = [(shape[0] + 500) * fact, shape[1] // 2, shape[2] // 2]
+    point = [(shape_um[0] + 500) * fact, shape_um[1] // 2, shape_um[2] // 2]
     plane = scene.atlas.get_plane(pos=point, norm=(1, 0, 0))
 
     scene.slice(plane)
