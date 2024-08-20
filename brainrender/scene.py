@@ -287,16 +287,17 @@ class Scene(JupyterMixIn, Render):
         actors = self.add(*regions)
 
         # slice to keep only one hemisphere
-        if hemisphere == "right":
-            plane = self.atlas.get_plane(
-                pos=self.root._mesh.center_of_mass(), norm=(0, 0, 1)
-            )
-        elif hemisphere == "left":
-            plane = self.atlas.get_plane(
-                pos=self.root._mesh.center_of_mass(), norm=(0, 0, -1)
-            )
-
         if hemisphere in ("left", "right"):
+            if self.atlas.metadata["symmetric"]:
+                mesh_center = (
+                    self.root._mesh.bounds().reshape((3, 2)).mean(axis=1)
+                )
+            else:
+                mesh_center = self.root._mesh.center_of_mass()
+
+            normal = (0, 0, 1) if hemisphere == "right" else (0, 0, -1)
+            plane = self.atlas.get_plane(pos=mesh_center, norm=normal)
+
             if not isinstance(actors, list):
                 actors._mesh.cut_with_plane(
                     origin=plane.center,
