@@ -121,6 +121,7 @@ class VideoMaker:
         :param duration: float, duration of the video in seconds
         :param fps: int, frame rate
         :param fix_camera: bool, if True the focal point of the camera is set based on the first frame
+        :param render_kwargs: dict, any extra keyword argument to be passed to `scene.render`
         :param **kwargs: any extra keyword argument to be passed to `make_frame_func`
         """
         logger.debug(f"Saving a video {duration}s long ({fps} fps)")
