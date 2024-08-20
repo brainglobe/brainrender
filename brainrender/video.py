@@ -106,21 +106,41 @@ class VideoMaker:
 
     @not_on_jupyter
     def make_video(
-        self, *args, duration=10, fps=30, render_kwargs={}, **kwargs
+        self,
+        *args,
+        duration=10,
+        fps=30,
+        fix_camera=False,
+        render_kwargs={},
+        **kwargs,
     ):
         """
         Creates a video using user defined parameters
 
-        :param *args: any extra argument to be bassed to `make_frame_func`
-        :param duration: float, duratino of the video in seconds
+        :param *args: any extra argument to be passed to `make_frame_func`
+        :param duration: float, duration of the video in seconds
         :param fps: int, frame rate
-        :param **kwargs: any extra keyword argument to be bassed to `make_frame_func`
+        :param fix_camera: bool, if True the focal point of the camera is set based on the first frame
+        :param render_kwargs: dict, any extra keyword argument to be passed to `scene.render`
+        :param **kwargs: any extra keyword argument to be passed to `make_frame_func`
         """
         logger.debug(f"Saving a video {duration}s long ({fps} fps)")
         _off = br.settings.OFFSCREEN
         br.settings.OFFSCREEN = True  # render offscreen
 
         self.scene.render(interactive=False, **render_kwargs)
+
+        if fix_camera:
+            first_frame = self.keyframes.get(0)
+            if not first_frame:
+                logger.error("No keyframes found, can't fix camera")
+
+            # Sets the focal point of the first frame to the centre of mass of the
+            # full root mesh, since this focal point is set subsequent frames will
+            # have the same focal point unless a new camera is defined
+            self.keyframes[0]["camera"][
+                "focal_point"
+            ] = self.scene.root._mesh.center_of_mass()
 
         # cd to folder where the video will be saved
         curdir = os.getcwd()
@@ -317,7 +337,6 @@ class Animation(VideoMaker):
         elif frame_number > self.last_keyframe:
             # check if current frame is past the last keyframe
             params = self.keyframes[self.last_keyframe]
-            params["callback"] = None
 
         else:
             # interpolate between two key frames
