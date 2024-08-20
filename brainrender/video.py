@@ -134,6 +134,9 @@ class VideoMaker:
             if not first_frame:
                 logger.error("No keyframes found, can't fix camera")
 
+            # Sets the focal point of the first frame to the centre of mass of the
+            # full root mesh, since this focal point is set subsequent frames will
+            # have the same focal point unless a new camera is defined
             self.keyframes[0]["camera"][
                 "focal_point"
             ] = self.scene.root._mesh.center_of_mass()
