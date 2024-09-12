@@ -2,8 +2,7 @@
 Visualise the output from brainmapper.
 Cells transformed to atlas space can be found at
 brainmapper_output/points/points.npy or exported by the brainmapper
-napari
-widget
+napari widget
 
 For more details on brainmapper, please see:
 - https://brainglobe.info/documentation/brainglobe-workflows/brainmapper/index.html
