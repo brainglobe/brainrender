@@ -19,6 +19,7 @@ from brainrender.actors import Points
 from brainrender import settings
 
 import numpy as np
+
 settings.SHADER_STYLE = "plastic"
 settings.SHOW_AXES = False
 
@@ -30,19 +31,25 @@ regions = ["VISp1", "VISp4", "VISp5"]
 
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
+
 def get_cells_in_regions(scene, cells_path, regions):
     cells = np.load(cells_path)
     new_cells = []
 
-
     for cell in cells:
-        if scene.atlas.structure_from_coords(cell, as_acronym=True, microns=True) in regions:
+        if (
+            scene.atlas.structure_from_coords(
+                cell, as_acronym=True, microns=True
+            )
+            in regions
+        ):
             if cell[0] > 0:
                 new_cells.append(cell)
 
     new_cells = np.asarray(new_cells)
 
     return new_cells
+
 
 # Create a brainrender scene
 scene = Scene(title=f"brainmapper cells in {regions}", inset=False)
