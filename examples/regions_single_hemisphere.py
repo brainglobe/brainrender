@@ -1,6 +1,7 @@
 """
 Example to visualise brain regions in a single hemisphere
 """
+
 from pathlib import Path
 
 from myterial import orange
