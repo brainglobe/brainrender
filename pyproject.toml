@@ -13,7 +13,6 @@ dependencies = [
     "brainglobe-space>=1.0.0",
     "brainglobe-utils>=0.5.0",
     "h5py",
-    "imio",
     "k3d",
     "loguru",
     "morphapi>=0.2.1",
@@ -61,7 +60,6 @@ dev = [
     "pre-commit",
     "ruff",
     "setuptools_scm",
-    "imio",
 ]
 nb = ["jupyter", "k3d"]
 
