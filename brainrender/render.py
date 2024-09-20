@@ -191,6 +191,7 @@ class Render:
         interactive=None,
         camera=None,
         zoom=None,
+        resetcam=False,
         **kwargs,
     ):
         """
@@ -203,6 +204,7 @@ class Render:
             Pass a valid camera input to specify the camera position when
             the scene is rendered.
         :param zoom: float, if None atlas default is used
+        :param resetcam: bool, if True the camera is reset between renders
         :param kwargs: additional arguments to pass to self.plotter.show
         """
         logger.debug(
@@ -265,7 +267,7 @@ class Render:
                 bg=settings.BACKGROUND_COLOR,
                 rate=40,
                 axes=self.plotter.axes,
-                resetcam=False,
+                resetcam=resetcam,
             )
         elif self.backend == "k3d":  # pragma: no cover
             # Remove silhouettes

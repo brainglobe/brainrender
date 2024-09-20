@@ -57,7 +57,13 @@ class VideoMaker:
 
     @staticmethod
     def _make_frame(
-        scene, frame_number, tot_frames, azimuth=0, elevation=0, roll=0
+        scene,
+        frame_number,
+        tot_frames,
+        resetcam,
+        azimuth=0,
+        elevation=0,
+        roll=0,
     ):
         """
         Default `make_frame_func`. Rotates the camera in 3 directions
@@ -65,6 +71,7 @@ class VideoMaker:
         :param scene: scene to be animated.
         :param frame_number: int, not used
         :param tot_frames: int, total number of frames
+        :param resetcam: bool, if True the camera is reset
         :param azimuth: integer, specify the rotation in degrees
                     per frame on the relative axis. (Default value = 0)
         :param elevation: integer, specify the rotation in degrees
@@ -72,22 +79,25 @@ class VideoMaker:
         :param roll: integer, specify the rotation in degrees
                     per frame on the relative axis. (Default value = 0)
         """
-        scene.plotter.show(interactive=False)
+        scene.plotter.show(interactive=False, resetcam=resetcam)
         scene.plotter.camera.Elevation(elevation)
         scene.plotter.camera.Azimuth(azimuth)
         scene.plotter.camera.Roll(roll)
 
-    def generate_frames(self, fps, duration, video, *args, **kwargs):
+    def generate_frames(self, fps, duration, video, resetcam, *args, **kwargs):
         """
         Loop to generate frames
 
         :param fps: int, frame rate
         :param duration: float, video duration in seconds
         :param video: vedo Video class used to create the video
+        :param resetcam: bool, if True the camera is reset
         """
         nframes = int(fps * duration)
         for i in track(range(nframes), description="Generating frames"):
-            self.make_frame_func(self.scene, i, nframes, *args, **kwargs)
+            self.make_frame_func(
+                self.scene, i, nframes, resetcam, *args, **kwargs
+            )
             video.add_frame()
 
     def compress(self, temp_name):
@@ -111,6 +121,7 @@ class VideoMaker:
         duration=10,
         fps=30,
         fix_camera=False,
+        resetcam=False,
         render_kwargs={},
         **kwargs,
     ):
@@ -121,6 +132,7 @@ class VideoMaker:
         :param duration: float, duration of the video in seconds
         :param fps: int, frame rate
         :param fix_camera: bool, if True the focal point of the camera is set based on the first frame
+        :param resetcam: bool, if True the camera is reset
         :param render_kwargs: dict, any extra keyword argument to be passed to `scene.render`
         :param **kwargs: any extra keyword argument to be passed to `make_frame_func`
         """
@@ -157,7 +169,7 @@ class VideoMaker:
         )
 
         # Make frames
-        self.generate_frames(fps, duration, video, *args, **kwargs)
+        self.generate_frames(fps, duration, video, resetcam, *args, **kwargs)
         self.scene.close()
 
         # Stitch frames into uncompressed video
@@ -291,13 +303,14 @@ class Animation(VideoMaker):
         }
         self.keyframes_numbers = sorted(list(self.keyframes.keys()))
 
-    def generate_frames(self, fps, duration, video):
+    def generate_frames(self, fps, duration, video, resetcam):
         """
         Loop to generate frames
 
         :param fps: int, frame rate
         :param duration: float, video duration in seconds
         :param video: vedo Video class used to create the video
+        :param resetcam: bool, if True the camera is reset
         """
         logger.debug(
             f"Generating animation keyframes. Duration: {duration}, fps: {fps}"
@@ -315,7 +328,7 @@ class Animation(VideoMaker):
         for framen in track(
             range(self.nframes), description="Generating frames..."
         ):
-            self._make_frame(framen)
+            self._make_frame(framen, resetcam)
 
             if framen > 1:
                 video.add_frame()
@@ -359,7 +372,7 @@ class Animation(VideoMaker):
             params["camera"] = get_camera_params(self.scene)
         return params
 
-    def _make_frame(self, frame_number):
+    def _make_frame(self, frame_number, resetcam):
         """
         Creates a frame with the correct params
         and calls the keyframe callback function if defined.
@@ -388,7 +401,7 @@ class Animation(VideoMaker):
             camera=camera.copy(),
             zoom=frame_params["zoom"],
             interactive=False,
-            resetcam=False,
+            resetcam=resetcam,
         )
 
     def _interpolate_cameras(self, cam1, cam2):
