@@ -132,6 +132,7 @@ class VideoMaker:
         :param duration: float, duration of the video in seconds
         :param fps: int, frame rate
         :param fix_camera: bool, if True the focal point of the camera is set based on the first frame
+        :param resetcam: bool, if True the camera is reset
         :param render_kwargs: dict, any extra keyword argument to be passed to `scene.render`
         :param **kwargs: any extra keyword argument to be passed to `make_frame_func`
         """
@@ -168,7 +169,7 @@ class VideoMaker:
         )
 
         # Make frames
-        self.generate_frames(fps, duration, video, resetcam * args, **kwargs)
+        self.generate_frames(fps, duration, video, resetcam, *args, **kwargs)
         self.scene.close()
 
         # Stitch frames into uncompressed video

@@ -29,4 +29,4 @@ anim.add_keyframe(3, camera="frontal", zoom=1)
 anim.add_keyframe(4, camera="frontal", zoom=1.2)
 
 # Make videos
-anim.make_video(duration=5, fps=15)
+anim.make_video(duration=5, fps=15, resetcam=True)
