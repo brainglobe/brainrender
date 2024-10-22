@@ -41,6 +41,7 @@ class Neuron(Actor):
         alpha=1,
         neurite_radius=8,
         soma_radius=15,
+        invert_dims=True,
         name=None,
     ):
         """
@@ -50,6 +51,7 @@ class Neuron(Actor):
         :param color: str,
         :param neuron_radius: float, radius of axon/dendrites
         :param soma_radius: float, radius of soma
+        :param invert_dims: bool, invert dimensions of neuron
         :param name: str, actor name
         """
         logger.debug("Creating a Neuron actor")
@@ -61,7 +63,7 @@ class Neuron(Actor):
         self.name = None
 
         if isinstance(neuron, (str, Path)):
-            mesh = self._from_file(neuron)
+            mesh = self._from_file(neuron, invert_dims)
         elif isinstance(neuron, (Mesh)):
             mesh = neuron
         elif isinstance(neuron, Actor):
@@ -86,7 +88,7 @@ class Neuron(Actor):
         )[1]
         return mesh
 
-    def _from_file(self, neuron: (str, Path)):
+    def _from_file(self, neuron: (str, Path), invert_dims):
         path = Path(neuron)
         if not path.exists():
             raise FileExistsError(f"Neuron file doesn't exist: {path}")
@@ -99,5 +101,5 @@ class Neuron(Actor):
         self.name = self.name or path.name
 
         return self._from_morphapi_neuron(
-            MorphoNeuron(data_file=neuron, invert_dims=True)
+            MorphoNeuron(data_file=neuron, invert_dims=invert_dims)
         )
