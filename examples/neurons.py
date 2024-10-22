@@ -4,6 +4,7 @@ import requests.exceptions
 from morphapi.api.mouselight import MouseLightAPI
 from myterial import orange
 from rich import print
+from urllib3.exceptions import NewConnectionError, MaxRetryError
 
 from brainrender import Scene
 from brainrender.actors import Neuron, make_neurons
@@ -28,7 +29,12 @@ try:
     to_add = [neurons_metadata[47], neurons_metadata[51]]
     neurons = mlapi.download_neurons(to_add)
     neurons = scene.add(*make_neurons(*neurons, neurite_radius=12))
-except ConnectionError or requests.exceptions.ReadTimeout as e:
+except (
+    NewConnectionError,
+    MaxRetryError,
+    requests.exceptions.ConnectionError,
+    requests.exceptions.ReadTimeout,
+) as e:
     print("Failed to download neurons data from neuromorpho.org.")
 
 # Render!
