@@ -1,8 +1,8 @@
 from io import StringIO
 from typing import Optional
 
-import nptyping as npt
 import numpy as np
+import numpy.typing as npt
 import pyinspect as pi
 from brainglobe_atlasapi import BrainGlobeAtlas
 from brainglobe_space import AnatomicalSpace

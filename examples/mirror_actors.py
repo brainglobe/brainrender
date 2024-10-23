@@ -18,7 +18,7 @@ probe_striatum = (
 print(f"[{orange}]Running example: {Path(__file__).name}")
 
 # Create a brainrender scene
-scene = Scene(title="mirrored neurons")
+scene = Scene(title="mirrored actors")
 
 # Add the neuron
 neuron_original = Neuron(neuron_file)
