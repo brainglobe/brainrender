@@ -98,8 +98,8 @@ class GeneExpressionAPI:
                 break
             except requests.exceptions.JSONDecodeError:
                 print(f"Unable to connect to Allen API, retrying in {delay}")
-                delay *= 2
                 sleep(delay)
+                delay *= 2
 
         if not len(data):
             print(f"No experiment found for gene {gene}")
