@@ -40,7 +40,7 @@ scene.add(
 )
 
 # Add mirrored objects
-axis = "horizontal"
+axis = "frontal"
 atlas_center = scene.root.center
 
 neuron_mirrored = Neuron(neuron_file)
