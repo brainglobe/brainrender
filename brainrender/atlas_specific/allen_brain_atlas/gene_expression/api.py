@@ -1,5 +1,6 @@
 import os
 import sys
+from time import sleep
 
 import pandas as pd
 import requests
@@ -89,6 +90,7 @@ class GeneExpressionAPI:
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
         max_retries = 8
         delay = 4
+        data = None
 
         for i in range(max_retries):
             try:
@@ -97,6 +99,7 @@ class GeneExpressionAPI:
             except requests.exceptions.JSONDecodeError:
                 print(f"Unable to connect to Allen API, retrying in {delay}")
                 delay *= 2
+                sleep(delay)
 
         if not len(data):
             print(f"No experiment found for gene {gene}")
