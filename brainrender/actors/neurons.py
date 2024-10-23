@@ -51,7 +51,8 @@ class Neuron(Actor):
         :param color: str,
         :param neuron_radius: float, radius of axon/dendrites
         :param soma_radius: float, radius of soma
-        :param invert_dims: bool, invert dimensions of neuron
+        :param invert_dims: bool, exchange the first and last dimension coordinates
+        when loading from a .swc file. e.g going from (x, y, z) to (z, y, x).
         :param name: str, actor name
         """
         logger.debug("Creating a Neuron actor")
