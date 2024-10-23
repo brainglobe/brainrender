@@ -208,7 +208,7 @@ class Actor:
     def mirror(
         self,
         axis: str,
-        parent_center: Optional[npt.NDArray] = None,
+        origin: Optional[npt.NDArray] = None,
         atlas: Optional[BrainGlobeAtlas] = None,
     ):
         """
@@ -217,6 +217,10 @@ class Actor:
         be specified using an abbreviation, e.g. 'x' for the x-axis, or anatomical
         convention e.g. 'sagittal'. If an atlas is provided, then the anatomical
         space of the atlas is used, otherwise `asr` is assumed.
+
+        :param axis: str, axis around which to mirror the mesh
+        :param origin: np.ndarray, center of the mirroring operation
+        :param atlas: BrainGlobeAtlas, atlas object to use for anatomical space
         """
         if axis in ["sagittal", "vertical", "frontal"]:
             anatomical_space = atlas.space if atlas else AnatomicalSpace("asr")
@@ -224,7 +228,7 @@ class Actor:
             axis_ind = anatomical_space.get_axis_idx(axis)
             axis = "x" if axis_ind == 0 else "y" if axis_ind == 1 else "z"
 
-        self.mesh = self.mesh.mirror(axis, parent_center)
+        self.mesh = self.mesh.mirror(axis, origin)
 
     def __rich_console__(self, *args):
         """
