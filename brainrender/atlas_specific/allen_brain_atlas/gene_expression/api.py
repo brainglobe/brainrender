@@ -87,7 +87,7 @@ class GeneExpressionAPI:
         :param gene_symbol: str
         """
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
-        max_retries = 5
+        max_retries = 8
         delay = 4
 
         for i in range(max_retries):
