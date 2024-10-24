@@ -1,7 +1,11 @@
 from io import StringIO
+from typing import Optional
 
 import numpy as np
+import numpy.typing as npt
 import pyinspect as pi
+from brainglobe_atlasapi import BrainGlobeAtlas
+from brainglobe_space import AnatomicalSpace
 from myterial import amber, orange, salmon
 from rich.console import Console
 from vedo import Sphere, Text3D
@@ -200,6 +204,31 @@ class Actor:
         self.silhouette = sil
 
         return sil
+
+    def mirror(
+        self,
+        axis: str,
+        origin: Optional[npt.NDArray] = None,
+        atlas: Optional[BrainGlobeAtlas] = None,
+    ):
+        """
+        Mirror the actor's mesh around the specified axis, using the
+        parent_center as the center of the mirroring operation. The axes can
+        be specified using an abbreviation, e.g. 'x' for the x-axis, or anatomical
+        convention e.g. 'sagittal'. If an atlas is provided, then the anatomical
+        space of the atlas is used, otherwise `asr` is assumed.
+
+        :param axis: str, axis around which to mirror the mesh
+        :param origin: np.ndarray, center of the mirroring operation
+        :param atlas: BrainGlobeAtlas, atlas object to use for anatomical space
+        """
+        if axis in ["sagittal", "vertical", "frontal"]:
+            anatomical_space = atlas.space if atlas else AnatomicalSpace("asr")
+
+            axis_ind = anatomical_space.get_axis_idx(axis)
+            axis = "x" if axis_ind == 0 else "y" if axis_ind == 1 else "z"
+
+        self.mesh = self.mesh.mirror(axis, origin)
 
     def __rich_console__(self, *args):
         """
