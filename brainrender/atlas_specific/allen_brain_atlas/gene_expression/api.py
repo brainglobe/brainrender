@@ -1,7 +1,9 @@
 import os
 import sys
+from time import sleep
 
 import pandas as pd
+import requests
 from loguru import logger
 
 from brainrender import base_dir
@@ -86,7 +88,18 @@ class GeneExpressionAPI:
         :param gene_symbol: str
         """
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
-        data = request(url).json()["msg"]
+        max_retries = 8
+        delay = 4
+        data = None
+
+        for i in range(max_retries):
+            try:
+                data = request(url).json()["msg"]
+                break
+            except requests.exceptions.JSONDecodeError:
+                print(f"Unable to connect to Allen API, retrying in {delay}")
+                sleep(delay)
+                delay *= 2
 
         if not len(data):
             print(f"No experiment found for gene {gene}")
