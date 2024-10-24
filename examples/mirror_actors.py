@@ -7,7 +7,7 @@ from rich import print
 from brainrender import Scene
 from brainrender._io import load_mesh_from_file
 from brainrender.actor import Actor
-from brainrender.actors import Neuron, make_neurons, Points
+from brainrender.actors import Neuron, Points
 
 neuron_file = Path(__file__).parent.parent / "resources" / "neuron1.swc"
 obj_file = Path(__file__).parent.parent / "resources" / "CC_134_1_ch1inj.obj"
