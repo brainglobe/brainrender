@@ -10,13 +10,14 @@ from brainrender.actor import Actor
 
 
 class Atlas(BrainGlobeAtlas):
-    def __init__(self, atlas_name=None):
+    def __init__(self, atlas_name=None, check_latest=True):
         """
         Brainrender's Atlas class subclasses BrainGlobeAtlas
         to add methods to get regions meshes as Actors
         and to get a plane at a given point and normal.
 
         :param atlas_name: str, atlas name from brainglobe's atlas API atlases
+        :param check_latest: bool, if True checks that the atlas is the latest version
         """
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         self.atlas_name = atlas_name
@@ -26,7 +27,7 @@ class Atlas(BrainGlobeAtlas):
             super().__init__(atlas_name=atlas_name, print_authors=False)
         except TypeError:
             # The latest version of BGatlas has no print_authors argument
-            super().__init__(atlas_name=atlas_name)
+            super().__init__(atlas_name=atlas_name, check_latest=check_latest)
 
     @property
     def zoom(self):
