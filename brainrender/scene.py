@@ -30,6 +30,7 @@ class Scene(JupyterMixIn, Render):
         self,
         root=True,
         atlas_name=None,
+        check_latest=True,
         inset=True,
         title=None,
         screenshots_folder=None,
@@ -38,10 +39,11 @@ class Scene(JupyterMixIn, Render):
     ):
         """
         Main scene in brainrender.
-        It coordinates what should be render and how should it look like.
+        It coordinates what should be rendered and how should it look like.
 
         :param root: bool. If true the brain root mesh is added
         :param atlas_name: str, name of the brainglobe atlas to be used
+        :param check_latest: bool, if True checks that the atlas is the latest version
         :param inset: bool. If true an inset is shown with the brain's outline
         :param title: str. If true a title is added to the top of the window
         :param screenshots_folder: str, Path. Where the screenshots will be saved
@@ -54,7 +56,7 @@ class Scene(JupyterMixIn, Render):
         self.actors = []  # stores all actors in the scene
         self.labels = []  # stores all `labels` actors in scene
 
-        self.atlas = Atlas(atlas_name=atlas_name)
+        self.atlas = Atlas(atlas_name=atlas_name, check_latest=check_latest)
 
         self.screenshots_folder = (
             Path(screenshots_folder)
