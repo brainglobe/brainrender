@@ -64,7 +64,7 @@ jobs:
         run: brew install hdf5
 
       # Helps set up VTK with a headless display
-      - uses: pyvista/setup-headless-display-action@v2
+      - uses: pyvista/setup-headless-display-action@v3
 
       # Sets up ffmpeg to we can run video tests on CI
       - uses: FedericoCarboni/setup-ffmpeg@v2
