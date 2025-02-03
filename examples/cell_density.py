@@ -1,6 +1,6 @@
 """
-    This example shows how to use a PointsDensity
-    actor to show the density of labelled cells
+This example shows how to use a PointsDensity
+actor to show the density of labelled cells
 """
 
 import random

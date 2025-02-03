@@ -1,5 +1,5 @@
 """
-    This example shows how to add a label to a renderend actor
+This example shows how to add a label to a renderend actor
 """
 
 from pathlib import Path
