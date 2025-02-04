@@ -221,10 +221,10 @@ def test_gene_expression(scene):
 
     scene.render(interactive=False)
 
-    # Expand bounds by 500 px
+    # Expand bounds by 600 px
     ca1_bounds = ca1.bounds()
     expanded_bounds = [
-        bound - 500 if i % 2 == 0 else bound + 500
+        bound - 600 if i % 2 == 0 else bound + 600
         for i, bound in enumerate(ca1_bounds)
     ]
 
