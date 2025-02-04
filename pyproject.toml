@@ -25,7 +25,7 @@ dependencies = [
     "pyyaml>=5.3",
     "requests",
     "tables",
-    "vedo>=2024.5.2",
+    "vedo>=2025.5.3",
     "vtk"
 ]
 
