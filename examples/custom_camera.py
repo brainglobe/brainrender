@@ -1,12 +1,12 @@
 """
-    This example shows how to create a scene and render it with a custom camera.
-    This is done by specifying a dictionary of camera parameters, to get the
-    parameters you need for your camera:
-    - render an interactive scene with any camera
-    - move the camera to where you need it to be
-    - press 'c'
-    - this will print the current camera parameters to your console. Copy paste the
-        parameters in your script
+This example shows how to create a scene and render it with a custom camera.
+This is done by specifying a dictionary of camera parameters, to get the
+parameters you need for your camera:
+- render an interactive scene with any camera
+- move the camera to where you need it to be
+- press 'c'
+- this will print the current camera parameters to your console. Copy paste the
+    parameters in your script
 """
 
 from pathlib import Path

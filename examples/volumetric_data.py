@@ -1,8 +1,8 @@
 """
-    This example shows how to render volumetric (i.e. organized in voxel)
-    data in brainrender. The data used are is the localized expression of
-    'Gpr161' from the Allen Atlas database, downloaded with brainrender
-    and saved to a numpy file
+This example shows how to render volumetric (i.e. organized in voxel)
+data in brainrender. The data used are is the localized expression of
+'Gpr161' from the Allen Atlas database, downloaded with brainrender
+and saved to a numpy file
 """
 
 import numpy as np

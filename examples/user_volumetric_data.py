@@ -1,17 +1,17 @@
 """
 
-    This example shows how to render VOLUMETRIC data in brainrender.
-    It uses data downloaded from: https://fishatlas.neuro.mpg.de/lines/
-    showing gene expression for this transgenic line (brn3c:GPF): https://zfin.org/ZDB-ALT-050728-2
+This example shows how to render VOLUMETRIC data in brainrender.
+It uses data downloaded from: https://fishatlas.neuro.mpg.de/lines/
+showing gene expression for this transgenic line (brn3c:GPF): https://zfin.org/ZDB-ALT-050728-2
 
-    These data are a 3D image with orientation different from the axes system used by
-    brainrender, so it has to be loaded and transposed to the correct orientation
+These data are a 3D image with orientation different from the axes system used by
+brainrender, so it has to be loaded and transposed to the correct orientation
 
-    This examples shows how to:
-        - load volumetric data from a TIFF file
-        - transpose the data with BrainGlobe Space to re-orient it
-        - extract a mesh from the volumetric data using vedo
-        - render the data
+This examples shows how to:
+    - load volumetric data from a TIFF file
+    - transpose the data with BrainGlobe Space to re-orient it
+    - extract a mesh from the volumetric data using vedo
+    - render the data
 
 """
 
