@@ -5,7 +5,7 @@ authors = [
 ]
 description = "Visualisation and exploration of brain atlases and other anatomical data"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version"]
 
 dependencies = [
@@ -34,9 +34,9 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: BSD License",
     "Intended Audience :: Developers",
@@ -85,7 +85,7 @@ markers = [
 ]
 
 [tool.black]
-target-version = ['py310','py311', 'py312']
+target-version = ['py311','py312', 'py313']
 skip-string-normalization = false
 line-length = 79
 
@@ -115,14 +115,14 @@ select = ["I", "E", "F"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{310,311,312}
+envlist = py{311,312,313}
 isolated_build = True
 
 [gh-actions]
 python =
-    3.10: py310
     3.11: py311
     3.12: py312
+    3.13: py313
 
 [testenv]
 extras =
