@@ -16,7 +16,7 @@ repos:
           - id: requirements-txt-fixer
           - id: trailing-whitespace
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.8
+      rev: v0.11.12
       hooks:
         - id: ruff
     - repo: https://github.com/psf/black
