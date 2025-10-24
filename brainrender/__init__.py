@@ -1,5 +1,3 @@
-import os
-from datetime import date
 from loguru import logger
 from pathlib import Path
 from rich.logging import RichHandler
