@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from loguru import logger
 from pathlib import Path
 from rich.logging import RichHandler
@@ -37,10 +38,8 @@ def set_logging(level="INFO", path=None):
     """
     logger.remove()
 
-    path = path or str(base_dir / "log.log")
-    if Path(path).exists():
-        Path(path).unlink()
-    logger.add(path, level="DEBUG")
+    path = path or str(base_dir / "brainrender_{time}.log")
+    logger.add(path, retention=settings.NUM_LOGS_KEPT, level="DEBUG")
 
     if level == "DEBUG":
         logger.configure(
