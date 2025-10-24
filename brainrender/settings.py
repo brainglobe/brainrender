@@ -36,3 +36,4 @@ SHADER_STYLE = "cartoon"  # affects the look of rendered brain regions: [metalli
 SHOW_AXES = True
 WHOLE_SCREEN = False  # If true render window is full screen
 OFFSCREEN = False
+NUM_LOGS_KEPT = 100
