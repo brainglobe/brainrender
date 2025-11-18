@@ -97,7 +97,7 @@ class Actor:
         alpha=None,
     ):
         """
-        Actor class representing anythng shown in a brainrender scene.
+        Actor class representing anything shown in a brainrender scene.
         Methods in brainrender.actors are used to creates actors specific
         for different data types.
 
