@@ -16,7 +16,6 @@ import brainrender.actors
 from brainrender.video import VideoMaker, Animation
 from brainrender.atlas import Atlas
 
-
 try:
     __version__ = version("brainrender")
 except PackageNotFoundError:
