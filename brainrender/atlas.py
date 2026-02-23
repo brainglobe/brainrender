@@ -145,7 +145,7 @@ class Atlas(BrainGlobeAtlas):
             [bounds[4], bounds[5]],
         ]
 
-        wh = [float(np.diff(root_bounds[i])) for i in idx_pair]
+        wh = [float(np.diff(root_bounds[i])[0]) for i in idx_pair]
         if sx is None:
             sx = wh[0]
         if sy is None:
