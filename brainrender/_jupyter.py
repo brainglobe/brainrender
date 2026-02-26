@@ -44,8 +44,11 @@ class not_on_jupyter:  # pragma: no cover
         else:
             print(
                 f"[{orange_dark}]Cannot run function [bold {salmon}]{self.func.__name__}[/ bold {salmon}] in a jupyter notebook",
-                f"[{orange_dark}]Try setting the correct backend before creating your scene:\n",
-                Syntax("from vedo import embedWindow", lexer="python"),
-                Syntax("embedWindow(None)", lexer="python"),
+                f"[{orange_dark}]To use brainrender outside of a Jupyter notebook, set the vedo backend before creating your scene:\n",
+                Syntax("import vedo", lexer="python"),
+                Syntax("vedo.settings.default_backend = 'vtk'", lexer="python"),
+                f"[{orange_dark}]Or to embed the scene inside the notebook, use the k3d backend:\n",
+                Syntax("import vedo", lexer="python"),
+                Syntax("vedo.settings.default_backend = 'k3d'", lexer="python"),
             )
             return None
