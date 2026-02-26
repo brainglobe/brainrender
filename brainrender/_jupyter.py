@@ -46,7 +46,9 @@ class not_on_jupyter:  # pragma: no cover
                 f"[{orange_dark}]Cannot run function [bold {salmon}]{self.func.__name__}[/ bold {salmon}] in a jupyter notebook.",
                 f"[{orange_dark}]To use brainrender in a Jupyter notebook, set the vedo backend to 'k3d' before creating your scene:\n",
                 Syntax("import vedo", lexer="python"),
-                Syntax("vedo.settings.default_backend = 'k3d'", lexer="python"),
+                Syntax(
+                    "vedo.settings.default_backend = 'k3d'", lexer="python"
+                ),
                 f"[{orange_dark}]Note: some features are not available in the k3d backend.",
                 f"[{orange_dark}]To use all features, run brainrender in a standard Python script or interactive terminal instead.",
             )
