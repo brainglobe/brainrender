@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import requests as http_requests
 from loguru import logger
 from myterial import orange
@@ -31,7 +30,9 @@ from brainrender._utils import listify
 streamlines_folder = base_dir / "streamlines"
 streamlines_folder.mkdir(exist_ok=True)
 
-ALLEN_MESOSCALE_URL = "precomputed://gs://allen_neuroglancer_ccf/allen_mesoscale"
+ALLEN_MESOSCALE_URL = (
+    "precomputed://gs://allen_neuroglancer_ccf/allen_mesoscale"
+)
 ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
@@ -100,7 +101,9 @@ def _get_injection_site_um(eid, dv_extent_um):
             z = float(voxel["max_voxel_z"])
             return {"x": x, "y": y, "z": z}
     except Exception as e:
-        logger.warning(f"Could not fetch injection site for experiment {eid}: {e}")
+        logger.warning(
+            f"Could not fetch injection site for experiment {eid}: {e}"
+        )
     return None
 
 
@@ -150,10 +153,12 @@ def _skeleton_to_dataframe(skeleton, eid, dv_extent_um):
             "z": float(centroid[2]),
         }
 
-    return pd.DataFrame({
-        "lines": [lines],
-        "injection_sites": [[injection_site]],
-    })
+    return pd.DataFrame(
+        {
+            "lines": [lines],
+            "injection_sites": [[injection_site]],
+        }
+    )
 
 
 def get_streamlines_data(eids, force_download=False):
