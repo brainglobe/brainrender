@@ -12,7 +12,7 @@ dependencies = [
     "brainglobe-atlasapi>=2.0.1",
     "brainglobe-space>=1.0.0",
     "brainglobe-utils>=0.5.0",
-    "h5py",
+    "h5py<3.16.0",
     "k3d",
     "loguru",
     "morphapi>=0.2.1",
