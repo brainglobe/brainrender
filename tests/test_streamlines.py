@@ -14,6 +14,7 @@ from brainrender.atlas_specific.allen_brain_atlas.streamlines import (
     get_streamlines_data,
 )
 
+# Arbitrary test fixture value only - real Allen CCF 25um atlas DV extent is 8000um
 DV_EXTENT = 5200.0
 
 

@@ -37,14 +37,23 @@ ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
 
+_dv_extent_um_cache = None
+
+
 def _get_dv_extent_um():
     """
     Derives the full dorsal-ventral extent of the Allen CCF atlas in microns
     dynamically from the brainglobe atlas API. Used to flip the DV axis when
     converting from Allen CCF PIR space to brainrender's ASR orientation.
+
+    Result is cached after the first call to avoid reinstantiating the atlas
+    on every experiment download.
     """
-    atlas = BrainGlobeAtlas("allen_mouse_25um", check_latest=False)
-    return float(atlas.shape[1] * atlas.resolution[1])
+    global _dv_extent_um_cache
+    if _dv_extent_um_cache is None:
+        atlas = BrainGlobeAtlas("allen_mouse_25um", check_latest=False)
+        _dv_extent_um_cache = float(atlas.shape[1] * atlas.resolution[1])
+    return _dv_extent_um_cache
 
 
 def experiments_source_search(SOI):
