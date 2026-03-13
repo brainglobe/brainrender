@@ -49,7 +49,7 @@ class not_on_jupyter:  # pragma: no cover
                 Syntax(
                     "vedo.settings.default_backend = 'k3d'", lexer="python"
                 ),
-                f"[{orange_dark}]Note: some features are not available in the k3d backend.",
+                f"\n[{orange_dark}]Note: some features are not available in the k3d backend.",
                 f"[{orange_dark}]To use all features, run brainrender in a standard Python script or interactive terminal instead.",
             )
             return None
