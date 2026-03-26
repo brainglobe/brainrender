@@ -15,7 +15,7 @@ dependencies = [
     "h5py",
     "k3d",
     "loguru",
-    "morphapi>=0.3.2",
+    "morphapi>=0.3.3",
     "msgpack",
     "myterial",
     "numpy",
