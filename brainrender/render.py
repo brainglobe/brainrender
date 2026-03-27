@@ -274,8 +274,9 @@ class Render:
             self.remove(*self.get_actors(br_class="silhouette"))
             print(
                 f"[{teal}]Your scene is ready for rendering, use:\n",
-                Syntax("from vedo import show", lexer="python"),
-                Syntax("vedo.show(*scene.renderables)", lexer="python"),
+                Syntax("from vedo import Plotter", lexer="python"),
+                Syntax("plt = Plotter()", lexer="python"),
+                Syntax("plt.show(*scene.renderables)", lexer="python"),
                 sep="\n",
             )
         else:  # pragma: no cover
