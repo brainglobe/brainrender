@@ -8,14 +8,10 @@ import pytest
 
 from brainrender.atlas_specific import get_streamlines_for_region
 from brainrender.atlas_specific.allen_brain_atlas.streamlines import (
-    _get_dv_extent_um,
     _get_injection_site_um,
     _skeleton_to_dataframe,
     get_streamlines_data,
 )
-
-# Arbitrary test fixture value only - real Allen CCF 25um atlas DV extent is 8000um
-DV_EXTENT = 5200.0
 
 
 def _make_fake_skeleton():
@@ -31,18 +27,6 @@ def _make_fake_skeleton():
 
 
 @patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines.BrainGlobeAtlas"
-)
-def test_get_dv_extent_um(mock_atlas_cls):
-    mock_atlas = MagicMock()
-    mock_atlas.shape = (528, 320, 456)
-    mock_atlas.resolution = (25, 25, 25)
-    mock_atlas_cls.return_value = mock_atlas
-    result = _get_dv_extent_um()
-    assert result == pytest.approx(320 * 25)
-
-
-@patch(
     "brainrender.atlas_specific.allen_brain_atlas.streamlines.http_requests.get"
 )
 def test_get_injection_site_success(mock_get):
@@ -55,10 +39,10 @@ def test_get_injection_site_success(mock_get):
         ],
     }
     mock_get.return_value = mock_resp
-    result = _get_injection_site_um(12345, DV_EXTENT)
+    result = _get_injection_site_um(12345)
     assert result is not None
     assert result["x"] == pytest.approx(100.0)
-    assert result["y"] == pytest.approx(DV_EXTENT - 200.0)
+    assert result["y"] == pytest.approx(200.0)
     assert result["z"] == pytest.approx(300.0)
 
 
@@ -69,7 +53,7 @@ def test_get_injection_site_empty_response(mock_get):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"success": True, "num_rows": 0, "msg": []}
     mock_get.return_value = mock_resp
-    assert _get_injection_site_um(12345, DV_EXTENT) is None
+    assert _get_injection_site_um(12345) is None
 
 
 @patch(
@@ -77,7 +61,7 @@ def test_get_injection_site_empty_response(mock_get):
 )
 def test_get_injection_site_network_error(mock_get):
     mock_get.side_effect = Exception("timeout")
-    assert _get_injection_site_um(12345, DV_EXTENT) is None
+    assert _get_injection_site_um(12345) is None
 
 
 @patch(
@@ -86,7 +70,7 @@ def test_get_injection_site_network_error(mock_get):
 def test_skeleton_to_dataframe_with_injection(mock_inj):
     mock_inj.return_value = {"x": 10.0, "y": 20.0, "z": 30.0}
     skeleton = _make_fake_skeleton()
-    df = _skeleton_to_dataframe(skeleton, 99, DV_EXTENT)
+    df = _skeleton_to_dataframe(skeleton, 99)
     assert isinstance(df, pd.DataFrame)
     assert "lines" in df.columns
     assert "injection_sites" in df.columns
@@ -94,9 +78,9 @@ def test_skeleton_to_dataframe_with_injection(mock_inj):
     assert len(lines) == 2
     pt = lines[0][0]
     assert set(pt.keys()) == {"x", "y", "z"}
-    assert pt["x"] == pytest.approx(1.0)
-    assert pt["y"] == pytest.approx(DV_EXTENT - 2.0)
-    assert pt["z"] == pytest.approx(3.0)
+    assert pt["x"] == pytest.approx(1.0)   # 1000 / 1000
+    assert pt["y"] == pytest.approx(2.0)   # 2000 / 1000
+    assert pt["z"] == pytest.approx(3.0)   # 3000 / 1000
     assert df["injection_sites"].iloc[0] == [{"x": 10.0, "y": 20.0, "z": 30.0}]
 
 
@@ -106,15 +90,14 @@ def test_skeleton_to_dataframe_with_injection(mock_inj):
 def test_skeleton_to_dataframe_fallback_centroid(mock_inj):
     mock_inj.return_value = None
     skeleton = _make_fake_skeleton()
-    df = _skeleton_to_dataframe(skeleton, 99, DV_EXTENT)
+    df = _skeleton_to_dataframe(skeleton, 99)
     injection = df["injection_sites"].iloc[0][0]
     assert set(injection.keys()) == {"x", "y", "z"}
     assert injection["x"] == pytest.approx(1.0)
+    assert injection["y"] == pytest.approx(2.0)
+    assert injection["z"] == pytest.approx(3.0)
 
 
-@patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines._get_dv_extent_um"
-)
 @patch(
     "brainrender.atlas_specific.allen_brain_atlas.streamlines.cloudvolume_installed",
     True,
@@ -122,8 +105,7 @@ def test_skeleton_to_dataframe_fallback_centroid(mock_inj):
 @patch(
     "brainrender.atlas_specific.allen_brain_atlas.streamlines._skeleton_to_dataframe"
 )
-def test_get_streamlines_data_downloads(mock_s2df, mock_dv):
-    mock_dv.return_value = DV_EXTENT
+def test_get_streamlines_data_downloads(mock_s2df):
     fake_df = pd.DataFrame({"lines": [[]], "injection_sites": [[]]})
     mock_s2df.return_value = fake_df
     mock_cv_module = MagicMock()
@@ -149,14 +131,10 @@ def test_get_streamlines_data_downloads(mock_s2df, mock_dv):
 
 
 @patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines._get_dv_extent_um"
-)
-@patch(
     "brainrender.atlas_specific.allen_brain_atlas.streamlines.cloudvolume_installed",
     True,
 )
-def test_get_streamlines_data_uses_cache(mock_dv):
-    mock_dv.return_value = DV_EXTENT
+def test_get_streamlines_data_uses_cache():
     fake_df = pd.DataFrame(
         {"lines": [[[]]], "injection_sites": [[{"x": 1, "y": 2, "z": 3}]]}
     )
@@ -186,14 +164,10 @@ def test_get_streamlines_data_no_cloudvolume():
 
 
 @patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines._get_dv_extent_um"
-)
-@patch(
     "brainrender.atlas_specific.allen_brain_atlas.streamlines.cloudvolume_installed",
     True,
 )
-def test_get_streamlines_data_skips_failed_experiment(mock_dv):
-    mock_dv.return_value = DV_EXTENT
+def test_get_streamlines_data_skips_failed_experiment():
     mock_cv_module = MagicMock()
     mock_cv_instance = MagicMock()
     mock_cv_instance.skeleton.get.side_effect = Exception("not found")

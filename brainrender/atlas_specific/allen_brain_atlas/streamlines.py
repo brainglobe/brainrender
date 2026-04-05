@@ -22,8 +22,6 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     cloudvolume_installed = False  # pragma: no cover
 
-from brainglobe_atlasapi import BrainGlobeAtlas
-
 from brainrender import base_dir
 from brainrender._utils import listify
 
@@ -36,24 +34,6 @@ ALLEN_MESOSCALE_URL = (
 ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
-
-_dv_extent_um_cache = None
-
-
-def _get_dv_extent_um():
-    """
-    Derives the full dorsal-ventral extent of the Allen CCF atlas in microns
-    dynamically from the brainglobe atlas API. Used to flip the DV axis when
-    converting from Allen CCF PIR space to brainrender's ASR orientation.
-
-    Result is cached after the first call to avoid reinstantiating the atlas
-    on every experiment download.
-    """
-    global _dv_extent_um_cache
-    if _dv_extent_um_cache is None:
-        atlas = BrainGlobeAtlas("allen_mouse_25um", check_latest=False)
-        _dv_extent_um_cache = float(atlas.shape[1] * atlas.resolution[1])
-    return _dv_extent_um_cache
 
 
 def experiments_source_search(SOI):
@@ -81,17 +61,13 @@ def experiments_source_search(SOI):
     )
 
 
-def _get_injection_site_um(eid, dv_extent_um):
+def _get_injection_site_um(eid):
     """
     Fetches the injection site coordinates for an experiment from the Allen
-    Brain Atlas API. Coordinates are returned in the same um space as the
-    streamline vertices (x, y_flipped, z).
-
-    Uses the ProjectionStructureUnionize endpoint which provides max_voxel
-    coordinates in Allen CCF um space for the highest-density injection voxel.
+    Brain Atlas API. Coordinates are in Allen CCF um space (PIR), matching
+    brainrender's brain mesh coordinate system.
 
     :param eid: int, experiment ID
-    :param dv_extent_um: float, full DV extent of the atlas in um for axis flip
     :return: dict with x, y, z keys or None if not found
     """
     try:
@@ -105,10 +81,11 @@ def _get_injection_site_um(eid, dv_extent_um):
         data = response.json()
         if data["success"] and data["num_rows"] > 0:
             voxel = data["msg"][0]
-            x = float(voxel["max_voxel_x"])
-            y = float(dv_extent_um - voxel["max_voxel_y"])  # flip DV axis
-            z = float(voxel["max_voxel_z"])
-            return {"x": x, "y": y, "z": z}
+            return {
+                "x": float(voxel["max_voxel_x"]),
+                "y": float(voxel["max_voxel_y"]),
+                "z": float(voxel["max_voxel_z"]),
+            }
     except Exception as e:
         logger.warning(
             f"Could not fetch injection site for experiment {eid}: {e}"
@@ -116,21 +93,17 @@ def _get_injection_site_um(eid, dv_extent_um):
     return None
 
 
-def _skeleton_to_dataframe(skeleton, eid, dv_extent_um):
+def _skeleton_to_dataframe(skeleton, eid):
     """
     Converts a cloudvolume Skeleton object to the pd.DataFrame format
     expected by brainrender's Streamlines actor.
 
-    Vertices are in nanometers and in Allen CCF PIR space. We:
-    1. Convert nm -> um (divide by VOXEL_SIZE_NM)
-    2. Flip the y (DV) axis to match brainrender's ASR orientation
-
-    The injection site is fetched from the Allen API using the experiment ID.
-    If unavailable, falls back to the centroid of all skeleton vertices.
+    Vertices are in nanometers in Allen CCF space. We convert nm -> um
+    (divide by VOXEL_SIZE_NM). No axis flips are needed because
+    brainrender's brain mesh uses the same PIR coordinate system.
 
     :param skeleton: cloudvolume Skeleton object
     :param eid: int, experiment ID used to fetch real injection coordinates
-    :param dv_extent_um: float, full DV extent of the atlas in um for axis flip
     :return: pd.DataFrame with 'lines' and 'injection_sites' columns
     """
     components = skeleton.components()
@@ -139,17 +112,12 @@ def _skeleton_to_dataframe(skeleton, eid, dv_extent_um):
     for component in components:
         verts_um = component.vertices / VOXEL_SIZE_NM
         points = [
-            {
-                "x": float(v[0]),
-                "y": float(dv_extent_um - v[1]),  # flip DV axis
-                "z": float(v[2]),
-            }
+            {"x": float(v[0]), "y": float(v[1]), "z": float(v[2])}
             for v in verts_um
         ]
         lines.append(points)
 
-    # get real injection site from Allen API, fall back to centroid
-    injection_site = _get_injection_site_um(eid, dv_extent_um)
+    injection_site = _get_injection_site_um(eid)
     if injection_site is None:
         logger.warning(
             f"Falling back to centroid for injection site of experiment {eid}"
@@ -158,15 +126,12 @@ def _skeleton_to_dataframe(skeleton, eid, dv_extent_um):
         centroid = all_verts_um.mean(axis=0)
         injection_site = {
             "x": float(centroid[0]),
-            "y": float(dv_extent_um - centroid[1]),
+            "y": float(centroid[1]),
             "z": float(centroid[2]),
         }
 
     return pd.DataFrame(
-        {
-            "lines": [lines],
-            "injection_sites": [[injection_site]],
-        }
+        {"lines": [lines], "injection_sites": [[injection_site]]}
     )
 
 
@@ -185,8 +150,6 @@ def get_streamlines_data(eids, force_download=False):
             "Please install it with `pip install cloud-volume`"
         )
         return []
-
-    dv_extent_um = _get_dv_extent_um()
 
     cv = cloudvolume.CloudVolume(
         ALLEN_MESOSCALE_URL,
@@ -207,7 +170,7 @@ def get_streamlines_data(eids, force_download=False):
                 )
                 continue
 
-            df = _skeleton_to_dataframe(skeleton, int(eid), dv_extent_um)
+            df = _skeleton_to_dataframe(skeleton, int(eid))
             df.to_json(str(jsonpath))
             data.append(df)
         else:
