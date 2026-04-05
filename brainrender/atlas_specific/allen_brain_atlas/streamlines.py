@@ -35,7 +35,6 @@ ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
 
-
 def experiments_source_search(SOI):
     """
     Returns data about experiments whose injection was in the SOI, structure of interest

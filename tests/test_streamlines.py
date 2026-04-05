@@ -78,9 +78,9 @@ def test_skeleton_to_dataframe_with_injection(mock_inj):
     assert len(lines) == 2
     pt = lines[0][0]
     assert set(pt.keys()) == {"x", "y", "z"}
-    assert pt["x"] == pytest.approx(1.0)   # 1000 / 1000
-    assert pt["y"] == pytest.approx(2.0)   # 2000 / 1000
-    assert pt["z"] == pytest.approx(3.0)   # 3000 / 1000
+    assert pt["x"] == pytest.approx(1.0)  # 1000 / 1000
+    assert pt["y"] == pytest.approx(2.0)  # 2000 / 1000
+    assert pt["z"] == pytest.approx(3.0)  # 3000 / 1000
     assert df["injection_sites"].iloc[0] == [{"x": 10.0, "y": 20.0, "z": 30.0}]
 
 
