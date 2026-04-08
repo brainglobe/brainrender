@@ -1,5 +1,5 @@
 import pandas as pd
-import requests as http_requests
+import requests
 from loguru import logger
 from myterial import orange
 from rich import print
@@ -22,6 +22,8 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     cloudvolume_installed = False  # pragma: no cover
 
+from brainglobe_atlasapi import BrainGlobeAtlas
+
 from brainrender import base_dir
 from brainrender._utils import listify
 
@@ -34,6 +36,24 @@ ALLEN_MESOSCALE_URL = (
 ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
+_ml_extent_um_cache = None
+
+
+def _get_ml_extent_um():
+    """
+    Derives the full medial-lateral extent of the Allen CCF atlas in microns
+    dynamically from the brainglobe atlas API. Used to flip the Z (ML) axis
+    when converting from Allen CCF space to brainrender's coordinate system,
+    where left and right hemispheres are mirrored relative to the Allen CCF.
+
+    Result is cached after the first call to avoid reinstantiating the atlas
+    on every experiment download.
+    """
+    global _ml_extent_um_cache
+    if _ml_extent_um_cache is None:
+        atlas = BrainGlobeAtlas("allen_mouse_25um", check_latest=False)
+        _ml_extent_um_cache = float(atlas.shape[2] * atlas.resolution[2])
+    return _ml_extent_um_cache
 
 def experiments_source_search(SOI):
     """
@@ -60,13 +80,14 @@ def experiments_source_search(SOI):
     )
 
 
-def _get_injection_site_um(eid):
+def _get_injection_site_um(eid, ml_extent_um):
     """
     Fetches the injection site coordinates for an experiment from the Allen
-    Brain Atlas API. Coordinates are in Allen CCF um space (PIR), matching
-    brainrender's brain mesh coordinate system.
+    Brain Atlas API. Coordinates are in Allen CCF um space with the Z (ML)
+    axis flipped to match brainrender's hemisphere convention.
 
     :param eid: int, experiment ID
+    :param ml_extent_um: float, full ML extent of the atlas in um for LR flip
     :return: dict with x, y, z keys or None if not found
     """
     try:
@@ -76,14 +97,14 @@ def _get_injection_site_um(eid):
             f"rma::criteria,[is_injection$eqtrue],"
             f"rma::options[num_rows$eq1][order$eq'projection_volume desc']"
         )
-        response = http_requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10)
         data = response.json()
         if data["success"] and data["num_rows"] > 0:
             voxel = data["msg"][0]
             return {
                 "x": float(voxel["max_voxel_x"]),
                 "y": float(voxel["max_voxel_y"]),
-                "z": float(voxel["max_voxel_z"]),
+                "z": float(ml_extent_um - voxel["max_voxel_z"]),
             }
     except Exception as e:
         logger.warning(
@@ -92,17 +113,21 @@ def _get_injection_site_um(eid):
     return None
 
 
-def _skeleton_to_dataframe(skeleton, eid):
+def _skeleton_to_dataframe(skeleton, eid, ml_extent_um):
     """
     Converts a cloudvolume Skeleton object to the pd.DataFrame format
     expected by brainrender's Streamlines actor.
 
-    Vertices are in nanometers in Allen CCF space. We convert nm -> um
-    (divide by VOXEL_SIZE_NM). No axis flips are needed because
-    brainrender's brain mesh uses the same PIR coordinate system.
+    Vertices are in nanometers in Allen CCF space. We:
+    1. Convert nm -> um (divide by VOXEL_SIZE_NM)
+    2. Flip Z (ML) axis to match brainrender's hemisphere convention
+
+    X (AP) and Y (DV) are passed through as-is because brainrender's
+    brain mesh uses the same orientation as the Allen CCF for those axes.
 
     :param skeleton: cloudvolume Skeleton object
     :param eid: int, experiment ID used to fetch real injection coordinates
+    :param ml_extent_um: float, full ML extent of the atlas in um for LR flip
     :return: pd.DataFrame with 'lines' and 'injection_sites' columns
     """
     components = skeleton.components()
@@ -111,12 +136,16 @@ def _skeleton_to_dataframe(skeleton, eid):
     for component in components:
         verts_um = component.vertices / VOXEL_SIZE_NM
         points = [
-            {"x": float(v[0]), "y": float(v[1]), "z": float(v[2])}
+            {
+                "x": float(v[0]),
+                "y": float(v[1]),
+                "z": float(ml_extent_um - v[2]),
+            }
             for v in verts_um
         ]
         lines.append(points)
 
-    injection_site = _get_injection_site_um(eid)
+    injection_site = _get_injection_site_um(eid, ml_extent_um)
     if injection_site is None:
         logger.warning(
             f"Falling back to centroid for injection site of experiment {eid}"
@@ -126,7 +155,7 @@ def _skeleton_to_dataframe(skeleton, eid):
         injection_site = {
             "x": float(centroid[0]),
             "y": float(centroid[1]),
-            "z": float(centroid[2]),
+            "z": float(ml_extent_um - centroid[2]),
         }
 
     return pd.DataFrame(
@@ -150,6 +179,8 @@ def get_streamlines_data(eids, force_download=False):
         )
         return []
 
+    ml_extent_um = _get_ml_extent_um()
+
     cv = cloudvolume.CloudVolume(
         ALLEN_MESOSCALE_URL,
         use_https=True,
@@ -169,7 +200,7 @@ def get_streamlines_data(eids, force_download=False):
                 )
                 continue
 
-            df = _skeleton_to_dataframe(skeleton, int(eid))
+            df = _skeleton_to_dataframe(skeleton, int(eid), ml_extent_um)
             df.to_json(str(jsonpath))
             data.append(df)
         else:
