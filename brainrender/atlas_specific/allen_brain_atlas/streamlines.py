@@ -55,6 +55,7 @@ def _get_ml_extent_um():
         _ml_extent_um_cache = float(atlas.shape[2] * atlas.resolution[2])
     return _ml_extent_um_cache
 
+
 def experiments_source_search(SOI):
     """
     Returns data about experiments whose injection was in the SOI, structure of interest

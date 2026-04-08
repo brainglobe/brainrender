@@ -50,9 +50,7 @@ def test_get_ml_extent_um(mock_atlas_cls):
     assert result == pytest.approx(456 * 25)
 
 
-@patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get"
-)
+@patch("brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get")
 def test_get_injection_site_success(mock_get):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {
@@ -74,9 +72,7 @@ def test_get_injection_site_success(mock_get):
     assert result["z"] == pytest.approx(ML_EXTENT - 300.0)
 
 
-@patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get"
-)
+@patch("brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get")
 def test_get_injection_site_empty_response(mock_get):
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"success": True, "num_rows": 0, "msg": []}
@@ -84,9 +80,7 @@ def test_get_injection_site_empty_response(mock_get):
     assert _get_injection_site_um(12345, ML_EXTENT) is None
 
 
-@patch(
-    "brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get"
-)
+@patch("brainrender.atlas_specific.allen_brain_atlas.streamlines.requests.get")
 def test_get_injection_site_network_error(mock_get):
     mock_get.side_effect = Exception("timeout")
     assert _get_injection_site_um(12345, ML_EXTENT) is None
@@ -109,9 +103,7 @@ def test_skeleton_to_dataframe_with_injection(mock_inj):
     assert pt["x"] == pytest.approx(1.0)
     assert pt["y"] == pytest.approx(2.0)
     assert pt["z"] == pytest.approx(ML_EXTENT - 3.0)
-    assert df["injection_sites"].iloc[0] == [
-        {"x": 10.0, "y": 20.0, "z": 30.0}
-    ]
+    assert df["injection_sites"].iloc[0] == [{"x": 10.0, "y": 20.0, "z": 30.0}]
 
 
 @patch(
