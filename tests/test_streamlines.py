@@ -248,6 +248,7 @@ def test_get_streamlines_for_region_calls_download(mock_search, mock_dl):
 )
 def test_download_streamlines_from_gcs(eid):
     """Smoke test: download one small experiment to verify the GCS source is live."""
+    pytest.importorskip("cloudvolume")
     data = get_streamlines_data([eid], force_download=True)
     assert len(data) == 1
     df = data[0]
