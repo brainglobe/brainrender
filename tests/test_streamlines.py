@@ -257,3 +257,31 @@ def test_download_streamlines_from_gcs(eid):
     lines = df["lines"].iloc[0]
     assert len(lines) > 0
     assert set(lines[0][0].keys()) == {"x", "y", "z"}
+
+
+def test_streamlines_hemisphere_orientation():
+    """Verify that a right-hemisphere experiment renders in the correct hemisphere.
+
+    Experiment 298004028 has injection at ML=2.15mm (right hemisphere) with
+    near-zero left hemisphere projection volume per the Allen connectivity viewer.
+    After the Z (ML) axis flip, all streamline Z coordinates should be below
+    the atlas midline (~5700um), matching brainrender's right hemisphere convention.
+    """
+    pytest.importorskip("cloudvolume")
+    data = get_streamlines_data([298004028], force_download=True)
+    assert len(data) == 1
+    lines = data[0]["lines"].iloc[0]
+    assert len(lines) > 0
+
+    # Collect all Z coordinates from all streamline components
+    all_z = [pt["z"] for component in lines for pt in component]
+
+    # Allen CCF ML extent is 11400um, midline is ~5700um
+    # Right hemisphere in brainrender = Z < midline after flip
+    midline = 5700.0
+    right_side = [z for z in all_z if z < midline]
+    assert len(right_side) / len(all_z) > 0.95, (
+        f"Expected >95% of streamline points in right hemisphere (Z < {midline}), "
+        f"got {len(right_side)}/{len(all_z)} ({100*len(right_side)/len(all_z):.1f}%)"
+    )
+
