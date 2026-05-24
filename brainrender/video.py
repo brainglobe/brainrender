@@ -106,13 +106,15 @@ class VideoMaker:
         uncompressed video
         """
 
-        command = f"ffmpeg -hide_banner -loglevel panic -i {temp_name}.mp4 -vcodec libx264 -crf 28 {self.save_name}.mp4 -y"
+        out_name = str(self.save_fld.resolve() / f"{self.save_name}.mp4")
+        command = f'ffmpeg -hide_banner -loglevel panic -i "{temp_name}.mp4" -vcodec libx264 -crf 28 "{out_name}" -y'
         os.system(command)
         Path(temp_name + ".mp4").unlink()
 
-        print(
-            f"[{amber}]Saved compressed video at: [{orange} bold]{self.save_fld}/{self.save_name}.{self.video_format}"
+        spath = str(
+            self.save_fld.resolve() / f"{self.save_name}.{self.video_format}"
         )
+        print(f"[{amber}]Saved compressed video at: [{orange} bold]{spath}")
 
     @not_on_jupyter
     def make_video(
@@ -154,14 +156,11 @@ class VideoMaker:
                 "focal_point"
             ] = self.scene.root._mesh.center_of_mass()
 
-        # cd to folder where the video will be saved
-        curdir = os.getcwd()
-        os.chdir(self.save_fld)
         print(f"[{amber}]Saving video in [{orange}]{self.save_fld}")
 
         # Create video
         video = Video(
-            name=self.save_name,
+            name=str(self.save_fld.resolve() / self.save_name),
             duration=duration,
             fps=fps,
             fmt=self.video_format,
@@ -174,7 +173,9 @@ class VideoMaker:
 
         # Stitch frames into uncompressed video
         out, command = video.close()
-        spath = f"{self.save_fld}/{self.save_name}.{self.video_format}"
+        spath = str(
+            self.save_fld.resolve() / f"{self.save_name}.{self.video_format}"
+        )
         if out:
             print(
                 f"[{orange} bold]ffmpeg returned an error while trying to save video with command:\n    [{salmon}]{command}"
@@ -184,7 +185,6 @@ class VideoMaker:
 
         # finish up
         br.settings.OFFSCREEN = _off
-        os.chdir(curdir)
         return spath
 
 

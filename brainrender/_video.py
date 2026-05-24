@@ -30,7 +30,7 @@ class Video(VtkVideo):
         if self.size:
             fmt += f" -s {self.size}"
 
-        command = f"ffmpeg -hide_banner -loglevel panic -y -r {fps} -start_number 0 -i {fld} {fmt} {name}"
+        command = f'ffmpeg -hide_banner -loglevel panic -y -r {fps} -start_number 0 -i "{fld}" {fmt} "{name}"'
         out = os.system(command)
         self.tmp_dir.cleanup()
         return out, command
