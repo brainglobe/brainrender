@@ -5,21 +5,20 @@ from brainrender.scene import Scene
 from brainrender.video import Animation, VideoMaker
 
 
-def test_video():
+def test_video(tmp_path):
     s = Scene(title="BR")
 
     s.add_brain_region("TH")
 
-    vm = VideoMaker(s, "tests", "test")
+    vm = VideoMaker(s, tmp_path, "test")
     savepath = vm.make_video(duration=1, fps=15, azimuth=3)
 
-    assert savepath == str(Path("tests").resolve() / "test.mp4")
+    assert savepath == str((tmp_path / "test.mp4").resolve())
     path = Path(savepath)
     assert path.exists()
-    path.unlink()
 
 
-def test_video_custom():
+def test_video_custom(tmp_path):
     def custom(scene, *args, **kwargs):
         return
 
@@ -27,24 +26,23 @@ def test_video_custom():
 
     s.add_brain_region("TH")
 
-    vm = VideoMaker(s, "tests", "test", make_frame_func=custom)
+    vm = VideoMaker(s, tmp_path, "test", make_frame_func=custom)
 
     savepath = vm.make_video(duration=1, fps=15, azimuth=3)
 
-    assert savepath == str(Path("tests").resolve() / "test.mp4")
+    assert savepath == str((tmp_path / "test.mp4").resolve())
     path = Path(savepath)
     assert path.exists()
-    path.unlink()
 
 
-def test_animation():
+def test_animation(tmp_path):
     # Create a brainrender scene
     scene = Scene(title="brain regions", inset=False)
 
     # Add brain regions
     scene.add_brain_region("TH")
 
-    anim = Animation(scene, "tests", "test")
+    anim = Animation(scene, tmp_path, "test")
     anim.add_keyframe(0, camera="top", zoom=1.3)
     anim.add_keyframe(1, camera="sagittal", zoom=2.1)
     anim.add_keyframe(2, camera="frontal", zoom=3)
@@ -53,10 +51,9 @@ def test_animation():
     anim.add_keyframe(30, camera="frontal", zoom=2)  # too many
 
     savepath = anim.make_video(duration=3, fps=10)
-    assert savepath == str(Path("tests").resolve() / "test.mp4")
+    assert savepath == str((tmp_path / "test.mp4").resolve())
     path = Path(savepath)
     assert path.exists()
-    path.unlink()
 
 
 def test_compress(tmp_path):
