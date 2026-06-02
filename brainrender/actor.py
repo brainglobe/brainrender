@@ -297,7 +297,7 @@ class Actor:
 
     def __rich_console__(self, *args):
         """
-        Yield a Rich-formatted summary of this actor for console display.
+        Print some useful characteristics to console.
         """
         rep = pi.Report(
             title="[b]brainrender.Actor: ",
