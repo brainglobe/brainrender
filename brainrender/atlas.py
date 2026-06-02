@@ -1,3 +1,5 @@
+"""Atlas subclass adding region and plane Actor support for scenes."""
+
 import numpy as np
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
@@ -10,15 +12,18 @@ from brainrender.actor import Actor
 
 
 class Atlas(BrainGlobeAtlas):
-    def __init__(self, atlas_name=None, check_latest=True):
-        """
-        Brainrender's Atlas class subclasses BrainGlobeAtlas
-        to add methods to get regions meshes as Actors
-        and to get a plane at a given point and normal.
+    """
+    Subclass of BrainGlobeAtlas with helpers.
 
-        :param atlas_name: str, atlas name from brainglobe's atlas API atlases
-        :param check_latest: bool, if True checks that the atlas is the latest version
-        """
+    Parameters
+    ----------
+    atlas_name : str or None, optional
+        Falls back to ``settings.DEFAULT_ATLAS`` if None.
+    check_latest : bool, optional
+        Check for the latest atlas version. Default True.
+    """
+
+    def __init__(self, atlas_name=None, check_latest=True):
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         self.atlas_name = atlas_name
         logger.debug(f"Generating ATLAS: {atlas_name}")
@@ -32,7 +37,7 @@ class Atlas(BrainGlobeAtlas):
     @property
     def zoom(self):
         """
-        Returns the best camera zoom given the atlas resolution
+        Returns the best camera zoom given the atlas resolution.
         """
         res = np.max(self.metadata["resolution"])
 
@@ -46,7 +51,15 @@ class Atlas(BrainGlobeAtlas):
 
     def _get_region_color(self, region):
         """
-        Gets the rgb color of a region in the atlas
+        Gets the rgb color of a region in the atlas.
+
+        Parameters
+        ----------
+        region : str or int
+
+        Returns
+        -------
+        list of float
         """
         return [
             x / 255 for x in self._get_from_structure(region, "rgb_triplet")
@@ -54,10 +67,20 @@ class Atlas(BrainGlobeAtlas):
 
     def get_region(self, *regions, alpha=1, color=None):
         """
-        Get brain regions meshes as Actors
-        :param regions: str with names of brain regions in the atlas
-        :param alpha: float
-        :param color: str
+        Get brain regions meshes as Actors.
+
+        Parameters
+        ----------
+        *regions : str
+            Region acronyms or IDs.
+        alpha : float, optional
+            Mesh transparency. Default 1.
+        color : str or None, optional
+            Uses atlas RGB colour if None.
+
+        Returns
+        -------
+        Actor or list of Actor or None
         """
         if not regions:
             return None
@@ -113,11 +136,29 @@ class Atlas(BrainGlobeAtlas):
         orthogonally to the vector norm and of width and height
         sx, sy.
 
-        :param pos: 3-tuple or list with x,y,z, coords of point the plane goes through
-        :param norm: 3-tuple with plane's normal vector (optional)
-        :param sx, sy: int, width and height of the plane
-        :param plane: "sagittal", "horizontal", or "frontal"
-        :param color, alpha: plane color and transparency
+        Parameters
+        ----------
+        pos : array-like or None, optional
+            (x, y, z) the plane passes through. Defaults to root centre of mass.
+        norm : array-like or None, optional
+            Normal vector. Derived from *plane* if not given.
+        plane : str or None, optional
+            ``"sagittal"``, ``"horizontal"``, or ``"frontal"``.
+        sx, sy : int or None, optional
+            Width and height. Inferred from root bounds if None.
+        color : str, optional
+            Default ``"lightgray"``.
+        alpha : float, optional
+            Default 0.25.
+
+        Returns
+        -------
+        Actor
+
+        Raises
+        ------
+        ValueError
+            If *plane* has no matching normal in the atlas space.
         """
         axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 
