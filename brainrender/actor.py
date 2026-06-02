@@ -1,3 +1,5 @@
+"""Actor class and label utilities for brainrender scenes."""
+
 from io import StringIO
 from typing import Optional
 
@@ -28,16 +30,29 @@ def make_actor_label(
     zoffset=0,
 ):
     """
-    Adds a 2D text anchored to a point on the actor's mesh
-    to label what the actor is
+    Create 3D text labels anchored to actor meshes.
 
-    :param kwargs: keyword arguments can be passed to determine
-            text appearance and location:
-                - size: int, text size. Default 300
-                - color: str, text color. A list of colors can be passed
-                        if None a gray color is used. Default None.
-                - xoffset, yoffset, zoffset: integers that shift the label position
-                - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide.
+    Parameters
+    ----------
+    atlas : BrainGlobeAtlas
+        Atlas used for hemisphere queries and point mirroring.
+    actors : Actor or list of Actor
+        Actors to label.
+    labels : str or list of str
+        Label string(s) for each actor.
+    size : int, optional
+        Text size. Default 300.
+    color : str or list or None, optional
+        Label colour. Defaults to dark grey if None.
+    radius : int or None, optional
+        Radius of the anchor sphere. Set to None to hide. Default 100.
+    xoffset, yoffset, zoffset : int, optional
+        Positional offsets for the label. Defaults are 0, -500, 0.
+
+    Returns
+    -------
+    list
+        Flat list of vedo Text3D and Sphere objects.
     """
     offset = [-yoffset, -zoffset, xoffset]
     default_offset = np.array([0, -200, 100])
@@ -79,6 +94,29 @@ def make_actor_label(
 
 
 class Actor:
+    """
+    Represents any object displayed in a brainrender scene.
+
+    Wraps a vedo Mesh with a name and class type, and provides helpers
+    for creating silhouettes and 3D labels. Unknown attribute lookups
+    are delegated to the underlying mesh.
+
+    Parameters
+    ----------
+    mesh : vedo.Mesh
+        The 3D mesh for this actor.
+    name : str, optional
+        Actor name. Default ``"Actor"``.
+    br_class : str, optional
+        Brainrender class type. Default ``"None"``.
+    is_text : bool, optional
+        Whether this actor is a 2D text annotation. Default False.
+    color : str or None, optional
+        Colour to apply to the mesh on construction.
+    alpha : float or None, optional
+        Transparency to apply to the mesh on construction.
+    """
+
     _needs_label = False  # needs to make a label
     _needs_silhouette = False  # needs to make a silhouette
     _is_transformed = False  # has been transformed to correct axes orientation
@@ -96,21 +134,6 @@ class Actor:
         color=None,
         alpha=None,
     ):
-        """
-        Actor class representing anything shown in a brainrender scene.
-        Methods in brainrender.actors are used to creates actors specific
-        for different data types.
-
-        An actor has a mesh, a name and a brainrender class type.
-        It also has methods to create a silhouette or a label.
-
-        :param mesh: instance of vedo.Mesh
-        :param name: str, actor name
-        :param br_class: str, name of brainrender actors class
-        :param is_text: bool, is it a 2d text or annotation?
-        :param color: str, name or hex code of color to assign to actor's mesh
-        :param alpha: float, transparency to assign to actor's mesh
-        """
         self.mesh = mesh
         self.name = name or "Actor"
         self.br_class = br_class or "None"
@@ -123,8 +146,12 @@ class Actor:
 
     def __getattr__(self, attr):
         """
-        If an unknown attribute is called, try `self.mesh.attr`
-        to get the mesh's attribute
+        Delegate unknown attribute lookups to the underlying mesh.
+
+        Raises
+        ------
+        AttributeError
+            If the attribute is not found on any mesh object.
         """
         if "mesh" not in self.__dict__.keys():
             raise AttributeError(
@@ -161,21 +188,48 @@ class Actor:
     @property
     def center(self):
         """
-        Returns the coordinates of the mesh's center
+        Return the mesh's centre of mass coordinates.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape (3,) with (x, y, z) coordinates.
         """
         return self.mesh.center_of_mass()
 
     @classmethod
     def make_actor(cls, mesh, name, br_class):
         """
-        Make an actor from a given mesh
+        Construct an Actor from an existing mesh.
+
+        Parameters
+        ----------
+        mesh : vedo.Mesh
+            Mesh to wrap.
+        name : str
+            Actor name.
+        br_class : str
+            Brainrender class type.
+
+        Returns
+        -------
+        Actor
         """
         return cls(mesh, name=name, br_class=br_class)
 
     def make_label(self, atlas):
         """
-        Create a new Actor with a sphere and a text
-        labelling this actor
+        Create 3D label actors anchored to this actor's mesh.
+
+        Parameters
+        ----------
+        atlas : BrainGlobeAtlas
+            Atlas used for hemisphere queries and mirroring.
+
+        Returns
+        -------
+        list of Actor
+            Label actors (text and optional sphere markers).
         """
         labels = make_actor_label(
             atlas, self, self._label_str, **self._label_kwargs
@@ -190,7 +244,12 @@ class Actor:
 
     def make_silhouette(self):
         """
-        Create a new silhouette actor outlining this actor
+        Create a silhouette actor outlining this actor's mesh.
+
+        Returns
+        -------
+        Actor
+            Silhouette actor with brainrender class ``"silhouette"``.
         """
         lw = self._silhouette_kwargs["lw"]
         color = self._silhouette_kwargs["color"]
@@ -212,15 +271,21 @@ class Actor:
         atlas: Optional[BrainGlobeAtlas] = None,
     ):
         """
-        Mirror the actor's mesh around the specified axis, using the
-        parent_center as the center of the mirroring operation. The axes can
-        be specified using an abbreviation, e.g. 'x' for the x-axis, or anatomical
-        convention e.g. 'sagittal'. If an atlas is provided, then the anatomical
-        space of the atlas is used, otherwise `asr` is assumed.
+        Mirror the actor's mesh across the given axis.
 
-        :param axis: str, axis around which to mirror the mesh
-        :param origin: np.ndarray, center of the mirroring operation
-        :param atlas: BrainGlobeAtlas, atlas object to use for anatomical space
+        Accepts Cartesian axes (``'x'``, ``'y'``, ``'z'``) or anatomical
+        plane names (``'sagittal'``, ``'vertical'``, ``'frontal'``).
+        If an anatomical name is used without an atlas, ``'asr'`` space
+        is assumed. The mesh is updated in place.
+
+        Parameters
+        ----------
+        axis : str
+            Axis or anatomical plane to mirror across.
+        origin : numpy.ndarray or None, optional
+            Centre of the mirroring operation. Default None.
+        atlas : BrainGlobeAtlas or None, optional
+            Atlas used to resolve anatomical axis names. Default None.
         """
         if axis in ["sagittal", "vertical", "frontal"]:
             anatomical_space = atlas.space if atlas else AnatomicalSpace("asr")
@@ -232,7 +297,7 @@ class Actor:
 
     def __rich_console__(self, *args):
         """
-        Print some useful characteristics to console.
+        Yield a Rich-formatted summary of this actor for console display.
         """
         rep = pi.Report(
             title="[b]brainrender.Actor: ",
