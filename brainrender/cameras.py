@@ -1,3 +1,9 @@
+"""Pre-defined camera parameter dictionaries for brainrender scenes.
+
+Each camera is a dictionary with keys ``pos``, ``viewup``, and
+``clipping_range``, and is accessible by name through the ``cameras`` registry.
+"""
+
 sagittal_camera = {
     "pos": (6514, -34, 36854),
     "viewup": (0, -1, 0),
