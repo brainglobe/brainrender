@@ -13,7 +13,7 @@ from brainrender.actor import Actor
 
 class Atlas(BrainGlobeAtlas):
     """
-    Subclass of BrainGlobeAtlas with helpers.
+    Subclass of BrainGlobeAtlas with helpers for rendering.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ class Atlas(BrainGlobeAtlas):
     @property
     def zoom(self):
         """
-        Returns the best camera zoom given the atlas resolution.
+        Return a reasonable camera zoom given the atlas resolution.
         """
         res = np.max(self.metadata["resolution"])
 
@@ -51,7 +51,7 @@ class Atlas(BrainGlobeAtlas):
 
     def _get_region_color(self, region):
         """
-        Gets the rgb color of a region in the atlas.
+        Get the rgb color of a region in the atlas.
 
         Parameters
         ----------
@@ -103,7 +103,7 @@ class Atlas(BrainGlobeAtlas):
                 mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
             except FileNotFoundError:
                 print(
-                    f"The region {region} is in the onthology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"
+                    f"The region {region} is in the ontology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"
                 )
                 continue
 
@@ -133,7 +133,7 @@ class Atlas(BrainGlobeAtlas):
     ):
         """
         Returns a plane going through a point at pos, oriented
-        orthogonally to the vector norm and of width and height
+        orthogonally to the ``norm`` vector and of width and height
         sx, sy.
 
         Parameters
