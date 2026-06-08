@@ -71,7 +71,7 @@ class Atlas(BrainGlobeAtlas):
 
         Parameters
         ----------
-        *regions : str
+        *regions : str or int
             Region acronyms or IDs.
         alpha : float, optional
             Mesh transparency. Default 1.
