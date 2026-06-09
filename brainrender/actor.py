@@ -1,7 +1,7 @@
 """Actor class and label utilities for brainrender scenes."""
 
 from io import StringIO
-from typing import Self, Any, Optional
+from typing import Any, Optional, Self
 
 import numpy as np
 import numpy.typing as npt
@@ -119,7 +119,9 @@ class Actor:
 
     _needs_label: bool = False  # needs to make a label
     _needs_silhouette: bool = False  # needs to make a silhouette
-    _is_transformed: bool = False  # has been transformed to correct axes orientation
+    _is_transformed: bool = (
+        False  # has been transformed to correct axes orientation
+    )
     _is_added: bool = False  # has the actor been added to the scene already
 
     labels: list["Actor"] = []
@@ -295,7 +297,9 @@ class Actor:
 
         self.mesh = self.mesh.mirror(axis, origin)
 
-    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
         """
         Print some useful characteristics to console.
         """
