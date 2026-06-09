@@ -1,6 +1,7 @@
 """Atlas subclass adding region and plane Actor support for scenes."""
 
 import numpy as np
+import numpy.typing as npt
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
 from vedo import Plane
@@ -23,7 +24,11 @@ class Atlas(BrainGlobeAtlas):
         Check for the latest atlas version. Default True.
     """
 
-    def __init__(self, atlas_name=None, check_latest=True):
+    def __init__(
+        self,
+        atlas_name: str | None = None,
+        check_latest: bool = True,
+    ) -> None:
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         self.atlas_name = atlas_name
         logger.debug(f"Generating ATLAS: {atlas_name}")
@@ -35,7 +40,7 @@ class Atlas(BrainGlobeAtlas):
             super().__init__(atlas_name=atlas_name, check_latest=check_latest)
 
     @property
-    def zoom(self):
+    def zoom(self) -> float:
         """
         Return a reasonable camera zoom given the atlas resolution.
         """
@@ -49,7 +54,7 @@ class Atlas(BrainGlobeAtlas):
         else:
             return 40 / res
 
-    def _get_region_color(self, region):
+    def _get_region_color(self, region: str | int) -> list[float]:
         """
         Get the rgb color of a region in the atlas.
 
@@ -65,7 +70,12 @@ class Atlas(BrainGlobeAtlas):
             x / 255 for x in self._get_from_structure(region, "rgb_triplet")
         ]
 
-    def get_region(self, *regions, alpha=1, color=None):
+    def get_region(
+        self,
+        *regions: str | int,
+        alpha: float = 1,
+        color: str | list[float] | None = None,
+    ) -> Actor | list[Actor] | None:
         """
         Get brain regions meshes as Actors.
 
@@ -122,15 +132,15 @@ class Atlas(BrainGlobeAtlas):
 
     def get_plane(
         self,
-        pos=None,
-        norm=None,
-        plane=None,
-        sx=None,
-        sy=None,
-        color="lightgray",
-        alpha=0.25,
-        **kwargs,
-    ):
+        pos: npt.ArrayLike | None = None,
+        norm: npt.ArrayLike | None = None,
+        plane: str | None = None,
+        sx: float | None = None,
+        sy: float | None = None,
+        color: str = "lightgray",
+        alpha: float = 0.25,
+        **kwargs: object,
+    ) -> Actor:
         """
         Returns a plane going through a point at pos, oriented
         orthogonally to the ``norm`` vector and of width and height

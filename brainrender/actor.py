@@ -1,7 +1,7 @@
 """Actor class and label utilities for brainrender scenes."""
 
 from io import StringIO
-from typing import Optional
+from typing import Self, Any, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -9,8 +9,8 @@ import pyinspect as pi
 from brainglobe_atlasapi import BrainGlobeAtlas
 from brainglobe_space import AnatomicalSpace
 from myterial import amber, orange, salmon
-from rich.console import Console
-from vedo import Sphere, Text3D
+from rich.console import Console, ConsoleOptions, RenderResult
+from vedo import Mesh, Sphere, Text3D
 
 from brainrender._utils import listify
 
@@ -19,16 +19,16 @@ label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 
 def make_actor_label(
-    atlas,
-    actors,
-    labels,
-    size=300,
-    color=None,
-    radius=100,
-    xoffset=0,
-    yoffset=-500,
-    zoffset=0,
-):
+    atlas: BrainGlobeAtlas,
+    actors: "Actor | list[Actor]",
+    labels: str | list[str],
+    size: int = 300,
+    color: str | list[float] | None = None,
+    radius: int | None = 100,
+    xoffset: int = 0,
+    yoffset: int = -500,
+    zoffset: int = 0,
+) -> list[Text3D | Sphere]:
     """
     Create 3D text labels anchored to actor meshes.
 
@@ -117,23 +117,23 @@ class Actor:
         Transparency to apply to the mesh on construction.
     """
 
-    _needs_label = False  # needs to make a label
-    _needs_silhouette = False  # needs to make a silhouette
-    _is_transformed = False  # has been transformed to correct axes orientation
-    _is_added = False  # has the actor been added to the scene already
+    _needs_label: bool = False  # needs to make a label
+    _needs_silhouette: bool = False  # needs to make a silhouette
+    _is_transformed: bool = False  # has been transformed to correct axes orientation
+    _is_added: bool = False  # has the actor been added to the scene already
 
-    labels = []
-    silhouette = None
+    labels: list["Actor"] = []
+    silhouette: "Actor | None" = None
 
     def __init__(
         self,
-        mesh,
-        name=None,
-        br_class=None,
-        is_text=False,
-        color=None,
-        alpha=None,
-    ):
+        mesh: Mesh,
+        name: str | None = None,
+        br_class: str | None = None,
+        is_text: bool = False,
+        color: str | None = None,
+        alpha: float | None = None,
+    ) -> None:
         self.mesh = mesh
         self.name = name or "Actor"
         self.br_class = br_class or "None"
@@ -144,7 +144,7 @@ class Actor:
         if alpha:
             self.mesh.alpha(alpha)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """
         Delegate unknown attribute lookups to the underlying mesh.
 
@@ -175,10 +175,10 @@ class Actor:
             f"Actor does not have attribute {attr}"
         )  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return f"brainrender.Actor: {self.name}-{self.br_class}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         buf = StringIO()
         _console = Console(file=buf, force_jupyter=False)
         _console.print(self)
@@ -186,7 +186,7 @@ class Actor:
         return buf.getvalue()
 
     @property
-    def center(self):
+    def center(self) -> npt.NDArray[np.float64]:
         """
         Return the mesh's centre of mass coordinates.
 
@@ -198,7 +198,7 @@ class Actor:
         return self.mesh.center_of_mass()
 
     @classmethod
-    def make_actor(cls, mesh, name, br_class):
+    def make_actor(cls, mesh: Mesh, name: str, br_class: str) -> Self:
         """
         Construct an Actor from an existing mesh.
 
@@ -217,7 +217,7 @@ class Actor:
         """
         return cls(mesh, name=name, br_class=br_class)
 
-    def make_label(self, atlas):
+    def make_label(self, atlas: BrainGlobeAtlas) -> list["Actor"]:
         """
         Create 3D label actors anchored to this actor's mesh.
 
@@ -242,7 +242,7 @@ class Actor:
         self.labels = lbls
         return lbls
 
-    def make_silhouette(self):
+    def make_silhouette(self) -> "Actor":
         """
         Create a silhouette actor outlining this actor's mesh.
 
@@ -269,7 +269,7 @@ class Actor:
         axis: str,
         origin: Optional[npt.NDArray] = None,
         atlas: Optional[BrainGlobeAtlas] = None,
-    ):
+    ) -> None:
         """
         Mirror the actor's mesh across the given axis.
 
@@ -295,7 +295,7 @@ class Actor:
 
         self.mesh = self.mesh.mirror(axis, origin)
 
-    def __rich_console__(self, *args):
+    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
         """
         Print some useful characteristics to console.
         """
