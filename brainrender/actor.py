@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from io import StringIO
-from typing import Self, Any
+from typing import Any, Self
 
 import numpy as np
 import numpy.typing as npt
