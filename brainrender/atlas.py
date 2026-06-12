@@ -1,4 +1,7 @@
+"""Atlas subclass adding region and plane Actor support for scenes."""
+
 import numpy as np
+import numpy.typing as npt
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
 from vedo import Plane
@@ -10,15 +13,22 @@ from brainrender.actor import Actor
 
 
 class Atlas(BrainGlobeAtlas):
-    def __init__(self, atlas_name=None, check_latest=True):
-        """
-        Brainrender's Atlas class subclasses BrainGlobeAtlas
-        to add methods to get regions meshes as Actors
-        and to get a plane at a given point and normal.
+    """
+    Subclass of BrainGlobeAtlas with helpers for rendering.
 
-        :param atlas_name: str, atlas name from brainglobe's atlas API atlases
-        :param check_latest: bool, if True checks that the atlas is the latest version
-        """
+    Parameters
+    ----------
+    atlas_name
+        Falls back to ``settings.DEFAULT_ATLAS`` if None.
+    check_latest
+        Check for the latest atlas version. Default True.
+    """
+
+    def __init__(
+        self,
+        atlas_name: str | None = None,
+        check_latest: bool = True,
+    ) -> None:
         atlas_name = atlas_name or settings.DEFAULT_ATLAS
         self.atlas_name = atlas_name
         logger.debug(f"Generating ATLAS: {atlas_name}")
@@ -30,9 +40,9 @@ class Atlas(BrainGlobeAtlas):
             super().__init__(atlas_name=atlas_name, check_latest=check_latest)
 
     @property
-    def zoom(self):
+    def zoom(self) -> float:
         """
-        Returns the best camera zoom given the atlas resolution
+        Return a reasonable camera zoom given the atlas resolution.
         """
         res = np.max(self.metadata["resolution"])
 
@@ -44,20 +54,44 @@ class Atlas(BrainGlobeAtlas):
         else:
             return 40 / res
 
-    def _get_region_color(self, region):
+    def _get_region_color(self, region: str | int) -> list[float]:
         """
-        Gets the rgb color of a region in the atlas
+        Get the rgb color of a region in the atlas.
+
+        Parameters
+        ----------
+        region
+            Region acronym or ID.
+
+        Returns
+        -------
+        list of float
         """
         return [
             x / 255 for x in self._get_from_structure(region, "rgb_triplet")
         ]
 
-    def get_region(self, *regions, alpha=1, color=None):
+    def get_region(
+        self,
+        *regions: str | int,
+        alpha: float = 1,
+        color: str | list[float] | None = None,
+    ) -> Actor | list[Actor] | None:
         """
-        Get brain regions meshes as Actors
-        :param regions: str with names of brain regions in the atlas
-        :param alpha: float
-        :param color: str
+        Get brain regions meshes as Actors.
+
+        Parameters
+        ----------
+        *regions
+            Region acronyms or IDs.
+        alpha
+            Mesh transparency. Default 1.
+        color
+            Uses atlas RGB colour if None.
+
+        Returns
+        -------
+        Actor or list of Actor or None
         """
         if not regions:
             return None
@@ -80,7 +114,7 @@ class Atlas(BrainGlobeAtlas):
                 mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
             except FileNotFoundError:
                 print(
-                    f"The region {region} is in the onthology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"
+                    f"The region {region} is in the ontology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"
                 )
                 continue
 
@@ -99,25 +133,45 @@ class Atlas(BrainGlobeAtlas):
 
     def get_plane(
         self,
-        pos=None,
-        norm=None,
-        plane=None,
-        sx=None,
-        sy=None,
-        color="lightgray",
-        alpha=0.25,
-        **kwargs,
-    ):
+        pos: npt.ArrayLike | None = None,
+        norm: npt.ArrayLike | None = None,
+        plane: str | None = None,
+        sx: float | None = None,
+        sy: float | None = None,
+        color: str = "lightgray",
+        alpha: float = 0.25,
+        **kwargs: object,
+    ) -> Actor:
         """
         Returns a plane going through a point at pos, oriented
-        orthogonally to the vector norm and of width and height
+        orthogonally to the ``norm`` vector and of width and height
         sx, sy.
 
-        :param pos: 3-tuple or list with x,y,z, coords of point the plane goes through
-        :param norm: 3-tuple with plane's normal vector (optional)
-        :param sx, sy: int, width and height of the plane
-        :param plane: "sagittal", "horizontal", or "frontal"
-        :param color, alpha: plane color and transparency
+        Parameters
+        ----------
+        pos
+            (x, y, z) the plane passes through. Defaults to root centre of mass.
+        norm
+            Normal vector. Derived from *plane* if not given.
+        plane
+            ``"sagittal"``, ``"horizontal"``, or ``"frontal"``.
+        sx
+            Width. Inferred from root bounds if None.
+        sy
+            Height. Inferred from root bounds if None.
+        color
+            Default ``"lightgray"``.
+        alpha
+            Default 0.25.
+
+        Returns
+        -------
+        Actor
+
+        Raises
+        ------
+        ValueError
+            If *plane* has no matching normal in the atlas space.
         """
         axes_pairs = dict(sagittal=(0, 1), horizontal=(2, 0), frontal=(2, 1))
 

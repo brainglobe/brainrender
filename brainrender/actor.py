@@ -1,5 +1,9 @@
+"""Actor class and label utilities for brainrender scenes."""
+
+from __future__ import annotations
+
 from io import StringIO
-from typing import Optional
+from typing import Any, Self
 
 import numpy as np
 import numpy.typing as npt
@@ -7,8 +11,8 @@ import pyinspect as pi
 from brainglobe_atlasapi import BrainGlobeAtlas
 from brainglobe_space import AnatomicalSpace
 from myterial import amber, orange, salmon
-from rich.console import Console
-from vedo import Sphere, Text3D
+from rich.console import Console, ConsoleOptions, RenderResult
+from vedo import Mesh, Sphere, Text3D
 
 from brainrender._utils import listify
 
@@ -17,27 +21,44 @@ label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 
 def make_actor_label(
-    atlas,
-    actors,
-    labels,
-    size=300,
-    color=None,
-    radius=100,
-    xoffset=0,
-    yoffset=-500,
-    zoffset=0,
-):
+    atlas: BrainGlobeAtlas,
+    actors: Actor | list[Actor],
+    labels: str | list[str],
+    size: int = 300,
+    color: str | list[float] | None = None,
+    radius: int | None = 100,
+    xoffset: int = 0,
+    yoffset: int = -500,
+    zoffset: int = 0,
+) -> list[Text3D | Sphere]:
     """
-    Adds a 2D text anchored to a point on the actor's mesh
-    to label what the actor is
+    Create 3D text labels anchored to actor meshes.
 
-    :param kwargs: keyword arguments can be passed to determine
-            text appearance and location:
-                - size: int, text size. Default 300
-                - color: str, text color. A list of colors can be passed
-                        if None a gray color is used. Default None.
-                - xoffset, yoffset, zoffset: integers that shift the label position
-                - radius: radius of sphere used to denote label anchor. Set to 0 or None to hide.
+    Parameters
+    ----------
+    atlas
+        Atlas used for hemisphere queries and point mirroring.
+    actors
+        Actors to label.
+    labels
+        Label string(s) for each actor.
+    size
+        Text size. Default 300.
+    color
+        Label colour. Defaults to dark grey if None.
+    radius
+        Radius of the anchor sphere. Set to None to hide. Default 100.
+    xoffset
+        Positional offset along x. Default 0.
+    yoffset
+        Positional offset along y. Default -500.
+    zoffset
+        Positional offset along z. Default 0.
+
+    Returns
+    -------
+    list
+        Flat list of vedo Text3D and Sphere objects.
     """
     offset = [-yoffset, -zoffset, xoffset]
     default_offset = np.array([0, -200, 100])
@@ -79,40 +100,50 @@ def make_actor_label(
 
 
 class Actor:
-    _needs_label = False  # needs to make a label
-    _needs_silhouette = False  # needs to make a silhouette
-    _is_transformed = False  # has been transformed to correct axes orientation
-    _is_added = False  # has the actor been added to the scene already
+    """
+    Represents any object displayed in a brainrender scene.
 
-    labels = []
-    silhouette = None
+    Wraps a vedo Mesh with a name and class type, and provides helpers
+    for creating silhouettes and 3D labels. Unknown attribute lookups
+    are delegated to the underlying mesh.
+
+    Parameters
+    ----------
+    mesh
+        The 3D mesh for this actor.
+    name
+        Actor name. Default ``"Actor"``.
+    br_class
+        Brainrender class type. Default ``"None"``.
+    is_text
+        Whether this actor is a 2D text annotation. Default False.
+    color
+        Colour to apply to the mesh on construction.
+    alpha
+        Transparency to apply to the mesh on construction.
+    """
+
+    _needs_label: bool = False  # needs to make a label
+    _needs_silhouette: bool = False  # needs to make a silhouette
+    _is_transformed: bool = (
+        False  # has been transformed to correct axes orientation
+    )
+    _is_added: bool = False  # has the actor been added to the scene already
+
+    labels: list[Actor] = []
+    silhouette: Actor | None = None
 
     def __init__(
         self,
-        mesh,
-        name=None,
-        br_class=None,
-        is_text=False,
-        color=None,
-        alpha=None,
-    ):
-        """
-        Actor class representing anything shown in a brainrender scene.
-        Methods in brainrender.actors are used to creates actors specific
-        for different data types.
-
-        An actor has a mesh, a name and a brainrender class type.
-        It also has methods to create a silhouette or a label.
-
-        :param mesh: instance of vedo.Mesh
-        :param name: str, actor name
-        :param br_class: str, name of brainrender actors class
-        :param is_text: bool, is it a 2d text or annotation?
-        :param color: str, name or hex code of color to assign to actor's mesh
-        :param alpha: float, transparency to assign to actor's mesh
-        """
+        mesh: Mesh,
+        name: str | None = None,
+        br_class: str | None = None,
+        is_text: bool = False,
+        color: str | None = None,
+        alpha: float | None = None,
+    ) -> None:
         self.mesh = mesh
-        self.name = name or "Actor"
+        self.name = name or Actor
         self.br_class = br_class or "None"
         self.is_text = is_text
 
@@ -121,10 +152,14 @@ class Actor:
         if alpha:
             self.mesh.alpha(alpha)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """
-        If an unknown attribute is called, try `self.mesh.attr`
-        to get the mesh's attribute
+        Delegate unknown attribute lookups to the underlying mesh.
+
+        Raises
+        ------
+        AttributeError
+            If the attribute is not found on any mesh object.
         """
         if "mesh" not in self.__dict__.keys():
             raise AttributeError(
@@ -148,10 +183,10 @@ class Actor:
             f"Actor does not have attribute {attr}"
         )  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return f"brainrender.Actor: {self.name}-{self.br_class}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         buf = StringIO()
         _console = Console(file=buf, force_jupyter=False)
         _console.print(self)
@@ -159,23 +194,50 @@ class Actor:
         return buf.getvalue()
 
     @property
-    def center(self):
+    def center(self) -> npt.NDArray[np.float64]:
         """
-        Returns the coordinates of the mesh's center
+        Return the mesh's centre of mass coordinates.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of shape (3,) with (x, y, z) coordinates.
         """
         return self.mesh.center_of_mass()
 
     @classmethod
-    def make_actor(cls, mesh, name, br_class):
+    def make_actor(cls, mesh: Mesh, name: str, br_class: str) -> Self:
         """
-        Make an actor from a given mesh
+        Construct an Actor from an existing mesh.
+
+        Parameters
+        ----------
+        mesh
+            Mesh to wrap.
+        name
+            Actor name.
+        br_class
+            Brainrender class type.
+
+        Returns
+        -------
+        Actor
         """
         return cls(mesh, name=name, br_class=br_class)
 
-    def make_label(self, atlas):
+    def make_label(self, atlas: BrainGlobeAtlas) -> list[Actor]:
         """
-        Create a new Actor with a sphere and a text
-        labelling this actor
+        Create 3D label actors anchored to this actor's mesh.
+
+        Parameters
+        ----------
+        atlas
+            Atlas used for hemisphere queries and mirroring.
+
+        Returns
+        -------
+        list of Actor
+            Label actors (text and optional sphere markers).
         """
         labels = make_actor_label(
             atlas, self, self._label_str, **self._label_kwargs
@@ -188,9 +250,14 @@ class Actor:
         self.labels = lbls
         return lbls
 
-    def make_silhouette(self):
+    def make_silhouette(self) -> Actor:
         """
-        Create a new silhouette actor outlining this actor
+        Create a silhouette actor outlining this actor's mesh.
+
+        Returns
+        -------
+        Actor
+            Silhouette actor with brainrender class ``"silhouette"``.
         """
         lw = self._silhouette_kwargs["lw"]
         color = self._silhouette_kwargs["color"]
@@ -208,19 +275,25 @@ class Actor:
     def mirror(
         self,
         axis: str,
-        origin: Optional[npt.NDArray] = None,
-        atlas: Optional[BrainGlobeAtlas] = None,
-    ):
+        origin: npt.NDArray | None = None,
+        atlas: BrainGlobeAtlas | None = None,
+    ) -> None:
         """
-        Mirror the actor's mesh around the specified axis, using the
-        parent_center as the center of the mirroring operation. The axes can
-        be specified using an abbreviation, e.g. 'x' for the x-axis, or anatomical
-        convention e.g. 'sagittal'. If an atlas is provided, then the anatomical
-        space of the atlas is used, otherwise `asr` is assumed.
+        Mirror the actor's mesh across the given axis.
 
-        :param axis: str, axis around which to mirror the mesh
-        :param origin: np.ndarray, center of the mirroring operation
-        :param atlas: BrainGlobeAtlas, atlas object to use for anatomical space
+        Accepts Cartesian axes (``'x'``, ``'y'``, ``'z'``) or anatomical
+        plane names (``'sagittal'``, ``'vertical'``, ``'frontal'``).
+        If an anatomical name is used without an atlas, ``'asr'`` space
+        is assumed. The mesh is updated in place.
+
+        Parameters
+        ----------
+        axis
+            Axis or anatomical plane to mirror across.
+        origin
+            Centre of the mirroring operation. Default None.
+        atlas
+            Atlas used to resolve anatomical axis names. Default None.
         """
         if axis in ["sagittal", "vertical", "frontal"]:
             anatomical_space = atlas.space if atlas else AnatomicalSpace("asr")
@@ -230,7 +303,9 @@ class Actor:
 
         self.mesh = self.mesh.mirror(axis, origin)
 
-    def __rich_console__(self, *args):
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
         """
         Print some useful characteristics to console.
         """
