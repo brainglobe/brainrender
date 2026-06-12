@@ -18,9 +18,9 @@ class Atlas(BrainGlobeAtlas):
 
     Parameters
     ----------
-    atlas_name : str or None, optional
+    atlas_name
         Falls back to ``settings.DEFAULT_ATLAS`` if None.
-    check_latest : bool, optional
+    check_latest
         Check for the latest atlas version. Default True.
     """
 
@@ -60,7 +60,8 @@ class Atlas(BrainGlobeAtlas):
 
         Parameters
         ----------
-        region : str or int
+        region
+            Region acronym or ID.
 
         Returns
         -------
@@ -81,11 +82,11 @@ class Atlas(BrainGlobeAtlas):
 
         Parameters
         ----------
-        *regions : str or int
+        *regions
             Region acronyms or IDs.
-        alpha : float, optional
+        alpha
             Mesh transparency. Default 1.
-        color : str or None, optional
+        color
             Uses atlas RGB colour if None.
 
         Returns
@@ -148,17 +149,19 @@ class Atlas(BrainGlobeAtlas):
 
         Parameters
         ----------
-        pos : array-like or None, optional
+        pos
             (x, y, z) the plane passes through. Defaults to root centre of mass.
-        norm : array-like or None, optional
+        norm
             Normal vector. Derived from *plane* if not given.
-        plane : str or None, optional
+        plane
             ``"sagittal"``, ``"horizontal"``, or ``"frontal"``.
-        sx, sy : int or None, optional
-            Width and height. Inferred from root bounds if None.
-        color : str, optional
+        sx
+            Width. Inferred from root bounds if None.
+        sy
+            Height. Inferred from root bounds if None.
+        color
             Default ``"lightgray"``.
-        alpha : float, optional
+        alpha
             Default 0.25.
 
         Returns

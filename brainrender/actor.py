@@ -1,7 +1,9 @@
 """Actor class and label utilities for brainrender scenes."""
 
+from __future__ import annotations
+
 from io import StringIO
-from typing import Self, Any, Optional
+from typing import Self, Any
 
 import numpy as np
 import numpy.typing as npt
@@ -20,7 +22,7 @@ label_mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
 def make_actor_label(
     atlas: BrainGlobeAtlas,
-    actors: "Actor | list[Actor]",
+    actors: Actor | list[Actor],
     labels: str | list[str],
     size: int = 300,
     color: str | list[float] | None = None,
@@ -34,20 +36,24 @@ def make_actor_label(
 
     Parameters
     ----------
-    atlas : BrainGlobeAtlas
+    atlas
         Atlas used for hemisphere queries and point mirroring.
-    actors : Actor or list of Actor
+    actors
         Actors to label.
-    labels : str or list of str
+    labels
         Label string(s) for each actor.
-    size : int, optional
+    size
         Text size. Default 300.
-    color : str or list or None, optional
+    color
         Label colour. Defaults to dark grey if None.
-    radius : int or None, optional
+    radius
         Radius of the anchor sphere. Set to None to hide. Default 100.
-    xoffset, yoffset, zoffset : int, optional
-        Positional offsets for the label. Defaults are 0, -500, 0.
+    xoffset
+        Positional offset along x. Default 0.
+    yoffset
+        Positional offset along y. Default -500.
+    zoffset
+        Positional offset along z. Default 0.
 
     Returns
     -------
@@ -103,17 +109,17 @@ class Actor:
 
     Parameters
     ----------
-    mesh : vedo.Mesh
+    mesh
         The 3D mesh for this actor.
-    name : str, optional
+    name
         Actor name. Default ``"Actor"``.
-    br_class : str, optional
+    br_class
         Brainrender class type. Default ``"None"``.
-    is_text : bool, optional
+    is_text
         Whether this actor is a 2D text annotation. Default False.
-    color : str or None, optional
+    color
         Colour to apply to the mesh on construction.
-    alpha : float or None, optional
+    alpha
         Transparency to apply to the mesh on construction.
     """
 
@@ -122,8 +128,8 @@ class Actor:
     _is_transformed: bool = False  # has been transformed to correct axes orientation
     _is_added: bool = False  # has the actor been added to the scene already
 
-    labels: list["Actor"] = []
-    silhouette: "Actor | None" = None
+    labels: list[Actor] = []
+    silhouette: Actor | None = None
 
     def __init__(
         self,
@@ -135,7 +141,7 @@ class Actor:
         alpha: float | None = None,
     ) -> None:
         self.mesh = mesh
-        self.name = name or "Actor"
+        self.name = name or Actor
         self.br_class = br_class or "None"
         self.is_text = is_text
 
@@ -204,11 +210,11 @@ class Actor:
 
         Parameters
         ----------
-        mesh : vedo.Mesh
+        mesh
             Mesh to wrap.
-        name : str
+        name
             Actor name.
-        br_class : str
+        br_class
             Brainrender class type.
 
         Returns
@@ -217,13 +223,13 @@ class Actor:
         """
         return cls(mesh, name=name, br_class=br_class)
 
-    def make_label(self, atlas: BrainGlobeAtlas) -> list["Actor"]:
+    def make_label(self, atlas: BrainGlobeAtlas) -> list[Actor]:
         """
         Create 3D label actors anchored to this actor's mesh.
 
         Parameters
         ----------
-        atlas : BrainGlobeAtlas
+        atlas
             Atlas used for hemisphere queries and mirroring.
 
         Returns
@@ -242,7 +248,7 @@ class Actor:
         self.labels = lbls
         return lbls
 
-    def make_silhouette(self) -> "Actor":
+    def make_silhouette(self) -> Actor:
         """
         Create a silhouette actor outlining this actor's mesh.
 
@@ -267,8 +273,8 @@ class Actor:
     def mirror(
         self,
         axis: str,
-        origin: Optional[npt.NDArray] = None,
-        atlas: Optional[BrainGlobeAtlas] = None,
+        origin: npt.NDArray | None = None,
+        atlas: BrainGlobeAtlas | None = None,
     ) -> None:
         """
         Mirror the actor's mesh across the given axis.
@@ -280,11 +286,11 @@ class Actor:
 
         Parameters
         ----------
-        axis : str
+        axis
             Axis or anatomical plane to mirror across.
-        origin : numpy.ndarray or None, optional
+        origin
             Centre of the mirroring operation. Default None.
-        atlas : BrainGlobeAtlas or None, optional
+        atlas
             Atlas used to resolve anatomical axis names. Default None.
         """
         if axis in ["sagittal", "vertical", "frontal"]:
