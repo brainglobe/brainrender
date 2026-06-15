@@ -1,3 +1,5 @@
+"""Scene rendering backend for brainrender."""
+
 from datetime import datetime
 from pathlib import Path
 
