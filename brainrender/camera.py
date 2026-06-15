@@ -4,6 +4,7 @@ from loguru import logger
 from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
+from brainrender.scene import Scene
 
 
 def get_camera(camera: str) -> dict:
@@ -12,7 +13,7 @@ def get_camera(camera: str) -> dict:
 
     Parameters
     ----------
-    camera : str
+    camera
         Name of the pre-defined camera.
 
     Returns
@@ -31,7 +32,7 @@ def check_camera_param(camera: str | dict) -> dict:
 
     Parameters
     ----------
-    camera : str or dict
+    camera
         Camera name or parameters dictionary.
 
     Returns
@@ -64,9 +65,9 @@ def set_camera_params(camera: vtkCamera, params: dict) -> None:
 
     Parameters
     ----------
-    camera : vtkCamera
+    camera
         Camera object to configure.
-    params : dict
+    params
         Dictionary of camera parameters with keys ``pos``, ``viewup``,
         ``clipping_range``, and optionally ``focal_point`` and ``distance``.
     """
@@ -83,7 +84,7 @@ def set_camera_params(camera: vtkCamera, params: dict) -> None:
 
 
 def set_camera(
-    scene,
+    scene: Scene,
     camera: str | dict | vtkCamera | None,
 ) -> dict | vtkCamera | None:
     """
@@ -91,9 +92,9 @@ def set_camera(
 
     Parameters
     ----------
-    scene : Scene
+    scene
         Instance of brainrender Scene.
-    camera : str, dict, vtkCamera, or None
+    camera
         Pre-defined camera name, a dictionary of camera parameters,
         or a ``vtkCamera`` object. If None, returns immediately.
 
@@ -119,15 +120,15 @@ def set_camera(
     return camera
 
 
-def get_camera_params(scene=None, camera: vtkCamera | None = None) -> dict:
+def get_camera_params(scene: Scene | None = None, camera: vtkCamera | None = None) -> dict:
     """
     Return the camera parameters from an active scene or camera object.
 
     Parameters
     ----------
-    scene : Scene, optional
+    scene
         Instance of brainrender Scene whose camera is to be used.
-    camera : vtkCamera, optional
+    camera
         Camera object to read parameters from.
 
     Returns
