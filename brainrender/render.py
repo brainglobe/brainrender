@@ -1,6 +1,10 @@
 from datetime import datetime
 from pathlib import Path
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 from loguru import logger
 from myterial import teal
@@ -17,6 +21,8 @@ from brainrender.camera import (
     get_camera,
     set_camera,
 )
+if TYPE_CHECKING:
+    from brainrender.actor import Actor
 
 # mtx used to transform meshes to sort axes orientation
 mtx = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
@@ -31,10 +37,14 @@ class Render:
     axes_lookup = {"x": "AP", "y": "DV", "z": "LR"}
     axes_indices = {"AP": 0, "DV": 1, "LR": 2}
 
-    def __init__(self, plotter=None):
+    def __init__(self, plotter: Plotter | None = None) -> None:
         """
-        Backend for Scene, handles all rendering and exporting
-        related tasks.
+        Backend for Scene, handles all rendering and exporting related tasks.
+
+        Parameters
+        ----------
+        plotter
+            Existing vedo Plotter to use. A new one is created if None.
         """
         if plotter is None:
             self._get_plotter()
@@ -42,10 +52,9 @@ class Render:
             self.plotter = plotter
             self.plotter.keyPressFunction = self.keypress
 
-    def _get_plotter(self):
+    def _get_plotter(self) -> None:
         """
-        Make a vedo plotter with
-        fancy axes and all
+        Instantiate a vedo Plotter with custom axes and settings.
         """
         self.plotter = Plotter(
             axes=self._make_axes() if settings.SHOW_AXES else None,
@@ -58,10 +67,14 @@ class Render:
 
         self.plotter.keyPressFunction = self.keypress
 
-    def _make_axes(self):
+    def _make_axes(self) -> dict:
         """
-        Returns a dictionary with axes
-        parameters for the vedo plotter
+        Build a custom axes parameter dict for the vedo Plotter.
+
+        Returns
+        -------
+        dict
+            Axes configuration passed directly to vedo.
         """
         ax_idx = self.atlas.space.axes_order.index("frontal")
 
@@ -110,13 +123,18 @@ class Render:
 
         return axes
 
-    def _prepare_actor(self, actor):
+    def _prepare_actor(self, actor: Actor) -> None:
         """
-        When an actor is first rendered, a transform matrix
-        is applied to its points to correct axes orientation
-        mismatches: https://github.com/brainglobe/brainglobe-atlasapi/issues/73
+        Apply axis-orientation transform to an actor on first render.
 
-        Once an actor is 'corrected' it spawns labels and silhouettes as needed
+        Corrects axes orientation mismatches (see
+        https://github.com/brainglobe/brainglobe-atlasapi/issues/73),
+        then spawns any pending labels and silhouettes.
+
+        Parameters
+        ----------
+        actor
+            Actor to prepare.
         """
         # don't apply transforms to points density actors
         if isinstance(actor, PointsDensity):
@@ -163,9 +181,9 @@ class Render:
         if actor._needs_label and not self.backend:
             self.labels.extend(actor.make_label(self.atlas))
 
-    def _apply_style(self):
+    def _apply_style(self) -> None:
         """
-        Sets the rendering style for each mesh
+        Set the rendering style for each mesh.
         """
         for actor in self.clean_actors:
             if settings.SHADER_STYLE != "cartoon":
@@ -188,24 +206,29 @@ class Render:
 
     def render(
         self,
-        interactive=None,
-        camera=None,
-        zoom=None,
-        resetcam=False,
-        **kwargs,
-    ):
+        interactive: bool | None = None,
+        camera: str | dict | None = None,
+        zoom: float | None = None,
+        resetcam: bool = False,
+        **kwargs: object,
+    ) -> None:
         """
-        Renders the scene.
+        Render the scene.
 
-        :param interactive: bool. If note settings.INTERACTIVE is used.
-            If true the program's execution is stopped and users
-            can interact with scene.
-        :param camera: str, dict. If none the default camera is used.
-            Pass a valid camera input to specify the camera position when
-            the scene is rendered.
-        :param zoom: float, if None atlas default is used
-        :param resetcam: bool, if True the camera is reset between renders
-        :param kwargs: additional arguments to pass to self.plotter.show
+        Parameters
+        ----------
+        interactive
+            If None, falls back to ``settings.INTERACTIVE``. When True,
+            execution pauses so the user can interact with the scene.
+        camera
+            Camera name or parameter dict. Falls back to
+            ``settings.DEFAULT_CAMERA`` if None.
+        zoom
+            Camera zoom level. Falls back to the atlas default if None.
+        resetcam
+            Reset the camera between renders.
+        **kwargs
+            Additional arguments forwarded to ``self.plotter.show``.
         """
         logger.debug(
             f"Rendering scene. Interactive: {interactive}, camera: {camera}, zoom: {zoom}"
@@ -290,15 +313,32 @@ class Render:
                 sep="\n",
             )
 
-    def close(self):
+    def close(self) -> None:
+        """
+        Close the vedo Plotter window.
+        """
         self.plotter.close()
 
-    def export(self, savepath, **kwargs):
+    def export(self, savepath: str | Path, **kwargs: object) -> str:
         """
-        Exports the scene to a .html
-        file for online renderings.
+        Export the scene to a ``.html`` file for online rendering.
 
-        :param savepath: str, Path to a .html file to save the export
+        Parameters
+        ----------
+        savepath
+            Path to the output ``.html`` file.
+        **kwargs
+            Additional arguments forwarded to :meth:`render`.
+
+        Returns
+        -------
+        str
+            Absolute path of the saved file.
+
+        Raises
+        ------
+        ValueError
+            If *savepath* does not have a ``.html`` suffix.
         """
         logger.debug(f"Exporting scene to {savepath}")
         _backend = self.backend
@@ -332,17 +372,33 @@ class Render:
 
         return str(path)
 
-    def screenshot(self, name=None, scale=None, **kwargs):
+    def screenshot(
+        self,
+        name: str | None = None,
+        scale: float | None = None,
+        **kwargs: object,
+    ) -> str:
         """
-        Takes a screenshot of the current view
-        and save it to file.
-        Screenshots are saved in `screenshots_folder`
-        (see Scene)
+        Take a screenshot of the current view and save it to file.
 
-        :param name: str, name of png file
-        :param scale: float, >1 for higher resolution
+        Screenshots are saved in ``screenshots_folder`` (see Scene).
+
+        Parameters
+        ----------
+        name
+            Output filename. Defaults to a timestamped ``.png`` if None.
+            Unsupported extensions are silently replaced with ``.png``.
+        scale
+            Resolution multiplier. Values above 1 increase resolution.
+            Falls back to ``settings.SCREENSHOT_SCALE`` if None.
+        **kwargs
+            Additional arguments forwarded to :meth:`render`.
+
+        Returns
+        -------
+        str
+            Absolute path of the saved screenshot.
         """
-
         if not self.is_rendered:
             self.render(interactive=False, **kwargs)
 
@@ -362,12 +418,18 @@ class Render:
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
 
-    def keypress(self, key):  # pragma: no cover
+    def keypress(self, key: str) -> None:  # pragma: no cover
         """
-        Handles key presses for interactive view
-        -s: take's a screenshot
-        -q: closes the window
-        -c: prints the current camera parameters
+        Handle key presses during interactive rendering.
+
+        - ``s``: take a screenshot
+        - ``q`` / ``Esc``: close the window
+        - ``c``: print current camera parameters
+
+        Parameters
+        ----------
+        key
+            Key identifier string from vedo.
         """
         if key == "s":
             self.screenshot()
