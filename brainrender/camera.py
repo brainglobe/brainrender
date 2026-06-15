@@ -8,6 +8,7 @@ from loguru import logger
 from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
+
 if TYPE_CHECKING:
     from brainrender.scene import Scene
 
