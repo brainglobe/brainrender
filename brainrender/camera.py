@@ -125,7 +125,9 @@ def set_camera(
     return camera
 
 
-def get_camera_params(scene: Scene | None = None, camera: vtkCamera | None = None) -> dict:
+def get_camera_params(
+    scene: Scene | None = None, camera: vtkCamera | None = None
+) -> dict:
     """
     Return the camera parameters from an active scene or camera object.
 
