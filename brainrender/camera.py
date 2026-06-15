@@ -1,10 +1,15 @@
 """Camera utilities for brainrender scenes."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from loguru import logger
 from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
-from brainrender.scene import Scene
+if TYPE_CHECKING:
+    from brainrender.scene import Scene
 
 
 def get_camera(camera: str) -> dict:
