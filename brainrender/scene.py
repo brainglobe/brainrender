@@ -1,10 +1,4 @@
-"""
-Scene
-    - Create a scene, add root and inset if necessary
-    - add actor method
-    - special methods
-
-"""
+"""Scene class for adding, removing, and slicing actors and brain regions in brainrender."""
 
 import sys
 from pathlib import Path
@@ -13,7 +7,7 @@ import pyinspect as pi
 from loguru import logger
 from myterial import amber, orange, orange_darker, salmon
 from rich import print
-from vedo import Assembly, Mesh, Text2D
+from vedo import Assembly, Mesh, Plane, Plotter, Text2D
 
 from brainrender import settings
 from brainrender._io import load_mesh_from_file
@@ -26,27 +20,42 @@ from brainrender.render import Render
 
 
 class Scene(JupyterMixIn, Render):
+    """
+    Main scene in brainrender.
+
+    Coordinates what should be rendered and how it should look.
+    """
+
     def __init__(
         self,
-        root=True,
-        atlas_name=None,
-        check_latest=True,
-        inset=True,
-        title=None,
-        screenshots_folder=None,
-        plotter=None,
+        root: bool = True,
+        atlas_name: str | None = None,
+        check_latest: bool = True,
+        inset: bool = True,
+        title: str | None = None,
+        screenshots_folder: str | Path | None = None,
+        plotter: Plotter | None = None,
         title_color: str = "k",
-    ):
+    ) -> None:
         """
-        Main scene in brainrender.
-        It coordinates what should be rendered and how should it look like.
-
-        :param root: bool. If true the brain root mesh is added
-        :param atlas_name: str, name of the brainglobe atlas to be used
-        :param check_latest: bool, if True checks that the atlas is the latest version
-        :param inset: bool. If true an inset is shown with the brain's outline
-        :param title: str. If true a title is added to the top of the window
-        :param screenshots_folder: str, Path. Where the screenshots will be saved
+        Parameters
+        ----------
+        root
+            If true the brain root mesh is added.
+        atlas_name
+            Name of the brainglobe atlas to be used.
+        check_latest
+            If True checks that the atlas is the latest version.
+        inset
+            If true an inset is shown with the brain's outline.
+        title
+            If given, a title is added to the top of the window.
+        screenshots_folder
+            Where the screenshots will be saved. Defaults to cwd.
+        plotter
+            Existing vedo Plotter to use. A new one is created if None.
+        title_color
+            Colour of the title text.
         """
         logger.debug(
             f"Creating scene with parameters: root: {root}, atlas_name: '{atlas_name}'', inset: {inset}, screenshots_folder: {screenshots_folder}"
@@ -91,22 +100,22 @@ class Scene(JupyterMixIn, Render):
                 classes="title",
             )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
-    def __repr_html__(self):  # pragma: no cover
+    def __repr_html__(self) -> str:  # pragma: no cover
         return f"A `brainrender.scene.Scene` with {len(self.actors)} actors."
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
     @not_on_jupyter
-    def _get_inset(self):
+    def _get_inset(self) -> None:
         """
-        Creates a small inset showing the brain's orientation
+        Create a small inset showing the brain's orientation.
         """
         if settings.OFFSCREEN:
             return
@@ -118,19 +127,38 @@ class Scene(JupyterMixIn, Render):
         if settings.SHADER_STYLE == "cartoon":
             inset.lighting("off")
 
-    def add(self, *items, names=None, classes=None, transform=True, **kwargs):
+    def add(
+        self,
+        *items: object,
+        names: str | list[str | None] | None = None,
+        classes: str | list[str | None] | None = None,
+        transform: bool = True,
+        **kwargs: object,
+    ) -> Actor | list[Actor]:
         """
         General method to add Actors to the scene.
 
-        :param items: vedo.Mesh, Actor, (str, Path).
-                If str/path it should be a path to a .obj or .stl file.
-                Whatever the input it's turned into an instance of Actor
-                before adding it to the scne
+        Whatever the input, it's turned into an instance of Actor before
+        being added to the scene.
 
-        :param names: names to be assigned to the Actors
-        :param classes: br_classes to be assigned to the Actors
-        :param **kwargs: parameters to be passed to the individual
-            loading functions (e.g. to load from file and specify the color)
+        Parameters
+        ----------
+        *items
+            vedo.Mesh, Actor, or (str, Path). If str/path it should be a
+            path to a .obj or .stl file.
+        names
+            Names to be assigned to the Actors.
+        classes
+            br_classes to be assigned to the Actors.
+        transform
+            If True, apply the axes-orientation transform to new actors.
+        **kwargs
+            Parameters to be passed to the individual loading functions
+            (e.g. to load from file and specify the color).
+
+        Returns
+        -------
+        Actor or list of Actor
         """
         names = names or [None for a in items]
         classes = classes or [None for a in items]
@@ -192,9 +220,14 @@ class Scene(JupyterMixIn, Render):
         self.actors.extend(actors)
         return return_list_smart(actors)
 
-    def remove(self, *actors):
+    def remove(self, *actors: Actor) -> None:
         """
-        Removes actors from the scene.
+        Remove actors from the scene.
+
+        Parameters
+        ----------
+        *actors
+            Actors to remove.
         """
         logger.debug(f"Removing {len(actors)} actors from scene")
         for act in actors:
@@ -217,12 +250,24 @@ class Scene(JupyterMixIn, Render):
                 for label in act.labels:
                     self.plotter.remove(label.mesh)
 
-    def get_actors(self, name=None, br_class=None):
+    def get_actors(
+        self,
+        name: str | int | list[str | int] | None = None,
+        br_class: str | list[str] | None = None,
+    ) -> list[Actor]:
         """
-        Return's the scene's actors that match some search criteria.
+        Return the scene's actors that match some search criteria.
 
-        :param name: strm int or list of str/int, actors' names
-        :param br_class: str or list of str, actors br classes
+        Parameters
+        ----------
+        name
+            Actor name(s) to match.
+        br_class
+            Actor br_class(es) to match.
+
+        Returns
+        -------
+        list of Actor
         """
         matches = self.actors
         if name is not None:
@@ -235,27 +280,35 @@ class Scene(JupyterMixIn, Render):
 
     def add_brain_region(
         self,
-        *regions,
-        alpha=1,
-        color=None,
-        silhouette=None,
-        hemisphere="both",
-        force=False,
-    ):
+        *regions: str,
+        alpha: float = 1,
+        color: str | None = None,
+        silhouette: bool | None = None,
+        hemisphere: str = "both",
+        force: bool = False,
+    ) -> Actor | list[Actor] | None:
         """
-        Dedicated method to add brain regions to render
+        Dedicated method to add brain regions to render.
 
-        :param regions: str. String of regions names
-        :param alpha: float. How opaque the regions are rendered.
-        :param color: str. If None the atlas default color is used
-        :param silhouette: bool. If true regions Actors will have
-            a silhouette
-        :param hemisphere: str.
-            - if "both" the complete mesh is returned
-            - if "left"/"right" only the corresponding half
-                of the mesh is returned
-        :param force: bool. If true force adding of region even
-            if already rendered
+        Parameters
+        ----------
+        *regions
+            Region names.
+        alpha
+            How opaque the regions are rendered.
+        color
+            Uses the atlas default colour if None.
+        silhouette
+            If true, region Actors will have a silhouette.
+        hemisphere
+            ``"both"`` returns the complete mesh; ``"left"``/``"right"``
+            return only the corresponding half of the mesh.
+        force
+            If true, force adding of region even if already rendered.
+
+        Returns
+        -------
+        Actor or list of Actor or None
         """
         if silhouette is None:
             silhouette = (
@@ -321,13 +374,20 @@ class Scene(JupyterMixIn, Render):
         return actors
 
     @not_on_jupyter
-    def add_silhouette(self, *actors, lw=1, color="k"):
+    def add_silhouette(
+        self, *actors: Actor, lw: float = 1, color: str = "k"
+    ) -> None:
         """
-        Dedicated method to add silhouette to actors
+        Dedicated method to add silhouette to actors.
 
-        :param actors: Actors
-        :param lw: float. Line weight
-        :param color: str, silhouette color
+        Parameters
+        ----------
+        *actors
+            Actors to silhouette.
+        lw
+            Line weight.
+        color
+            Silhouette colour.
         """
         for actor in actors:
             if actor is None:
@@ -339,30 +399,45 @@ class Scene(JupyterMixIn, Render):
             )
 
     @not_on_jupyter
-    def add_label(self, actor, label, **kwargs):
+    def add_label(self, actor: Actor, label: str, **kwargs: object) -> None:
         """
-        Dedicated method to add labels to actors
+        Dedicated method to add labels to actors.
 
-        :param actor: Actors
-        :param label: str. Text of label
-        :param **kwargs: see brainrender._actor.make_actor_label for kwargs
+        Parameters
+        ----------
+        actor
+            Actor to label.
+        label
+            Text of the label.
+        **kwargs
+            See ``brainrender._actor.make_actor_label`` for kwargs.
         """
         actor._needs_label = True
         actor._label_str = label
         actor._label_kwargs = kwargs
 
-    def slice(self, plane, actors=None, close_actors=False, invert=False):
+    def slice(
+        self,
+        plane: str | Plane,
+        actors: Actor | list[Actor] | None = None,
+        close_actors: bool = False,
+        invert: bool = False,
+    ) -> None:
         """
-        Slices actors with a plane.
+        Slice actors with a plane.
 
-        :param plane: str, Plane. If a string it needs to be
-            a supported plane from brainglobe's atlas api (e.g. 'frontal')
-            otherwise it should be a vedo.Plane mesh
-        :param actors: list of actors to be sliced. If None all actors
-            will be sliced
-        :param close_actors: If true the openings in the actors meshes
-            caused by the cut will be closed.
-        :param invert: Invert the slice direction.
+        Parameters
+        ----------
+        plane
+            If a string it needs to be a supported plane from brainglobe's
+            atlas api (e.g. ``"frontal"``), otherwise a vedo.Plane mesh.
+        actors
+            Actors to be sliced. If None, all actors will be sliced.
+        close_actors
+            If true, the openings in the actors' meshes caused by the cut
+            will be closed.
+        invert
+            Invert the slice direction.
         """
         if isinstance(plane, str):
             if invert is False:
@@ -389,9 +464,9 @@ class Scene(JupyterMixIn, Render):
                 self.plotter.add(actor.make_silhouette().mesh)
 
     @property
-    def content(self):
+    def content(self) -> None:
         """
-        Prints an overview of the Actors in the scene.
+        Print an overview of the Actors in the scene.
         """
 
         actors = pi.Report(
@@ -409,9 +484,9 @@ class Scene(JupyterMixIn, Render):
             print(pi.utils.stringify(actors, maxlen=-1))
 
     @property
-    def renderables(self):
+    def renderables(self) -> list[Mesh]:
         """
-        Returns the meshes for all actors.
+        Return the meshes for all actors.
         """
         if not self.backend:
             return [a.mesh for a in self.actors + self.labels]
@@ -419,16 +494,17 @@ class Scene(JupyterMixIn, Render):
             return [a.mesh for a in self.actors if not a.is_text]
 
     @property
-    def clean_actors(self):
+    def clean_actors(self) -> list[Actor]:
         """
-        returns only actors that are not Text objects and similar
+        Return only actors that are not Text objects and similar.
         """
         return [a for a in self.actors if not a.is_text]
 
     @property
-    def clean_renderables(self):
+    def clean_renderables(self) -> list[Mesh]:
         """
-        Returns meshes only for 'clean actors' (i.e. not text).
-        _mesh is returned to account for internal rotations.
+        Return meshes only for 'clean actors' (i.e. not text).
+
+        ``_mesh`` is returned to account for internal rotations.
         """
         return [a._mesh for a in self.actors if not a.is_text]
