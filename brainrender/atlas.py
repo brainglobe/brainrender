@@ -2,6 +2,7 @@
 
 import numpy as np
 import numpy.typing as npt
+from typing import Any
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
 from vedo import Plane
@@ -140,7 +141,7 @@ class Atlas(BrainGlobeAtlas):
         sy: float | None = None,
         color: str = "lightgray",
         alpha: float = 0.25,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> Actor:
         """
         Returns a plane going through a point at pos, oriented
