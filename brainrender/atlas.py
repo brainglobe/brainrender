@@ -1,8 +1,9 @@
 """Atlas subclass adding region and plane Actor support for scenes."""
 
+from typing import Any
+
 import numpy as np
 import numpy.typing as npt
-from typing import Any
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
 from loguru import logger
 from vedo import Plane
