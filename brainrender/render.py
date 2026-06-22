@@ -333,7 +333,7 @@ class Render:
         savepath
             Path to the output ``.html`` file.
         **kwargs
-            Additional arguments forwarded to :meth:`render`.
+            Additional arguments forwarded to ``render``.
 
         Returns
         -------
@@ -397,7 +397,7 @@ class Render:
             Resolution multiplier. Values above 1 increase resolution.
             Falls back to ``settings.SCREENSHOT_SCALE`` if None.
         **kwargs
-            Additional arguments forwarded to :meth:`render`.
+            Additional arguments forwarded to ``render``.
 
         Returns
         -------
