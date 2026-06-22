@@ -1,25 +1,55 @@
+"""Camera utilities for brainrender scenes."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from loguru import logger
 from vtkmodules.vtkRenderingCore import vtkCamera
 
 from brainrender.cameras import cameras
 
+if TYPE_CHECKING:
+    from brainrender.scene import Scene
 
-def get_camera(camera):
+
+def get_camera(camera: str) -> dict:
     """
-    Returns the parameters for a pre-defined camera
+    Return the parameters for a pre-defined camera.
 
-    :param camera: str
+    Parameters
+    ----------
+    camera
+        Name of the pre-defined camera.
+
+    Returns
+    -------
+    dict
+        Camera parameters dictionary.
     """
     return cameras[camera]
 
 
-def check_camera_param(camera):
+def check_camera_param(camera: str | dict) -> dict:
     """
-    Check that a dictionary of camera parameters
-    is complete. Must have entries:
-    ["pos", "viewup", "clipping_range"]
+    Check that a dictionary of camera parameters is complete.
 
-    :param camera: str, dict
+    Must have entries: ``["pos", "viewup", "clipping_range"]``.
+
+    Parameters
+    ----------
+    camera
+        Camera name or parameters dictionary.
+
+    Returns
+    -------
+    dict
+        Validated camera parameters dictionary.
+
+    Raises
+    ------
+    ValueError
+        If a required key is missing from the camera dictionary.
     """
     if isinstance(camera, str):
         return get_camera(camera)
@@ -35,11 +65,17 @@ def check_camera_param(camera):
         return camera
 
 
-def set_camera_params(camera, params):
+def set_camera_params(camera: vtkCamera, params: dict) -> None:
     """
-    Set camera parameters
-    :param camera: camera obj
-    :param params: dictionary of camera parameters
+    Set camera parameters.
+
+    Parameters
+    ----------
+    camera
+        Camera object to configure.
+    params
+        Dictionary of camera parameters with keys ``pos``, ``viewup``,
+        ``clipping_range``, and optionally ``focal_point`` and ``distance``.
     """
     logger.debug(f"Setting camera parameters: {params}")
     # Apply camera parameters
@@ -53,13 +89,25 @@ def set_camera_params(camera, params):
         camera.SetDistance(params["distance"])
 
 
-def set_camera(scene, camera):
+def set_camera(
+    scene: Scene,
+    camera: str | dict | vtkCamera | None,
+) -> dict | vtkCamera | None:
     """
-    Sets the position of the camera of a brainrender scene.
+    Set the position of the camera of a brainrender scene.
 
-    :param scene: instance of Scene
-    :param camera: either a string with the name of one of the pre-defined cameras, or
-                    a dictionary of camera parameters.
+    Parameters
+    ----------
+    scene
+        Instance of brainrender Scene.
+    camera
+        Pre-defined camera name, a dictionary of camera parameters,
+        or a ``vtkCamera`` object. If None, returns immediately.
+
+    Returns
+    -------
+    dict, vtkCamera, or None
+        The applied camera parameters or object, or None if not applied.
     """
     if camera is None:
         return None
@@ -78,16 +126,27 @@ def set_camera(scene, camera):
     return camera
 
 
-def get_camera_params(scene=None, camera=None):
+def get_camera_params(
+    scene: Scene | None = None, camera: vtkCamera | None = None
+) -> dict:
     """
-    Given an active brainrender scene or a camera, it return
-    the camera parameters.
+    Return the camera parameters from an active scene or camera object.
 
-    :param scene: instance of Scene whose camera is to be used
-    :param camera: camera obj
+    Parameters
+    ----------
+    scene
+        Instance of brainrender Scene whose camera is to be used.
+    camera
+        Camera object to read parameters from.
+
+    Returns
+    -------
+    dict
+        Camera parameters with keys ``pos``, ``focal_point``, ``viewup``,
+        ``distance``, and ``clipping_range``.
     """
 
-    def clean(val):
+    def clean(val: tuple | float) -> tuple | int:
         if isinstance(val, tuple):
             return tuple((round(v) for v in val))
         else:
