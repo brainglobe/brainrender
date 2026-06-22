@@ -5,7 +5,7 @@ from pathlib import Path
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from loguru import logger
@@ -212,7 +212,7 @@ class Render:
         camera: str | dict | None = None,
         zoom: float | None = None,
         resetcam: bool = False,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> None:
         """
         Render the scene.
@@ -321,7 +321,7 @@ class Render:
         """
         self.plotter.close()
 
-    def export(self, savepath: str | Path, **kwargs: object) -> str:
+    def export(self, savepath: str | Path, **kwargs: Any) -> str:
         """
         Export the scene to a ``.html`` file for online rendering.
 
@@ -378,7 +378,7 @@ class Render:
         self,
         name: str | None = None,
         scale: float | None = None,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> str:
         """
         Take a screenshot of the current view and save it to file.
