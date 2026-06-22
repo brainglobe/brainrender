@@ -1,5 +1,7 @@
 """Scene rendering backend for brainrender."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from pathlib import Path
 
@@ -23,6 +25,7 @@ from brainrender.camera import (
     get_camera,
     set_camera,
 )
+
 if TYPE_CHECKING:
     from brainrender.actor import Actor
 
