@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+from typing import Any
 
 import pyinspect as pi
 from loguru import logger
@@ -133,7 +134,7 @@ class Scene(JupyterMixIn, Render):
         names: str | list[str | None] | None = None,
         classes: str | list[str | None] | None = None,
         transform: bool = True,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> Actor | list[Actor]:
         """
         General method to add Actors to the scene.
@@ -399,7 +400,7 @@ class Scene(JupyterMixIn, Render):
             )
 
     @not_on_jupyter
-    def add_label(self, actor: Actor, label: str, **kwargs: object) -> None:
+    def add_label(self, actor: Actor, label: str, **kwargs: Any) -> None:
         """
         Dedicated method to add labels to actors.
 
