@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
