@@ -1,5 +1,7 @@
 """Atlas subclass adding region and plane Actor support for scenes."""
 
+from typing import Any
+
 import numpy as np
 import numpy.typing as npt
 from brainglobe_atlasapi.bg_atlas import BrainGlobeAtlas
@@ -140,7 +142,7 @@ class Atlas(BrainGlobeAtlas):
         sy: float | None = None,
         color: str = "lightgray",
         alpha: float = 0.25,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> Actor:
         """
         Returns a plane going through a point at pos, oriented
