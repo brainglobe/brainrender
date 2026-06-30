@@ -24,7 +24,7 @@ class Scene(JupyterMixIn, Render):
     """
     Main scene in brainrender.
 
-    Coordinates what should be rendered and how it should look.
+    Coordinates the actors and the overall appearance.
     """
 
     def __init__(
@@ -130,7 +130,7 @@ class Scene(JupyterMixIn, Render):
 
     def add(
         self,
-        *items: object,
+        *items: Mesh | Assembly | Text2D | Actor | str | Path,
         names: str | list[str | None] | None = None,
         classes: str | list[str | None] | None = None,
         transform: bool = True,
@@ -160,6 +160,7 @@ class Scene(JupyterMixIn, Render):
         Returns
         -------
         Actor or list of Actor
+            The actor(s) added to the scene.
         """
         names = names or [None for a in items]
         classes = classes or [None for a in items]
@@ -269,6 +270,7 @@ class Scene(JupyterMixIn, Render):
         Returns
         -------
         list of Actor
+            The actors in the scene that match the specified search criteria.
         """
         matches = self.actors
         if name is not None:
@@ -310,6 +312,7 @@ class Scene(JupyterMixIn, Render):
         Returns
         -------
         Actor or list of Actor or None
+            The actors added to the scene. None if no actors added.
         """
         if silhouette is None:
             silhouette = (
