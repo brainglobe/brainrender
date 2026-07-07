@@ -2,13 +2,13 @@
 [![Get in Touch](https://img.shields.io/badge/Get%20in%20Touch-BrainGlobe-blue)](https://brainglobe.info/contact.html)
 [![DOI](https://img.shields.io/badge/DOI-10.7554%2FeLife.65751-green)](https://doi.org/10.7554/eLife.65751)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![tests](https://github.com/brainglobe/brainrender/workflows/tests/badge.svg)](https://github.com/brainglobe/brainrender/actions)
-[![codecov](https://codecov.io/gh/brainglobe/brainrender/graph/badge.svg)](https://codecov.io/gh/brainglobe/brainrender)
+[![Tests](https://github.com/brainglobe/brainrender/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/brainglobe/brainrender/actions/workflows/test_and_deploy.yml)
+[![Codecov](https://codecov.io/gh/brainglobe/brainrender/graph/badge.svg)](https://codecov.io/gh/brainglobe/brainrender)
 [![Python Version](https://img.shields.io/pypi/pyversions/brainrender.svg)](https://pypi.org/project/brainrender)
 [![PyPI](https://img.shields.io/pypi/v/brainrender.svg)](https://pypi.org/project/brainrender)
 [![Downloads](https://static.pepy.tech/badge/brainrender)](https://pepy.tech/project/brainrender)
-[![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/format.json)](https://github.com/astral-sh/ruff)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-green?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Code Style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/format.json)](https://github.com/astral-sh/ruff)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-green?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-green.svg)](https://brainglobe.info/community/developers/index.html)
 
 # brainrender
@@ -22,13 +22,11 @@
 
 From: Claudi et al. (2021) Visualizing anatomically registered data with brainrender. eLife
 
-
 ## Documentation
 
 brainrender is a project of the BrainGlobe Initiative, which is a collaborative effort to develop a suite of Python-based software tools for computational neuroanatomy. A comprehensive online documentation for brainrender can be found on the BrainGlobe website [here](https://brainglobe.info/documentation/brainrender/index.html).
 
 Furthermore, an open-access journal article describing BrainRender has been published in eLife, available [here](https://doi.org/10.7554/eLife.65751).
-
 
 ## Installation
 
@@ -61,7 +59,6 @@ def get_n_random_points_in_region(region, N):
 
     ipts = region.mesh.inside_points(pts).coordinates
     return np.vstack(random.choices(ipts, k=N))
-
 
 # Display the Allen Brain mouse atlas.
 scene = Scene(atlas_name="allen_mouse_25um", title="Cells in primary visual cortex")
