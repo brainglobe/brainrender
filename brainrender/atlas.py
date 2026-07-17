@@ -9,7 +9,7 @@ from loguru import logger
 from vedo import Plane
 
 from brainrender import settings
-from brainrender._io import load_mesh_from_file
+from brainrender._io import convert_meshio_to_vedo
 from brainrender._utils import return_list_smart
 from brainrender.actor import Actor
 
@@ -111,9 +111,11 @@ class Atlas(BrainGlobeAtlas):
                 continue
 
             # Get mesh
-            obj_file = str(self.meshfile_from_structure(region))
             try:
-                mesh = load_mesh_from_file(obj_file, color=color, alpha=alpha)
+                meshio_mesh = self.mesh_from_structure(region)
+                mesh = convert_meshio_to_vedo(
+                    meshio_mesh, color=color, alpha=alpha
+                )
             except FileNotFoundError:
                 print(
                     f"The region {region} is in the ontology but does not have a corresponding volume in the atlas being used: {self.atlas_name}. Skipping"

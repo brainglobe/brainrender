@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import requests
-from vedo import load
+from vedo import Mesh, load
 
 
 def connected_to_internet(url="http://www.google.com/", timeout=5):
@@ -83,5 +83,28 @@ def load_mesh_from_file(filepath, color=None, alpha=None):
 
     """
     actor = load(str(filepath))
+    actor.c(color).alpha(alpha)
+    return actor
+
+
+def convert_meshio_to_vedo(meshio_mesh, color=None, alpha=None):
+    """
+    Convert a meshio mesh to a vedo mesh.
+
+    Parameters
+    ----------
+    meshio_mesh : meshio.Mesh
+        The meshio mesh to convert.
+    color : str, optional
+        The color to apply to the mesh. Default is None.
+    alpha : float, optional
+        The transparency to apply to the mesh. Default is None.
+
+    Returns
+    -------
+    vedo.Mesh
+        The converted vedo mesh.
+    """
+    actor = Mesh([meshio_mesh.points, meshio_mesh.cells_dict["triangle"]])
     actor.c(color).alpha(alpha)
     return actor
