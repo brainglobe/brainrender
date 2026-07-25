@@ -103,7 +103,9 @@ def request(url: str) -> requests.Response:
     raise ValueError(exception_string)
 
 
-def check_file_exists(func: Callable[P, R]) -> Callable[P, R]:  # pragma: no cover
+def check_file_exists(
+    func: Callable[P, R],
+) -> Callable[P, R]:  # pragma: no cover
     """
     Decorator that raises an error if a function's first argument
     is not a path to an existing file.

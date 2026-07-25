@@ -5,6 +5,7 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
+
 def listdir(fld: str | Path) -> list[str]:
     """
     List the files into a folder with the complete file path instead of the relative file path like os.listdir.
