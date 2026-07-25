@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, ParamSpec, TypeVar
 
 import requests
-from vedo import load, Mesh, Volume
+from vedo import Mesh, Volume, load
 
 P = ParamSpec("P")
 R = TypeVar("R")

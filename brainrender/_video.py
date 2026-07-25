@@ -1,8 +1,8 @@
 """Thin wrapper around vedo.Video for rendering brainrender scenes to video."""
 
 import os
-
 from typing import Any
+
 from loguru import logger
 from myterial import amber_light
 from rich import print
