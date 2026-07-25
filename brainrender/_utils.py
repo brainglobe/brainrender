@@ -1,8 +1,9 @@
 """General utility helpers for file system traversal and list manipulation."""
 
 from pathlib import Path
-from typing import Any
+from typing import TypeVar
 
+T = TypeVar("T")
 
 def listdir(fld: str | Path) -> list[str]:
     """
@@ -36,7 +37,7 @@ def get_subdirs(folderpath: str | Path) -> list[str]:
     return [str(f) for f in Path(folderpath).glob("**/*") if f.is_dir()]
 
 
-def listify(obj: Any) -> list:
+def listify(obj: T | list[T] | tuple[T, ...]) -> list[T]:
     """
     Ensure the object is a list.
 
@@ -57,7 +58,7 @@ def listify(obj: Any) -> list:
         return [obj]
 
 
-def return_list_smart(lst: list) -> Any:
+def return_list_smart(lst: list[T]) -> list[T] | T | None:
     """
     Return a list, single element, or None depending on list length.
 

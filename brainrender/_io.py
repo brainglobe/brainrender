@@ -2,10 +2,13 @@
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, ParamSpec, TypeVar
 
 import requests
 from vedo import load, Mesh, Volume
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def connected_to_internet(
@@ -25,6 +28,7 @@ def connected_to_internet(
     Returns
     -------
     bool
+        ``True`` if an internet connection is available, otherwise ``False``.
     """
 
     try:
@@ -35,7 +39,7 @@ def connected_to_internet(
     return False
 
 
-def fail_on_no_connection(func: Callable) -> Callable:
+def fail_on_no_connection(func: Callable[P, R]) -> Callable[P, R]:
     """
     Decorator that raises an error if no internet connection is available.
 
@@ -99,7 +103,7 @@ def request(url: str) -> requests.Response:
     raise ValueError(exception_string)
 
 
-def check_file_exists(func: Callable) -> Callable:  # pragma: no cover
+def check_file_exists(func: Callable[P, R]) -> Callable[P, R]:  # pragma: no cover
     """
     Decorator that raises an error if a function's first argument
     is not a path to an existing file.
