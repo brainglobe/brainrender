@@ -1,15 +1,34 @@
+"""File I/O and network utilities for brainrender."""
+
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, ParamSpec, TypeVar
 
 import requests
-from vedo import Mesh, load
+from vedo import Mesh, Volume, load
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
-def connected_to_internet(url="http://www.google.com/", timeout=5):
+def connected_to_internet(
+    url: str = "http://www.google.com/",
+    timeout: int = 5,
+) -> bool:
     """
-    Check that there is an internet connection
+    Check that there is an internet connection.
 
-    :param url: url to use for testing (Default value = 'http://www.google.com/')
-    :param timeout:  timeout to wait for [in seconds] (Default value = 5)
+    Parameters
+    ----------
+    url
+        URL to use for testing. Default ``"http://www.google.com/"``.
+    timeout
+        Timeout in seconds. Default 5.
+
+    Returns
+    -------
+    bool
+        ``True`` if an internet connection is available, otherwise ``False``.
     """
 
     try:
@@ -20,27 +39,54 @@ def connected_to_internet(url="http://www.google.com/", timeout=5):
     return False
 
 
-def fail_on_no_connection(func):
+def fail_on_no_connection(func: Callable[P, R]) -> Callable[P, R]:
     """
-    Decorator that throws an error if no internet connection is available
+    Decorator that raises an error if no internet connection is available.
+
+    Parameters
+    ----------
+    func
+        Function to wrap.
+
+    Returns
+    -------
+    collections.abc.Callable
+
+    Raises
+    ------
+    ConnectionError
+        If no internet connection is found.
     """
     if not connected_to_internet():  # pragma: no cover
         raise ConnectionError(
             "No internet connection found."
         )  # pragma: no cover
 
-    def inner(*args, **kwargs):
+    def inner(*args: Any, **kwargs: Any) -> Any:
         return func(*args, **kwargs)
 
     return inner
 
 
-def request(url):
+def request(url: str) -> requests.Response:
     """
-    Sends a request to a url
+    Send a GET request to a URL.
 
-    :param url:
+    Parameters
+    ----------
+    url
+        URL to request.
 
+    Returns
+    -------
+    requests.Response
+
+    Raises
+    ------
+    ConnectionError
+        If no internet connection is found.
+    ValueError
+        If the request fails.
     """
     if not connected_to_internet():  # pragma: no cover
         raise ConnectionError(
@@ -57,13 +103,29 @@ def request(url):
     raise ValueError(exception_string)
 
 
-def check_file_exists(func):  # pragma: no cover
+def check_file_exists(
+    func: Callable[P, R],
+) -> Callable[P, R]:  # pragma: no cover
     """
-    Decorator that throws an error if a function;s first argument
+    Decorator that raises an error if a function's first argument
     is not a path to an existing file.
+
+    Parameters
+    ----------
+    func
+        Function to wrap.
+
+    Returns
+    -------
+    collections.abc.Callable
+
+    Raises
+    ------
+    FileNotFoundError
+        If the file does not exist.
     """
 
-    def inner(*args, **kwargs):
+    def inner(*args: Any, **kwargs: Any) -> Any:
         if not Path(args[0]).exists():
             raise FileNotFoundError(
                 f"File {args[0]} not found"
@@ -74,13 +136,26 @@ def check_file_exists(func):  # pragma: no cover
 
 
 @check_file_exists
-def load_mesh_from_file(filepath, color=None, alpha=None):
+def load_mesh_from_file(
+    filepath: str | Path,
+    color: str | None = None,
+    alpha: float | None = None,
+) -> Mesh | Volume:
     """
-    Load a a mesh or volume from files like .obj, .stl, ...
+    Load a mesh or volume from a file (e.g. .obj, .stl).
 
-    :param filepath: path to file
-    :param **kwargs:
+    Parameters
+    ----------
+    filepath
+        Path to the mesh file.
+    color
+        Colour to apply to the mesh.
+    alpha
+        Transparency to apply to the mesh.
 
+    Returns
+    -------
+    vedo.Mesh or vedo.Volume
     """
     actor = load(str(filepath))
     actor.c(color).alpha(alpha)

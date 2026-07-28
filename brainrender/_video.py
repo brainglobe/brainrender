@@ -1,4 +1,7 @@
+"""Thin wrapper around vedo.Video for rendering brainrender scenes to video."""
+
 import os
+from typing import Any
 
 from loguru import logger
 from myterial import amber_light
@@ -7,19 +10,40 @@ from vedo import Video as VtkVideo
 
 
 class Video(VtkVideo):
-    # Redefine vedo.Video close method
-    def __init__(self, *args, fmt="mp4", size="1620x1050", **kwargs):
+    def __init__(
+        self,
+        *args: Any,
+        fmt: str = "mp4",
+        size: str = "1620x1050",
+        **kwargs: Any,
+    ) -> None:
         """
-        Video class, takes care of storing screenshots (frames)
-        as images in a temporary folder and then merging these into a
-        single video file when the video is closed.
+        Store screenshots as frames and merge them into a video on close.
+
+        Parameters
+        ----------
+        *args
+            Positional arguments forwarded to ``vedo.Video``.
+        fmt
+            Video format. Default ``"mp4"``.
+        size
+            Frame size in pixels. Default ``"1620x1050"``.
+        **kwargs
+            Keyword arguments forwarded to ``vedo.Video``.
         """
         super().__init__(*args, **kwargs)
         self.format = fmt
         self.size = size
 
-    def close(self):
-        """Render the video and write to file."""
+    def close(self) -> tuple[int, str]:
+        """
+        Render the video and write to file.
+
+        Returns
+        -------
+        tuple
+            The FFmpeg exit code and the executed command string.
+        """
         print(f"[{amber_light}]Saving video")
         logger.debug(f"[{amber_light}]Saving video")
 

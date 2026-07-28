@@ -1,21 +1,43 @@
+"""Color mapping and palette utilities for brainrender."""
+
 import random
 
 import matplotlib as mpl
 import numpy as np
+import numpy.typing as npt
 from vedo.colors import colors as vcolors
 from vedo.colors import get_color as getColor
 
 
-def map_color(value, name="jet", vmin=None, vmax=None):
-    """Map a real value in range [vmin, vmax] to a (r,g,b) color scale.
+def map_color(
+    value: float,
+    name: str = "jet",
+    vmin: float | None = None,
+    vmax: float | None = None,
+) -> tuple[float, float, float]:
+    """
+    Map a scalar value in ``[vmin, vmax]`` to an RGB colour.
 
-    :param value: scalar value to transform into a color
-    :type value: float, list
-    :param name: color map name (Default value = "jet")
-    :type name: str, matplotlib.colors.LinearSegmentedColorMap
-    :param vmin:  (Default value = None)
-    :param vmax:  (Default value = None)
-    :returns: return: (r,g,b) color, or a list of (r,g,b) colors.
+    Parameters
+    ----------
+    value
+        Scalar value to transform into a colour.
+    name
+        Colormap name or matplotlib colormap. Default ``"jet"``.
+    vmin
+        Lower bound of the value range.
+    vmax
+        Upper bound of the value range.
+
+    Returns
+    -------
+    tuple of float
+        ``(r, g, b)`` colour.
+
+    Raises
+    ------
+    ValueError
+        If ``vmax`` is smaller than ``vmin``.
     """
     if vmax < vmin:
         raise ValueError("vmax should be larger than vmin")
@@ -31,13 +53,29 @@ def map_color(value, name="jet", vmin=None, vmax=None):
     return mp(value)[0:3]
 
 
-def make_palette(N, *colors):
-    """Generate N colors starting from `color1` to `color2`
-    by linear interpolation HSV in or RGB spaces.
-    Adapted from vedo make_palette function
+def make_palette(N: int, *colors: str) -> list[npt.NDArray]:
+    """
+    Generate N colours interpolated across the given input colours.
 
-    :param int: N: number of output colors.
-    :param colors: input colors, any number of colors with 0 < ncolors <= N is okay.
+    Adapted from vedo's ``make_palette`` function. Interpolation is
+    performed in RGB space.
+
+    Parameters
+    ----------
+    N
+        Number of output colours.
+    *colors
+        Input colours. Any number between 1 and N is accepted.
+
+    Returns
+    -------
+    list of numpy.ndarray
+        List of ``(r, g, b)`` colour arrays.
+
+    Raises
+    ------
+    ValueError
+        If no colours are passed or more colours than N are passed.
     """
     N = int(N)
 
@@ -72,9 +110,19 @@ def make_palette(N, *colors):
         return output
 
 
-def get_random_colors(n_colors=1):
+def get_random_colors(n_colors: int = 1) -> str | list[str]:
     """
-    :param n_colors:  (Default value = 1)
+    Return one or more random colour names from vedo's colour palette.
+
+    Parameters
+    ----------
+    n_colors
+        Number of colours to return. Default 1.
+
+    Returns
+    -------
+    str or list of str
+        A single colour name if ``n_colors == 1``, otherwise a list.
     """
     col_names = list(vcolors.keys())
     if n_colors == 1:
