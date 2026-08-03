@@ -1,24 +1,43 @@
+"""Create actors for rendering axonal projection streamlines."""
+
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from loguru import logger
-from vedo import merge
+from vedo import Mesh, merge
 from vedo.shapes import Spheres, Tube
 
 from brainrender.actor import Actor
 
 
 def make_streamlines(
-    *streamlines, color="salmon", alpha=1, radius=10, show_injection=True
-):
+    *streamlines: pd.DataFrame,
+    color: str = "salmon",
+    alpha: float = 1,
+    radius: float = 10,
+    show_injection: bool = True,
+) -> list["Streamlines"]:
     """
-    Creates instances of Streamlines from data.
-    :param streamlines: pd.dataframes with streamlines data
-    :param radius: float. Radius of the Tube mesh used to render streamlines
-    :param color: str, name of the color to be used
-    :param alpha: float, transparency
-    :param show_injection: bool. If true spheres mark the injection sites
+    Create Streamlines actors from one or more dataframes.
+
+    Parameters
+    ----------
+    *streamlines
+        DataFrames with streamlines data.
+    color
+        Colour name. Default ``"salmon"``.
+    alpha
+        Transparency. Default 1.
+    radius
+        Radius of the Tube mesh. Default 10.
+    show_injection
+        If True, spheres mark the injection sites. Default True.
+
+    Returns
+    -------
+    list of Streamlines
+        A list of Streamlines actors, one for each input DataFrame.
     """
     return [
         Streamlines(
@@ -34,27 +53,41 @@ def make_streamlines(
 
 class Streamlines(Actor):
     """
-    Streamliens actor class.
-    Creates an actor from streamlines data (from a json file parsed with: get_streamlines_data)
+    Actor created from streamlines projection data.
+
+    Renders axonal streamlines as tube meshes, optionally marking
+    injection sites with spheres.
     """
 
     def __init__(
         self,
-        data,
-        radius=10,
-        color="salmon",
-        alpha=1,
-        show_injection=True,
-        name=None,
-    ):
+        data: pd.DataFrame | str | Path,
+        radius: float = 10,
+        color: str = "salmon",
+        alpha: float = 1,
+        show_injection: bool = True,
+        name: str | None = None,
+    ) -> None:
         """
-        Turns streamlines data to a mesh.
-        :param data: pd.DataFrame with streamlines points data
-        :param radius: float. Radius of the Tube mesh used to render streamlines
-        :param color: str, name of the color to be used
-        :param alpha: float, transparency
-        :param name: str, name of the actor.
-        :param show_injection: bool. If true spheres mark the injection sites
+        Parameters
+        ----------
+        data
+            DataFrame with streamlines points data, or a path to a JSON file.
+        radius
+            Radius of the Tube mesh. Default 10.
+        color
+            Colour name. Default ``"salmon"``.
+        alpha
+            Transparency. Default 1.
+        show_injection
+            If True, spheres mark the injection sites. Default True.
+        name
+            Actor name. Default ``"Streamlines"``.
+
+        Raises
+        ------
+        TypeError
+            If ``data`` is not a DataFrame or a path to a JSON file.
         """
         logger.debug("Creating a streamlines actor")
         if isinstance(data, (str, Path)):
@@ -73,7 +106,26 @@ class Streamlines(Actor):
         name = name or "Streamlines"
         Actor.__init__(self, mesh, name=name, br_class="Streamliness")
 
-    def _make_mesh(self, data, show_injection=True):
+    def _make_mesh(
+        self,
+        data: pd.DataFrame,
+        show_injection: bool = True,
+    ) -> Mesh:
+        """
+        Build a merged vedo mesh from streamlines and injection sites.
+
+        Parameters
+        ----------
+        data
+            DataFrame with ``lines`` and ``injection_sites`` columns.
+        show_injection
+            If True, add spheres at injection sites.
+
+        Returns
+        -------
+        vedo.Mesh
+            A merged vedo mesh containing the streamlines and, optionally, injection sites.
+        """
         lines = []
         if len(data["lines"]) == 1:
             try:
