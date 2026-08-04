@@ -16,6 +16,7 @@ class Volume(Actor):
     Render a 3D numpy array as a surface mesh or vedo Volume.
     By default the volume is represented as an isosurface.
     """
+
     def __init__(
         self,
         griddata: npt.NDArray | VedoVolume | str | Path,
