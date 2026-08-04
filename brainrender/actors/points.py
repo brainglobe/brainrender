@@ -7,8 +7,8 @@ import numpy as np
 import numpy.typing as npt
 from loguru import logger
 from pyinspect.utils import _class_name
-from vedo import Points as vPoints
 from vedo import Mesh, Sphere, Spheres
+from vedo import Points as vPoints
 
 from brainrender.actor import Actor
 
