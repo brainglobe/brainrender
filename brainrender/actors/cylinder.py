@@ -1,3 +1,6 @@
+"""Cylinder actor for brainrender scenes."""
+
+import numpy.typing as npt
 from loguru import logger
 from vedo import Mesh, shapes
 
@@ -5,17 +8,30 @@ from brainrender.actor import Actor
 
 
 class Cylinder(Actor):
-    def __init__(self, pos, root, color="powderblue", alpha=1, radius=350):
-        """
-        Cylinder class creates a cylinder mesh between a given
-        point and the brain's surface.
+    """Actor representing a cylinder between a point and the brain's surface."""
 
-        :param pos: list, np.array of ap, dv, ml coordinates.
-            If an actor is passed, gets the center of mass instead
-        :param root: brain root Actor or mesh object
-        :param color: str, color
-        :param alpha: float
-        :param radius: float
+    def __init__(
+        self,
+        pos: npt.ArrayLike | Mesh | Actor,
+        root: Actor,
+        color: str = "powderblue",
+        alpha: float = 1,
+        radius: float = 350,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        pos
+            AP, DV, ML coordinates. If a Mesh or Actor is passed,
+            the centre of mass is used instead.
+        root
+            Brain root Actor or mesh.
+        color
+            Colour name. Default ``"powderblue"``.
+        alpha
+            Transparency. Default 1.
+        radius
+            Cylinder radius. Default 350.
         """
 
         # Get pos
