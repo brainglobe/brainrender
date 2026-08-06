@@ -1,3 +1,5 @@
+"""Neuron morphology actors for brainrender scenes."""
+
 from pathlib import Path
 
 from loguru import logger
@@ -9,16 +11,35 @@ from brainrender.actor import Actor
 
 
 def make_neurons(
-    *neurons, alpha=1, color=None, neurite_radius=8, soma_radius=15, name=None
-):
+    *neurons: str | Path | Mesh | Actor | MorphoNeuron,
+    alpha: float = 1,
+    color: str | None = None,
+    neurite_radius: float = 8,
+    soma_radius: float = 15,
+    name: str | None = None,
+) -> list["Neuron"]:
     """
-    Returns a list of Neurons given a variable number of inputs
-    :param neurons: any accepted data input for Neuron
-    :param alpha: float
-    :param color: str
-    :param neurite_radius: float, radius of axon/dendrites
-    :param soma_radius: float, radius of soma
-    :param name: str, actor name
+    Create Neuron actors from one or more inputs.
+
+    Parameters
+    ----------
+    *neurons
+        Any accepted input for Neuron.
+    alpha
+        Transparency. Default 1.
+    color
+        Colour name. Default ``"blackboard"``.
+    neurite_radius
+        Radius of axon/dendrites. Default 8.
+    soma_radius
+        Radius of soma. Default 15.
+    name
+        Actor name.
+
+    Returns
+    -------
+    list of Neuron
+        A list of Neuron actors, one for each input.
     """
     return [
         Neuron(
@@ -34,26 +55,42 @@ def make_neurons(
 
 
 class Neuron(Actor):
+    """Actor representing a single neuron's morphology."""
+
     def __init__(
         self,
-        neuron,
-        color=None,
-        alpha=1,
-        neurite_radius=8,
-        soma_radius=15,
-        invert_dims=True,
-        name=None,
-    ):
+        neuron: str | Path | Mesh | Actor | MorphoNeuron,
+        color: str | None = None,
+        alpha: float = 1,
+        neurite_radius: float = 8,
+        soma_radius: float = 15,
+        invert_dims: bool = True,
+        name: str | None = None,
+    ) -> None:
         """
-        Creates an Actor representing a single neuron's morphology
-        :param neuron: path to .swc file, Mesh, Actor or Neuron from morphapi.morphology
-        :param alpha: float
-        :param color: str,
-        :param neuron_radius: float, radius of axon/dendrites
-        :param soma_radius: float, radius of soma
-        :param invert_dims: bool, exchange the first and last dimension coordinates
-        when loading from a .swc file. e.g going from (x, y, z) to (z, y, x).
-        :param name: str, actor name
+        Parameters
+        ----------
+        neuron
+            Path to a ``.swc`` file, a Mesh, an Actor, or a
+            morphapi Neuron instance.
+        color
+            Colour name. Default ``"blackboard"``.
+        alpha
+            Transparency. Default 1.
+        neurite_radius
+            Radius of axon/dendrites. Default 8.
+        soma_radius
+            Radius of soma. Default 15.
+        invert_dims
+            If True, swap the first and last coordinate dimensions when
+            loading from a ``.swc`` file (e.g. ``(x, y, z)`` → ``(z, y, x)``).
+        name
+            Actor name.
+
+        Raises
+        ------
+        ValueError
+            If ``neuron`` is not a recognised input type.
         """
         logger.debug("Creating a Neuron actor")
         if color is None:
@@ -79,7 +116,20 @@ class Neuron(Actor):
         Actor.__init__(self, mesh, name=self.name, br_class="Neuron")
         self.mesh.c(color).alpha(alpha)
 
-    def _from_morphapi_neuron(self, neuron: MorphoNeuron):
+    def _from_morphapi_neuron(self, neuron: MorphoNeuron) -> Mesh:
+        """
+        Create a mesh from a morphapi Neuron instance.
+
+        Parameters
+        ----------
+        neuron
+            morphapi Neuron instance.
+
+        Returns
+        -------
+        vedo.Mesh
+            A mesh created from the morphapi Neuron instance.
+        """
         # Temporarily set cache to false as meshes were being corrupted
         # on second load
         mesh = neuron.create_mesh(
@@ -89,7 +139,32 @@ class Neuron(Actor):
         )[1]
         return mesh
 
-    def _from_file(self, neuron: (str, Path), invert_dims):
+    def _from_file(
+        self,
+        neuron: str | Path,
+        invert_dims: bool,
+    ) -> Mesh:
+        """
+        Load neuron morphology from a ``.swc`` file.
+
+        Parameters
+        ----------
+        neuron
+            Path to the ``.swc`` file.
+        invert_dims
+            If True, swap the first and last coordinate dimensions.
+
+        Returns
+        -------
+        vedo.Mesh
+
+        Raises
+        ------
+        FileExistsError
+            If the file does not exist.
+        NotImplementedError
+            If the file is not a ``.swc`` file.
+        """
         path = Path(neuron)
         if not path.exists():
             raise FileExistsError(f"Neuron file doesn't exist: {path}")

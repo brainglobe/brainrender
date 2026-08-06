@@ -1,26 +1,45 @@
+"""Point and point-cloud actors for brainrender scenes."""
+
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 from loguru import logger
 from pyinspect.utils import _class_name
+from vedo import Mesh, Sphere, Spheres
 from vedo import Points as vPoints
-from vedo import Sphere, Spheres
 
 from brainrender.actor import Actor
 
 
 class Point(Actor):
+    """Actor representing a single point as a sphere."""
+
     def __init__(
-        self, pos, radius=100, color="blackboard", alpha=1, res=25, name=None
-    ):
+        self,
+        pos: npt.ArrayLike,
+        radius: float = 100,
+        color: str = "blackboard",
+        alpha: float = 1,
+        res: int = 25,
+        name: str | None = None,
+    ) -> None:
         """
-        Creates an actor representing a single point
-        :param pos: list or np.ndarray with coordinates
-        :param radius: float
-        :param color: str,
-        :param alpha: float
-        :param res: int, resolution of mesh
-        :param name: str, actor name
+        Parameters
+        ----------
+        pos
+            Coordinates of the point.
+        radius
+            Sphere radius. Default 100.
+        color
+            Colour name. Default ``"blackboard"``.
+        alpha
+            Transparency. Default 1.
+        res
+            Mesh resolution. Default 25.
+        name
+            Actor name. Default ``"Point"``.
         """
         logger.debug(f"Creating a point actor at: {pos}")
         mesh = Sphere(pos=pos, r=radius, c=color, alpha=alpha, res=res)
@@ -29,17 +48,28 @@ class Point(Actor):
 
 
 class PointsBase:
-    def __init__(
-        self,
-    ):
-        """
-        Base class with functionality to load from file.
-        """
+    """Base class with shared file-loading functionality for point actors."""
+
+    def __init__(self) -> None:
         return
 
-    def _from_numpy(self, data):
+    def _from_numpy(self, data: npt.NDArray) -> Mesh:
         """
-        Creates the mesh
+        Create a Spheres mesh from a numpy array.
+
+        Parameters
+        ----------
+        data
+            Nx3 array of point coordinates.
+
+        Returns
+        -------
+        vedo.Mesh
+
+        Raises
+        ------
+        ValueError
+            If the number of colours does not match the number of points.
         """
         N = len(data)
         if not isinstance(self.colors, str):
@@ -54,10 +84,34 @@ class PointsBase:
         )
         return mesh
 
-    def _from_file(self, data, colors="salmon", alpha=1):
+    def _from_file(
+        self,
+        data: str | Path,
+        colors: str = "salmon",
+        alpha: float = 1,
+    ) -> Mesh:
         """
-        Loads points coordinates from a numpy file
-        before creating the mesh.
+        Load point coordinates from a ``.npy`` file and create the mesh.
+
+        Parameters
+        ----------
+        data
+            Path to the ``.npy`` file.
+        colors
+            Colour name. Default ``"salmon"``.
+        alpha
+            Transparency. Default 1.
+
+        Returns
+        -------
+        vedo.Mesh
+
+        Raises
+        ------
+        FileExistsError
+            If the file does not exist.
+        NotImplementedError
+            If the file format is not ``.npy``.
         """
         path = Path(data)
         if not path.exists():
@@ -76,19 +130,39 @@ class PointsBase:
 
 
 class Points(PointsBase, Actor):
-    def __init__(
-        self, data, name=None, colors="salmon", alpha=1, radius=20, res=8
-    ):
-        """
-        Creates an actor representing multiple points (more efficient than
-        creating many Point instances).
+    """
+    Actor representing multiple points as spheres.
+    """
 
-        :param data: np.ndarray, Nx3 array or path to .npy file with coords data
-        :param radius: float
-        :param color: str, or list of str with color names or hex codes
-        :param alpha: float
-        :param name: str, actor name
-        :param res: int. Resolution of sphere actors
+    def __init__(
+        self,
+        data: npt.NDArray | str | Path,
+        name: str | None = None,
+        colors: str | list[str] = "salmon",
+        alpha: float = 1,
+        radius: float = 20,
+        res: int = 8,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        data
+            Nx3 array of coordinates, or path to a ``.npy`` file.
+        name
+            Actor name.
+        colors
+            Colour name or list of colour names/hex codes.
+        alpha
+            Transparency. Default 1.
+        radius
+            Sphere radius. Default 20.
+        res
+            Sphere mesh resolution. Default 8.
+
+        Raises
+        ------
+        TypeError
+            If ``data`` is not a numpy array or file path.
         """
         PointsBase.__init__(self)
         logger.debug("Creating a Points actor")
@@ -112,31 +186,32 @@ class Points(PointsBase, Actor):
 
 
 class PointsDensity(Actor):
+    """Actor showing the 3D density of a point cloud as a volume."""
+
     def __init__(
         self,
-        data,
-        name=None,
-        dims=(40, 40, 40),
-        radius=None,
-        colors="Dark2",
-        **kwargs,
-    ):
+        data: npt.NDArray,
+        name: str | None = None,
+        dims: tuple[int, int, int] = (40, 40, 40),
+        radius: float | None = None,
+        colors: str = "Dark2",
+        **kwargs: Any,
+    ) -> None:
         """
-        Creates a Volume actor showing the 3d density of a set
-        of points.
-
-        :param data: np.ndarray, Nx3 array with cell coordinates
-        :param colors: str, matplotlib colormap
-
-
-        from vedo:
-            Generate a density field from a point cloud. Input can also be a set of 3D coordinates.
-            Output is a ``Volume``.
-            The local neighborhood is specified as the `radius` around each sample position (each voxel).
-            The density is expressed as the number of counts in the radius search.
-
-            :param int,list dims: number of voxels in x, y and z of the output Volume.
-
+        Parameters
+        ----------
+        data
+            Nx3 array of point coordinates.
+        name
+            Actor name.
+        dims
+            Number of voxels in x, y, z of the output Volume. Default ``(40, 40, 40)``.
+        radius
+            Neighbourhood radius for density estimation. If None, vedo infers it.
+        colors
+            Matplotlib colormap name. Default ``"Dark2"``.
+        **kwargs
+            Additional keyword arguments forwarded to vedo's ``density``.
         """
         logger.debug("Creating a PointsDensity actor")
 

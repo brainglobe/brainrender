@@ -1,6 +1,10 @@
+"""Volume actor for rendering 3D numpy arrays as surfaces or volumes."""
+
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 from loguru import logger
 from vedo import Volume as VedoVolume
 
@@ -8,38 +12,46 @@ from brainrender.actor import Actor
 
 
 class Volume(Actor):
+    """
+    Render a 3D numpy array as a surface mesh or vedo Volume.
+    By default the volume is represented as an isosurface.
+    """
+
     def __init__(
         self,
-        griddata,
-        voxel_size=1,
-        cmap="bwr",
-        min_quantile=None,
-        min_value=None,
-        name=None,
-        br_class=None,
-        as_surface=True,
-        **volume_kwargs,
-    ):
+        griddata: npt.NDArray | VedoVolume | str | Path,
+        voxel_size: int = 1,
+        cmap: str = "bwr",
+        min_quantile: float | None = None,
+        min_value: float | None = None,
+        name: str | None = None,
+        br_class: str | None = None,
+        as_surface: bool = True,
+        **volume_kwargs: Any,
+    ) -> None:
         """
-        Takes a 3d numpy array with volumetric data
-        and returns an Actor with mesh: vedo.Volume.isosurface or a vedo.Volume.
-        BY default the volume is represented as a surface
-
-        To extract the surface:
-            The isosurface needs a lower bound threshold, this can be
-            either a user defined hard value (min_value) or the value
-            corresponding to some percentile of the grid data.
-
-        :param griddata: np.ndarray, 3d array with grid data. Can also be a vedo Volume
-            or a file path pointing to a .npy file
-        :param griddata: np.ndarray, 3d array with grid data
-        :param voxel_size: int, size of each voxel in microns
-        :param min_quantile: float, percentile for threshold
-        :param min_value: float, value for threshold
-        :param cmap: str, name of colormap to use
-        :param as_surface, bool. default True. If True
-            a surface mesh is returned instead of the whole volume
-        :param volume_kwargs: keyword arguments for vedo's Volume class
+        Parameters
+        ----------
+        griddata
+            3D array with grid data. Can also be a vedo Volume or a path
+            to a ``.npy`` file.
+        voxel_size
+            Size of each voxel in microns. Default 1.
+        cmap
+            Colormap name. Default ``"bwr"``.
+        min_quantile
+            Percentile threshold for isosurface extraction.
+        min_value
+            Hard value threshold for isosurface extraction.
+        name
+            Actor name. Default ``"Volume"``.
+        br_class
+            Brainrender class type. Default ``"Volume"``.
+        as_surface
+            If True, return an isosurface mesh instead of the full volume.
+            Default True.
+        **volume_kwargs
+            Keyword arguments forwarded to vedo's Volume class.
         """
         logger.debug("Creating a Volume actor")
         # Create mesh
@@ -73,9 +85,31 @@ class Volume(Actor):
             self, mesh, name=name or "Volume", br_class=br_class or "Volume"
         )
 
-    def _from_numpy(self, griddata, voxel_size, color, **volume_kwargs):
+    def _from_numpy(
+        self,
+        griddata: npt.NDArray,
+        voxel_size: int,
+        color: str,
+        **volume_kwargs: Any,
+    ) -> VedoVolume:
         """
-        Creates a vedo.Volume actor from a 3D numpy array with volume data.
+        Create a vedo Volume from a 3D numpy array.
+
+        Parameters
+        ----------
+        griddata
+            3D array with volume data.
+        voxel_size
+            Size of each voxel in microns.
+        color
+            Colormap name to apply.
+        **volume_kwargs
+            Keyword arguments forwarded to vedo's Volume class.
+
+        Returns
+        -------
+        VedoVolume
+            A vedo volume created from the input 3D array.
         """
         vvol = VedoVolume(
             griddata,
@@ -92,9 +126,37 @@ class Volume(Actor):
         # vvol.apply_transform(mtx)
         return vvol
 
-    def _from_file(self, filepath, voxel_size, color, **volume_kwargs):
+    def _from_file(
+        self,
+        filepath: str | Path,
+        voxel_size: int,
+        color: str,
+        **volume_kwargs: Any,
+    ) -> VedoVolume:
         """
-        Loads a .npy file and returns a vedo Volume actor.
+        Load a ``.npy`` file and return a vedo Volume.
+
+        Parameters
+        ----------
+        filepath
+            Path to the ``.npy`` file.
+        voxel_size
+            Size of each voxel in microns.
+        color
+            Colormap name to apply.
+        **volume_kwargs
+            Keyword arguments forwarded to vedo's Volume class.
+
+        Returns
+        -------
+        VedoVolume
+
+        Raises
+        ------
+        FileExistsError
+            If the file does not exist.
+        ValueError
+            If the file is not a ``.npy`` file.
         """
         filepath = Path(filepath)
         if not filepath.exists():
