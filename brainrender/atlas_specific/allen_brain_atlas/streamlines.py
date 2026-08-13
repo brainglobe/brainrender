@@ -162,7 +162,7 @@ def _skeleton_to_dataframe(
         Experiment ID, used to fetch the real injection site coordinates.
     ml_extent_um
         Full ML extent of the atlas in µm, used for the left-right flip.
- 
+
     Returns
     -------
     pd.DataFrame
