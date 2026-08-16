@@ -57,7 +57,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "coverage",
-    "tox",
     "black",
     "mypy",
     "pre-commit",
@@ -65,7 +64,6 @@ dev = [
     "setuptools_scm",
 ]
 nb = ["jupyter", "k3d"]
-
 
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
@@ -78,9 +76,8 @@ include-package-data = true
 include = ["brainrender*"]
 exclude = ["tests*", "docs*", "examples*", "imgs*"]
 
-
 [tool.pytest.ini_options]
-addopts = "--cov=brainrender"
+addopts = "--cov=brainrender --cov-report=xml --color=yes -vv"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "local: marks test as local (not for CI)",
@@ -113,29 +110,3 @@ ignore = ["E501", "E402"]
 
 [tool.ruff.lint]
 select = ["I", "E", "F"]
-
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py{311,312,313}
-isolated_build = True
-
-[gh-actions]
-python =
-    3.11: py311
-    3.12: py312
-    3.13: py313
-
-[testenv]
-extras =
-    dev
-commands =
-    pytest -v --color=yes --cov=brainrender --cov-report=xml
-passenv =
-    CI
-    GITHUB_ACTIONS
-    DISPLAY
-    XAUTHORITY
-    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
-    PYVISTA_OFF_SCREEN
-"""

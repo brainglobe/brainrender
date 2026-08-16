@@ -61,9 +61,6 @@ jobs:
         run: brew install hdf5
 
       # Helps set up VTK with a headless display
-      - uses: pyvista/setup-headless-display-action@v3
-
-      # Sets up ffmpeg to we can run video tests on CI
       - uses: FedericoCarboni/setup-ffmpeg@v2
         if: matrix.os != 'macos-latest'
         id: setup-ffmpeg
@@ -73,11 +70,12 @@ jobs:
         run: brew install ffmpeg
 
       # Run tests
-      - uses: neuroinformatics-unit/actions/test@v2
+      - name: Run tests
+        uses: neuroinformatics-unit/actions/test-uv@main
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python-version }}"
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
-
+          use-headless: 'true'
 
       - name: Notify slack on scheduled failure
         if: failure() && github.event_name == 'schedule'
