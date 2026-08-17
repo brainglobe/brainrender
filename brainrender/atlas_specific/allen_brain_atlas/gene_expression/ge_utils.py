@@ -4,8 +4,8 @@ import io
 import os
 import sys
 import zipfile
-from typing import Literal
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
