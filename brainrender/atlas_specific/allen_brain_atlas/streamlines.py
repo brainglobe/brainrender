@@ -46,13 +46,14 @@ _ml_extent_um_cache: float | None = None
 def _get_ml_extent_um() -> float:
     """
     Derive the full medial-lateral extent of the Allen CCF atlas in microns
-    dynamically from the brainglobe atlas API. Used to flip the Z (ML) axis
-    when converting from Allen CCF space to brainrender's coordinate system,
-    where left and right hemispheres are mirrored relative to the Allen CCF.
+    dynamically from the brainglobe atlas API. The computed extent is cached
+    for subsequent calls and used to flip the Z (ML) axis when converting
+    from Allen CCF space to brainrender's coordinate system.
 
     Returns
     -------
     float
+        Full medial-lateral extent of the atlas in microns.
     """
     global _ml_extent_um_cache
     if _ml_extent_um_cache is None:

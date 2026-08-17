@@ -179,7 +179,7 @@ class GeneExpressionAPI:
         exp_id: int | str,
         use_cache: bool = True,
         metric: str = "energy",
-    ) -> npt.NDArray:
+    ) -> npt.NDArray | None:
         """
         Load gene expression data for a given gene and experiment.
 
@@ -196,7 +196,9 @@ class GeneExpressionAPI:
 
         Returns
         -------
-        numpy.ndarray
+        numpy.ndarray or None
+            Gene expression data, or None if no data is available for the
+            requested metric.
 
         Raises
         ------

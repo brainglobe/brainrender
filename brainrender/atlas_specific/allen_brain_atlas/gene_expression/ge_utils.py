@@ -4,6 +4,7 @@ import io
 import os
 import sys
 import zipfile
+from typing import Literal
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +20,7 @@ def check_gene_cached(
     cache_folder: str | Path,
     gene_id: str,
     exp_id: str | int,
-) -> str | bool:
+) -> str | Literal[False]:
     """
     Check whether a gene experiment is already cached.
 
@@ -37,7 +38,7 @@ def check_gene_cached(
 
     Returns
     -------
-    str or bool
+    str or False
         Path to the cached folder if found, False if not cached.
 
     Raises
