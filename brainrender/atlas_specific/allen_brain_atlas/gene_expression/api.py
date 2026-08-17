@@ -47,7 +47,9 @@ class GeneExpressionAPI:
 
     def __init__(self) -> None:
         # Get metadata about all available genes
-        self.genes: pd.DataFrame | None = None  # when necessary gene data can be downloaded with self.get_all_genes
+        self.genes: pd.DataFrame | None = (
+            None  # when necessary gene data can be downloaded with self.get_all_genes
+        )
         self.gene_expression_cache.mkdir(exist_ok=True)
 
     @fail_on_no_connection
