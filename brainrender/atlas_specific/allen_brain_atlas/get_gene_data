@@ -178,7 +178,7 @@ class GeneExpressionAPI:
     def get_gene_data(
         self,
         gene: str,
-        exp_id: int | str,
+        exp_id: int,
         use_cache: bool = True,
         metric: str = "energy",
     ) -> npt.NDArray | None:
