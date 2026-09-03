@@ -28,7 +28,7 @@ dependencies = [
     "requests",
     "tables",
     "vedo>=2025.5.3",
-    "vtk"
+    "vtk<9.7.0"
 ]
 
 license = { text = "BSD-3-Clause" }
