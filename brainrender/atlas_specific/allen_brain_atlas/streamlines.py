@@ -1,4 +1,4 @@
-"""Streamline download and conversion utilities for the Allen Mouse Brain Atlas."""
+"""Utilities for downloading and processing streamlines aligned to the Allen Mouse Brain Atlas."""
 
 from typing import Any
 
