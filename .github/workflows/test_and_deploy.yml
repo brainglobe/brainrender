@@ -71,11 +71,12 @@ jobs:
 
       # Run tests
       - name: Run tests
-        uses: neuroinformatics-unit/actions/test-uv@main
+        uses: neuroinformatics-unit/actions/test-uv@add-mesa3d-offscreen
         with:
           python-version: "${{ matrix.python-version }}"
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
           use-headless: 'true'
+          install-mesa3d-offscreen: ${{ matrix.os != 'windows-latest' }}
 
       - name: Notify slack on scheduled failure
         if: failure() && github.event_name == 'schedule'
