@@ -1,3 +1,7 @@
+"""Utilities for downloading and processing streamlines aligned to the Allen Mouse Brain Atlas."""
+
+from typing import Any
+
 import pandas as pd
 import requests
 from loguru import logger
@@ -36,18 +40,20 @@ ALLEN_MESOSCALE_URL = (
 ALLEN_API_URL = "https://api.brain-map.org/api/v2/data/query.json"
 VOXEL_SIZE_NM = 1000  # skeleton vertices are in nanometers
 
-_ml_extent_um_cache = None
+_ml_extent_um_cache: float | None = None
 
 
-def _get_ml_extent_um():
+def _get_ml_extent_um() -> float:
     """
-    Derives the full medial-lateral extent of the Allen CCF atlas in microns
-    dynamically from the brainglobe atlas API. Used to flip the Z (ML) axis
-    when converting from Allen CCF space to brainrender's coordinate system,
-    where left and right hemispheres are mirrored relative to the Allen CCF.
+    Derive the full medial-lateral extent of the Allen CCF atlas in microns
+    dynamically from the brainglobe atlas API. The computed extent is cached
+    for subsequent calls and used to flip the Z (ML) axis when converting
+    from Allen CCF space to brainrender's coordinate system.
 
-    Result is cached after the first call to avoid reinstantiating the atlas
-    on every experiment download.
+    Returns
+    -------
+    float
+        Full medial-lateral extent of the atlas in microns.
     """
     global _ml_extent_um_cache
     if _ml_extent_um_cache is None:
@@ -56,10 +62,19 @@ def _get_ml_extent_um():
     return _ml_extent_um_cache
 
 
-def experiments_source_search(SOI):
+def experiments_source_search(SOI: str) -> pd.DataFrame | None:
     """
-    Returns data about experiments whose injection was in the SOI, structure of interest
-    :param SOI: str, structure of interest. Acronym of structure to use as seed for the search
+    Return data about experiments whose injection was in the structure of interest.
+
+    Parameters
+    ----------
+    SOI
+        Acronym of the structure of interest to use as the search seed.
+
+    Returns
+    -------
+    pd.DataFrame or None
+        DataFrame of matching experiments, or None if AllenSDK is not installed.
     """
     transgenic_id = 0  # id = 0 means use only wild type
     primary_structure_only = True
@@ -81,15 +96,26 @@ def experiments_source_search(SOI):
     )
 
 
-def _get_injection_site_um(eid, ml_extent_um):
+def _get_injection_site_um(
+    eid: int,
+    ml_extent_um: float,
+) -> dict[str, float] | None:
     """
-    Fetches the injection site coordinates for an experiment from the Allen
-    Brain Atlas API. Coordinates are in Allen CCF um space with the Z (ML)
-    axis flipped to match brainrender's hemisphere convention.
+    Fetch injection site coordinates for an experiment from the Allen Brain Atlas API.
+    Coordinates are returned in Allen CCF µm space with the Z (ML) axis
+    flipped to match brainrender's hemisphere convention.
 
-    :param eid: int, experiment ID
-    :param ml_extent_um: float, full ML extent of the atlas in um for LR flip
-    :return: dict with x, y, z keys or None if not found
+    Parameters
+    ----------
+    eid
+        Experiment ID.
+    ml_extent_um
+        Full ML extent of the atlas in µm, used for the left-right flip.
+
+    Returns
+    -------
+    dict or None
+        Dict with ``x``, ``y``, ``z`` keys in µm, or None if not found.
     """
     try:
         url = (
@@ -114,10 +140,13 @@ def _get_injection_site_um(eid, ml_extent_um):
     return None
 
 
-def _skeleton_to_dataframe(skeleton, eid, ml_extent_um):
+def _skeleton_to_dataframe(
+    skeleton: Any,
+    eid: int,
+    ml_extent_um: float,
+) -> pd.DataFrame:
     """
-    Converts a cloudvolume Skeleton object to the pd.DataFrame format
-    expected by brainrender's Streamlines actor.
+    Convert a cloudvolume Skeleton object to a DataFrame for the Streamlines actor.
 
     Vertices are in nanometers in Allen CCF space. We:
     1. Convert nm -> um (divide by VOXEL_SIZE_NM)
@@ -126,10 +155,19 @@ def _skeleton_to_dataframe(skeleton, eid, ml_extent_um):
     X (AP) and Y (DV) are passed through as-is because brainrender's
     brain mesh uses the same orientation as the Allen CCF for those axes.
 
-    :param skeleton: cloudvolume Skeleton object
-    :param eid: int, experiment ID used to fetch real injection coordinates
-    :param ml_extent_um: float, full ML extent of the atlas in um for LR flip
-    :return: pd.DataFrame with 'lines' and 'injection_sites' columns
+    Parameters
+    ----------
+    skeleton
+        cloudvolume Skeleton object.
+    eid
+        Experiment ID, used to fetch the real injection site coordinates.
+    ml_extent_um
+        Full ML extent of the atlas in µm, used for the left-right flip.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with ``lines`` and ``injection_sites`` columns.
     """
     components = skeleton.components()
 
@@ -164,14 +202,25 @@ def _skeleton_to_dataframe(skeleton, eid, ml_extent_um):
     )
 
 
-def get_streamlines_data(eids, force_download=False):
+def get_streamlines_data(
+    eids: list[int],
+    force_download: bool = False,
+) -> list[pd.DataFrame]:
     """
-    Given a list of experiment IDs, downloads streamline data from the
+    Given a list of experiment IDs, download streamline data from the
     Allen mesoscale connectivity dataset hosted on Google Cloud Storage
-    via cloud-volume, and saves them as JSON files.
+    via cloud-volume, and save them as JSON files.
 
-    :param eids: list of integers with experiment IDs
-    :param force_download: bool, if True re-download even if cached
+    Parameters
+    ----------
+    eids
+        Experiment IDs to download.
+    force_download
+        If True, re-download even if a cached file exists. Default False.
+
+    Returns
+    -------
+    list of pd.DataFrame
     """
     if not cloudvolume_installed:
         print(
@@ -210,7 +259,10 @@ def get_streamlines_data(eids, force_download=False):
     return data
 
 
-def get_streamlines_for_region(region, force_download=False):
+def get_streamlines_for_region(
+    region: str,
+    force_download: bool = False,
+) -> list[pd.DataFrame] | None:
     """
     Using the Allen Mouse Connectivity data and corresponding API, this function finds experiments
     whose injections were targeted to the region of interest and downloads the corresponding
@@ -218,8 +270,17 @@ def get_streamlines_for_region(region, force_download=False):
     By default, experiments are selected for only WT mice and only when the region was
     the primary injection target.
 
-    :param region: str with region to use for search
-    :param force_download: bool, if True re-download even if cached
+    Parameters
+    ----------
+    region
+        Acronym of the brain region to search for.
+    force_download
+        If True, re-download even if cached. Default False.
+
+    Returns
+    -------
+    list of pd.DataFrame or None
+        Streamlines data, or None if no experiments are found.
     """
     logger.debug(f"Getting streamlines data for region: {region}")
     region_experiments = experiments_source_search(region)

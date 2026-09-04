@@ -1,9 +1,14 @@
+"""Utilities for caching and loading Allen Brain Atlas gene expression data."""
+
 import io
 import os
 import sys
 import zipfile
+from pathlib import Path
+from typing import Literal
 
 import numpy as np
+import numpy.typing as npt
 
 from brainrender._io import check_file_exists, request
 from brainrender._utils import get_subdirs, listdir
@@ -11,15 +16,35 @@ from brainrender._utils import get_subdirs, listdir
 # ----------------------------------- Cache ---------------------------------- #
 
 
-def check_gene_cached(cache_folder, gene_id, exp_id):
+def check_gene_cached(
+    cache_folder: str | Path,
+    gene_id: str,
+    exp_id: str | int,
+) -> str | Literal[False]:
     """
-    A gene is saved in a folder in cache_folder
-    with gene_id-exp_id as name. If the folder doesn't
-    exist the gene is not cached.
+    Check whether a gene experiment is already cached.
 
-    :param cache_folder: str, path to general cache folder for all data
-    :param gene_id: str name of gene
-    :param exp_id: id of experiment
+    A gene is cached in a subfolder of ``cache_folder`` named
+    ``{gene_id}-{exp_id}``.
+
+    Parameters
+    ----------
+    cache_folder
+        Path to the general cache folder.
+    gene_id
+        Gene name.
+    exp_id
+        Experiment ID.
+
+    Returns
+    -------
+    str or False
+        Path to the cached folder if found, False if not cached.
+
+    Raises
+    ------
+    ValueError
+        If more than one matching folder is found.
     """
     cache = [
         sub
@@ -34,13 +59,16 @@ def check_gene_cached(cache_folder, gene_id, exp_id):
         return cache[0]
 
 
-def download_and_cache(url, cachedir):
+def download_and_cache(url: str, cachedir: str | Path) -> None:
     """
-    Given a url to download a gene's ISH experiment data,
-    this function download and unzips the data
+    Download and unzip a gene's ISH experiment data to a cache directory.
 
-    :param url: str, utl to download data
-    :param cachedir: str, path to folder where data will be downloaded
+    Parameters
+    ----------
+    url
+        URL to download the data from.
+    cachedir
+        Path to the folder where data will be saved.
     """
     # Get data
     req = request(url)
@@ -54,9 +82,32 @@ def download_and_cache(url, cachedir):
     z.extractall(cachedir)
 
 
-def load_cached_gene(cache, metric, grid_size):
+def load_cached_gene(
+    cache: str | Path,
+    metric: str,
+    grid_size: tuple[int, int, int],
+) -> npt.NDArray | None:
     """
-    Loads a gene's data from cache
+    Load a gene's data from cache.
+
+    Parameters
+    ----------
+    cache
+        Path to the gene's cache folder.
+    metric
+        Metric name used to filter files (e.g. ``"energy"``).
+    grid_size
+        Shape to use when reshaping the raw data array.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        Array of gene expression values, or None if no file is found.
+
+    Raises
+    ------
+    NotImplementedError
+        If more than one matching file is found.
     """
     files = [
         f for f in listdir(cache) if metric in f and not f.endswith(".mhd")
@@ -71,15 +122,26 @@ def load_cached_gene(cache, metric, grid_size):
 
 # --------------------------------- Open .raw -------------------------------- #
 @check_file_exists
-def read_raw(filepath, grid_size):
+def read_raw(
+    filepath: str | Path,
+    grid_size: tuple[int, int, int],
+) -> npt.NDArray:
     """
-    reads a .raw file with gene expression data
-    downloaded from the Allen atlas and returns
-    a numpy array with the correct grid_size.
-    See as reference:
-        http://help.brain-map.org/display/mousebrain/API#API-Expression3DGridsz
+    Read a ``.raw`` gene expression file from the Allen Brain Atlas.
 
-    :param filepath: str or Path object
+    See http://help.brain-map.org/display/mousebrain/API#API-Expression3DGridsz
+    for the file format reference.
+
+    Parameters
+    ----------
+    filepath
+        Path to the ``.raw`` file.
+    grid_size
+        Shape to use when reshaping the data array.
+
+    Returns
+    -------
+    numpy.ndarray
     """
     filepath = str(filepath)
 

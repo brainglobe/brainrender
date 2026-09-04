@@ -1,7 +1,10 @@
+"""API client for downloading Allen Brain Atlas gene expression data."""
+
 import os
 import sys
 from time import sleep
 
+import numpy.typing as npt
 import pandas as pd
 import requests
 from loguru import logger
@@ -17,6 +20,8 @@ from brainrender.atlas_specific.allen_brain_atlas.gene_expression.ge_utils impor
 
 
 class GeneExpressionAPI:
+    """Client for querying and downloading Allen Brain Atlas gene expression data."""
+
     voxel_size = 200  # um
     grid_size = [58, 41, 67]  # number of voxels along each direction
 
@@ -38,22 +43,41 @@ class GeneExpressionAPI:
     download_url = "http://api.brain-map.org/grid_data/download/EXP_ID?include=energy,intensity,density"
 
     gene_expression_cache = base_dir / "GeneExpressionCache"
-    gene_name = None
+    gene_name: str | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Get metadata about all available genes
-        self.genes = None  # when necessary gene data can be downloaded with self.get_all_genes
+        self.genes: pd.DataFrame | None = (
+            None  # when necessary gene data can be downloaded with self.get_all_genes
+        )
         self.gene_expression_cache.mkdir(exist_ok=True)
 
     @fail_on_no_connection
-    def get_all_genes(self):
+    def get_all_genes(self) -> pd.DataFrame:
         """
-        Download metadata about all the genes available in the Allen gene expression dataset
+        Download metadata about all genes in the Allen gene expression dataset.
+
+        Returns
+        -------
+        pd.DataFrame
         """
         res = request(self.all_genes_url)
         return pd.DataFrame(res.json()["msg"])
 
-    def get_gene_id_by_name(self, gene_name):
+    def get_gene_id_by_name(self, gene_name: str) -> int | None:
+        """
+        Return the Allen gene ID for a given gene symbol.
+
+        Parameters
+        ----------
+        gene_name
+            Gene symbol.
+
+        Returns
+        -------
+        int or None
+            Gene ID, or None if the gene is not found.
+        """
         self.gene_name = self.gene_name or gene_name
         if self.genes is None:
             self.genes = self.get_all_genes()
@@ -71,7 +95,19 @@ class GeneExpressionAPI:
                 ]
             )
 
-    def get_gene_symbol_by_id(self, gene_id):
+    def get_gene_symbol_by_id(self, gene_id: int | str) -> str:
+        """
+        Return the gene symbol for a given Allen gene ID.
+
+        Parameters
+        ----------
+        gene_id
+            Allen gene ID.
+
+        Returns
+        -------
+        str
+        """
         if self.genes is None:
             self.genes = self.get_all_genes()
 
@@ -80,12 +116,19 @@ class GeneExpressionAPI:
         ].gene_symbol.values[0]
 
     @fail_on_no_connection
-    def get_gene_experiments(self, gene):
+    def get_gene_experiments(self, gene: str) -> list[int] | None:
         """
-        Given a gene_symbol it returns the list of ISH
-        experiments for this gene
+        Return ISH experiment IDs for a given gene symbol.
 
-        :param gene_symbol: str
+        Parameters
+        ----------
+        gene
+            Gene symbol.
+
+        Returns
+        -------
+        list of int or None
+            List of experiment IDs, or None if no experiments are found.
         """
         url = self.gene_experiments_url.replace("-GENE_SYMBOL-", gene)
         max_retries = 8
@@ -108,13 +151,15 @@ class GeneExpressionAPI:
             return [d["id"] for d in data]
 
     @fail_on_no_connection
-    def download_gene_data(self, gene):
+    def download_gene_data(self, gene: str) -> None:
         """
-        Downloads a gene's data from the Allen Institute
-        Gene Expression dataset and saves to cache.
-        See: http://help.brain-map.org/display/api/Downloading+3-D+Expression+Grid+Data
+        Download a gene's expression data from the Allen Institute and save to cache.
+        See http://help.brain-map.org/display/api/Downloading+3-D+Expression+Grid+Data.
 
-        :param gene: int, the gene_id for the gene being downloaded.
+        Parameters
+        ----------
+        gene
+            Gene symbol to download data for.
         """
         # Get the gene's experiment id
         exp_ids = self.get_gene_experiments(gene)
@@ -130,9 +175,37 @@ class GeneExpressionAPI:
                 url, os.path.join(self.gene_expression_cache, f"{gene}-{eid}")
             )
 
-    def get_gene_data(self, gene, exp_id, use_cache=True, metric="energy"):
+    def get_gene_data(
+        self,
+        gene: str,
+        exp_id: int,
+        use_cache: bool = True,
+        metric: str = "energy",
+    ) -> npt.NDArray | None:
         """
-        Given a list of gene ids
+        Load gene expression data for a given gene and experiment.
+
+        Parameters
+        ----------
+        gene
+            Gene symbol.
+        exp_id
+            Experiment ID.
+        use_cache
+            If True, load from cache if available. Default True.
+        metric
+            Expression metric to load. Default ``"energy"``.
+
+        Returns
+        -------
+        numpy.ndarray or None
+            Gene expression data, or None if no data is available for the
+            requested metric.
+
+        Raises
+        ------
+        ValueError
+            If data could not be cached after downloading.
         """
         logger.debug(f"Getting gene data for gene: {gene} experiment {exp_id}")
         self.gene_name = self.gene_name or gene
@@ -161,21 +234,31 @@ class GeneExpressionAPI:
 
     def griddata_to_volume(
         self,
-        griddata,
-        min_quantile=None,
-        min_value=None,
-        cmap="bwr",
-    ):
+        griddata: npt.NDArray,
+        min_quantile: float | None = None,
+        min_value: float | None = None,
+        cmap: str = "bwr",
+    ) -> Volume:
         """
-        Takes a 3d numpy array with volumetric gene expression
-        and returns a vedo.Volume.isosurface actor.
-        The isosurface needs a lower bound threshold, this can be
-        either a user defined hard value (min_value) or the value
-        corresponding to some percentile of the gene expression data.
+        Convert a 3D gene expression array to a Volume actor.
 
-        :param griddata: np.ndarray, 3d array with gene expression data
-        :param min_quantile: float, percentile for threshold
-        :param min_value: float, value for threshold
+        The isosurface threshold can be set as a hard value or as a
+        percentile of the expression data.
+
+        Parameters
+        ----------
+        griddata
+            3D array with gene expression data.
+        min_quantile
+            Percentile threshold for isosurface extraction.
+        min_value
+            Hard value threshold for isosurface extraction.
+        cmap
+            Colormap name. Default ``"bwr"``.
+
+        Returns
+        -------
+        Volume
         """
         return Volume(
             griddata,
