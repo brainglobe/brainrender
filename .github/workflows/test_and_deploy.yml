@@ -23,13 +23,12 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@v2
-
+      - uses: neuroinformatics-unit/actions/lint@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
   manifest:
     name: Check Manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/check_manifest@v2
+      - uses: neuroinformatics-unit/actions/check_manifest@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
 
   test:
     needs: [linting, manifest]
@@ -49,7 +48,7 @@ jobs:
 
     steps:
       - name: Cache brainglobe directory
-        uses: actions/cache@v3
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: | # ensure we don't cache any interrupted atlas download and extraction, if e.g. we cancel the workflow manually
             ~/.brainglobe
@@ -61,9 +60,6 @@ jobs:
         run: brew install hdf5
 
       # Helps set up VTK with a headless display
-      - uses: pyvista/setup-headless-display-action@v3
-
-      # Sets up ffmpeg to we can run video tests on CI
       - uses: FedericoCarboni/setup-ffmpeg@v2
         if: matrix.os != 'macos-latest'
         id: setup-ffmpeg
@@ -73,15 +69,17 @@ jobs:
         run: brew install ffmpeg
 
       # Run tests
-      - uses: neuroinformatics-unit/actions/test@v2
+      - name: Run tests
+        uses: neuroinformatics-unit/actions/test-uv@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 #v3.0.1
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python-version }}"
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
-
+          use-headless: 'true'
+          install-mesa3d-offscreen: ${{ matrix.os != 'windows-latest' }}
 
       - name: Notify slack on scheduled failure
         if: failure() && github.event_name == 'schedule'
-        uses: ravsamhq/notify-slack-action@v2
+        uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # v2.5.0
         with:
           status: ${{ job.status }} # required
           notify_when: 'failure'
@@ -95,7 +93,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
 
 
   upload_all:
