@@ -80,7 +80,7 @@ class Scene(JupyterMixIn, Render):
 
         # Get root mesh
         self.root = self.add_brain_region(
-            "root",
+            self.atlas.hierarchy.root,
             alpha=settings.ROOT_ALPHA,
             color=settings.ROOT_COLOR,
             silhouette=bool(root and settings.SHADER_STYLE == "cartoon"),
@@ -283,7 +283,7 @@ class Scene(JupyterMixIn, Render):
 
     def add_brain_region(
         self,
-        *regions: str,
+        *regions: str | int,
         alpha: float = 1,
         color: str | None = None,
         silhouette: bool | None = None,
@@ -296,7 +296,7 @@ class Scene(JupyterMixIn, Render):
         Parameters
         ----------
         *regions
-            Region names.
+            Region names or IDs.
         alpha
             How opaque the regions are rendered.
         color
