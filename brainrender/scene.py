@@ -78,9 +78,11 @@ class Scene(JupyterMixIn, Render):
         # Initialise render class
         Render.__init__(self, plotter)
 
+        root_name = self.atlas.structures[self.atlas.hierarchy.root]["acronym"]
+
         # Get root mesh
         self.root = self.add_brain_region(
-            self.atlas.hierarchy.root,
+            root_name,
             alpha=settings.ROOT_ALPHA,
             color=settings.ROOT_COLOR,
             silhouette=bool(root and settings.SHADER_STYLE == "cartoon"),
