@@ -5,7 +5,7 @@ authors = [
 ]
 description = "Visualisation and exploration of brain atlases and other anatomical data"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dynamic = ["version"]
 
 dependencies = [
@@ -36,9 +36,9 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: BSD License",
     "Intended Audience :: Developers",
@@ -84,7 +84,7 @@ markers = [
 ]
 
 [tool.black]
-target-version = ['py311','py312', 'py313']
+target-version = ['py312', 'py313', 'py314']
 skip-string-normalization = false
 line-length = 79
 
