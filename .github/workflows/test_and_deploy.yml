@@ -1,112 +1,60 @@
-name: tests
-
-on:
-  push:
-    branches:
-      - 'main'
-    tags:
-      - 'v**'
-  pull_request:
-  schedule:
-  # Runs at 6:10am UTC on Monday
-    - cron: '10 6 * * 1'
-  workflow_dispatch:
-
+name: Allen 3.1 clean atlas audit
 concurrency:
-  # Cancel this workflow if it is running,
-  # and then changes are applied on top of the HEAD of the branch,
-  # triggering another run of the workflow
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
+    - uses: neuroinformatics-unit/actions/lint@9b53ffe93baaafe5533e1f295a3c069bbc17ba36
   manifest:
     name: Check Manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/check_manifest@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
-
+    - uses: neuroinformatics-unit/actions/check_manifest@9b53ffe93baaafe5533e1f295a3c069bbc17ba36
   test:
-    needs: [linting, manifest]
+    needs:
+    - linting
+    - manifest
     name: ${{ matrix.os }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # Run all supported Python versions on linux
-        os: [ubuntu-latest]
-        python-version: ["3.12", "3.13", "3.14"]
+        os:
+        - ubuntu-latest
+        python-version:
+        - '3.12'
+        - '3.13'
+        - '3.14'
         include:
-          - os: macos-latest
-            python-version: "3.14"
-          - os: windows-latest
-            python-version: "3.14"
-
+        - os: macos-latest
+          python-version: '3.14'
+        - os: windows-latest
+          python-version: '3.14'
     steps:
-      - name: Cache brainglobe directory
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: | # ensure we don't cache any interrupted atlas download and extraction, if e.g. we cancel the workflow manually
-            ~/.brainglobe
-            !~/.brainglobe/atlas.tar.gz
-          key: brainglobe
-
-      - name: Install hdf5 libs for Mac
-        if: runner.os == 'macOS'
-        run: brew install hdf5
-
-      # Helps set up VTK with a headless display
-      - uses: FedericoCarboni/setup-ffmpeg@v2
-        if: matrix.os != 'macos-latest'
-        id: setup-ffmpeg
-
-      - name: setup ffmpeg on latest Mac with brew
-        if: matrix.os == 'macos-latest'
-        run: brew install ffmpeg
-
-      # Run tests
-      - name: Run tests
-        uses: neuroinformatics-unit/actions/test-uv@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 #v3.0.1
-        with:
-          python-version: "${{ matrix.python-version }}"
-          secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
-          use-headless: 'true'
-          install-mesa3d-offscreen: ${{ matrix.os != 'windows-latest' }}
-
-      - name: Notify slack on scheduled failure
-        if: failure() && github.event_name == 'schedule'
-        uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # v2.5.0
-        with:
-          status: ${{ job.status }} # required
-          notify_when: 'failure'
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFYBOT_WEBHOOK_URL }} # required
-
-
-  build_sdist_wheels:
-    name: Build source distribution
-    needs: [test]
-    if: github.event_name == 'push' && github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
-
-
-  upload_all:
-    name: Publish build distributions
-    needs: [build_sdist_wheels]
-    if: github.event_name == 'push' && github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/download-artifact@v4
+    - name: 'Audit: start with empty atlas storage'
+      shell: python {0}
+      run: "from pathlib import Path\nimport shutil\nfor name in (\".brainglobe\", \".brainglobe-tests\"):\n    root = Path.home() / name\n    if root.exists():\n        shutil.rmtree(root)\n    assert not root.exists(), root\n    print(f\"EMPTY_ATLAS_STORAGE {root}\", flush=True)\n"
+    - name: Install hdf5 libs for Mac
+      if: runner.os == 'macOS'
+      run: brew install hdf5
+    - uses: FedericoCarboni/setup-ffmpeg@v2
+      if: matrix.os != 'macos-latest'
+      id: setup-ffmpeg
+    - name: setup ffmpeg on latest Mac with brew
+      if: matrix.os == 'macos-latest'
+      run: brew install ffmpeg
+    - name: Run tests
+      uses: neuroinformatics-unit/actions/test-uv@9b53ffe93baaafe5533e1f295a3c069bbc17ba36
       with:
-        name: artifact
-        path: dist
-    - uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.TWINE_API_KEY }}
+        python-version: ${{ matrix.python-version }}
+        secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
+        use-headless: 'true'
+        install-mesa3d-offscreen: ${{ matrix.os != 'windows-latest' }}
+    - name: 'Audit: verify downloaded Allen atlas is 3.1'
+      if: always()
+      shell: python {0}
+      run: "from pathlib import Path\nimport json\nimport re\nfound = []\nfor name in (\".brainglobe\", \".brainglobe-tests\"):\n    for manifest in (Path.home() / name).rglob(\"manifest.json\"):\n        atlas_name = manifest.parent.parent.name\n        if re.fullmatch(r\"allen_mouse_\\d+um\", atlas_name):\n            record = {\"atlas\": atlas_name, \"version\": manifest.parent.name.replace(\"_\", \".\"), \"manifest\": str(manifest)}\n            print(\"ALLEN_ATLAS_AUDIT \" + json.dumps(record), flush=True)\n            found.append(record)\nassert all(item[\"version\"] == \"3.1\" for item in found), found\nif not found:\n    print(\"ALLEN_ATLAS_AUDIT no Allen manifest found; this job does not establish Allen coverage\", flush=True)\n"
+'on':
+  workflow_dispatch: null
