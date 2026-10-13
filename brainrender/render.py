@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import weakref
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -52,7 +53,8 @@ class Render:
             self._get_plotter()
         else:
             self.plotter = plotter
-            self.plotter.keyPressFunction = self.keypress
+
+        self._bind_screenshot_key()
 
     def _get_plotter(self) -> None:
         """
@@ -67,7 +69,21 @@ class Render:
             size="full" if settings.WHOLE_SCREEN else (1600, 1200),
         )
 
-        self.plotter.keyPressFunction = self.keypress
+    def _bind_screenshot_key(self) -> None:
+        """
+        Save a screenshot when ``s`` is pressed in the render window.
+        """
+        # Weak reference: holding self here makes Scene <-> plotter a
+        # reference cycle, so a dropped Scene is only closed by the cyclic
+        # garbage collector, on whichever thread happens to run it.
+        scene_ref = weakref.ref(self)
+
+        def on_keypress(event) -> None:
+            scene = scene_ref()
+            if scene is not None and event.keypress == "s":
+                scene.screenshot()
+
+        self.plotter.add_callback("KeyPress", on_keypress)
 
     def _make_axes(self) -> dict:
         """
@@ -419,22 +435,3 @@ class Render:
         logger.debug(f"Saving scene at {savepath}")
         self.plotter.screenshot(filename=savepath, scale=scale)
         return savepath
-
-    def keypress(self, key: str) -> None:  # pragma: no cover
-        """
-        Handle key presses during interactive rendering.
-
-        - ``s``: take a screenshot
-        - ``q`` / ``Esc``: close the window
-        - ``c``: print current camera parameters
-
-        Parameters
-        ----------
-        key
-            Key identifier string from vedo.
-        """
-        if key == "s":
-            self.screenshot()
-
-        elif key in ("q", "Esc"):
-            self.close()
