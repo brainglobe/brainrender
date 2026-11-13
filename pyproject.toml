@@ -107,3 +107,5 @@ select = ["I", "E", "F"]
 [tool.codespell]
 skip = '.git'
 check-hidden = true
+# author name
+ignore-words-list = "portugues"

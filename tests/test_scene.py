@@ -33,8 +33,8 @@ def test_brain_regions():
 
     nan = scene.add_brain_region("MOs", "CA1")
     assert nan is None
-    noone = scene.add_brain_region("what is this")
-    assert noone is None
+    no_region = scene.add_brain_region("what is this")
+    assert no_region is None
 
     scene.add_brain_region("TH", hemisphere="left")
     scene.add_brain_region("CA1", hemisphere="right")
