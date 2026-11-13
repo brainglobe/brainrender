@@ -56,7 +56,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "coverage",
-    "black",
     "mypy",
     "pre-commit",
     "ruff",
@@ -82,11 +81,6 @@ markers = [
     "local: marks test as local (not for CI)",
 ]
 
-[tool.black]
-target-version = ['py312', 'py313', 'py314']
-skip-string-normalization = false
-line-length = 79
-
 [tool.setuptools_scm]
 
 [tool.check-manifest]
@@ -109,3 +103,9 @@ ignore = ["E501", "E402"]
 
 [tool.ruff.lint]
 select = ["I", "E", "F"]
+
+[tool.codespell]
+skip = '.git'
+check-hidden = true
+# author name
+ignore-words-list = "portugues"

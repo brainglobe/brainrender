@@ -48,6 +48,7 @@ import numpy as np
 from brainrender import Scene
 from brainrender.actors import Points
 
+
 def get_n_random_points_in_region(region, N):
     """
     Gets N random points inside (or on the surface) of a mesh
@@ -64,7 +65,9 @@ def get_n_random_points_in_region(region, N):
 
 
 # Display the Allen Brain mouse atlas.
-scene = Scene(atlas_name="allen_mouse_25um", title="Cells in primary visual cortex")
+scene = Scene(
+    atlas_name="allen_mouse_25um", title="Cells in primary visual cortex"
+)
 
 # Display a brain region
 primary_visual = scene.add_brain_region("VISp", alpha=0.2)
@@ -83,7 +86,6 @@ scene.add_label(primary_visual, "Primary visual cortex")
 
 # Display the figure.
 scene.render()
-
 ```
 
 ## Seeking help or contributing
