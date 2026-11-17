@@ -433,5 +433,14 @@ class Render:
 
         savepath = str(self.screenshots_folder / name)
         logger.debug(f"Saving scene at {savepath}")
-        self.plotter.screenshot(filename=savepath, scale=scale)
+        # Respect both brainrender's setting and vedo's own (for users who
+        # set vedo directly), then restore vedo's value afterwards.
+        previous = vsettings.screenshot_transparent_background
+        vsettings.screenshot_transparent_background = (
+            settings.SCREENSHOT_TRANSPARENT_BACKGROUND or previous
+        )
+        try:
+            self.plotter.screenshot(filename=savepath, scale=scale)
+        finally:
+            vsettings.screenshot_transparent_background = previous
         return savepath
