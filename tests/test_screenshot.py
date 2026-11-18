@@ -5,8 +5,9 @@ import pytest
 from skimage.color import rgb2gray
 from skimage.io import imread
 from skimage.metrics import structural_similarity as ssim
+from vedo import settings as vsettings
 
-from brainrender import Scene
+from brainrender import Scene, settings
 
 validate_directory = Path(__file__).parent / "data"
 
@@ -46,3 +47,34 @@ def test_screenshot(tmp_path, extension, similarity_threshold=0.75):
             )
 
             assert similarity_index > similarity_threshold
+
+
+@pytest.mark.parametrize(
+    "brainrender_setting, vedo_setting",
+    [(False, False), (True, False), (False, True), (True, True)],
+)
+def test_screenshot_transparent_background(
+    tmp_path, monkeypatch, brainrender_setting, vedo_setting
+):
+    """Transparent if either brainrender's or vedo's setting is True."""
+    monkeypatch.setattr(
+        settings, "SCREENSHOT_TRANSPARENT_BACKGROUND", brainrender_setting
+    )
+    monkeypatch.setattr(
+        vsettings, "screenshot_transparent_background", vedo_setting
+    )
+    scene = Scene(screenshots_folder=tmp_path)
+    scene.add_brain_region("TH")
+    scene.render(interactive=False, zoom=2)
+    savepath = scene.screenshot(name="screenshot.png")
+    scene.close()
+
+    # vedo's own setting is left untouched
+    assert vsettings.screenshot_transparent_background is vedo_setting
+
+    image = imread(savepath)
+    if brainrender_setting or vedo_setting:
+        assert image.shape[-1] == 4
+        assert (image[..., 3] == 0).any()
+    else:
+        assert image.shape[-1] == 3 or (image[..., 3] == 255).all()
