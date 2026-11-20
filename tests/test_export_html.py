@@ -26,6 +26,6 @@ def test_export_for_web(scene):
 
 
 def test_export_for_web_raises(scene):
-    """Check that exporting with invalid file extention raises ValueError"""
+    """Check that exporting with invalid file extension raises ValueError"""
     with pytest.raises(ValueError):
         scene.export("test.py")

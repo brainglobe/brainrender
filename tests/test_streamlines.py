@@ -280,5 +280,5 @@ def test_streamlines_hemisphere_orientation():
     right_side = [z for z in all_z if z < midline]
     assert len(right_side) / len(all_z) > 0.95, (
         f"Expected >95% of streamline points in right hemisphere (Z < {midline}), "
-        f"got {len(right_side)}/{len(all_z)} ({100*len(right_side)/len(all_z):.1f}%)"
+        f"got {len(right_side)}/{len(all_z)} ({100 * len(right_side) / len(all_z):.1f}%)"
     )

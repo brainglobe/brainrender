@@ -3,23 +3,47 @@ ci:
     autoupdate_schedule: monthly
 
 repos:
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v6.0.0
-      hooks:
-          - id: check-docstring-first
-          - id: check-executables-have-shebangs
-          - id: check-merge-conflict
-          - id: check-toml
-          - id: end-of-file-fixer
-          - id: mixed-line-ending
-            args: [--fix=lf]
-          - id: requirements-txt-fixer
-          - id: trailing-whitespace
-    - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.17.3
-      hooks:
-        - id: ruff
-    - repo: https://github.com/psf/black-pre-commit-mirror
-      rev: 26.10.1
-      hooks:
-          - id: black
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.3
+    hooks:
+      - id: ruff
+        args:
+          - --config=pyproject.toml
+      - id: ruff-format
+        args:
+          - --config=pyproject.toml
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-setuptools
+          - types-requests
+  - repo: https://github.com/mgedmin/check-manifest
+    rev: '0.50'
+    hooks:
+      - id: check-manifest
+        args:
+          - --no-build-isolation
+        additional_dependencies:
+          - setuptools>=77
+          - wheel
+          - setuptools-scm[toml]>=8
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.3
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli

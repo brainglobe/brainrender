@@ -36,7 +36,7 @@ brexport.html
 screenshots/*
 atlas_images/*
 
-# Output folder where screnshots etx. are saved
+# Output folder where screenshots etc. are saved
 Output/Data/*
 Output/Scenes/*
 Output/Screenshots/*

@@ -80,8 +80,8 @@ def test_compress(tmp_path):
     expected_output = str((tmp_path / "myvideo.mp4").resolve())
 
     assert expected_input in cmd, f"Input path missing from ffmpeg cmd: {cmd}"
-    assert (
-        expected_output in cmd
-    ), f"Output path missing from ffmpeg cmd: {cmd}"
+    assert expected_output in cmd, (
+        f"Output path missing from ffmpeg cmd: {cmd}"
+    )
     # No bare filenames — must be absolute paths
     assert "myvideo.mp4" not in cmd.replace(expected_output, "")
